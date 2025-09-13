@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "listingId": "1",
+    "from": "Acme Ventures",
+    "body": "Hi, we're interested in learning more about your SaaS platform. Could you share some additional metrics?",
+    "timestamp": "2024-01-15T10:30:00Z"
+  },
+  {
+    "id": "2",
+    "listingId": "1",
+    "from": "TechCorp Inc.",
+    "body": "Absolutely! We have 500+ active customers with a 95% retention rate. Our monthly recurring revenue is growing 15% month-over-month.",
+    "timestamp": "2024-01-15T11:00:00Z"
+  },
+  {
+    "id": "3",
+    "listingId": "2",
+    "from": "Private Equity Group",
+    "body": "We'd like to discuss the HVAC business opportunity. What's the current employee structure?",
+    "timestamp": "2024-01-14T14:20:00Z"
+  }
+]

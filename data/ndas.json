@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "listingId": "1",
+    "buyerName": "Acme Ventures",
+    "status": "APPROVED"
+  },
+  {
+    "id": "2",
+    "listingId": "2",
+    "buyerName": "Private Equity Group",
+    "status": "REQUESTED"
+  }
+]

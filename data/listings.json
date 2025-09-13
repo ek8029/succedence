@@ -1,0 +1,167 @@
+[
+  {
+    "id": "1",
+    "title": "SaaS Analytics Platform",
+    "description": "B2B SaaS platform providing advanced analytics and reporting for e-commerce businesses. 500+ active customers, 95% retention rate.",
+    "owner": "TechCorp Inc.",
+    "industry": "SaaS",
+    "lane": "MAIN",
+    "valuationLow": 2400000,
+    "valuationHigh": 3600000,
+    "revenue": 1200000
+  },
+  {
+    "id": "2",
+    "title": "Local HVAC Service Business",
+    "description": "Established HVAC installation and maintenance service in the greater metro area. 15 employees, 20+ years in business.",
+    "owner": "Climate Control Solutions",
+    "industry": "HVAC",
+    "lane": "MAIN",
+    "valuationLow": 800000,
+    "valuationHigh": 1200000,
+    "revenue": 400000
+  },
+  {
+    "id": "3",
+    "title": "E-commerce Dropshipping Store",
+    "description": "Profitable dropshipping store specializing in home and garden products. Automated operations, strong social media presence.",
+    "owner": "Green Thumb Ventures",
+    "industry": "E-commerce",
+    "lane": "STARTER",
+    "valuationLow": 60000,
+    "valuationHigh": 90000,
+    "revenue": 75000
+  },
+  {
+    "id": "4",
+    "title": "Digital Marketing Agency",
+    "description": "Full-service digital marketing agency serving local businesses. Specializes in SEO, PPC, and social media management.",
+    "owner": "Digital Growth Partners",
+    "industry": "Marketing",
+    "lane": "MAIN",
+    "valuationLow": 500000,
+    "valuationHigh": 750000,
+    "revenue": 250000
+  },
+  {
+    "id": "5",
+    "title": "Mobile App Development Studio",
+    "description": "Boutique mobile app development studio with 10+ successful apps in the App Store. Strong client relationships.",
+    "owner": "AppCraft Studios",
+    "industry": "Technology",
+    "lane": "STARTER",
+    "valuationLow": 80000,
+    "valuationHigh": 120000,
+    "revenue": 95000
+  },
+  {
+    "id": "6",
+    "title": "Restaurant Chain",
+    "description": "Popular casual dining restaurant chain with 5 locations. Strong brand recognition and loyal customer base.",
+    "owner": "Taste of Home Restaurants",
+    "industry": "Food & Beverage",
+    "lane": "MAIN",
+    "valuationLow": 1500000,
+    "valuationHigh": 2200000,
+    "revenue": 750000
+  },
+  {
+    "id": "7",
+    "title": "Online Fitness Coaching",
+    "description": "Personalized online fitness coaching platform with 200+ active clients. High-touch service with excellent results.",
+    "owner": "FitLife Coaching",
+    "industry": "Health & Fitness",
+    "lane": "STARTER",
+    "valuationLow": 40000,
+    "valuationHigh": 60000,
+    "revenue": 50000
+  },
+  {
+    "id": "8",
+    "title": "FinTech Payment Processing",
+    "description": "B2B payment processing platform for small businesses. Processing $50M+ annually with robust API integration.",
+    "owner": "PayFlow Solutions",
+    "industry": "FinTech",
+    "lane": "MAIN",
+    "valuationLow": 4200000,
+    "valuationHigh": 6000000,
+    "revenue": 2100000
+  },
+  {
+    "id": "9",
+    "title": "Subscription Box Service",
+    "description": "Premium coffee subscription service with 3,000+ monthly subscribers. Direct relationships with specialty roasters.",
+    "owner": "Roast & Toast Co.",
+    "industry": "E-commerce",
+    "lane": "MAIN",
+    "valuationLow": 900000,
+    "valuationHigh": 1350000,
+    "revenue": 450000
+  },
+  {
+    "id": "10",
+    "title": "Industrial Equipment Rental",
+    "description": "Construction equipment rental business serving contractors in 3-state region. Fleet of 150+ machines.",
+    "owner": "BuildRight Rentals",
+    "industry": "Industrial",
+    "lane": "MAIN",
+    "valuationLow": 3200000,
+    "valuationHigh": 4800000,
+    "revenue": 1600000
+  },
+  {
+    "id": "11",
+    "title": "Online Education Platform",
+    "description": "Coding bootcamp and tech education platform. 1,200+ graduates with 85% job placement rate.",
+    "owner": "CodeAcademy Pro",
+    "industry": "Education",
+    "lane": "MAIN",
+    "valuationLow": 1800000,
+    "valuationHigh": 2700000,
+    "revenue": 900000
+  },
+  {
+    "id": "12",
+    "title": "Boutique Consulting Firm",
+    "description": "Management consulting focused on digital transformation for mid-market companies. 12 senior consultants.",
+    "owner": "Strategic Insights LLC",
+    "industry": "Consulting",
+    "lane": "MAIN",
+    "valuationLow": 1100000,
+    "valuationHigh": 1650000,
+    "revenue": 550000
+  },
+  {
+    "id": "13",
+    "title": "Print-on-Demand Business",
+    "description": "Custom apparel and merchandise print-on-demand business. Strong social media following and brand partnerships.",
+    "owner": "CustomCraft Designs",
+    "industry": "E-commerce",
+    "lane": "STARTER",
+    "valuationLow": 65000,
+    "valuationHigh": 95000,
+    "revenue": 80000
+  },
+  {
+    "id": "14",
+    "title": "Medical Device Manufacturing",
+    "description": "Specialized medical device manufacturer for orthopedic applications. FDA approved products, established supply chain.",
+    "owner": "MedTech Innovations",
+    "industry": "Healthcare",
+    "lane": "MAIN",
+    "valuationLow": 5500000,
+    "valuationHigh": 8200000,
+    "revenue": 2750000
+  },
+  {
+    "id": "15",
+    "title": "Digital Content Agency",
+    "description": "Video production and content creation agency serving Fortune 500 clients. Award-winning creative team.",
+    "owner": "Pixel Perfect Media",
+    "industry": "Media",
+    "lane": "STARTER",
+    "valuationLow": 85000,
+    "valuationHigh": 125000,
+    "revenue": 105000
+  }
+]
