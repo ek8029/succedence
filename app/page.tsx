@@ -94,7 +94,7 @@ export default function Home() {
               </div>
             </ScrollAnimation>
 
-            <ScrollAnimation direction="up" delay={600} className="metric-card p-20 hover-lift text-center marble-texture tier-premium">
+            <ScrollAnimation direction="up" delay={600} className="metric-card p-20 hover-lift text-center marble-texture">
               <h3 className="text-subheading text-white mb-12">Professional Network</h3>
               <p className="text-body mb-12">
                 Connect with verified investors and industry professionals.

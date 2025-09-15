@@ -44,7 +44,7 @@ export default function Navbar() {
           </span>
         </Link>
         
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center space-x-6">
           <div
             className={`transition-all duration-500 ease-in-out overflow-hidden ${
               showBrowseLink
@@ -52,32 +52,32 @@ export default function Navbar() {
                 : 'max-w-0 opacity-0 -translate-x-4'
             }`}
           >
-            <div className="flex items-center space-x-1">
-              <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2 whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+            <div className="flex items-center space-x-6">
+              <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 Browse Opportunities
               </Link>
-              <Link href="/success" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium px-4 py-2 whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              <Link href="/success" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 Success Stories
               </Link>
             </div>
           </div>
           
           {user && (
-            <>
-              <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+            <div className="flex items-center space-x-6">
+              <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 List Business
               </Link>
 
-              <Link href="/preferences" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium px-4 py-2" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              <Link href="/preferences" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 My Preferences
               </Link>
 
               {user.role === 'ADMIN' && (
-                <Link href="/admin" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                <Link href="/admin" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   Admin Dashboard
                 </Link>
               )}
-            </>
+            </div>
           )}
           
           <div className="flex items-center space-x-6">

@@ -586,11 +586,7 @@ h6, .text-micro {
 
 /* Premium Hero Section */
 .hero-container {
-  background: linear-gradient(135deg,
-    rgba(10,10,10,0.98) 0%,
-    rgba(28,35,64,0.85) 30%,
-    rgba(44,44,44,0.90) 70%,
-    rgba(10,10,10,0.98) 100%);
+  background: var(--obsidian);
   position: relative;
   overflow: hidden;
   min-height: 100vh;
