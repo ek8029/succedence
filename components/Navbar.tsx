@@ -48,13 +48,18 @@ export default function Navbar() {
           <div
             className={`transition-all duration-500 ease-in-out overflow-hidden ${
               showBrowseLink
-                ? 'max-w-xs opacity-100 translate-x-0'
+                ? 'max-w-2xl opacity-100 translate-x-0'
                 : 'max-w-0 opacity-0 -translate-x-4'
             }`}
           >
-            <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2 whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-              Browse Opportunities
-            </Link>
+            <div className="flex items-center space-x-1">
+              <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2 whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Browse Opportunities
+              </Link>
+              <Link href="/success" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium px-4 py-2 whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Success Stories
+              </Link>
+            </div>
           </div>
           
           {user && (
@@ -62,7 +67,11 @@ export default function Navbar() {
               <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 List Business
               </Link>
-              
+
+              <Link href="/preferences" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium px-4 py-2" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                My Preferences
+              </Link>
+
               {user.role === 'ADMIN' && (
                 <Link href="/admin" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   Admin Dashboard

@@ -17,6 +17,15 @@ export default function ListingDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [showDealCompleteModal, setShowDealCompleteModal] = useState(false);
+  const [dealCompleteData, setDealCompleteData] = useState({
+    buyerName: '',
+    finalPrice: '',
+    completionDate: '',
+    testimonial: '',
+    allowPublicSharing: false
+  });
+  const [completingDeal, setCompletingDeal] = useState(false);
 
   const listingId = params.id as string;
 
@@ -167,6 +176,36 @@ export default function ListingDetailPage() {
       alert('Failed to send message');
     } finally {
       setSendingMessage(false);
+    }
+  };
+
+  const handleDealComplete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dealCompleteData.buyerName.trim() || !dealCompleteData.finalPrice.trim()) return;
+
+    setCompletingDeal(true);
+    try {
+      // Simulate API call to mark deal as completed
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Show success message and offer to share story
+      alert('Deal marked as completed successfully!');
+
+      if (dealCompleteData.allowPublicSharing && dealCompleteData.testimonial.trim()) {
+        // Prompt to share success story
+        const shareStory = confirm('Would you like to share your success story publicly to inspire other users?');
+        if (shareStory) {
+          // Navigate to success story sharing
+          alert('Thank you! Your success story will be reviewed and added to our Success Stories page.');
+        }
+      }
+
+      setShowDealCompleteModal(false);
+      // Optionally refresh the listing data or update the UI
+    } catch (error) {
+      alert('Failed to mark deal as completed. Please try again.');
+    } finally {
+      setCompletingDeal(false);
     }
   };
 
@@ -348,6 +387,121 @@ export default function ListingDetailPage() {
                   ))}
                 </div>
               )}
+
+              {/* Deal Completion Section for Owner */}
+              {isOwner && (
+                <div className="mt-12 p-8 border-t border-gold/30">
+                  <div className="text-center">
+                    <h3 className="text-xl text-white font-medium mb-4">Deal Management</h3>
+                    <p className="text-neutral-400 mb-6">Have you completed a transaction for this listing?</p>
+                    <button
+                      onClick={() => setShowDealCompleteModal(true)}
+                      className="btn-success px-8 py-3 font-medium hover-lift"
+                    >
+                      Mark Deal as Completed
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Deal Complete Modal */}
+          {showDealCompleteModal && (
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+              <div className="glass p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto tier-premium">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl text-white font-medium mb-4">Congratulations on Your Deal!</h2>
+                  <p className="text-neutral-400 text-lg">Please provide details about your completed transaction.</p>
+                </div>
+
+                <form onSubmit={handleDealComplete} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="form-label">Buyer Name/Company</label>
+                      <input
+                        type="text"
+                        value={dealCompleteData.buyerName}
+                        onChange={(e) => setDealCompleteData(prev => ({...prev, buyerName: e.target.value}))}
+                        className="form-control w-full"
+                        placeholder="Enter buyer's name or company"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label">Final Sale Price</label>
+                      <input
+                        type="text"
+                        value={dealCompleteData.finalPrice}
+                        onChange={(e) => setDealCompleteData(prev => ({...prev, finalPrice: e.target.value}))}
+                        className="form-control w-full"
+                        placeholder="e.g., $1,250,000"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="form-label">Completion Date</label>
+                    <input
+                      type="date"
+                      value={dealCompleteData.completionDate}
+                      onChange={(e) => setDealCompleteData(prev => ({...prev, completionDate: e.target.value}))}
+                      className="form-control w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Share Your Experience (Optional)</label>
+                    <textarea
+                      value={dealCompleteData.testimonial}
+                      onChange={(e) => setDealCompleteData(prev => ({...prev, testimonial: e.target.value}))}
+                      rows={4}
+                      className="form-control w-full"
+                      placeholder="How was your experience using DealSense? This could be featured in our Success Stories..."
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="allowSharing"
+                      checked={dealCompleteData.allowPublicSharing}
+                      onChange={(e) => setDealCompleteData(prev => ({...prev, allowPublicSharing: e.target.checked}))}
+                      className="w-5 h-5"
+                    />
+                    <label htmlFor="allowSharing" className="text-neutral-300 font-medium">
+                      Allow DealSense to feature this success story publicly (with your permission for final review)
+                    </label>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-6">
+                    <button
+                      type="button"
+                      onClick={() => setShowDealCompleteModal(false)}
+                      className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={completingDeal}
+                      className="btn-primary px-12 py-3 font-medium hover-lift disabled:opacity-50"
+                    >
+                      {completingDeal ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          <span>Completing...</span>
+                        </div>
+                      ) : (
+                        'Complete Deal'
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           )}
 

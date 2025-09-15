@@ -28,6 +28,17 @@
   --success: #525252;
   --warning: #404040;
   --info: #404040;
+
+  /* Premium Color Palette */
+  --gold: #D4AF37;
+  --gold-light: #E8C547;
+  --gold-dark: #B8941F;
+  --platinum: #E5E4E2;
+  --warm-white: #FFF8F0;
+  --luxury-gradient: linear-gradient(135deg, #D4AF37 0%, #E8C547 50%, #FFF8F0 100%);
+  --premium-gradient: linear-gradient(145deg, #D4AF37 0%, #ffffff 100%);
+  --subtle-glow: 0 0 20px rgba(212, 175, 55, 0.15);
+  --premium-shadow: 0 8px 32px rgba(212, 175, 55, 0.1);
 }
 
 * {
@@ -65,16 +76,16 @@ body {
   background: #1a1a1a;
 }
 
-/* Classic geometric button styling */
+/* Premium button styling with gold accents */
 .btn-primary {
   background: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
+  border: 2px solid var(--gold);
+  color: var(--gold);
   font-family: 'Source Serif Pro', Georgia, serif;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
   padding: 0.875rem 1.75rem;
@@ -84,6 +95,7 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
+  box-shadow: var(--subtle-glow);
 }
 
 .btn-primary::before {
@@ -93,8 +105,8 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: #ffffff;
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--luxury-gradient);
+  transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: -1;
 }
 
@@ -104,18 +116,20 @@ body {
 
 .btn-primary:hover {
   color: #000000;
-  border-color: #ffffff;
+  border-color: var(--gold-light);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: var(--premium-shadow);
 }
 
 .btn-success {
   background: transparent;
-  border: 2px solid var(--accent);
-  color: var(--accent);
+  border: 2px solid var(--platinum);
+  color: var(--platinum);
   font-family: 'Source Serif Pro', Georgia, serif;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
   padding: 0.875rem 1.75rem;
@@ -125,6 +139,7 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
+  box-shadow: 0 0 20px rgba(229, 228, 226, 0.1);
 }
 
 .btn-success::before {
@@ -134,8 +149,8 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: var(--accent);
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--premium-gradient);
+  transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: -1;
 }
 
@@ -145,7 +160,9 @@ body {
 
 .btn-success:hover {
   color: #000000;
-  border-color: var(--accent);
+  border-color: var(--gold);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: var(--premium-shadow);
 }
 
 /* Minimal navigation */
@@ -154,7 +171,7 @@ body {
   border-bottom: 1px solid #262626;
 }
 
-/* Modern geometric status badges */
+/* Premium geometric status badges */
 .status-badge {
   font-size: 0.75rem;
   font-weight: 500;
@@ -165,18 +182,33 @@ body {
   font-family: 'JetBrains Mono', monospace;
   border: 1px solid;
   display: inline-block;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .status-main {
   background: transparent;
-  border-color: #ffffff;
-  color: #ffffff;
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: var(--subtle-glow);
+  animation: subtle-pulse 3s ease-in-out infinite;
 }
 
 .status-starter {
   background: transparent;
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--platinum);
+  color: var(--platinum);
+  box-shadow: 0 0 15px rgba(229, 228, 226, 0.1);
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { box-shadow: var(--subtle-glow); }
+  50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.25); }
 }
 
 .status-pending {
@@ -236,34 +268,52 @@ body {
   display: block;
 }
 
-/* Sophisticated loading states */
+/* Premium loading states with gold shimmer */
 .loading-skeleton {
-  background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  background: linear-gradient(90deg,
+    #1f2937 25%,
+    rgba(212, 175, 55, 0.1) 50%,
+    #1f2937 75%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  animation: premium-loading 2s infinite ease-in-out;
+  border: 1px solid rgba(212, 175, 55, 0.1);
 }
 
-@keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+@keyframes premium-loading {
+  0% {
+    background-position: 200% 0;
+    box-shadow: none;
+  }
+  50% {
+    background-position: 0% 0;
+    box-shadow: var(--subtle-glow);
+  }
+  100% {
+    background-position: -200% 0;
+    box-shadow: none;
+  }
 }
 
-/* Professional scrollbar */
+/* Luxury scrollbar with gold accents */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
   background: #1f2937;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-  border-radius: 4px;
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%);
+  border-radius: 5px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: var(--subtle-glow);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--warm-white) 100%);
+  box-shadow: var(--premium-shadow);
 }
 
 /* Sophisticated animations */
@@ -290,16 +340,18 @@ h1, .text-display, .text-hero {
   font-size: 3.5rem;
   font-weight: 300;
   line-height: 1.1;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
   font-family: 'Crimson Text', Georgia, serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 h2, .text-heading {
   font-size: 2.25rem;
   font-weight: 400;
   line-height: 1.2;
-  letter-spacing: -0.005em;
+  letter-spacing: 0.015em;
   font-family: 'Source Serif Pro', Georgia, serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 h3, .text-subheading {
@@ -360,11 +412,60 @@ h6 {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-/* Elegant dividers */
+/* Sophisticated geometric dividers */
 .divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.3) 25%,
+    rgba(212, 175, 55, 0.6) 50%,
+    rgba(212, 175, 55, 0.3) 75%,
+    transparent 100%);
   margin: 2rem 0;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  rotate: 45deg;
+  border: 1px solid var(--background);
+  box-shadow: var(--subtle-glow);
+}
+
+/* Premium geometric patterns */
+.geometric-pattern {
+  position: relative;
+  overflow: hidden;
+}
+
+.geometric-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(45deg, rgba(212, 175, 55, 0.03) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(212, 175, 55, 0.03) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(212, 175, 55, 0.03) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(212, 175, 55, 0.03) 75%);
+  background-size: 40px 40px;
+  background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.geometric-pattern:hover::before {
+  opacity: 1;
 }
 
 /* Professional focus states */
@@ -388,45 +489,107 @@ h6 {
   font-size: 5rem;
   font-weight: 300;
   line-height: 0.9;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
   font-family: 'Crimson Text', Georgia, serif;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* Minimal metric cards */
+/* Luxury Drop Cap */
+.drop-cap::first-letter {
+  font-size: 4.5em;
+  line-height: 0.8;
+  float: left;
+  margin: 0.1em 0.1em 0 0;
+  font-family: 'Crimson Text', Georgia, serif;
+  font-weight: 400;
+  color: var(--gold);
+  text-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+}
+
+/* Premium metric cards with luxury styling */
 .metric-card {
-  background: #111111;
-  border: 1px solid #262626;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(145deg, #111111 0%, #1a1a1a 100%);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(212, 175, 55, 0.1);
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(212, 175, 55, 0.05) 0%,
+    transparent 50%,
+    rgba(212, 175, 55, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.metric-card:hover::before {
+  opacity: 1;
+}
+
+.metric-card:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    var(--subtle-glow),
+    inset 0 1px 0 rgba(212, 175, 55, 0.2);
 }
 
 /* Remove duplicate glass definition - using enhanced version above */
 
-/* Professional data tables */
+/* Luxury data tables with gold accents */
 .data-table {
   background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: var(--subtle-glow);
 }
 
 .data-table th {
   background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.3);
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 1rem 1.5rem;
+  color: var(--gold);
+  position: relative;
+}
+
+.data-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--gold) 50%,
+    transparent 100%);
 }
 
 .data-table td {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .data-table tr:hover td {
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.1);
 }
 
 /* Minimal color scheme */
@@ -492,12 +655,46 @@ textarea.form-control {
   padding: 0 2rem;
 }
 
-/* Enhanced glass effect for desktop */
+/* Premium glass morphism with gold accents */
 .glass {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(212, 175, 55, 0.1);
+  backdrop-filter: blur(8px);
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.3) 25%,
+    rgba(212, 175, 55, 0.6) 50%,
+    rgba(212, 175, 55, 0.3) 75%,
+    transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glass:hover::before {
+  opacity: 1;
+}
+
+.glass:hover {
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    var(--subtle-glow),
+    inset 0 1px 0 rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
 }
 
 /* Minimal header styling */
@@ -553,11 +750,142 @@ textarea.form-control {
   }
 }
 
-/* Professional notifications */
+/* Luxury notification system */
 .notification {
   background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 8px;
   padding: 1rem 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    var(--subtle-glow);
+  position: relative;
+  animation: notification-enter 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
+.notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--luxury-gradient);
+  border-radius: 8px 0 0 8px;
+}
+
+@keyframes notification-enter {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Executive watch accent - sophisticated corner elements */
+.watch-accent {
+  position: relative;
+}
+
+.watch-accent::before,
+.watch-accent::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gold);
+}
+
+.watch-accent::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.watch-accent::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Pocket square accent - elegant gradient overlays */
+.pocket-square {
+  position: relative;
+  overflow: hidden;
+}
+
+.pocket-square::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 40px 40px 0;
+  border-color: transparent var(--gold) transparent transparent;
+  opacity: 0.15;
+  transition: all 0.3s ease;
+}
+
+.pocket-square:hover::before {
+  opacity: 0.3;
+  border-width: 0 60px 60px 0;
+}
+
+/* Premium tier indicators */
+.tier-premium {
+  position: relative;
+  border: 2px solid var(--gold);
+  box-shadow: var(--premium-shadow);
+}
+
+.tier-premium::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  pointer-events: none;
+}
+
+/* Executive dashboard accent */
+.executive-accent {
+  background: linear-gradient(135deg,
+    rgba(212, 175, 55, 0.1) 0%,
+    transparent 25%,
+    transparent 75%,
+    rgba(212, 175, 55, 0.1) 100%);
+  position: relative;
+}
+
+.executive-accent::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: var(--subtle-glow);
+}
+
+/* Utility classes for gold colors */
+.text-gold { color: var(--gold); }
+.text-gold-light { color: var(--gold-light); }
+.text-gold-dark { color: var(--gold-dark); }
+.bg-gold { background-color: var(--gold); }
+.bg-gold-light { background-color: var(--gold-light); }
+.bg-gold-dark { background-color: var(--gold-dark); }
+.border-gold { border-color: var(--gold); }
+.border-gold-light { border-color: var(--gold-light); }
+.border-gold-dark { border-color: var(--gold-dark); }

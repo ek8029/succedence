@@ -152,7 +152,7 @@ export default function ScrollCue({ className = '' }: ScrollCueProps) {
         </span>
         <svg
           className="w-6 h-6 animate-bounce"
-          style={{color: '#1e3a8a'}}
+          style={{color: 'var(--gold)'}}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
