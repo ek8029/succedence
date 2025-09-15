@@ -73,12 +73,15 @@ export default function PreferencesPage() {
   };
 
   const handleArrayChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: prev[name as keyof typeof prev].includes(value)
-        ? (prev[name as keyof typeof prev] as string[]).filter(item => item !== value)
-        : [...(prev[name as keyof typeof prev] as string[]), value]
-    }));
+    setFormData(prev => {
+      const currentArray = prev[name as keyof typeof prev] as string[] || [];
+      return {
+        ...prev,
+        [name]: currentArray.includes(value)
+          ? currentArray.filter(item => item !== value)
+          : [...currentArray, value]
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,7 +118,7 @@ export default function PreferencesPage() {
               Tailored Business Matching
             </h1>
             <p className="text-xl text-neutral-400 leading-relaxed max-w-3xl mx-auto">
-              Tell us your preferences and we'll send you carefully curated business opportunities
+              Tell us your preferences and we&apos;ll send you carefully curated business opportunities
               that match your investment criteria and interests.
             </p>
           </div>
@@ -232,7 +235,7 @@ export default function PreferencesPage() {
                 {activeTab === 'industry' && (
                   <div className="space-y-8">
                     <h2 className="text-2xl font-semibold text-white mb-6">Industry Preferences</h2>
-                    <p className="text-neutral-400 mb-6">Select the industries you're interested in:</p>
+                    <p className="text-neutral-400 mb-6">Select the industries you&apos;re interested in:</p>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {industryOptions.map((industry) => (
@@ -272,7 +275,7 @@ export default function PreferencesPage() {
                 {activeTab === 'location' && (
                   <div className="space-y-8">
                     <h2 className="text-2xl font-semibold text-white mb-6">Geographic Preferences</h2>
-                    <p className="text-neutral-400 mb-6">Select the locations where you'd like to find opportunities:</p>
+                    <p className="text-neutral-400 mb-6">Select the locations where you&apos;d like to find opportunities:</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {locationOptions.map((location) => (
@@ -315,7 +318,7 @@ export default function PreferencesPage() {
 
                     <div className="space-y-6">
                       <div>
-                        <p className="text-neutral-400 mb-4">Select the types of businesses you're interested in:</p>
+                        <p className="text-neutral-400 mb-4">Select the types of businesses you&apos;re interested in:</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           {businessTypeOptions.map((type) => (
                             <label
@@ -422,7 +425,7 @@ export default function PreferencesPage() {
                   <div className="space-y-8">
                     <h2 className="text-2xl font-semibold text-white mb-6">Your Business Profile</h2>
                     <p className="text-neutral-400 mb-6">
-                      Optional: Add details about your business if you're also considering selling.
+                      Optional: Add details about your business if you&apos;re also considering selling.
                     </p>
 
                     <div className="space-y-6">

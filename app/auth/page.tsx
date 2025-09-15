@@ -55,8 +55,7 @@ export default function AuthPage() {
 
       await signIn({
         name: formData.name.trim() || formData.email.split('@')[0],
-        role: formData.role,
-        email: formData.email.trim()
+        role: formData.role
       });
 
       showNotification(
