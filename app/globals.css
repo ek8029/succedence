@@ -602,11 +602,7 @@ h6, .text-micro {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(28, 35, 64, 0.3) 0%, transparent 50%),
-    linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0.05) 50%, transparent 100%);
-  animation: heroShimmer 8s ease-in-out infinite;
+  background: transparent;
   z-index: 1;
 }
 
