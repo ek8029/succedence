@@ -6,34 +6,37 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-brand-darker">
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-screen flex items-center">
-        <div className="container mx-auto px-8 max-w-6xl">
-          <div className="text-center">
-            <div className="fade-in">
-              <h1 className="text-hero text-white mb-16 leading-tight">
-                The Premier Platform for
-                <span className="block mt-6 italic" style={{color: 'var(--gold)'}}>
-                  Business Acquisitions
-                </span>
-              </h1>
-              
-              <p className="text-2xl text-neutral-400 mb-20 max-w-4xl mx-auto leading-relaxed">
-                Connect with sophisticated investors and discover exceptional business opportunities. 
-                Sophisticated analysis, secure due diligence, and seamless transaction management.
-              </p>
-              
-              <div className="flex gap-8 justify-center items-center mb-24">
-                <Link href="/browse" className="btn-primary px-16 py-5 text-lg font-medium focus-ring hover-lift">
-                  Browse Opportunities
-                </Link>
-                
-                <Link href="/listings/new" className="btn-success px-16 py-5 text-lg font-medium focus-ring hover-lift">
-                  List Your Business
-                </Link>
+      <section className="hero-container">
+        <div className="hero-content w-full">
+          <div className="container mx-auto px-8 max-w-6xl">
+            <div className="text-center">
+              <div className="fade-in">
+                <h1 className="text-hero text-white mb-16 leading-tight">
+                  The Premier Platform for
+                  <span className="block mt-6 italic" style={{color: 'var(--gold)'}}>
+                    Business Acquisitions
+                  </span>
+                </h1>
+
+                <p className="text-body mb-20 max-w-4xl mx-auto">
+                  Connect with sophisticated investors and discover exceptional business opportunities.
+                  Sophisticated analysis, secure due diligence, and seamless transaction management.
+                </p>
+
+                <div className="flex gap-8 justify-center items-center">
+                  <Link href="/browse" className="btn-primary px-16 py-5 text-lg font-medium focus-ring hover-lift">
+                    Browse Opportunities
+                  </Link>
+
+                  <Link href="/listings/new" className="btn-success px-16 py-5 text-lg font-medium focus-ring hover-lift">
+                    List Your Business
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 gold-divider"></div>
       </section>
 
       {/* Why Choose DealSense Section */}
@@ -49,9 +52,9 @@ export default function Home() {
           </ScrollAnimation>
 
           <div className="w-full max-w-7xl mx-auto grid grid-cols-3 gap-8">
-            <ScrollAnimation direction="up" delay={200} className="p-20 hover-lift text-center border-2 border-gold bg-brand-dark">
-              <h3 className="text-3xl text-white font-medium mb-12">Analytical Insights</h3>
-              <p className="text-neutral-400 leading-relaxed text-xl mb-12">
+            <ScrollAnimation direction="up" delay={200} className="metric-card p-20 hover-lift text-center marble-texture">
+              <h3 className="text-subheading text-white mb-12">Analytical Insights</h3>
+              <p className="text-body mb-12">
                 AI-powered business valuations and market analysis.
               </p>
               <div className="space-y-6">
@@ -70,9 +73,9 @@ export default function Home() {
               </div>
             </ScrollAnimation>
 
-            <ScrollAnimation direction="up" delay={400} className="p-20 hover-lift text-center border-2 border-gold bg-brand-dark">
-              <h3 className="text-3xl text-white font-medium mb-12">Secure Due Diligence</h3>
-              <p className="text-neutral-400 leading-relaxed text-xl mb-12">
+            <ScrollAnimation direction="up" delay={400} className="metric-card p-20 hover-lift text-center marble-texture">
+              <h3 className="text-subheading text-white mb-12">Secure Due Diligence</h3>
+              <p className="text-body mb-12">
                 Protected data rooms and comprehensive agreement management.
               </p>
               <div className="space-y-6">
@@ -91,9 +94,9 @@ export default function Home() {
               </div>
             </ScrollAnimation>
 
-            <ScrollAnimation direction="up" delay={600} className="p-20 hover-lift text-center border-2 border-gold bg-brand-dark">
-              <h3 className="text-3xl text-white font-medium mb-12">Professional Network</h3>
-              <p className="text-neutral-400 leading-relaxed text-xl mb-12">
+            <ScrollAnimation direction="up" delay={600} className="metric-card p-20 hover-lift text-center marble-texture tier-premium">
+              <h3 className="text-subheading text-white mb-12">Professional Network</h3>
+              <p className="text-body mb-12">
                 Connect with verified investors and industry professionals.
               </p>
               <div className="space-y-6">
