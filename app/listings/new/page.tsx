@@ -100,7 +100,7 @@ export default function NewListingPage() {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setImagePreviews(prev => [...prev, event.target.result as string]);
+          setImagePreviews(prev => [...prev, event.target!.result as string]);
         }
       };
       reader.readAsDataURL(file);

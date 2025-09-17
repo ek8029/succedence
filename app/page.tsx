@@ -73,7 +73,7 @@ export default function Home() {
       notification.className = 'notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up';
       notification.style.backgroundColor = 'var(--accent)';
       notification.style.color = '#000';
-      notification.innerHTML = '🎉 You\'re on the waitlist! We\'ll notify you when beta launches.';
+      notification.innerHTML = '🎉 You&apos;re on the waitlist! We&apos;ll notify you when beta launches.';
       document.body.appendChild(notification);
       setTimeout(() => notification.remove(), 5000);
 
@@ -138,7 +138,7 @@ export default function Home() {
           <ScrollAnimation direction="up" delay={50}>
             <div className="mb-32">
               <div className="text-center mb-20">
-                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">The Problem We're Solving</h2>
+                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">The Problem We&apos;re Solving</h2>
                 <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed mb-16">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
 
                 {/* Statistics Grid */}
@@ -357,7 +357,7 @@ export default function Home() {
                 <div className="relative z-10">
                   <div className="text-center mb-12">
                     <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">Why Join the Waitlist?</h2>
-                    <p className="font-sans text-xl text-platinum/80 mb-8 leading-relaxed">The traditional approach to business acquisitions is broken. Long research cycles, missed opportunities, and information asymmetry cost entrepreneurs millions. We're changing that.</p>
+                    <p className="font-sans text-xl text-platinum/80 mb-8 leading-relaxed">The traditional approach to business acquisitions is broken. Long research cycles, missed opportunities, and information asymmetry cost entrepreneurs millions. We&apos;re changing that.</p>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-12 mb-12">
@@ -473,11 +473,11 @@ export default function Home() {
                           </div>
 
                           <h3 className="font-serif text-3xl font-semibold text-warm-white mb-4 tracking-refined">
-                            You're on the list! 🎉
+                            You&apos;re on the list! 🎉
                           </h3>
 
                           <p className="font-sans text-lg text-platinum/90 leading-relaxed mb-6">
-                            Welcome to the DealSense beta program. We'll notify you as soon as we launch and keep you updated on our progress.
+                            Welcome to the DealSense beta program. We&apos;ll notify you as soon as we launch and keep you updated on our progress.
                           </p>
 
                           <div className="glass p-6 rounded-luxury border border-gold/20">
@@ -487,19 +487,19 @@ export default function Home() {
                                 <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <div className="w-2 h-2 rounded-full bg-gold"></div>
                                 </div>
-                                <p className="font-sans text-silver/80 text-sm">You'll receive a confirmation email within the next few minutes</p>
+                                <p className="font-sans text-silver/80 text-sm">You&apos;ll receive a confirmation email within the next few minutes</p>
                               </div>
                               <div className="flex items-start space-x-3">
                                 <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <div className="w-2 h-2 rounded-full bg-gold"></div>
                                 </div>
-                                <p className="font-sans text-silver/80 text-sm">We'll send you exclusive updates on our development progress</p>
+                                <p className="font-sans text-silver/80 text-sm">We&apos;ll send you exclusive updates on our development progress</p>
                               </div>
                               <div className="flex items-start space-x-3">
                                 <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <div className="w-2 h-2 rounded-full bg-gold"></div>
                                 </div>
-                                <p className="font-sans text-silver/80 text-sm">You'll be among the first to get beta access when we launch</p>
+                                <p className="font-sans text-silver/80 text-sm">You&apos;ll be among the first to get beta access when we launch</p>
                               </div>
                             </div>
                           </div>
@@ -641,7 +641,7 @@ export default function Home() {
                           </button>
 
                           <p className="text-neutral-400 text-sm text-center mt-4">
-                            No spam, ever. We'll only email you when the beta launches and with important updates.
+                            No spam, ever. We&apos;ll only email you when the beta launches and with important updates.
                           </p>
                         </div>
                       </form>
