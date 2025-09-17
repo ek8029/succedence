@@ -109,21 +109,21 @@ export default function Home() {
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
       <div className="relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 pb-16 sm:pb-20 lg:pb-24 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 pb-12 sm:pb-16 md:pb-20 lg:pb-24 max-w-7xl">
           <ScrollAnimation direction="fade">
-            <div className="text-center mb-24 sm:mb-32 lg:mb-40 mt-12 sm:mt-16 lg:mt-24">
-              <div className="max-w-6xl mx-auto">
-                <div className="mb-16 sm:mb-20 lg:mb-28">
-                  <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-warm-white mb-6 sm:mb-8 lg:mb-12 tracking-refined leading-tight">
+            <div className="text-center mb-16 sm:mb-24 md:mb-32 lg:mb-40 mt-8 sm:mt-12 md:mt-16 lg:mt-24">
+              <div className="max-w-6xl mx-auto px-2 sm:px-0">
+                <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-28">
+                  <h1 className="font-serif text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-warm-white mb-4 xs:mb-6 sm:mb-8 lg:mb-12 tracking-refined leading-tight">
                     Succedence
                   </h1>
-                  <div className="h-1.5 sm:h-2 lg:h-3 w-32 sm:w-48 lg:w-64 bg-accent-gradient mx-auto mb-8 sm:mb-12 lg:mb-16"></div>
+                  <div className="h-1 xs:h-1.5 sm:h-2 lg:h-3 w-24 xs:w-32 sm:w-48 lg:w-64 bg-accent-gradient mx-auto mb-6 xs:mb-8 sm:mb-12 lg:mb-16"></div>
                 </div>
-                <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-warm-white mb-8 sm:mb-12 lg:mb-16 tracking-refined leading-tight">
+                <h2 className="font-serif text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-warm-white mb-6 xs:mb-8 sm:mb-12 lg:mb-16 tracking-refined leading-tight">
                   Acquire Premium
                   <span className="block text-gold tracking-luxury"> Businesses</span>
                 </h2>
-                <p className="font-sans text-lg sm:text-xl md:text-2xl lg:text-3xl leading-luxury text-platinum/90 mb-12 sm:mb-16 lg:mb-20 max-w-3xl lg:max-w-4xl mx-auto">
+                <p className="font-sans text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed xs:leading-luxury text-platinum/90 mb-8 xs:mb-12 sm:mb-16 lg:mb-20 max-w-xs xs:max-w-md sm:max-w-3xl lg:max-w-4xl mx-auto px-2 xs:px-0">
                   Discover exceptional acquisition opportunities from verified sellers. Connect with business owners ready to transition their legacy.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 justify-center items-center">
@@ -142,36 +142,36 @@ export default function Home() {
           </ScrollAnimation>
 
           <ScrollAnimation direction="up" delay={50}>
-            <div className="mb-40 lg:mb-48">
-              <div className="text-center mb-24 lg:mb-32">
-                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-warm-white mb-8 tracking-refined">The Problem We&apos;re Solving</h2>
-                <p className="font-sans text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-4xl mx-auto leading-relaxed mb-20 lg:mb-24">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
+            <div className="mb-24 sm:mb-32 md:mb-40 lg:mb-48">
+              <div className="text-center mb-16 sm:mb-20 md:mb-24 lg:mb-32 px-2 sm:px-0">
+                <h2 className="font-serif text-2xl xs:text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-warm-white mb-6 xs:mb-8 tracking-refined">The Problem We&apos;re Solving</h2>
+                <p className="font-sans text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-xs xs:max-w-md sm:max-w-3xl md:max-w-4xl mx-auto leading-relaxed mb-12 xs:mb-16 sm:mb-20 lg:mb-24">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
 
                 {/* Statistics Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-7xl mx-auto mb-28 lg:mb-36">
-                  <div className="glass p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">90%</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Time Wasted on Research</div>
+                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 xs:gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto mb-16 xs:mb-20 sm:mb-28 lg:mb-36">
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
+                    <div className="text-4xl xs:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none">90%</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Time Wasted on Research</div>
                   </div>
-                  <div className="glass p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">6-12</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Months to Find Target</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
+                    <div className="text-4xl xs:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none">6-12</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Months to Find Target</div>
                   </div>
-                  <div className="glass p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">$50K+</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Average Search Cost</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
+                    <div className="text-4xl xs:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none">$50K+</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Average Search Cost</div>
                   </div>
-                  <div className="glass p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">70%</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Deals Fall Through</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
+                    <div className="text-4xl xs:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none">70%</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1 whitespace-nowrap">Deals Fall Through</div>
                   </div>
                 </div>
 
-                <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-warm-white mb-6 sm:mb-8 lg:mb-12 tracking-refined">Why Choose Succedence?</h3>
-                <p className="font-sans text-lg sm:text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-3xl lg:max-w-4xl mx-auto leading-relaxed">Built for discerning buyers and sellers who value quality, transparency, and premium service.</p>
+                <h3 className="font-serif text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-warm-white mb-4 xs:mb-6 sm:mb-8 lg:mb-12 tracking-refined px-2 sm:px-0">Why Choose Succedence?</h3>
+                <p className="font-sans text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-xs xs:max-w-md sm:max-w-3xl lg:max-w-4xl mx-auto leading-relaxed px-2 xs:px-0">Built for discerning buyers and sellers who value quality, transparency, and premium service.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xs:gap-8 sm:gap-10 lg:gap-12 max-w-7xl mx-auto px-2 xs:px-0">
                 <div className="glass p-6 sm:p-8 lg:p-10 xl:p-12 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
                   <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6 sm:mb-8">
