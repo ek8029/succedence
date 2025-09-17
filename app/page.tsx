@@ -149,20 +149,20 @@ export default function Home() {
 
                 {/* Statistics Grid */}
                 <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 xs:gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto mb-16 xs:mb-20 sm:mb-28 lg:mb-36">
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap">90%</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">90%</div>
                     <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Time Wasted on Research</div>
                   </div>
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap">6-12</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">6-12</div>
                     <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Months to Find Target</div>
                   </div>
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap">$50K+</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">$50K+</div>
                     <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Average Search Cost</div>
                   </div>
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap">70%</div>
+                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">70%</div>
                     <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Deals Fall Through</div>
                   </div>
                 </div>
