@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import ScrollAnimation from '@/components/ScrollAnimation';
 import { Listing, NDARequest, Message } from '@/lib/types';
 
 interface User {
@@ -120,22 +121,25 @@ function ProfilePageContent() {
     <div className="min-h-screen bg-brand-darker">
       <div className="container-professional py-16">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="w-20 h-20 bg-white border border-neutral-300 flex items-center justify-center mx-auto mb-8">
-            <span className="text-black font-bold text-2xl">{user.name.charAt(0).toUpperCase()}</span>
+        <ScrollAnimation direction="fade">
+          <div className="text-center mb-16">
+            <div className="w-20 h-20 bg-white border border-neutral-300 flex items-center justify-center mx-auto mb-8">
+              <span className="text-black font-bold text-2xl">{user.name.charAt(0).toUpperCase()}</span>
+            </div>
+            <h1 className="text-heading text-white font-medium mb-4">User Profile</h1>
+            <p className="text-xl text-neutral-400">Manage your account and view activity</p>
+            <div className="mt-8">
+              <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+                ← Return Home
+              </Link>
+            </div>
           </div>
-          <h1 className="text-heading text-white font-medium mb-4">User Profile</h1>
-          <p className="text-xl text-neutral-400">Manage your account and view activity</p>
-          <div className="mt-8">
-            <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
-              ← Return Home
-            </Link>
-          </div>
-        </div>
+        </ScrollAnimation>
 
-        <div className="max-w-6xl mx-auto space-y-16">
-          {/* Profile Information */}
-          <div className="glass p-16">
+        <ScrollAnimation direction="up" delay={50}>
+          <div className="max-w-6xl mx-auto space-y-16">
+            {/* Profile Information */}
+            <div className="glass p-16">
             <h2 className="text-2xl text-white font-medium mb-10">Account Information</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
@@ -337,7 +341,8 @@ function ProfilePageContent() {
               </div>
             </div>
           )}
-        </div>
+          </div>
+        </ScrollAnimation>
       </div>
     </div>
   );

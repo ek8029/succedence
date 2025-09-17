@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import ScrollAnimation from '@/components/ScrollAnimation';
 import { Listing } from '@/lib/types';
 
 interface DashboardStats {
@@ -104,17 +105,20 @@ function AdminPageContent() {
     <div className="min-h-screen bg-brand-darker">
       <div className="container-professional py-16">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-heading text-white font-medium mb-6">Administration Dashboard</h1>
-          <p className="text-xl text-neutral-400 leading-relaxed mb-12">Platform analytics and business listing management</p>
-          <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
-            ← Return Home
-          </Link>
-        </div>
+        <ScrollAnimation direction="fade">
+          <div className="text-center mb-16">
+            <h1 className="text-heading text-white font-medium mb-6">Administration Dashboard</h1>
+            <p className="text-xl text-neutral-400 leading-relaxed mb-12">Platform analytics and business listing management</p>
+            <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+              ← Return Home
+            </Link>
+          </div>
+        </ScrollAnimation>
 
         {/* Statistics Cards */}
-        <div className="max-w-6xl mx-auto mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <ScrollAnimation direction="up" delay={50}>
+          <div className="max-w-6xl mx-auto mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="metric-card p-8 slide-up">
               <div className="flex items-center justify-between mb-6">
                 <div className="w-12 h-12 bg-white border border-neutral-300 flex items-center justify-center">
@@ -192,11 +196,13 @@ function AdminPageContent() {
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.totalMessages}</div>
               <div className="text-neutral-400">Messages Sent</div>
             </div>
+            </div>
           </div>
-        </div>
+        </ScrollAnimation>
 
         {/* Industries */}
-        <div className="max-w-6xl mx-auto mb-16">
+        <ScrollAnimation direction="up" delay={100}>
+          <div className="max-w-6xl mx-auto mb-16">
           <div className="glass p-16 slide-up" style={{animationDelay: '0.6s'}}>
             <h2 className="text-2xl text-white font-medium mb-10">Industry Distribution</h2>
             <div className="flex flex-wrap gap-4">
@@ -207,10 +213,12 @@ function AdminPageContent() {
               ))}
             </div>
           </div>
-        </div>
+          </div>
+        </ScrollAnimation>
 
         {/* Lane Management */}
-        <div className="max-w-6xl mx-auto">
+        <ScrollAnimation direction="up" delay={150}>
+          <div className="max-w-6xl mx-auto">
           <div className="glass p-16 slide-up" style={{animationDelay: '0.7s'}}>
             <h2 className="text-2xl text-white font-medium mb-10">Listing Management</h2>
             <div className="overflow-x-auto">
@@ -278,7 +286,8 @@ function AdminPageContent() {
               </table>
             </div>
           </div>
-        </div>
+          </div>
+        </ScrollAnimation>
       </div>
     </div>
   );

@@ -40,14 +40,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Initialize auth state from localStorage
     const initializeAuth = () => {
       try {
-        const userData = localStorage.getItem('dealsense_user');
+        const userData = localStorage.getItem('succedence_user');
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        localStorage.removeItem('dealsense_user');
+        localStorage.removeItem('succedence_user');
       } finally {
         setIsLoading(false);
       }
@@ -64,10 +64,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Store user data
-      localStorage.setItem('dealsense_user', JSON.stringify(userData));
+      localStorage.setItem('succedence_user', JSON.stringify(userData));
       setUser(userData);
       
-      showNotification(`Welcome to DealSense, ${userData.name}!`, 'success');
+      showNotification(`Welcome to Succedence, ${userData.name}!`, 'success');
       
       // Redirect based on role
       setTimeout(() => {
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Simulate logout delay
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      localStorage.removeItem('dealsense_user');
+      localStorage.removeItem('succedence_user');
       setUser(null);
       
       showNotification('Successfully signed out', 'success', 2000);
@@ -115,7 +115,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!user) return;
     
     const updatedUser = { ...user, ...updates };
-    localStorage.setItem('dealsense_user', JSON.stringify(updatedUser));
+    localStorage.setItem('succedence_user', JSON.stringify(updatedUser));
     setUser(updatedUser);
     
     showNotification('Profile updated successfully', 'success');

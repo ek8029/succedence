@@ -161,7 +161,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <h3 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white mb-6 tracking-refined">Why Choose DealSense?</h3>
+                <h3 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white mb-6 tracking-refined">Why Choose Succedence?</h3>
                 <p className="font-sans text-lg text-platinum/80 max-w-3xl mx-auto leading-relaxed">Built for discerning buyers and sellers who value quality, transparency, and premium service.</p>
               </div>
 
@@ -477,7 +477,7 @@ export default function Home() {
                           </h3>
 
                           <p className="font-sans text-lg text-platinum/90 leading-relaxed mb-6">
-                            Welcome to the DealSense beta program. We&apos;ll notify you as soon as we launch and keep you updated on our progress.
+                            Welcome to the Succedence beta program. We&apos;ll notify you as soon as we launch and keep you updated on our progress.
                           </p>
 
                           <div className="glass p-6 rounded-luxury border border-gold/20">

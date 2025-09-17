@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Listing, ListingFilters } from '@/lib/types';
+import ScrollAnimation from '@/components/ScrollAnimation';
 
 export default function BrowsePage() {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -55,25 +56,28 @@ export default function BrowsePage() {
   return (
     <div className="min-h-screen bg-primary-gradient">
       <div className="container mx-auto px-8 py-20 pb-24 max-w-7xl">
-        <div className="text-center mb-20 mt-24">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold text-warm-white mb-8">Browse Opportunities</h1>
-          <p className="font-sans text-xl text-platinum/90">Discover exceptional businesses ready for acquisition</p>
-          <div className="mt-12">
-            <Link href="/" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gold/40 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-lg transition-all duration-300">
-              ← Return to Home
-            </Link>
+        <ScrollAnimation direction="fade">
+          <div className="text-center mb-20 mt-24">
+            <h1 className="font-serif text-4xl md:text-5xl font-semibold text-warm-white mb-8">Browse Opportunities</h1>
+            <p className="font-sans text-xl text-platinum/90">Discover exceptional businesses ready for acquisition</p>
+            <div className="mt-12">
+              <Link href="/" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gold/40 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-lg transition-all duration-300">
+                ← Return to Home
+              </Link>
+            </div>
           </div>
-        </div>
+        </ScrollAnimation>
 
-        {/* Results Summary */}
-        <div className="mb-12">
-          <p className="font-sans text-lg text-silver/90 text-center">
-            Showing <span className="text-gold font-semibold font-mono">{listings.length}</span> {listings.length !== 1 ? 'opportunities' : 'opportunity'}
-          </p>
-        </div>
+        <ScrollAnimation direction="up" delay={50}>
+          {/* Results Summary */}
+          <div className="mb-12">
+            <p className="font-sans text-lg text-silver/90 text-center">
+              Showing <span className="text-gold font-semibold font-mono">{listings.length}</span> {listings.length !== 1 ? 'opportunities' : 'opportunity'}
+            </p>
+          </div>
 
-        {/* Listings Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-24">
+          {/* Listings Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-24">
           {listings.map((listing, index) => (
             <div key={listing.id} className="group" style={{animationDelay: `${index * 0.1}s`}}>
               <div className="glass rounded-luxury-lg overflow-hidden border border-gold/10 hover:border-gold/30 transition-all duration-500 hover:transform hover:-translate-y-2 hover:scale-105 relative">
@@ -127,7 +131,8 @@ export default function BrowsePage() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </ScrollAnimation>
 
         {listings.length === 0 && (
           <div className="text-center py-24">

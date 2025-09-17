@@ -1,4 +1,4 @@
-# DealSense - AI-Assisted Business Marketplace
+# Succedence - AI-Assisted Business Marketplace
 
 A modern, dark-themed AI-assisted business marketplace built with Next.js 14, TypeScript, and TailwindCSS. Features iOS-style dark mode, role-based authentication, advanced filtering, messaging system, and admin dashboard.
 
@@ -24,7 +24,7 @@ A modern, dark-themed AI-assisted business marketplace built with Next.js 14, Ty
 ## 📁 Project Structure
 
 ```
-dealsense/
+succedence/
 ├── app/
 │   ├── api/
 │   │   ├── admin/route.ts           # Admin dashboard & lane management

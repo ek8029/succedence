@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ScrollAnimation from '@/components/ScrollAnimation';
 
 export default function NewListingPage() {
   const router = useRouter();
@@ -125,21 +126,24 @@ export default function NewListingPage() {
     <div className="min-h-screen bg-brand-darker">
       <div className="container-professional py-16">
         {/* Header */}
-        <div className="text-center mb-20">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-heading text-white font-medium mb-8">Submit Business Listing</h1>
-            <p className="text-2xl text-neutral-400 leading-relaxed mb-12">
-              Present your business opportunity to our network of qualified investors and acquirers.
-            </p>
-            <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
-              ← Return Home
-            </Link>
+        <ScrollAnimation direction="fade">
+          <div className="text-center mb-20">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-heading text-white font-medium mb-8">Submit Business Listing</h1>
+              <p className="text-2xl text-neutral-400 leading-relaxed mb-12">
+                Present your business opportunity to our network of qualified investors and acquirers.
+              </p>
+              <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+                ← Return Home
+              </Link>
+            </div>
           </div>
-        </div>
+        </ScrollAnimation>
 
         {/* Form */}
-        <div className="max-w-4xl mx-auto">
-          <div className="glass p-16">
+        <ScrollAnimation direction="up" delay={50}>
+          <div className="max-w-4xl mx-auto">
+            <div className="glass p-16">
             <form onSubmit={handleSubmit} className="space-y-12">
               {/* Business Overview */}
               <div className="space-y-8">
@@ -500,7 +504,7 @@ export default function NewListingPage() {
               </div>
             </div>
           </div>
-        </div>
+        </ScrollAnimation>
       </div>
     </div>
   );

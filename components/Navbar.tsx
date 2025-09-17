@@ -37,10 +37,10 @@ export default function Navbar() {
       <div className="container-professional flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-4 group hover-lift">
           <div className="w-10 h-10 bg-white border border-neutral-300 flex items-center justify-center transition-all group-hover:border-neutral-100">
-            <span className="text-black font-bold text-xl">D</span>
+            <span className="text-black font-bold text-xl">S</span>
           </div>
           <span className="text-2xl text-white font-semibold tracking-tight" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-            DealSense
+            Succedence
           </span>
         </Link>
         

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ScrollAnimation from '@/components/ScrollAnimation';
 import { Listing, NDARequest, Message, User } from '@/lib/types';
 
 export default function ListingDetailPage() {
@@ -63,7 +64,7 @@ export default function ListingDetailPage() {
 
   useEffect(() => {
     // Get user from localStorage
-    const userData = localStorage.getItem('dealsense_user');
+    const userData = localStorage.getItem('succedence_user');
     if (userData) {
       setUser(JSON.parse(userData));
     }
@@ -242,14 +243,17 @@ export default function ListingDetailPage() {
     <div className="min-h-screen bg-brand-darker">
       <div className="container-professional py-16">
         {/* Header */}
-        <div className="mb-16 text-center">
-          <Link href="/browse" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600 inline-block mb-12">
-            ← Browse Opportunities
-          </Link>
-        </div>
+        <ScrollAnimation direction="fade">
+          <div className="mb-16 text-center">
+            <Link href="/browse" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600 inline-block mb-12">
+              ← Browse Opportunities
+            </Link>
+          </div>
+        </ScrollAnimation>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto space-y-16">
+        <ScrollAnimation direction="up" delay={50}>
+          <div className="max-w-6xl mx-auto space-y-16">
           {/* Business Overview */}
           <div className="glass p-16">
             <div className="flex flex-wrap gap-4 mb-10">
@@ -459,7 +463,7 @@ export default function ListingDetailPage() {
                       onChange={(e) => setDealCompleteData(prev => ({...prev, testimonial: e.target.value}))}
                       rows={4}
                       className="form-control w-full"
-                      placeholder="How was your experience using DealSense? This could be featured in our Success Stories..."
+                      placeholder="How was your experience using Succedence? This could be featured in our Success Stories..."
                     />
                   </div>
 
@@ -472,7 +476,7 @@ export default function ListingDetailPage() {
                       className="w-5 h-5"
                     />
                     <label htmlFor="allowSharing" className="text-neutral-300 font-medium">
-                      Allow DealSense to feature this success story publicly (with your permission for final review)
+                      Allow Succedence to feature this success story publicly (with your permission for final review)
                     </label>
                   </div>
 
@@ -566,7 +570,8 @@ export default function ListingDetailPage() {
               </div>
             </div>
           )}
-        </div>
+          </div>
+        </ScrollAnimation>
       </div>
     </div>
   );

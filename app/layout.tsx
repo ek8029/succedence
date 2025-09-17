@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata: Metadata = {
-  title: 'DealSense - Sophisticated Business Marketplace',
+  title: 'Succedence - Sophisticated Business Marketplace',
   description: 'A refined platform for sophisticated business transactions and acquisitions',
 }
 

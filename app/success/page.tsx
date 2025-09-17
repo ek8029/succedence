@@ -29,7 +29,7 @@ export default function SuccessPage() {
     {
       id: '1',
       title: 'Strategic Tech Acquisition Completed in 60 Days',
-      quote: 'DealSense streamlined our acquisition process beautifully. The AI insights were invaluable for our due diligence.',
+      quote: 'Succedence streamlined our acquisition process beautifully. The AI insights were invaluable for our due diligence.',
       clientName: 'Sarah Chen',
       clientTitle: 'Managing Partner, Venture Capital',
       industry: 'Technology',
@@ -65,7 +65,7 @@ export default function SuccessPage() {
     {
       id: '4',
       title: 'Healthcare Practice Acquisition',
-      quote: 'DealSense connected us with the right seller quickly. The process was transparent and professional.',
+      quote: 'Succedence connected us with the right seller quickly. The process was transparent and professional.',
       clientName: 'Dr. Michael Thompson',
       clientTitle: 'Medical Group Partner',
       industry: 'Healthcare',
@@ -89,7 +89,7 @@ export default function SuccessPage() {
     {
       id: '6',
       title: 'E-commerce Brand Portfolio Sale',
-      quote: 'Sold our portfolio of brands through DealSense. The buyer vetting process was thorough and professional.',
+      quote: 'Sold our portfolio of brands through Succedence. The buyer vetting process was thorough and professional.',
       clientName: 'Robert Kim',
       clientTitle: 'Founder, E-commerce Holdings',
       industry: 'Retail',
@@ -113,7 +113,7 @@ export default function SuccessPage() {
     {
       id: '8',
       title: 'Food & Beverage Chain Acquisition',
-      quote: 'Found three excellent acquisition targets through DealSense. The quality of listings is outstanding.',
+      quote: 'Found three excellent acquisition targets through Succedence. The quality of listings is outstanding.',
       clientName: 'James Mitchell',
       clientTitle: 'Managing Partner, Restaurant Group',
       industry: 'Food & Beverage',
@@ -183,7 +183,7 @@ export default function SuccessPage() {
           <div className="text-center mb-20 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">Success Stories</h1>
             <p className="text-2xl text-neutral-400 leading-relaxed max-w-4xl mx-auto">
-              Real results from sophisticated investors and business owners who achieved their goals through DealSense
+              Real results from sophisticated investors and business owners who achieved their goals through Succedence
             </p>
             <div className="mt-12">
               <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border-2 border-brand-darker hover:border-gold rounded-lg shadow-sm">
@@ -357,7 +357,7 @@ export default function SuccessPage() {
                 Ready to Write Your Success Story?
               </h2>
               <p className="text-xl text-neutral-400 mb-12 max-w-2xl mx-auto">
-                Join the sophisticated investors and business owners who have achieved their goals through DealSense.
+                Join the sophisticated investors and business owners who have achieved their goals through Succedence.
               </p>
               <div className="flex gap-6 justify-center">
                 <Link href="/browse" className="btn-primary px-12 py-4 text-lg font-medium focus-ring hover-lift">

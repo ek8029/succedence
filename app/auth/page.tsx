@@ -85,12 +85,12 @@ export default function AuthPage() {
               </svg>
             </div>
             <h1 className="text-heading text-white font-medium mb-6">
-              {isSignUp ? 'Join DealSense' : 'Welcome Back'}
+              {isSignUp ? 'Join Succedence' : 'Welcome Back'}
             </h1>
             <p className="text-xl text-neutral-400 leading-relaxed max-w-xl mx-auto">
               {isSignUp ?
                 'Create your account to access our exclusive platform for sophisticated business transactions.' :
-                'Sign in to access your DealSense dashboard and opportunities.'
+                'Sign in to access your Succedence dashboard and opportunities.'
               }
             </p>
           </div>
