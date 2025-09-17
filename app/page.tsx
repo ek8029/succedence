@@ -149,21 +149,21 @@ export default function Home() {
 
                 {/* Statistics Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-6xl mx-auto mb-28 lg:mb-36">
-                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">90%</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Time Wasted on Research</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">90%</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-2">Time Wasted on Research</div>
                   </div>
-                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">6-12</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Months to Find Target</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">6-12</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-2">Months to Find Target</div>
                   </div>
-                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">$50K+</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Average Search Cost</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">$50K+</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-2">Average Search Cost</div>
                   </div>
-                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
-                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">70%</div>
-                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Deals Fall Through</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 text-center">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono leading-none">70%</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-2">Deals Fall Through</div>
                   </div>
                 </div>
 
