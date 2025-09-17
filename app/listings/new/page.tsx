@@ -144,7 +144,7 @@ export default function NewListingPage() {
         <ScrollAnimation direction="up" delay={50}>
           <div className="max-w-4xl mx-auto">
             <div className="glass p-16">
-            <form onSubmit={handleSubmit} className="space-y-12">
+              <form onSubmit={handleSubmit} className="space-y-12">
               {/* Business Overview */}
               <div className="space-y-8">
                 <h2 className="text-2xl text-white font-medium border-b border-neutral-600 pb-4">
@@ -470,7 +470,8 @@ export default function NewListingPage() {
                   </p>
                 </div>
               </div>
-            </form>
+              </form>
+            </div>
           </div>
 
           {/* AI Features Notice */}
