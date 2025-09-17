@@ -51,8 +51,6 @@ export default function AuthPage() {
 
     try {
       // Simulate authentication (no actual backend yet)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       await signIn({
         name: formData.name.trim() || formData.email.split('@')[0],
         role: formData.role
@@ -190,7 +188,8 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="btn-primary w-full py-5 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full py-5 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed block"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', cursor: 'pointer' }}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-3">

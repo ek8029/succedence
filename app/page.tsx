@@ -1,342 +1,679 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import ScrollAnimation from '../components/ScrollAnimation';
-import ScrollCue from '../components/ScrollCue';
+import { Listing } from '@/lib/types';
+import ScrollAnimation from '@/components/ScrollAnimation';
 
 export default function Home() {
+  const [featuredListings, setFeaturedListings] = useState<Listing[]>([]);
+  const [waitlistData, setWaitlistData] = useState({
+    email: '',
+    name: '',
+    role: 'BUYER' as 'BUYER' | 'SELLER' | 'BROKER',
+    company: '',
+    dealSize: '',
+    interests: [] as string[]
+  });
+  const [isSubmittingWaitlist, setIsSubmittingWaitlist] = useState(false);
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+
+  useEffect(() => {
+    const fetchFeaturedListings = async () => {
+      try {
+        const response = await fetch('/api/listings');
+        const data = await response.json();
+        setFeaturedListings(data.slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching featured listings:', error);
+      }
+    };
+
+    fetchFeaturedListings();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const handleWaitlistInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setWaitlistData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleInterestToggle = (interest: string) => {
+    setWaitlistData(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
+    }));
+  };
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistData.email || !waitlistData.name) return;
+
+    setIsSubmittingWaitlist(true);
+
+    try {
+      // Simulate API call (no real backend yet)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Show success notification
+      const notification = document.createElement('div');
+      notification.className = 'notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up';
+      notification.style.backgroundColor = 'var(--accent)';
+      notification.style.color = '#000';
+      notification.innerHTML = '🎉 You\'re on the waitlist! We\'ll notify you when beta launches.';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 5000);
+
+      // Show confirmation state
+      setWaitlistSubmitted(true);
+
+      // Reset form after showing confirmation for a bit
+      setTimeout(() => {
+        setWaitlistData({
+          email: '',
+          name: '',
+          role: 'BUYER',
+          company: '',
+          dealSize: '',
+          interests: []
+        });
+      }, 3000);
+    } catch (error) {
+      // Show error notification
+      const notification = document.createElement('div');
+      notification.className = 'notification fixed top-4 right-4 z-50 bg-red-600 text-white px-6 py-4 slide-up';
+      notification.innerHTML = '✗ Something went wrong. Please try again.';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 4000);
+    } finally {
+      setIsSubmittingWaitlist(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen" style={{background: 'var(--primary-gradient)'}}>
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-background"></div>
-        <div className="hero-content">
-          <div className="container mx-auto px-8 max-w-6xl">
-            <div className="text-center">
-              <div className="hero-text-container">
-                <h1 className="text-hero mb-8">
-                  The Premier Platform for
-                  <span className="hero-accent"> Business Acquisitions</span>
+    <div className="min-h-screen bg-primary-gradient relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
+      <div className="absolute inset-0 bg-noise opacity-10"></div>
+
+      <div className="relative z-10">
+        <div className="container mx-auto px-8 py-20 pb-24 max-w-7xl">
+          <ScrollAnimation direction="fade">
+            <div className="text-center mb-32 mt-24">
+              <div className="max-w-5xl mx-auto">
+                <h1 className="font-serif text-5xl md:text-7xl font-semibold text-warm-white mb-12 tracking-refined leading-tight">
+                  Acquire Premium
+                  <span className="block text-gold tracking-luxury"> Businesses</span>
                 </h1>
-
-                <p className="text-body-large mb-12 max-w-2xl mx-auto opacity-90">
-                  Connect with sophisticated investors and discover exceptional opportunities through our comprehensive acquisition platform.
+                <p className="font-sans text-xl md:text-2xl leading-luxury text-platinum/90 mb-16 max-w-3xl mx-auto">
+                  Discover exceptional acquisition opportunities from verified sellers. Connect with business owners ready to transition their legacy.
                 </p>
-
-                <div className="hero-actions">
-                  <Link href="/browse" className="btn-primary btn-lg">
+                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                  <Link href="/browse" className="group inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury">
                     Browse Opportunities
+                    <svg className="w-5 h-5 ml-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
                   </Link>
-                  <Link href="/listings/new" className="btn-secondary btn-lg">
+                  <Link href="/auth" className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans">
                     List Your Business
                   </Link>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="hero-divider"></div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features-section">
-        <div className="container mx-auto px-8 max-w-7xl">
-          <ScrollAnimation direction="fade" className="text-center mb-20">
-            <h2 className="text-heading mb-6">
-              Why Choose DealSense
-            </h2>
-            <p className="text-body-large max-w-2xl mx-auto opacity-80">
-              Professional-grade tools and insights designed for sophisticated business transactions.
-            </p>
           </ScrollAnimation>
 
-          <div className="features-grid">
-            <ScrollAnimation direction="up" delay={100} className="feature-card feature-card-1">
-              <div className="feature-icon">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h3 className="text-subheading mb-4">Analytical Insights</h3>
-              <p className="text-body mb-6">
-                AI-powered business valuations and comprehensive market analysis for informed decision-making.
-              </p>
-              <ul className="feature-list">
-                <li>Advanced valuation models</li>
-                <li>Market trend analysis</li>
-                <li>Risk assessment tools</li>
-              </ul>
-            </ScrollAnimation>
+          <ScrollAnimation direction="up" delay={50}>
+            <div className="mb-32">
+              <div className="text-center mb-20">
+                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">The Problem We're Solving</h2>
+                <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed mb-16">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
 
-            <ScrollAnimation direction="up" delay={200} className="feature-card feature-card-2">
-              <div className="feature-icon">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h3 className="text-subheading mb-4">Secure Due Diligence</h3>
-              <p className="text-body mb-6">
-                Protected data rooms and comprehensive agreement management with bank-grade security.
-              </p>
-              <ul className="feature-list">
-                <li>Encrypted data rooms</li>
-                <li>NDA management</li>
-                <li>Document tracking</li>
-              </ul>
-            </ScrollAnimation>
+                {/* Statistics Grid */}
+                <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-20">
+                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
+                    <div className="text-4xl font-bold text-gold mb-2 font-mono">90%</div>
+                    <div className="text-sm text-silver/80 uppercase tracking-wide">Time Wasted on Research</div>
+                  </div>
+                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
+                    <div className="text-4xl font-bold text-gold mb-2 font-mono">6-12</div>
+                    <div className="text-sm text-silver/80 uppercase tracking-wide">Months to Find Target</div>
+                  </div>
+                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
+                    <div className="text-4xl font-bold text-gold mb-2 font-mono">$50K+</div>
+                    <div className="text-sm text-silver/80 uppercase tracking-wide">Average Search Cost</div>
+                  </div>
+                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
+                    <div className="text-4xl font-bold text-gold mb-2 font-mono">70%</div>
+                    <div className="text-sm text-silver/80 uppercase tracking-wide">Deals Fall Through</div>
+                  </div>
+                </div>
 
-            <ScrollAnimation direction="up" delay={300} className="feature-card feature-card-3">
-              <div className="feature-icon">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <h3 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white mb-6 tracking-refined">Why Choose DealSense?</h3>
+                <p className="font-sans text-lg text-platinum/80 max-w-3xl mx-auto leading-relaxed">Built for discerning buyers and sellers who value quality, transparency, and premium service.</p>
               </div>
-              <h3 className="text-subheading mb-4">Professional Network</h3>
-              <p className="text-body mb-6">
-                Connect with verified investors and industry professionals through our curated network.
-              </p>
-              <ul className="feature-list">
-                <li>Verified investor profiles</li>
-                <li>Strategic partnerships</li>
-                <li>Industry connections</li>
-              </ul>
-            </ScrollAnimation>
-          </div>
-        </div>
-      </section>
 
-      {/* Email Signup Section */}
-      <section className="py-40 bg-brand-dark relative">
-        <div className="container mx-auto px-8 max-w-4xl">
-          <ScrollAnimation direction="fade" className="glass p-32 text-center">
-            <h2 className="text-heading text-white font-medium mb-12">
-              Join Our Exclusive Network
-            </h2>
-            <p className="text-2xl text-neutral-400 mb-20 leading-relaxed">
-              Get early access to premium business opportunities and connect with sophisticated investors.
-            </p>
-            
-            <form className="mb-20">
-              <div className="flex gap-6 mb-8">
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  className="form-control flex-1"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  className="form-control flex-1"
-                  required
-                />
+              <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+                <div className="glass p-10 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-16 h-16 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-8">
+                    <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-serif text-2xl font-semibold text-warm-white mb-6 tracking-refined">Verified Opportunities</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed">Every listing undergoes rigorous verification. Connect with serious sellers and pre-qualified opportunities.</p>
+                </div>
+
+                <div className="glass p-10 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-16 h-16 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-8">
+                    <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-serif text-2xl font-semibold text-warm-white mb-6 tracking-refined">Secure Transactions</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed">Industry-leading security protocols protect your information and ensure confidential deal-making.</p>
+                </div>
+
+                <div className="glass p-10 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-16 h-16 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-8">
+                    <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-serif text-2xl font-semibold text-warm-white mb-6 tracking-refined">Lightning Fast</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed">Streamlined processes and intelligent matching accelerate your path from discovery to acquisition.</p>
+                </div>
               </div>
-              <div className="flex gap-6 mb-8">
-                <input
-                  type="email"
-                  placeholder="Professional Email Address"
-                  className="form-control flex-1"
-                  required
-                />
-                <select className="form-control flex-1" required>
-                  <option value="">I am interested in...</option>
-                  <option value="buying">Acquiring Businesses</option>
-                  <option value="selling">Selling My Business</option>
-                  <option value="investing">Investment Opportunities</option>
-                  <option value="both">Both Buying & Selling</option>
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="btn-success w-full py-6 text-xl font-medium focus-ring hover-lift mb-8"
-              >
-                Request Early Access
-              </button>
-            </form>
-            
-            <div className="flex gap-12 justify-center items-center">
-              <Link href="/auth" className="btn-primary px-24 py-6 text-xl font-medium focus-ring hover-lift">
-                Sign In
-              </Link>
-              <Link href="/browse" className="glass px-24 py-6 text-xl font-medium text-white focus-ring hover-lift border border-neutral-600">
-                Browse Public Listings
-              </Link>
             </div>
-            
-            <p className="text-neutral-500 mt-12 text-lg">
-              By signing up, you agree to receive updates about exclusive opportunities. 
-              We respect your privacy and will never share your information.
-            </p>
-          </ScrollAnimation>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-40 relative">
-        <div className="container mx-auto px-8 max-w-6xl">
-          <ScrollAnimation direction="fade" className="text-center mb-32">
-            <h2 className="text-heading text-white font-medium mb-12">
-              How It Works
-            </h2>
-            <p className="text-xl text-neutral-400 leading-relaxed max-w-3xl mx-auto">
-              A streamlined process designed for sophisticated business transactions.
-            </p>
           </ScrollAnimation>
 
-          <div className="grid grid-cols-4 gap-16">
-            <ScrollAnimation direction="up" delay={100} className="text-center group">
-              <div className="w-32 h-32 flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 watch-accent" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
-                <span className="text-black font-bold text-5xl">1</span>
+          {/* AI-Powered Features Section */}
+          <ScrollAnimation direction="up" delay={100}>
+            <div className="mb-32">
+              <div className="text-center mb-20">
+                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">AI-Powered Acquisition Intelligence</h2>
+                <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed">Experience the future of business acquisition with our advanced AI platform launching soon.</p>
               </div>
-              <h3 className="text-2xl text-white font-medium mb-6">Create Profile</h3>
-              <p className="text-neutral-400 text-lg leading-relaxed">Set up your professional profile with verification and preferences.</p>
-            </ScrollAnimation>
 
-            <ScrollAnimation direction="up" delay={200} className="text-center group">
-              <div className="w-32 h-32 flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 pocket-square" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
-                <span className="text-black font-bold text-5xl">2</span>
-              </div>
-              <h3 className="text-2xl text-white font-medium mb-6">Browse Opportunities</h3>
-              <p className="text-neutral-400 text-lg leading-relaxed">Access curated business listings with AI-powered insights and analytics.</p>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={300} className="text-center group">
-              <div className="w-32 h-32 flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 executive-accent" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
-                <span className="text-black font-bold text-5xl">3</span>
-              </div>
-              <h3 className="text-2xl text-white font-medium mb-6">Secure Due Diligence</h3>
-              <p className="text-neutral-400 text-lg leading-relaxed">Conduct confidential reviews through protected data rooms and NDA management.</p>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={400} className="text-center group">
-              <div className="w-32 h-32 flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-300 tier-premium" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
-                <span className="text-black font-bold text-5xl">4</span>
-              </div>
-              <h3 className="text-2xl text-white font-medium mb-6">Complete Transaction</h3>
-              <p className="text-neutral-400 text-lg leading-relaxed">Finalize deals with comprehensive legal and financial documentation support.</p>
-            </ScrollAnimation>
-          </div>
-        </div>
-      </section>
-
-      {/* Built for Professionals Section */}
-      <section className="py-40 bg-brand-dark relative">
-        <div className="container mx-auto px-8 max-w-6xl">
-          <div className="grid grid-cols-2 gap-24 items-center">
-            <ScrollAnimation direction="left" className="">
-              <h2 className="text-heading text-white font-medium mb-12">
-                Built for Professionals
-              </h2>
-              <p className="text-xl text-neutral-400 mb-16 leading-relaxed">
-                DealSense caters to sophisticated investors, business owners, and industry professionals who demand excellence in their business acquisition process.
-              </p>
-
-              <div className="space-y-12">
-                <div className="flex items-start space-x-6">
-                  <div className="w-4 h-4 mt-3 flex-shrink-0" style={{background: 'var(--gold)'}}></div>
-                  <div>
-                    <h4 className="text-xl text-white font-medium mb-3">Verified Participants</h4>
-                    <p className="text-neutral-400 text-lg leading-relaxed">All users undergo professional verification to ensure quality connections.</p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
                   </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">AI-Defined Buy-Box</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Our AI learns your acquisition criteria, risk tolerance, and business goals to create a personalized search strategy.</p>
                 </div>
 
-                <div className="divider"></div>
-
-                <div className="flex items-start space-x-6">
-                  <div className="w-4 h-4 mt-3 flex-shrink-0" style={{background: 'var(--gold)'}}></div>
-                  <div>
-                    <h4 className="text-xl text-white font-medium mb-3">Confidential Environment</h4>
-                    <p className="text-neutral-400 text-lg leading-relaxed">Bank-grade security and comprehensive NDAs protect sensitive business information.</p>
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                   </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Automated Search</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Advanced algorithms continuously scan thousands of businesses across multiple platforms to find perfect matches.</p>
                 </div>
 
-                <div className="divider"></div>
-
-                <div className="flex items-start space-x-6">
-                  <div className="w-4 h-4 mt-3 flex-shrink-0" style={{background: 'var(--gold)'}}></div>
-                  <div>
-                    <h4 className="text-xl text-white font-medium mb-3">Expert Support</h4>
-                    <p className="text-neutral-400 text-lg leading-relaxed">Dedicated support from M&A professionals throughout your transaction journey.</p>
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                   </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Pre-Diligence Support</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Get instant, comprehensive comparisons with financial metrics, growth potential, and risk assessments.</p>
+                </div>
+
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Market Intelligence</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Access deep market insights, competitive analysis, and growth opportunity scoring for every potential acquisition.</p>
+                </div>
+
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-5 5v-5zM4 19h10M4 15h10M4 11h10M4 7h10" />
+                    </svg>
+                  </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Real-Time Alerts</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Never miss an opportunity with instant notifications when new businesses matching your criteria become available.</p>
+                </div>
+
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
+                  <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Risk Assessment</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Comprehensive due diligence reports highlighting potential risks, compliance issues, and red flags before you invest.</p>
                 </div>
               </div>
-            </ScrollAnimation>
+            </div>
+          </ScrollAnimation>
 
-            <ScrollAnimation direction="right" delay={200} className="glass p-20 tier-premium">
-              <div className="space-y-12">
-                <div className="text-center border-b pb-8" style={{borderColor: 'rgba(212, 175, 55, 0.3)'}}>
-                  <div className="text-5xl font-bold mb-3 text-financial" style={{color: 'var(--gold)'}}>90%</div>
-                  <div className="text-neutral-400 text-lg">Time Wasted on Research</div>
+          {featuredListings.length > 0 && (
+            <ScrollAnimation direction="up" delay={150}>
+              <div className="mb-32">
+                <div className="text-center mb-20">
+                  <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">Featured Opportunities</h2>
+                  <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed">Hand-selected premium businesses ready for acquisition</p>
                 </div>
-                <div className="text-center border-b pb-8" style={{borderColor: 'rgba(212, 175, 55, 0.3)'}}>
-                  <div className="text-5xl font-bold mb-3 text-financial" style={{color: 'var(--gold)'}}>6-12</div>
-                  <div className="text-neutral-400 text-lg">Months to Find Target</div>
+
+                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+                  {featuredListings.map((listing, index) => (
+                    <div key={listing.id} className="group" style={{animationDelay: `${index * 0.1}s`}}>
+                      <div className="glass rounded-luxury-lg overflow-hidden border border-gold/10 hover:border-gold/30 transition-all duration-500 hover:transform hover:-translate-y-2 hover:scale-105 relative">
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-accent-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                        <div className="p-8 pb-6">
+                          <div className="flex items-start justify-between mb-6">
+                            <div className="flex flex-wrap gap-2">
+                              <span className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${listing.lane === 'MAIN' ? 'bg-accent-gradient text-midnight border-gold' : 'bg-slate/50 text-silver border-silver/50'}`}>
+                                {listing.lane}
+                              </span>
+                              <span className="px-3 py-1 text-xs font-medium uppercase tracking-wider bg-charcoal/50 text-silver/80 rounded-full border border-silver/20">
+                                {listing.industry}
+                              </span>
+                            </div>
+                          </div>
+
+                          <h3 className="font-serif text-xl text-warm-white font-medium mb-4 line-clamp-2 leading-tight tracking-refined group-hover:text-gold-light transition-colors duration-300">
+                            {listing.title}
+                          </h3>
+
+                          <p className="font-sans text-silver/80 mb-6 line-clamp-3 leading-relaxed text-sm">
+                            {listing.description}
+                          </p>
+                        </div>
+
+                        <div className="bg-navy/30 border-t border-gold/10 p-6 space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span className="font-sans text-xs text-silver/70 font-medium uppercase tracking-wide">Revenue</span>
+                            <span className="font-mono text-sm text-gold font-bold">{formatCurrency(listing.revenue)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="font-sans text-xs text-silver/70 font-medium uppercase tracking-wide">Valuation</span>
+                            <span className="font-mono text-sm text-gold font-bold">
+                              {formatCurrency(listing.valuationLow)} - {formatCurrency(listing.valuationHigh)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-6 pt-4">
+                          <Link href={`/listings/${listing.id}`} className="block">
+                            <button className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury">
+                              View Details →
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
                 <div className="text-center">
-                  <div className="text-5xl font-bold mb-3 text-financial" style={{color: 'var(--gold)'}}>$50K+</div>
-                  <div className="text-neutral-400 text-lg">Average Search Cost</div>
+                  <Link href="/browse" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gold/40 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans">
+                    View All Opportunities →
+                  </Link>
                 </div>
               </div>
             </ScrollAnimation>
-          </div>
-        </div>
-      </section>
+          )}
 
-      {/* Success Stories Section */}
-      <section className="py-40 relative">
-        <div className="container mx-auto px-8 max-w-6xl">
-          <ScrollAnimation direction="fade" className="text-center mb-32">
-            <h2 className="text-heading text-white font-medium mb-12">
-              Success Stories
-            </h2>
-            <p className="text-xl text-neutral-400 leading-relaxed max-w-3xl mx-auto">
-              Trusted by industry leaders and successful entrepreneurs worldwide.
-            </p>
+          {/* Beta Waitlist Section */}
+          <ScrollAnimation direction="fade" delay={100}>
+            <div className="mb-32">
+              <div className="glass p-16 rounded-luxury-xl border border-gold/20 max-w-5xl mx-auto relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-gold/5 via-transparent to-navy/10"></div>
+                <div className="relative z-10">
+                  <div className="text-center mb-12">
+                    <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">Why Join the Waitlist?</h2>
+                    <p className="font-sans text-xl text-platinum/80 mb-8 leading-relaxed">The traditional approach to business acquisitions is broken. Long research cycles, missed opportunities, and information asymmetry cost entrepreneurs millions. We're changing that.</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-12 mb-12">
+                    <div className="space-y-8">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">Save Months of Research</h3>
+                          <p className="font-sans text-silver/80 leading-relaxed">What currently takes 6-12 months will be reduced to weeks with our AI-powered discovery engine.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4">
+                        <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">Data-Driven Decisions</h3>
+                          <p className="font-sans text-silver/80 leading-relaxed">Make confident acquisition decisions with comprehensive analytics and market insights at your fingertips.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">Minimize Risk</h3>
+                          <p className="font-sans text-silver/80 leading-relaxed">Advanced AI risk assessment will help you avoid costly mistakes and identify red flags early.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4">
+                        <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">First-Mover Advantage</h3>
+                          <p className="font-sans text-silver/80 leading-relaxed">Get exclusive access to opportunities before they hit the mainstream market or your competitors.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Beta Benefits */}
+                  <div className="border-t border-gold/20 pt-12">
+                    <h3 className="font-serif text-2xl font-semibold text-warm-white mb-8 text-center tracking-refined">Early Access Benefits</h3>
+                    <p className="font-sans text-lg text-platinum/80 mb-8 text-center">Be among the first to experience the future</p>
+
+                    <div className="grid md:grid-cols-4 gap-6 mb-12">
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-6 h-6 text-midnight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div className="font-serif text-lg font-semibold text-warm-white mb-2">Free Beta Access</div>
+                        <div className="text-gold font-semibold">✓</div>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-6 h-6 text-midnight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div className="font-serif text-lg font-semibold text-warm-white mb-2">Priority Support</div>
+                        <div className="text-gold font-semibold">✓</div>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-6 h-6 text-midnight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div className="font-serif text-lg font-semibold text-warm-white mb-2">Lifetime Discount</div>
+                        <div className="text-gold font-semibold">✓</div>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="w-12 h-12 bg-slate/50 border-2 border-gold/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                        </div>
+                        <div className="font-serif text-lg font-semibold text-warm-white mb-2">Product Roadmap Input</div>
+                        <div className="text-silver font-semibold">Coming Soon</div>
+                      </div>
+                    </div>
+
+                    {/* Waitlist Form */}
+                    <div className="max-w-2xl mx-auto">
+                      {waitlistSubmitted ? (
+                        /* Confirmation Message */
+                        <div className="text-center space-y-6 py-8">
+                          <div className="w-20 h-20 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg className="w-10 h-10 text-midnight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+
+                          <h3 className="font-serif text-3xl font-semibold text-warm-white mb-4 tracking-refined">
+                            You're on the list! 🎉
+                          </h3>
+
+                          <p className="font-sans text-lg text-platinum/90 leading-relaxed mb-6">
+                            Welcome to the DealSense beta program. We'll notify you as soon as we launch and keep you updated on our progress.
+                          </p>
+
+                          <div className="glass p-6 rounded-luxury border border-gold/20">
+                            <h4 className="font-serif text-xl font-semibold text-warm-white mb-4">What happens next?</h4>
+                            <div className="space-y-3 text-left">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+                                </div>
+                                <p className="font-sans text-silver/80 text-sm">You'll receive a confirmation email within the next few minutes</p>
+                              </div>
+                              <div className="flex items-start space-x-3">
+                                <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+                                </div>
+                                <p className="font-sans text-silver/80 text-sm">We'll send you exclusive updates on our development progress</p>
+                              </div>
+                              <div className="flex items-start space-x-3">
+                                <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+                                </div>
+                                <p className="font-sans text-silver/80 text-sm">You'll be among the first to get beta access when we launch</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setWaitlistSubmitted(false)}
+                            className="inline-flex items-center px-6 py-3 bg-transparent border-2 border-silver/30 text-silver hover:border-gold/50 hover:text-gold font-medium rounded-luxury transition-all duration-300 font-sans text-sm"
+                          >
+                            Sign up another person
+                          </button>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleWaitlistSubmit} className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label htmlFor="waitlist-name" className="form-label text-sm">
+                              Full Name *
+                            </label>
+                            <input
+                              type="text"
+                              id="waitlist-name"
+                              name="name"
+                              value={waitlistData.name}
+                              onChange={handleWaitlistInputChange}
+                              className="form-control w-full py-3 px-4"
+                              placeholder="Your name"
+                              required
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label htmlFor="waitlist-email" className="form-label text-sm">
+                              Email Address *
+                            </label>
+                            <input
+                              type="email"
+                              id="waitlist-email"
+                              name="email"
+                              value={waitlistData.email}
+                              onChange={handleWaitlistInputChange}
+                              className="form-control w-full py-3 px-4"
+                              placeholder="your@email.com"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label htmlFor="waitlist-role" className="form-label text-sm">
+                              Primary Role
+                            </label>
+                            <select
+                              id="waitlist-role"
+                              name="role"
+                              value={waitlistData.role}
+                              onChange={handleWaitlistInputChange}
+                              className="form-control w-full py-3 px-4"
+                            >
+                              <option value="BUYER">Buyer/Investor</option>
+                              <option value="SELLER">Business Owner/Seller</option>
+                              <option value="BROKER">Broker/Advisor</option>
+                            </select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label htmlFor="waitlist-company" className="form-label text-sm">
+                              Company (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              id="waitlist-company"
+                              name="company"
+                              value={waitlistData.company}
+                              onChange={handleWaitlistInputChange}
+                              className="form-control w-full py-3 px-4"
+                              placeholder="Your company"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label htmlFor="waitlist-dealsize" className="form-label text-sm">
+                            Target Deal Size
+                          </label>
+                          <select
+                            id="waitlist-dealsize"
+                            name="dealSize"
+                            value={waitlistData.dealSize}
+                            onChange={handleWaitlistInputChange}
+                            className="form-control w-full py-3 px-4"
+                          >
+                            <option value="">Select range</option>
+                            <option value="50K-250K">$50K - $250K</option>
+                            <option value="250K-1M">$250K - $1M</option>
+                            <option value="1M-5M">$1M - $5M</option>
+                            <option value="5M-25M">$5M - $25M</option>
+                            <option value="25M+">$25M+</option>
+                          </select>
+                        </div>
+
+                        {/* Interests */}
+                        <div className="space-y-4">
+                          <label className="form-label text-sm">
+                            Industries of Interest (Optional)
+                          </label>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {['SaaS', 'E-commerce', 'Manufacturing', 'Healthcare', 'Technology', 'Food & Beverage', 'Professional Services', 'Real Estate', 'Financial Services'].map(interest => (
+                              <button
+                                key={interest}
+                                type="button"
+                                onClick={() => handleInterestToggle(interest)}
+                                className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-300 ${
+                                  waitlistData.interests.includes(interest)
+                                    ? 'bg-accent-gradient text-midnight border-gold'
+                                    : 'bg-transparent text-silver border-silver/30 hover:border-gold/50'
+                                }`}
+                              >
+                                {interest}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="pt-6">
+                          <button
+                            type="submit"
+                            disabled={isSubmittingWaitlist || !waitlistData.email || !waitlistData.name}
+                            className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isSubmittingWaitlist ? (
+                              <div className="flex items-center justify-center space-x-3">
+                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                <span>Joining Waitlist...</span>
+                              </div>
+                            ) : (
+                              'Join Beta Waitlist'
+                            )}
+                          </button>
+
+                          <p className="text-neutral-400 text-sm text-center mt-4">
+                            No spam, ever. We'll only email you when the beta launches and with important updates.
+                          </p>
+                        </div>
+                      </form>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </ScrollAnimation>
 
-          <div className="w-full max-w-7xl mx-auto grid grid-cols-3 gap-8">
-            <ScrollAnimation direction="up" delay={100} className="glass p-20 hover-lift">
-              <div className="mb-16">
-                <div className="text-8xl mb-8" style={{color: 'var(--gold)'}}>&ldquo;</div>
-                <p className="text-2xl text-neutral-300 leading-relaxed italic">
-                  DealSense streamlined our acquisition process beautifully. The AI insights were invaluable for our due diligence.
-                </p>
+          <ScrollAnimation direction="fade" delay={150}>
+            <div className="text-center mb-32">
+              <div className="glass p-16 rounded-luxury-xl border border-gold/20 max-w-4xl mx-auto relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-gold/5 via-transparent to-navy/10"></div>
+                <div className="relative z-10">
+                  <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-8 tracking-refined">Ready to Begin?</h2>
+                  <p className="font-sans text-xl text-platinum/80 mb-12 leading-relaxed">Join the premier marketplace for business acquisition opportunities.</p>
+                  <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                    <Link href="/browse" className="inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury">
+                      Start Browsing
+                    </Link>
+                    <Link href="/auth" className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans">
+                      List Your Business
+                    </Link>
+                  </div>
+                </div>
               </div>
-              <div className="border-t pt-10" style={{borderColor: 'rgba(212, 175, 55, 0.3)'}}>
-                <div className="text-white font-medium text-xl">Sarah Chen</div>
-                <div className="text-neutral-500 text-lg">Managing Partner, Venture Capital</div>
-              </div>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={200} className="glass p-20 hover-lift">
-              <div className="mb-16">
-                <div className="text-8xl mb-8" style={{color: 'var(--gold)'}}>&ldquo;</div>
-                <p className="text-2xl text-neutral-300 leading-relaxed italic">
-                  The platform&apos;s security and professionalism gave us confidence throughout the entire transaction process.
-                </p>
-              </div>
-              <div className="border-t pt-10" style={{borderColor: 'rgba(212, 175, 55, 0.3)'}}>
-                <div className="text-white font-medium text-xl">Marcus Rodriguez</div>
-                <div className="text-neutral-500 text-lg">CEO, Tech Acquisition Corp</div>
-              </div>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={300} className="glass p-20 hover-lift">
-              <div className="mb-16">
-                <div className="text-8xl mb-8" style={{color: 'var(--gold)'}}>&ldquo;</div>
-                <p className="text-2xl text-neutral-300 leading-relaxed italic">
-                  Found the perfect strategic buyer for our company. The network quality is exceptional.
-                </p>
-              </div>
-              <div className="border-t pt-10" style={{borderColor: 'rgba(212, 175, 55, 0.3)'}}>
-                <div className="text-white font-medium text-xl">Jennifer Park</div>
-                <div className="text-neutral-500 text-lg">Founder, SaaS Platform</div>
-              </div>
-            </ScrollAnimation>
-          </div>
+            </div>
+          </ScrollAnimation>
         </div>
-      </section>
-
-      {/* Dynamic Floating Scroller */}
-      <ScrollCue />
-    </main>
+      </div>
+    </div>
   );
 }

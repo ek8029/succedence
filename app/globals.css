@@ -1159,13 +1159,37 @@ h6, .text-micro {
   border-color: rgba(212, 175, 55, 0.1);
 }
 
-/* Minimal color scheme */
+/* Refined Color Scheme - Updated */
 .bg-brand-dark {
-  background: #111111;
+  background: var(--secondary-gradient);
 }
 
 .bg-brand-darker {
-  background: #0a0a0a;
+  background: var(--primary-gradient);
+}
+
+.bg-charcoal {
+  background: var(--charcoal);
+}
+
+.bg-charcoal-light {
+  background: var(--charcoal-light);
+}
+
+.bg-navy {
+  background: var(--navy);
+}
+
+.bg-navy-light {
+  background: var(--navy-light);
+}
+
+.bg-slate {
+  background: var(--slate);
+}
+
+.bg-slate-light {
+  background: var(--slate-light);
 }
 
 /* Classic form controls */

@@ -21,6 +21,8 @@ export default function NewListingPage() {
     liabilities: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +86,39 @@ export default function NewListingPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Simulate upload processing (since we don't have real backend)
+    setUploadedImages(prev => [...prev, ...files]);
+
+    // Create preview URLs
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setImagePreviews(prev => [...prev, event.target.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Show success notification
+    const notification = document.createElement('div');
+    notification.className = 'notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up';
+    notification.style.backgroundColor = 'var(--accent)';
+    notification.style.color = '#000';
+    notification.innerHTML = `✓ ${files.length} image(s) uploaded successfully`;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -220,6 +255,79 @@ export default function NewListingPage() {
                       max="2024"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Business Images */}
+              <div className="space-y-8">
+                <h2 className="text-2xl text-white font-medium border-b border-neutral-600 pb-4">
+                  Business Images
+                </h2>
+
+                <div className="space-y-6">
+                  <p className="text-neutral-400">
+                    Upload images of your business including logo, facility photos, products, or operations.
+                    These help potential buyers better understand your business.
+                  </p>
+
+                  {/* Upload Area */}
+                  <div className="border-2 border-dashed border-neutral-600 rounded-lg p-8 text-center hover:border-neutral-500 transition-colors">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="imageUpload"
+                    />
+                    <label htmlFor="imageUpload" className="cursor-pointer block">
+                      <div className="space-y-4">
+                        <div className="w-16 h-16 bg-neutral-800 border border-neutral-600 flex items-center justify-center mx-auto rounded-lg">
+                          <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-lg text-white font-medium">Upload Business Images</div>
+                          <div className="text-neutral-400 text-sm mt-2">
+                            Click to browse or drag and drop<br/>
+                            PNG, JPG, or GIF up to 10MB each
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Image Previews */}
+                  {imagePreviews.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg text-white font-medium">Uploaded Images ({imagePreviews.length})</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {imagePreviews.map((preview, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={preview}
+                              alt={`Business image ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border border-neutral-600"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-2 right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm hover:bg-red-700"
+                            >
+                              ×
+                            </button>
+                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                              {uploadedImages[index]?.name || `Image ${index + 1}`}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-neutral-400 text-sm">
+                        💡 Tip: Include your logo, storefront, products, team photos, or facility images to make your listing more attractive to buyers.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
