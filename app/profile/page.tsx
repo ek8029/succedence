@@ -27,10 +27,12 @@ function ProfilePageContent() {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [editedRole, setEditedRole] = useState<'BUYER' | 'SELLER' | 'ADMIN'>('BUYER');
 
   useEffect(() => {
     if (user) {
       setEditedName(user.name);
+      setEditedRole(user.role);
       fetchUserData(user);
     }
   }, [user]);
@@ -76,12 +78,12 @@ function ProfilePageContent() {
 
   const handleSaveProfile = () => {
     if (!user) return;
-    
-    updateProfile({ name: editedName.trim() });
+
+    updateProfile({ name: editedName.trim(), role: editedRole });
     setEditMode(false);
-    
-    // Refresh data with new name
-    fetchUserData({ ...user, name: editedName.trim() });
+
+    // Refresh data with new name and role
+    fetchUserData({ ...user, name: editedName.trim(), role: editedRole });
   };
 
   const formatCurrency = (amount: number) => {
@@ -140,134 +142,117 @@ function ProfilePageContent() {
           <div className="max-w-6xl mx-auto space-y-16">
             {/* Profile Information */}
             <div className="glass p-16">
-            <h2 className="text-2xl text-white font-medium mb-10">Account Information</h2>
-            
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <label className="block text-lg text-neutral-300 font-medium">Name</label>
-                  {editMode ? (
-                    <input
-                      type="text"
-                      value={editedName}
-                      onChange={(e) => setEditedName(e.target.value)}
-                      className="form-control w-full py-4 px-6 text-lg"
-                      placeholder="Enter your name"
-                    />
-                  ) : (
-                    <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg">
-                      {user.name}
-                    </div>
-                  )}
-                </div>
+              <h2 className="text-2xl text-white font-medium mb-10 text-center">Account Information</h2>
 
-                <div className="space-y-4">
-                  <label className="block text-lg text-neutral-300 font-medium">Role</label>
-                  <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600">
-                    <span className={`status-badge ${
-                      user.role === 'ADMIN' ? 'status-main' : 
-                      user.role === 'SELLER' ? 'status-approved' : 'status-starter'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {editMode ? (
-                  <div className="flex space-x-4">
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={!editedName.trim()}
-                      className="btn-success px-8 py-3 font-medium hover-lift disabled:opacity-50"
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditMode(false);
-                        setEditedName(user.name);
-                      }}
-                      className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
+              <div className="max-w-2xl mx-auto">
+                <div className="space-y-8">
                   <div className="space-y-4">
-                    <button
-                      onClick={() => setEditMode(true)}
-                      className="btn-primary px-8 py-3 font-medium hover-lift"
-                    >
-                      Edit Profile
-                    </button>
-                    <div>
-                      <button
-                        onClick={() => signOut()}
-                        className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Name</label>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="form-control w-full py-4 px-6 text-lg text-center"
+                        placeholder="Enter your name"
+                      />
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                        {user.name}
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Role</label>
+                    {editMode ? (
+                      <select
+                        value={editedRole}
+                        onChange={(e) => setEditedRole(e.target.value as 'BUYER' | 'SELLER' | 'ADMIN')}
+                        className="form-control w-full py-4 px-6 text-lg text-center"
+                      >
+                        <option value="BUYER">BUYER</option>
+                        <option value="SELLER">SELLER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-center">
+                        <span className={`status-badge ${
+                          user.role === 'ADMIN' ? 'status-main' :
+                          user.role === 'SELLER' ? 'status-approved' : 'status-starter'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-center space-x-4 pt-6">
+                    {editMode ? (
+                      <>
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={!editedName.trim()}
+                          className="btn-success px-8 py-3 font-medium hover-lift disabled:opacity-50"
+                        >
+                          Save Changes
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditMode(false);
+                            setEditedName(user.name);
+                            setEditedRole(user.role);
+                          }}
+                          className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setEditMode(true)}
+                          className="btn-primary px-8 py-3 font-medium hover-lift"
+                        >
+                          Edit Profile
+                        </button>
+                        <button
+                          onClick={() => signOut()}
+                          className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
+                        >
+                          Sign Out
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Activity Statistics */}
           {stats && (
             <div className="glass p-16">
-              <h2 className="text-2xl text-white font-medium mb-10">Activity Overview</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div className="metric-card p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 bg-white border border-neutral-300 flex items-center justify-center">
-                      <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.listingsCreated}</div>
-                  <div className="text-neutral-400">Listings Created</div>
+              <h2 className="text-2xl text-white font-medium mb-10 text-center">Activity Overview</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                <div className="metric-card p-8 text-center">
+                  <div className="text-4xl font-bold text-gold mb-4 font-mono">{stats.listingsCreated}</div>
+                  <div className="text-neutral-400 text-lg">Listings Created</div>
                 </div>
 
-                <div className="metric-card p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 border flex items-center justify-center" style={{backgroundColor: 'var(--accent)', borderColor: 'var(--accent)'}}>
-                      <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.ndasRequested}</div>
-                  <div className="text-neutral-400">NDAs Requested</div>
+                <div className="metric-card p-8 text-center">
+                  <div className="text-4xl font-bold text-gold mb-4 font-mono">{stats.ndasRequested}</div>
+                  <div className="text-neutral-400 text-lg">NDAs Requested</div>
                 </div>
 
-                <div className="metric-card p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 bg-neutral-800 border border-neutral-600 flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.ndasReceived}</div>
-                  <div className="text-neutral-400">NDAs Received</div>
+                <div className="metric-card p-8 text-center">
+                  <div className="text-4xl font-bold text-gold mb-4 font-mono">{stats.ndasReceived}</div>
+                  <div className="text-neutral-400 text-lg">NDAs Received</div>
                 </div>
 
-                <div className="metric-card p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 bg-neutral-800 border border-neutral-600 flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.messagesExchanged}</div>
-                  <div className="text-neutral-400">Messages Sent</div>
+                <div className="metric-card p-8 text-center">
+                  <div className="text-4xl font-bold text-gold mb-4 font-mono">{stats.messagesExchanged}</div>
+                  <div className="text-neutral-400 text-lg">Messages Sent</div>
                 </div>
               </div>
             </div>
