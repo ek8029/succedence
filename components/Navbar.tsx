@@ -1,100 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const { user, isLoading, signOut } = useAuth();
-  const [showBrowseLink, setShowBrowseLink] = useState(true);
-  const pathname = usePathname();
-
-  useEffect(() => {
-    // Only apply scroll behavior on homepage
-    if (pathname !== '/') {
-      setShowBrowseLink(true);
-      return;
-    }
-
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const heroHeight = window.innerHeight; // Assuming hero is full viewport height
-
-      // Show browse link after scrolling past 70% of hero section
-      setShowBrowseLink(scrollTop > heroHeight * 0.7);
-    };
-
-    // Initial check
-    handleScroll();
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [pathname]);
 
   return (
     <nav className="header-professional px-6 py-4 sticky top-0 z-50">
       <div className="container-professional flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-4 group hover-lift">
-          {/* OPTION A: Small logo + text */}
-          <div className="w-10 h-10 relative overflow-hidden transition-all group-hover:scale-105">
-            <Image
-              src="/logo.png"
-              alt="Succedence Logo"
-              width={40}
-              height={40}
-              className="object-contain"
-              priority
-            />
-          </div>
+        <Link href="/" className="flex items-center group hover-lift">
           <span className="text-2xl text-white font-semibold tracking-tight" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
             Succedence
           </span>
-
-          {/* OPTION B: Larger horizontal logo (uncomment to use)
-          <div className="h-12 w-auto relative">
-            <Image
-              src="/logo-horizontal.png"
-              alt="Succedence"
-              width={200}
-              height={48}
-              className="object-contain"
-              priority
-            />
-          </div>
-          */}
-
-          {/* OPTION C: Logo only, no text (uncomment to use)
-          <div className="h-14 w-auto relative">
-            <Image
-              src="/logo.png"
-              alt="Succedence"
-              width={56}
-              height={56}
-              className="object-contain"
-              priority
-            />
-          </div>
-          */}
         </Link>
         
         <div className="flex items-center space-x-6">
-          <div
-            className={`transition-all duration-500 ease-in-out overflow-hidden ${
-              showBrowseLink
-                ? 'max-w-2xl opacity-100 translate-x-0'
-                : 'max-w-0 opacity-0 -translate-x-4'
-            }`}
-          >
-            <div className="flex items-center space-x-6">
-              <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                Browse Opportunities
-              </Link>
-              <Link href="/success" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                Success Stories
-              </Link>
-            </div>
+          <div className="flex items-center space-x-6">
+            <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              Browse Opportunities
+            </Link>
+            <Link href="/success" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              Success Stories
+            </Link>
           </div>
           
           {user && (

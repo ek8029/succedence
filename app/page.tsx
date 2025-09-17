@@ -113,10 +113,16 @@ export default function Home() {
           <ScrollAnimation direction="fade">
             <div className="text-center mb-32 mt-24">
               <div className="max-w-5xl mx-auto">
-                <h1 className="font-serif text-5xl md:text-7xl font-semibold text-warm-white mb-12 tracking-refined leading-tight">
+                <div className="mb-8">
+                  <h1 className="font-serif text-6xl md:text-8xl font-bold text-warm-white mb-4 tracking-refined leading-tight">
+                    Succedence
+                  </h1>
+                  <div className="h-1 w-32 bg-accent-gradient mx-auto mb-8"></div>
+                </div>
+                <h2 className="font-serif text-4xl md:text-6xl font-semibold text-warm-white mb-12 tracking-refined leading-tight">
                   Acquire Premium
                   <span className="block text-gold tracking-luxury"> Businesses</span>
-                </h1>
+                </h2>
                 <p className="font-sans text-xl md:text-2xl leading-luxury text-platinum/90 mb-16 max-w-3xl mx-auto">
                   Discover exceptional acquisition opportunities from verified sellers. Connect with business owners ready to transition their legacy.
                 </p>
