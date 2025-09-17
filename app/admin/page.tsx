@@ -121,11 +121,6 @@ function AdminPageContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="metric-card p-8 slide-up">
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-white border border-neutral-300 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
                 <span className="text-caption text-neutral-500">Total</span>
               </div>
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.totalListings}</div>
@@ -134,11 +129,6 @@ function AdminPageContent() {
           
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.1s'}}>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 border flex items-center justify-center" style={{backgroundColor: 'var(--accent)', borderColor: 'var(--accent)'}}>
-                  <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
                 <span className="text-caption text-neutral-500">Main Street</span>
               </div>
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.mainLaneListings}</div>
@@ -147,11 +137,6 @@ function AdminPageContent() {
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.2s'}}>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-neutral-800 border border-neutral-600 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
                 <span className="text-caption text-neutral-500">Starter</span>
               </div>
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.starterLaneListings}</div>
@@ -160,11 +145,6 @@ function AdminPageContent() {
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.3s'}}>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-neutral-800 border border-neutral-600 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
                 <span className="text-caption text-neutral-500">Total</span>
               </div>
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.totalNDARequests}</div>
@@ -173,11 +153,6 @@ function AdminPageContent() {
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.4s'}}>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-neutral-800 border border-neutral-600 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
                 <span className="text-caption text-neutral-500">Pending</span>
               </div>
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.pendingNDARequests}</div>
@@ -186,11 +161,6 @@ function AdminPageContent() {
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.5s'}}>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-neutral-800 border border-neutral-600 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
                 <span className="text-caption text-neutral-500">Total</span>
               </div>
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.totalMessages}</div>

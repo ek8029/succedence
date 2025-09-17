@@ -173,7 +173,6 @@ function ProfilePageContent() {
                       >
                         <option value="BUYER">BUYER</option>
                         <option value="SELLER">SELLER</option>
-                        <option value="ADMIN">ADMIN</option>
                       </select>
                     ) : (
                       <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-center">
