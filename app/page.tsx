@@ -109,31 +109,31 @@ export default function Home() {
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
       <div className="relative z-10">
-        <div className="container mx-auto px-8 py-20 pb-24 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 pb-16 sm:pb-20 lg:pb-24 max-w-7xl">
           <ScrollAnimation direction="fade">
-            <div className="text-center mb-32 mt-24">
-              <div className="max-w-5xl mx-auto">
-                <div className="mb-20">
-                  <h1 className="font-serif text-6xl md:text-8xl font-bold text-warm-white mb-8 tracking-refined leading-tight">
+            <div className="text-center mb-24 sm:mb-32 lg:mb-40 mt-12 sm:mt-16 lg:mt-24">
+              <div className="max-w-6xl mx-auto">
+                <div className="mb-16 sm:mb-20 lg:mb-28">
+                  <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-warm-white mb-6 sm:mb-8 lg:mb-12 tracking-refined leading-tight">
                     Succedence
                   </h1>
-                  <div className="h-2 w-48 bg-accent-gradient mx-auto mb-12"></div>
+                  <div className="h-1.5 sm:h-2 lg:h-3 w-32 sm:w-48 lg:w-64 bg-accent-gradient mx-auto mb-8 sm:mb-12 lg:mb-16"></div>
                 </div>
-                <h2 className="font-serif text-4xl md:text-6xl font-semibold text-warm-white mb-12 tracking-refined leading-tight">
+                <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-warm-white mb-8 sm:mb-12 lg:mb-16 tracking-refined leading-tight">
                   Acquire Premium
                   <span className="block text-gold tracking-luxury"> Businesses</span>
                 </h2>
-                <p className="font-sans text-xl md:text-2xl leading-luxury text-platinum/90 mb-16 max-w-3xl mx-auto">
+                <p className="font-sans text-lg sm:text-xl md:text-2xl lg:text-3xl leading-luxury text-platinum/90 mb-12 sm:mb-16 lg:mb-20 max-w-3xl lg:max-w-4xl mx-auto">
                   Discover exceptional acquisition opportunities from verified sellers. Connect with business owners ready to transition their legacy.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                  <Link href="/browse" className="group inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 justify-center items-center">
+                  <Link href="/browse" className="group inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury text-sm sm:text-base lg:text-lg w-full sm:w-auto">
                     Browse Opportunities
-                    <svg className="w-5 h-5 ml-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ml-2 sm:ml-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </Link>
-                  <Link href="/auth" className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans">
+                  <Link href="/auth" className="inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans text-sm sm:text-base lg:text-lg w-full sm:w-auto">
                     List Your Business
                   </Link>
                 </div>
@@ -142,67 +142,67 @@ export default function Home() {
           </ScrollAnimation>
 
           <ScrollAnimation direction="up" delay={50}>
-            <div className="mb-32">
-              <div className="text-center mb-20">
-                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">The Problem We&apos;re Solving</h2>
-                <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed mb-16">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
+            <div className="mb-40 lg:mb-48">
+              <div className="text-center mb-24 lg:mb-32">
+                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-warm-white mb-8 tracking-refined">The Problem We&apos;re Solving</h2>
+                <p className="font-sans text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-4xl mx-auto leading-relaxed mb-20 lg:mb-24">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
 
                 {/* Statistics Grid */}
-                <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-20">
-                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
-                    <div className="text-4xl font-bold text-gold mb-2 font-mono">90%</div>
-                    <div className="text-sm text-silver/80 uppercase tracking-wide">Time Wasted on Research</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-6xl mx-auto mb-28 lg:mb-36">
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">90%</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Time Wasted on Research</div>
                   </div>
-                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
-                    <div className="text-4xl font-bold text-gold mb-2 font-mono">6-12</div>
-                    <div className="text-sm text-silver/80 uppercase tracking-wide">Months to Find Target</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">6-12</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Months to Find Target</div>
                   </div>
-                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
-                    <div className="text-4xl font-bold text-gold mb-2 font-mono">$50K+</div>
-                    <div className="text-sm text-silver/80 uppercase tracking-wide">Average Search Cost</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">$50K+</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Average Search Cost</div>
                   </div>
-                  <div className="glass p-6 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300">
-                    <div className="text-4xl font-bold text-gold mb-2 font-mono">70%</div>
-                    <div className="text-sm text-silver/80 uppercase tracking-wide">Deals Fall Through</div>
+                  <div className="glass p-8 lg:p-12 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2">
+                    <div className="text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-4 lg:mb-6 font-mono">70%</div>
+                    <div className="text-sm lg:text-base text-silver/80 uppercase tracking-wide leading-relaxed">Deals Fall Through</div>
                   </div>
                 </div>
 
-                <h3 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white mb-6 tracking-refined">Why Choose Succedence?</h3>
-                <p className="font-sans text-lg text-platinum/80 max-w-3xl mx-auto leading-relaxed">Built for discerning buyers and sellers who value quality, transparency, and premium service.</p>
+                <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-warm-white mb-6 sm:mb-8 lg:mb-12 tracking-refined">Why Choose Succedence?</h3>
+                <p className="font-sans text-lg sm:text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-3xl lg:max-w-4xl mx-auto leading-relaxed">Built for discerning buyers and sellers who value quality, transparency, and premium service.</p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-                <div className="glass p-10 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 max-w-7xl mx-auto">
+                <div className="glass p-6 sm:p-8 lg:p-10 xl:p-12 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
-                  <div className="w-16 h-16 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-8">
-                    <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6 sm:mb-8">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="font-serif text-2xl font-semibold text-warm-white mb-6 tracking-refined">Verified Opportunities</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed">Every listing undergoes rigorous verification. Connect with serious sellers and pre-qualified opportunities.</p>
+                  <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-semibold text-warm-white mb-4 sm:mb-6 tracking-refined">Verified Opportunities</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">Every listing undergoes rigorous verification. Connect with serious sellers and pre-qualified opportunities.</p>
                 </div>
 
-                <div className="glass p-10 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                <div className="glass p-6 sm:p-8 lg:p-10 xl:p-12 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
-                  <div className="w-16 h-16 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-8">
-                    <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6 sm:mb-8">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
-                  <h3 className="font-serif text-2xl font-semibold text-warm-white mb-6 tracking-refined">Secure Transactions</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed">Industry-leading security protocols protect your information and ensure confidential deal-making.</p>
+                  <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-semibold text-warm-white mb-4 sm:mb-6 tracking-refined">Secure Transactions</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">Industry-leading security protocols protect your information and ensure confidential deal-making.</p>
                 </div>
 
-                <div className="glass p-10 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                <div className="glass p-6 sm:p-8 lg:p-10 xl:p-12 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
-                  <div className="w-16 h-16 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-8">
-                    <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6 sm:mb-8">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <h3 className="font-serif text-2xl font-semibold text-warm-white mb-6 tracking-refined">Lightning Fast</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed">Streamlined processes and intelligent matching accelerate your path from discovery to acquisition.</p>
+                  <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-semibold text-warm-white mb-4 sm:mb-6 tracking-refined">Lightning Fast</h3>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">Streamlined processes and intelligent matching accelerate your path from discovery to acquisition.</p>
                 </div>
               </div>
             </div>
@@ -376,7 +376,7 @@ export default function Home() {
                         </div>
                         <div>
                           <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">Save Months of Research</h3>
-                          <p className="font-sans text-silver/80 leading-relaxed">What currently takes 6-12 months will be reduced to weeks with our AI-powered discovery engine.</p>
+                          <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">What currently takes 6-12 months will be reduced to weeks with our AI-powered discovery engine.</p>
                         </div>
                       </div>
 
@@ -388,7 +388,7 @@ export default function Home() {
                         </div>
                         <div>
                           <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">Data-Driven Decisions</h3>
-                          <p className="font-sans text-silver/80 leading-relaxed">Make confident acquisition decisions with comprehensive analytics and market insights at your fingertips.</p>
+                          <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">Make confident acquisition decisions with comprehensive analytics and market insights at your fingertips.</p>
                         </div>
                       </div>
                     </div>
@@ -402,7 +402,7 @@ export default function Home() {
                         </div>
                         <div>
                           <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">Minimize Risk</h3>
-                          <p className="font-sans text-silver/80 leading-relaxed">Advanced AI risk assessment will help you avoid costly mistakes and identify red flags early.</p>
+                          <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">Advanced AI risk assessment will help you avoid costly mistakes and identify red flags early.</p>
                         </div>
                       </div>
 
@@ -414,7 +414,7 @@ export default function Home() {
                         </div>
                         <div>
                           <h3 className="font-serif text-xl font-semibold text-warm-white mb-2 tracking-refined">First-Mover Advantage</h3>
-                          <p className="font-sans text-silver/80 leading-relaxed">Get exclusive access to opportunities before they hit the mainstream market or your competitors.</p>
+                          <p className="font-sans text-silver/80 leading-relaxed text-sm sm:text-base lg:text-lg">Get exclusive access to opportunities before they hit the mainstream market or your competitors.</p>
                         </div>
                       </div>
                     </div>
