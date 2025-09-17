@@ -113,11 +113,11 @@ export default function Home() {
           <ScrollAnimation direction="fade">
             <div className="text-center mb-32 mt-24">
               <div className="max-w-5xl mx-auto">
-                <div className="mb-8">
-                  <h1 className="font-serif text-6xl md:text-8xl font-bold text-warm-white mb-4 tracking-refined leading-tight">
+                <div className="mb-20">
+                  <h1 className="font-serif text-6xl md:text-8xl font-bold text-warm-white mb-8 tracking-refined leading-tight">
                     Succedence
                   </h1>
-                  <div className="h-1 w-32 bg-accent-gradient mx-auto mb-8"></div>
+                  <div className="h-2 w-48 bg-accent-gradient mx-auto mb-12"></div>
                 </div>
                 <h2 className="font-serif text-4xl md:text-6xl font-semibold text-warm-white mb-12 tracking-refined leading-tight">
                   Acquire Premium
