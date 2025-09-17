@@ -124,7 +124,8 @@ export default function PreferencesPage() {
           </div>
         </ScrollAnimation>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <ScrollAnimation direction="up" delay={50}>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Tab Navigation */}
           <div className="lg:col-span-1">
             <div className="glass p-6 sticky top-8">
@@ -489,7 +490,8 @@ export default function PreferencesPage() {
               </div>
             </form>
           </div>
-        </div>
+          </div>
+        </ScrollAnimation>
       </div>
     </div>
   );

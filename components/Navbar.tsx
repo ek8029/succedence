@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -36,12 +37,46 @@ export default function Navbar() {
     <nav className="header-professional px-6 py-4 sticky top-0 z-50">
       <div className="container-professional flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-4 group hover-lift">
-          <div className="w-10 h-10 bg-white border border-neutral-300 flex items-center justify-center transition-all group-hover:border-neutral-100">
-            <span className="text-black font-bold text-xl">S</span>
+          {/* OPTION A: Small logo + text */}
+          <div className="w-10 h-10 relative overflow-hidden transition-all group-hover:scale-105">
+            <Image
+              src="/logo.png"
+              alt="Succedence Logo"
+              width={40}
+              height={40}
+              className="object-contain"
+              priority
+            />
           </div>
           <span className="text-2xl text-white font-semibold tracking-tight" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
             Succedence
           </span>
+
+          {/* OPTION B: Larger horizontal logo (uncomment to use)
+          <div className="h-12 w-auto relative">
+            <Image
+              src="/logo-horizontal.png"
+              alt="Succedence"
+              width={200}
+              height={48}
+              className="object-contain"
+              priority
+            />
+          </div>
+          */}
+
+          {/* OPTION C: Logo only, no text (uncomment to use)
+          <div className="h-14 w-auto relative">
+            <Image
+              src="/logo.png"
+              alt="Succedence"
+              width={56}
+              height={56}
+              className="object-contain"
+              priority
+            />
+          </div>
+          */}
         </Link>
         
         <div className="flex items-center space-x-6">

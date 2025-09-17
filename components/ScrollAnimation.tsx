@@ -21,31 +21,33 @@ export default function ScrollAnimation({
     const element = elementRef.current;
     if (!element) return;
 
-    // Set initial state with smoother animation
-    element.style.opacity = '0';
-    element.style.transition = `opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms, transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms`;
-    element.style.willChange = 'opacity, transform';
+    // Add a small delay to ensure proper setup for instant loads
+    const setupAnimation = () => {
+      // Set initial state with smoother animation
+      element.style.opacity = '0';
+      element.style.transition = `opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms, transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms`;
+      element.style.willChange = 'opacity, transform';
 
-    // Set initial transform based on direction with smoother values
-    switch (direction) {
-      case 'up':
-        element.style.transform = 'translateY(40px) translateZ(0)';
-        break;
-      case 'down':
-        element.style.transform = 'translateY(-40px) translateZ(0)';
-        break;
-      case 'left':
-        element.style.transform = 'translateX(40px) translateZ(0)';
-        break;
-      case 'right':
-        element.style.transform = 'translateX(-40px) translateZ(0)';
-        break;
-      case 'fade':
-        element.style.transform = 'scale(0.92) translateZ(0)';
-        break;
-    }
+      // Set initial transform based on direction with smoother values
+      switch (direction) {
+        case 'up':
+          element.style.transform = 'translateY(40px) translateZ(0)';
+          break;
+        case 'down':
+          element.style.transform = 'translateY(-40px) translateZ(0)';
+          break;
+        case 'left':
+          element.style.transform = 'translateX(40px) translateZ(0)';
+          break;
+        case 'right':
+          element.style.transform = 'translateX(-40px) translateZ(0)';
+          break;
+        case 'fade':
+          element.style.transform = 'scale(0.92) translateZ(0)';
+          break;
+      }
 
-    const observer = new IntersectionObserver(
+      const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -67,12 +69,25 @@ export default function ScrollAnimation({
       }
     );
 
-    observer.observe(element);
+        observer.observe(element);
 
-    return () => {
-      observer.unobserve(element);
-    };
-  }, [delay, direction]);
+        return () => {
+          observer.unobserve(element);
+        };
+      };
+
+      // Setup animation immediately for elements above the fold, or with small delay for others
+      const rect = element.getBoundingClientRect();
+      const isAboveFold = rect.top < window.innerHeight;
+
+      if (isAboveFold) {
+        // For elements above the fold (instant load pages), add small delay
+        setTimeout(setupAnimation, 10);
+      } else {
+        // For elements below the fold, setup immediately
+        setupAnimation();
+      }
+    }, [delay, direction]);
 
   return (
     <div ref={elementRef} className={className}>
