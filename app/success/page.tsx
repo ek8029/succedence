@@ -350,7 +350,7 @@ export default function SuccessPage() {
         )}
 
         {/* Call to Action */}
-        <div className="mt-24">
+        <div className="mt-24 mb-16">
           <ScrollAnimation direction="fade">
             <div className="glass p-16 text-center tier-premium">
               <h2 className="text-3xl text-white font-medium mb-6">

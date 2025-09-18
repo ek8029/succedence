@@ -477,9 +477,6 @@ export default function NewListingPage() {
           {/* AI Features Notice */}
           <div className="mt-16 glass p-12 border border-neutral-600">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-neutral-800 border border-neutral-600 flex items-center justify-center mx-auto mb-6" style={{backgroundColor: 'var(--accent)', borderColor: 'var(--accent)'}}>
-                <div className="text-black font-bold text-lg">AI</div>
-              </div>
               <h3 className="text-2xl text-white font-medium mb-4">Intelligent Processing</h3>
             </div>
             <div className="grid md:grid-cols-2 gap-8 text-neutral-400">
