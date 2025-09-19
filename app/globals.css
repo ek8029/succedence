@@ -101,21 +101,22 @@ body::before {
   background: #1a1a1a;
 }
 
-/* Refined Button System */
+/* Refined Button System - High Specificity */
+button.btn-primary,
 .btn-primary {
-  background: var(--accent-gradient);
-  border: none;
-  color: var(--midnight);
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  text-transform: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: var(--midnight) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.025em !important;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
   overflow: hidden;
   padding: 1rem 2rem;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -130,19 +131,20 @@ body::before {
   filter: brightness(1.1);
 }
 
+button.btn-secondary,
 .btn-secondary {
-  background: transparent;
-  border: 2px solid var(--silver);
-  color: var(--silver);
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  text-transform: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent !important;
+  border: 2px solid var(--silver) !important;
+  color: var(--silver) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.025em !important;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
   padding: 1rem 2rem;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -163,20 +165,21 @@ body::before {
   font-size: 1.125rem;
 }
 
+button.btn-success,
 .btn-success {
-  background: var(--accent-gradient);
-  border: none;
-  color: var(--midnight);
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  text-transform: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: var(--midnight) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.025em !important;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
   overflow: hidden;
   padding: 1rem 2rem;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1440,3 +1443,28 @@ textarea.form-control {
 .border-gold { border-color: var(--gold); }
 .border-gold-light { border-color: var(--gold-light); }
 .border-gold-dark { border-color: var(--gold-dark); }
+
+/* FINAL OVERRIDE: Force button fonts to use Inter - must be at end of file */
+button.btn-primary,
+button.btn-success,
+button.btn-secondary,
+a.btn-primary,
+a.btn-success,
+a.btn-secondary,
+.btn-primary,
+.btn-success,
+.btn-secondary {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Override any Tailwind font classes specifically */
+.btn-primary.font-medium,
+.btn-success.font-medium,
+.btn-secondary.font-medium,
+button.btn-primary.font-medium,
+button.btn-success.font-medium,
+button.btn-secondary.font-medium {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 500 !important;
+}
