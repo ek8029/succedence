@@ -106,7 +106,7 @@ body::before {
   background: var(--accent-gradient);
   border: none;
   color: var(--midnight);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500;
   letter-spacing: 0.025em;
   text-transform: none;
@@ -134,7 +134,7 @@ body::before {
   background: transparent;
   border: 2px solid var(--silver);
   color: var(--silver);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500;
   letter-spacing: 0.025em;
   text-transform: none;
@@ -167,7 +167,7 @@ body::before {
   background: var(--accent-gradient);
   border: none;
   color: var(--midnight);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500;
   letter-spacing: 0.025em;
   text-transform: none;
