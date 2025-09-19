@@ -1468,3 +1468,30 @@ button.btn-secondary.font-medium {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
   font-weight: 500 !important;
 }
+
+/* TARGET THE ACTUAL CLASSES BEING USED - View Details buttons etc */
+.font-sans,
+button.font-sans,
+.font-semibold,
+button.font-semibold,
+.bg-accent-gradient,
+button.bg-accent-gradient,
+.tracking-luxury,
+button.tracking-luxury {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Override all Tailwind font families completely */
+.font-sans { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
+.font-serif { font-family: 'Crimson Text', Georgia, serif !important; }
+.font-mono { font-family: 'JetBrains Mono', 'Courier New', monospace !important; }
+
+/* Target buttons with gold gradient backgrounds */
+button[class*="bg-accent-gradient"],
+button[class*="border-gold"],
+button[class*="text-midnight"],
+.bg-accent-gradient,
+.border-gold,
+.text-midnight {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
