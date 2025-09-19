@@ -1254,8 +1254,21 @@ textarea.form-control {
 
 /* Minimal header styling */
 .header-professional {
-  background: #1a1a1a;
-  border-bottom: none;
+  background: #1a1a1a !important;
+  border-bottom: 2px solid rgba(230, 198, 135, 0.3) !important;
+}
+
+.container-professional {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Force header background - override any other styles */
+nav.header-professional,
+.header-professional {
+  background-color: #1a1a1a !important;
+  background-image: none !important;
+  border-bottom: 2px solid rgba(230, 198, 135, 0.3) !important;
 }
 
 /* Minimal hover states */
