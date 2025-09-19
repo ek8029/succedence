@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Force Inter font on all elements that might be buttons */
+  button,
+  .font-sans,
+  .font-semibold {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
 :root {
@@ -1493,5 +1502,20 @@ button[class*="text-midnight"],
 .bg-accent-gradient,
 .border-gold,
 .text-midnight {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* NUCLEAR OPTION: Target ALL buttons specifically */
+button {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Override specific problem combinations */
+button.font-sans,
+button.font-semibold,
+button.bg-accent-gradient,
+button.tracking-luxury,
+.font-sans.bg-accent-gradient,
+.font-semibold.bg-accent-gradient {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
