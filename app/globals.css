@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  /* Force Inter font on all elements that might be buttons - using highest specificity */
-  *[class*="font-sans"],
-  *[class*="font-semibold"],
-  button,
-  .btn-primary,
-  .font-sans,
-  .font-semibold {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-  }
-}
 
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
@@ -1466,7 +1455,6 @@ a.btn-secondary,
 .btn-primary,
 .btn-success,
 .btn-secondary {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
   font-weight: 500 !important;
 }
 
@@ -1477,7 +1465,6 @@ a.btn-secondary,
 button.btn-primary.font-medium,
 button.btn-success.font-medium,
 button.btn-secondary.font-medium {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
   font-weight: 500 !important;
 }
 
@@ -1489,58 +1476,27 @@ button.font-semibold,
 .bg-accent-gradient,
 button.bg-accent-gradient,
 .tracking-luxury,
-button.tracking-luxury {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+
+
+/* GLOBAL FONT FIX - Everything should use Crimson Text like the main logo */
+html, body {
+  font-family: 'Crimson Text', Georgia, serif;
 }
 
-/* Override all Tailwind font families completely */
-.font-sans { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
-.font-serif { font-family: 'Crimson Text', Georgia, serif !important; }
-.font-mono { font-family: 'JetBrains Mono', 'Courier New', monospace !important; }
-
-/* Target buttons with gold gradient backgrounds */
-button[class*="bg-accent-gradient"],
-button[class*="border-gold"],
-button[class*="text-midnight"],
-.bg-accent-gradient,
-.border-gold,
-.text-midnight {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-}
-
-/* NUCLEAR OPTION: Target ALL buttons specifically */
-button {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-}
-
-/* Override specific problem combinations */
-button.font-sans,
-button.font-semibold,
-button.bg-accent-gradient,
-button.tracking-luxury,
-.font-sans.bg-accent-gradient,
-.font-semibold.bg-accent-gradient {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-}
-
-/* ULTIMATE NUCLEAR OVERRIDE - This should force Inter on everything */
+/* Force ALL elements to use Crimson Text serif font to match main logo */
 * {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-}
-
-/* Allow serif elements to keep their fonts */
-.font-serif,
-*[class*="font-serif"],
-h1.font-serif,
-h2.font-serif,
-h3.font-serif {
   font-family: 'Crimson Text', Georgia, serif !important;
 }
 
-/* Allow mono elements to keep their fonts */
+/* Allow mono elements to keep their fonts for code */
 .font-mono,
 *[class*="font-mono"],
 code,
 pre {
   font-family: 'JetBrains Mono', Monaco, Consolas, monospace !important;
+}
+
+/* Remove bold from all buttons */
+button {
+  font-weight: normal !important;
 }
