@@ -93,7 +93,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-darker flex items-center justify-center px-4">
+    <div className="min-h-screen bg-brand-darker flex items-center justify-center px-4 page-content">
       <div className="w-full max-w-2xl">
         <ScrollAnimation direction="fade">
           <div className="glass p-16 tier-premium">

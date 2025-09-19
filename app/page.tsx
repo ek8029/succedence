@@ -127,13 +127,13 @@ export default function Home() {
                   Discover exceptional acquisition opportunities from verified sellers. Connect with business owners ready to transition their legacy.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 justify-center items-center">
-                  <Link href="/browse" className="group inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+                  <Link href="/browse" className="group inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm sm:text-base lg:text-lg w-full sm:w-auto">
                     Browse Opportunities
                     <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ml-2 sm:ml-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </Link>
-                  <Link href="/auth" className="inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+                  <Link href="/auth" className="inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-sm sm:text-base lg:text-lg w-full sm:w-auto">
                     List Your Business
                   </Link>
                 </div>
@@ -151,19 +151,19 @@ export default function Home() {
                 <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 xs:gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto mb-16 xs:mb-20 sm:mb-28 lg:mb-36">
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
                     <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">90%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Time Wasted on Research</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Reduction in Manual Review Time</div>
                   </div>
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
                     <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">6-12</div>
                     <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Months to Find Target</div>
                   </div>
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">$50K+</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Average Search Cost</div>
+                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">35%</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Faster Deal Closures with AI</div>
                   </div>
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">70%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Deals Fall Through</div>
+                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">45%</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">More Efficient Due Diligence</div>
                   </div>
                 </div>
 
@@ -336,7 +336,7 @@ export default function Home() {
 
                         <div className="p-6 pt-4">
                           <Link href={`/listings/${listing.id}`} className="block">
-                            <button className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury">
+                            <button className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury">
                               View Details →
                             </button>
                           </Link>
@@ -634,7 +634,7 @@ export default function Home() {
                           <button
                             type="submit"
                             disabled={isSubmittingWaitlist || !waitlistData.email || !waitlistData.name}
-                            className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSubmittingWaitlist ? (
                               <div className="flex items-center justify-center space-x-3">
@@ -667,10 +667,10 @@ export default function Home() {
                   <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-8 tracking-refined">Ready to Begin?</h2>
                   <p className="font-sans text-xl text-platinum/80 mb-12 leading-relaxed">Join the premier marketplace for business acquisition opportunities.</p>
                   <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                    <Link href="/browse" className="inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-sans tracking-luxury">
+                    <Link href="/browse" className="inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury">
                       Start Browsing
                     </Link>
-                    <Link href="/auth" className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-sans">
+                    <Link href="/auth" className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary">
                       List Your Business
                     </Link>
                   </div>
@@ -680,7 +680,7 @@ export default function Home() {
           </ScrollAnimation>
 
           {/* Social Contact Footer Banner */}
-          <div className="mt-16 py-8 pb-0 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] -mb-8" style={{background: '#1a1a1a', borderTop: '2px solid rgba(230, 198, 135, 0.3)'}}>
+          <div className="mt-16 py-8 pb-0 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] -mb-8" style={{background: '#1a1a1a', borderTop: '2px solid rgba(212, 166, 80, 0.3)'}}>
       <ScrollAnimation direction="fade" delay={200}>
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h3 className="text-2xl md:text-3xl font-semibold text-warm-white mb-8 tracking-refined">

@@ -124,10 +124,10 @@ export default function NewListingPage() {
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container-professional py-16">
+      <div className="container-professional pb-16 page-content-large">
         {/* Header */}
         <ScrollAnimation direction="fade">
-          <div className="text-center mb-20">
+          <div className="text-center mb-20 mt-24">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-heading text-white font-medium mb-8">Submit Business Listing</h1>
               <p className="text-2xl text-neutral-400 leading-relaxed mb-12">
@@ -459,7 +459,7 @@ export default function NewListingPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="btn-primary px-20 py-5 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary px-20 py-5 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed font-primary"
                   >
                     {submitting ? 'Submitting for Review...' : 'Submit Listing'}
                   </button>
@@ -475,7 +475,7 @@ export default function NewListingPage() {
           </div>
 
           {/* AI Features Notice */}
-          <div className="mt-16 glass p-12 border border-neutral-600">
+          <div className="mt-16 mb-16 glass p-12 border border-neutral-600">
             <div className="text-center mb-8">
               <h3 className="text-2xl text-white font-medium mb-4">Intelligent Processing</h3>
             </div>

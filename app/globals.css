@@ -18,16 +18,17 @@
   --cool-gray: #6B7280;
 
   /* Gold Accent System - WCAG AA Compliant */
-  --gold: #E6C687;
-  --gold-light: #F0D49B;
-  --gold-muted: #D4B574;
-  --gold-subtle: rgba(230, 198, 135, 0.1);
+  --gold: #D4A650;
+  --gold-light: #E6C687;
+  --gold-muted: #B8944A;
+  --gold-dark: #A0812C;
+  --gold-subtle: rgba(212, 166, 80, 0.1);
 
   /* Refined Neutrals - Better Contrast */
   --off-white: #FAFAFA;
   --warm-white: #FFFFFF;
-  --silver: #E5E5E5;
-  --platinum: #F0F0F0;
+  --silver: #E0E0E0;
+  --platinum: #F5F5F5;
 
   /* Sophisticated Gradients */
   --primary-gradient: linear-gradient(135deg, var(--midnight) 0%, var(--charcoal) 100%);
@@ -808,6 +809,42 @@ h6, .text-micro {
     0 0 0 6px rgba(212, 175, 55, 0.1);
 }
 
+/* Global spacing for subpages */
+.page-content {
+  padding-top: 8rem;
+}
+
+/* Larger spacing for specific pages - matches Browse/Success pages */
+.page-content-large {
+  padding-top: 20rem;
+}
+
+/* Premium Button Styles */
+button, .btn, [type="button"], [type="submit"], .clickable {
+  font-family: 'Source Serif Pro', 'Crimson Text', Georgia, serif !important;
+  font-weight: 400;
+  letter-spacing: 0.025em;
+}
+
+/* Ensure all interactive elements use consistent font */
+a, .link, .nav-link {
+  font-family: 'Source Serif Pro', 'Crimson Text', Georgia, serif !important;
+}
+
+.btn-primary {
+  font-family: 'Source Serif Pro', 'Crimson Text', Georgia, serif !important;
+  background: var(--accent-gradient);
+  color: var(--midnight);
+  border: 2px solid rgba(212, 166, 80, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  border-color: var(--gold);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(201, 169, 110, 0.2);
+}
+
 /* Premium Status Badges */
 .status-badge {
   padding: 0.25rem 0.75rem;
@@ -859,7 +896,7 @@ h6, .text-micro {
   background: linear-gradient(135deg,
     rgba(30, 30, 30, 0.95) 0%,
     rgba(50, 50, 50, 0.90) 100%);
-  border: 2px solid rgba(230, 198, 135, 0.3);
+  border: 2px solid rgba(212, 166, 80, 0.3);
   border-radius: 8px;
   padding: 0.875rem 1.25rem;
   color: var(--warm-white);
@@ -877,7 +914,7 @@ h6, .text-micro {
     rgba(35, 35, 35, 0.95) 0%,
     rgba(55, 55, 55, 0.95) 100%);
   box-shadow:
-    0 0 0 3px rgba(230, 198, 135, 0.4),
+    0 0 0 3px rgba(212, 166, 80, 0.4),
     0 8px 24px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
 }
@@ -1255,12 +1292,13 @@ textarea.form-control {
 /* Minimal header styling */
 .header-professional {
   background: #1a1a1a !important;
-  border-bottom: 2px solid rgba(230, 198, 135, 0.3) !important;
+  border-bottom: 2px solid rgba(212, 166, 80, 0.3) !important;
 }
 
 .container-professional {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
 /* Force header background - override any other styles */
@@ -1268,7 +1306,7 @@ nav.header-professional,
 .header-professional {
   background-color: #1a1a1a !important;
   background-image: none !important;
-  border-bottom: 2px solid rgba(230, 198, 135, 0.3) !important;
+  border-bottom: 2px solid rgba(212, 166, 80, 0.3) !important;
 }
 
 /* Minimal hover states */

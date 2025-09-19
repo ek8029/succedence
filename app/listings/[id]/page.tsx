@@ -278,7 +278,7 @@ export default function ListingDetailPage() {
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container-professional py-16">
+      <div className="container-professional pb-16 page-content">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="mb-16 text-center">

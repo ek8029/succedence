@@ -101,19 +101,19 @@ export default function PreferencesPage() {
   };
 
   const tabs = [
-    { id: 'financial', label: 'Financial', icon: '💰' },
-    { id: 'industry', label: 'Industry', icon: '🏢' },
-    { id: 'location', label: 'Location', icon: '🌍' },
-    { id: 'business', label: 'Business Type', icon: '📊' },
-    { id: 'notifications', label: 'Notifications', icon: '🔔' },
-    { id: 'profile', label: 'Business Profile', icon: '🎯' }
+    { id: 'financial', label: 'Financial', icon: '' },
+    { id: 'industry', label: 'Industry', icon: '' },
+    { id: 'location', label: 'Location', icon: '' },
+    { id: 'business', label: 'Business Type', icon: '' },
+    { id: 'notifications', label: 'Notifications', icon: '' },
+    { id: 'profile', label: 'Business Profile', icon: '' }
   ];
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container mx-auto px-8 py-20 max-w-6xl">
+      <div className="container mx-auto px-8 pb-20 max-w-6xl page-content-large">
         <ScrollAnimation direction="fade">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">
               Tailored Business Matching
             </h1>
@@ -135,7 +135,7 @@ export default function PreferencesPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
+                    className={`w-full text-left p-3 rounded-lg transition-all duration-200 font-primary ${
                       activeTab === tab.id
                         ? 'bg-gold/20 text-gold border border-gold/30'
                         : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white'

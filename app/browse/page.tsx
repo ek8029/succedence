@@ -156,7 +156,7 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-primary-gradient">
-      <div className="container mx-auto px-8 py-20 pb-24 max-w-7xl">
+      <div className="container mx-auto px-8 pb-24 max-w-7xl page-content">
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
             <h1 className="font-serif text-4xl md:text-5xl font-semibold text-warm-white mb-8">Browse Opportunities</h1>

@@ -17,15 +17,8 @@ interface SuccessStory {
   featured: boolean;
 }
 
-export default function SuccessPage() {
-  const [stories, setStories] = useState<SuccessStory[]>([]);
-  const [filteredStories, setFilteredStories] = useState<SuccessStory[]>([]);
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
-  const [selectedDealType, setSelectedDealType] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-
-  // Mock data - in a real app, this would come from an API
-  const mockStories: SuccessStory[] = [
+// Mock data - in a real app, this would come from an API
+const mockStories: SuccessStory[] = [
     {
       id: '1',
       title: 'Strategic Tech Acquisition Completed in 60 Days',
@@ -124,20 +117,15 @@ export default function SuccessPage() {
     }
   ];
 
+export default function SuccessPage() {
+  const [stories] = useState<SuccessStory[]>(mockStories);
+  const [filteredStories, setFilteredStories] = useState<SuccessStory[]>(mockStories);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
+  const [selectedDealType, setSelectedDealType] = useState<string>('all');
+  const [loading] = useState(false);
+
   const industries = Array.from(new Set(mockStories.map(story => story.industry))).sort();
 
-  useEffect(() => {
-    // Simulate API call
-    const fetchStories = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setStories(mockStories);
-      setFilteredStories(mockStories);
-      setLoading(false);
-    };
-
-    fetchStories();
-  }, []);
 
   useEffect(() => {
     let filtered = [...stories];
@@ -177,7 +165,7 @@ export default function SuccessPage() {
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container mx-auto px-8 py-20 max-w-7xl">
+      <div className="container mx-auto px-8 pb-20 max-w-7xl page-content">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">

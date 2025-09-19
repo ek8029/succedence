@@ -17,7 +17,8 @@
       "Bash(git push:*)",
       "Bash(sed:*)",
       "Bash(npx eslint:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(dir applistings)"
     ],
     "deny": [],
     "ask": []

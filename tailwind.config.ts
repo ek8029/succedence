@@ -12,6 +12,7 @@ const config: Config = {
         'serif': ['Crimson Text', 'Georgia', 'serif'],
         'sans': ['Inter', 'system-ui', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Monaco', 'Consolas', 'monospace'],
+        'primary': ['Source Serif Pro', 'Crimson Text', 'Georgia', 'serif'],
       },
       colors: {
         'midnight': '#0B0E14',
@@ -28,10 +29,11 @@ const config: Config = {
           light: '#263042',
         },
         'gold': {
-          DEFAULT: '#C9A96E',
-          light: '#D4B574',
-          muted: '#B89A5F',
-          subtle: 'rgba(201, 169, 110, 0.1)',
+          DEFAULT: '#D4A650',
+          light: '#E6C687',
+          muted: '#B8944A',
+          dark: '#A0812C',
+          subtle: 'rgba(212, 166, 80, 0.1)',
         },
         'warm': {
           white: '#FFFFFF',
@@ -40,8 +42,8 @@ const config: Config = {
         'cool': {
           gray: '#6B7280',
         },
-        'platinum': '#E5E7EB',
-        'silver': '#D1D5DB',
+        'platinum': '#F5F5F5',
+        'silver': '#E0E0E0',
       },
       backgroundImage: {
         'primary-gradient': 'linear-gradient(135deg, #0B0E14 0%, #1A1D23 100%)',
