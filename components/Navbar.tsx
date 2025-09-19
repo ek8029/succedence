@@ -24,7 +24,7 @@ export default function Navbar() {
           <div className="flex flex-col space-y-2">
             {/* First row - Public links */}
             <div className="flex justify-center space-x-6">
-              <Link href="/browse" className="text-xs text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              <Link href="/browse" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 Browse Opportunities
               </Link>
               <Link href="/success" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
@@ -36,7 +36,7 @@ export default function Navbar() {
             <div className="flex justify-center space-x-4">
               {user ? (
                 <>
-                  <Link href="/listings/new" className="text-xs text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  <Link href="/listings/new" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                     List Business
                   </Link>
                   <Link href="/preferences" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
@@ -77,7 +77,7 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-6">
-              <Link href="/browse" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              <Link href="/browse" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 Browse Opportunities
               </Link>
               <Link href="/success" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
@@ -87,7 +87,7 @@ export default function Navbar() {
 
             {user && (
               <div className="flex items-center space-x-6">
-                <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   List Business
                 </Link>
 

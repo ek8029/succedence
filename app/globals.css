@@ -811,12 +811,12 @@ h6, .text-micro {
 
 /* Global spacing for subpages */
 .page-content {
-  padding-top: 8rem;
+  padding-top: 30rem;
 }
 
 /* Larger spacing for specific pages - matches Browse/Success pages */
 .page-content-large {
-  padding-top: 20rem;
+  padding-top: 30rem;
 }
 
 /* Premium Button Styles */

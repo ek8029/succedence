@@ -163,5 +163,137 @@
     "valuationLow": 85000,
     "valuationHigh": 125000,
     "revenue": 105000
+  },
+  {
+    "id": "16",
+    "title": "Auto Parts Distribution",
+    "description": "Regional automotive parts distributor serving 200+ repair shops. Established relationships with major suppliers.",
+    "owner": "Premier Auto Supply",
+    "industry": "Automotive",
+    "lane": "MAIN",
+    "valuationLow": 1400000,
+    "valuationHigh": 2100000,
+    "revenue": 700000
+  },
+  {
+    "id": "17",
+    "title": "Cybersecurity Consulting",
+    "description": "Specialized cybersecurity firm providing penetration testing and compliance services to enterprise clients.",
+    "owner": "SecureNet Solutions",
+    "industry": "Cybersecurity",
+    "lane": "MAIN",
+    "valuationLow": 980000,
+    "valuationHigh": 1470000,
+    "revenue": 490000
+  },
+  {
+    "id": "18",
+    "title": "Wellness Retreat Center",
+    "description": "Luxury wellness retreat center offering yoga, meditation, and spa services. 40-acre mountain property included.",
+    "owner": "Mountain Zen Retreats",
+    "industry": "Hospitality",
+    "lane": "MAIN",
+    "valuationLow": 2800000,
+    "valuationHigh": 4200000,
+    "revenue": 1400000
+  },
+  {
+    "id": "19",
+    "title": "AI-Powered Recruitment Tool",
+    "description": "SaaS recruitment platform using AI to match candidates with job openings. 50+ enterprise clients.",
+    "owner": "TalentMatch AI",
+    "industry": "HR Tech",
+    "lane": "MAIN",
+    "valuationLow": 1600000,
+    "valuationHigh": 2400000,
+    "revenue": 800000
+  },
+  {
+    "id": "20",
+    "title": "Organic Farm & CSA",
+    "description": "Certified organic farm with 500+ CSA members and farmers market presence. 120 acres of prime farmland.",
+    "owner": "Harvest Valley Organics",
+    "industry": "Agriculture",
+    "lane": "MAIN",
+    "valuationLow": 1200000,
+    "valuationHigh": 1800000,
+    "revenue": 600000
+  },
+  {
+    "id": "21",
+    "title": "Dropshipping Jewelry Store",
+    "description": "High-margin jewelry dropshipping store with strong Instagram presence. Automated order fulfillment.",
+    "owner": "Luxe Gems Online",
+    "industry": "E-commerce",
+    "lane": "STARTER",
+    "valuationLow": 45000,
+    "valuationHigh": 75000,
+    "revenue": 60000
+  },
+  {
+    "id": "22",
+    "title": "Solar Installation Company",
+    "description": "Residential solar panel installation company with 500+ completed projects. Licensed in 3 states.",
+    "owner": "Bright Future Solar",
+    "industry": "Renewable Energy",
+    "lane": "MAIN",
+    "valuationLow": 1800000,
+    "valuationHigh": 2700000,
+    "revenue": 900000
+  },
+  {
+    "id": "23",
+    "title": "Pet Grooming Franchise",
+    "description": "Successful pet grooming franchise with 4 locations. Strong brand recognition and loyal customer base.",
+    "owner": "Pampered Paws Grooming",
+    "industry": "Pet Services",
+    "lane": "MAIN",
+    "valuationLow": 800000,
+    "valuationHigh": 1200000,
+    "revenue": 400000
+  },
+  {
+    "id": "24",
+    "title": "Virtual Reality Arcade",
+    "description": "Entertainment venue featuring cutting-edge VR experiences. High-traffic mall location with party packages.",
+    "owner": "VR World Entertainment",
+    "industry": "Entertainment",
+    "lane": "STARTER",
+    "valuationLow": 120000,
+    "valuationHigh": 180000,
+    "revenue": 150000
+  },
+  {
+    "id": "25",
+    "title": "Data Analytics Consultancy",
+    "description": "Specialized data analytics firm serving healthcare and pharmaceutical clients. Regulatory expertise included.",
+    "owner": "DataInsight Partners",
+    "industry": "Data Analytics",
+    "lane": "MAIN",
+    "valuationLow": 1300000,
+    "valuationHigh": 1950000,
+    "revenue": 650000
+  },
+  {
+    "id": "26",
+    "title": "Handmade Soap Business",
+    "description": "Artisanal soap and skincare products business with online and retail presence. All-natural ingredients.",
+    "owner": "Pure Elements Naturals",
+    "industry": "Personal Care",
+    "lane": "STARTER",
+    "valuationLow": 35000,
+    "valuationHigh": 55000,
+    "revenue": 45000
+  },
+  {
+    "id": "27",
+    "title": "Drone Services Company",
+    "description": "Commercial drone services for real estate, construction, and agriculture. FAA certified pilots and equipment.",
+    "owner": "SkyView Drone Solutions",
+    "industry": "Technology",
+    "lane": "STARTER",
+    "valuationLow": 90000,
+    "valuationHigh": 135000,
+    "revenue": 112000
   }
 ]

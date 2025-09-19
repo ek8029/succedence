@@ -151,19 +151,19 @@ export default function Home() {
                 <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 xs:gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto mb-16 xs:mb-20 sm:mb-28 lg:mb-36">
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
                     <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">90%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Reduction in Manual Review Time</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Reduction in Manual Review Time</div>
                   </div>
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
                     <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">6-12</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Months to Find Target</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Months to Find Target</div>
                   </div>
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
                     <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">35%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">Faster Deal Closures with AI</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Faster Deal Closures with AI</div>
                   </div>
                   <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
                     <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">45%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-silver/80 uppercase tracking-wider leading-relaxed font-medium px-1">More Efficient Due Diligence</div>
+                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">More Efficient Due Diligence</div>
                   </div>
                 </div>
 
@@ -634,7 +634,7 @@ export default function Home() {
                           <button
                             type="submit"
                             disabled={isSubmittingWaitlist || !waitlistData.email || !waitlistData.name}
-                            className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-4 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSubmittingWaitlist ? (
                               <div className="flex items-center justify-center space-x-3">
@@ -667,7 +667,7 @@ export default function Home() {
                   <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-8 tracking-refined">Ready to Begin?</h2>
                   <p className="font-sans text-xl text-platinum/80 mb-12 leading-relaxed">Join the premier marketplace for business acquisition opportunities.</p>
                   <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                    <Link href="/browse" className="inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury">
+                    <Link href="/browse" className="inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury">
                       Start Browsing
                     </Link>
                     <Link href="/auth" className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary">
