@@ -53,6 +53,7 @@ export default function AuthPage() {
       // Simulate authentication (no actual backend yet)
       await signIn({
         name: formData.name.trim() || formData.email.split('@')[0],
+        email: formData.email.trim(),
         role: formData.role
       });
 

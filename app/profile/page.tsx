@@ -9,7 +9,13 @@ import { Listing, NDARequest, Message } from '@/lib/types';
 
 interface User {
   name: string;
+  email: string;
   role: 'BUYER' | 'SELLER' | 'ADMIN';
+  profilePicture?: string;
+  bio?: string;
+  preferredContact?: string;
+  location?: string;
+  phone?: string;
 }
 
 interface UserStats {
@@ -27,12 +33,24 @@ function ProfilePageContent() {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [editedEmail, setEditedEmail] = useState('');
   const [editedRole, setEditedRole] = useState<'BUYER' | 'SELLER' | 'ADMIN'>('BUYER');
+  const [editedProfilePicture, setEditedProfilePicture] = useState('');
+  const [editedBio, setEditedBio] = useState('');
+  const [editedPreferredContact, setEditedPreferredContact] = useState('');
+  const [editedLocation, setEditedLocation] = useState('');
+  const [editedPhone, setEditedPhone] = useState('');
 
   useEffect(() => {
     if (user) {
       setEditedName(user.name);
+      setEditedEmail(user.email);
       setEditedRole(user.role);
+      setEditedProfilePicture(user.profilePicture || '');
+      setEditedBio(user.bio || '');
+      setEditedPreferredContact(user.preferredContact || '');
+      setEditedLocation(user.location || '');
+      setEditedPhone(user.phone || '');
       fetchUserData(user);
     }
   }, [user]);
@@ -79,11 +97,22 @@ function ProfilePageContent() {
   const handleSaveProfile = () => {
     if (!user) return;
 
-    updateProfile({ name: editedName.trim(), role: editedRole });
+    const updatedProfile = {
+      name: editedName.trim(),
+      email: editedEmail.trim(),
+      role: editedRole,
+      profilePicture: editedProfilePicture.trim(),
+      bio: editedBio.trim(),
+      preferredContact: editedPreferredContact.trim(),
+      location: editedLocation.trim(),
+      phone: editedPhone.trim()
+    };
+
+    updateProfile(updatedProfile);
     setEditMode(false);
 
-    // Refresh data with new name and role
-    fetchUserData({ ...user, name: editedName.trim(), role: editedRole });
+    // Refresh data with updated profile
+    fetchUserData({ ...user, ...updatedProfile });
   };
 
   const formatCurrency = (amount: number) => {
@@ -125,9 +154,6 @@ function ProfilePageContent() {
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="text-center mb-16">
-            <div className="w-20 h-20 bg-white border border-neutral-300 flex items-center justify-center mx-auto mb-8">
-              <span className="text-black font-bold text-2xl">{user.name.charAt(0).toUpperCase()}</span>
-            </div>
             <h1 className="text-heading text-white font-medium mb-4">User Profile</h1>
             <p className="text-xl text-neutral-400">Manage your account and view activity</p>
             <div className="mt-8">
@@ -164,6 +190,23 @@ function ProfilePageContent() {
                   </div>
 
                   <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Email</label>
+                    {editMode ? (
+                      <input
+                        type="email"
+                        value={editedEmail}
+                        onChange={(e) => setEditedEmail(e.target.value)}
+                        className="form-control w-full py-4 px-6 text-lg text-center"
+                        placeholder="Enter your email"
+                      />
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                        {user.email}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Role</label>
                     {editMode ? (
                       <select
@@ -191,7 +234,7 @@ function ProfilePageContent() {
                       <>
                         <button
                           onClick={handleSaveProfile}
-                          disabled={!editedName.trim()}
+                          disabled={!editedName.trim() || !editedEmail.trim()}
                           className="btn-success px-8 py-3 font-medium hover-lift disabled:opacity-50"
                         >
                           Save Changes
@@ -200,7 +243,13 @@ function ProfilePageContent() {
                           onClick={() => {
                             setEditMode(false);
                             setEditedName(user.name);
+                            setEditedEmail(user.email);
                             setEditedRole(user.role);
+                            setEditedProfilePicture(user.profilePicture || '');
+                            setEditedBio(user.bio || '');
+                            setEditedPreferredContact(user.preferredContact || '');
+                            setEditedLocation(user.location || '');
+                            setEditedPhone(user.phone || '');
                           }}
                           className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
                         >
@@ -222,6 +271,122 @@ function ProfilePageContent() {
                           Sign Out
                         </button>
                       </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* About Me Section */}
+            <div className="glass p-16">
+              <h2 className="text-2xl text-white font-medium mb-10 text-center">About Me</h2>
+
+              <div className="max-w-2xl mx-auto">
+                <div className="space-y-8">
+                  {/* Profile Picture */}
+                  <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Profile Picture</label>
+                    <div className="flex flex-col items-center space-y-4">
+                      {(editMode ? editedProfilePicture : user.profilePicture) ? (
+                        <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-neutral-600">
+                          <img
+                            src={editMode ? editedProfilePicture : user.profilePicture}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-32 h-32 bg-neutral-900/50 border-2 border-neutral-600 rounded-full flex items-center justify-center">
+                          <span className="text-neutral-500 text-4xl font-bold">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      {editMode && (
+                        <input
+                          type="url"
+                          value={editedProfilePicture}
+                          onChange={(e) => setEditedProfilePicture(e.target.value)}
+                          className="form-control w-full py-3 px-4 text-center"
+                          placeholder="Enter image URL"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bio */}
+                  <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Bio</label>
+                    {editMode ? (
+                      <textarea
+                        value={editedBio}
+                        onChange={(e) => setEditedBio(e.target.value)}
+                        className="form-control w-full py-4 px-6 text-lg resize-none h-32"
+                        placeholder="Tell us about yourself..."
+                        rows={4}
+                      />
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg min-h-[8rem] whitespace-pre-wrap">
+                        {user.bio || 'No bio added yet.'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Location */}
+                  <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Location</label>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        value={editedLocation}
+                        onChange={(e) => setEditedLocation(e.target.value)}
+                        className="form-control w-full py-4 px-6 text-lg text-center"
+                        placeholder="Enter your location"
+                      />
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                        {user.location || 'No location specified'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Phone */}
+                  <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Phone</label>
+                    {editMode ? (
+                      <input
+                        type="tel"
+                        value={editedPhone}
+                        onChange={(e) => setEditedPhone(e.target.value)}
+                        className="form-control w-full py-4 px-6 text-lg text-center"
+                        placeholder="Enter your phone number"
+                      />
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                        {user.phone || 'No phone number provided'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preferred Contact */}
+                  <div className="space-y-4">
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Preferred Contact Method</label>
+                    {editMode ? (
+                      <select
+                        value={editedPreferredContact}
+                        onChange={(e) => setEditedPreferredContact(e.target.value)}
+                        className="form-control w-full py-4 px-6 text-lg text-center"
+                      >
+                        <option value="">Select preferred contact method</option>
+                        <option value="Email">Email</option>
+                        <option value="Phone">Phone</option>
+                        <option value="SMS">SMS</option>
+                        <option value="Platform Messages">Platform Messages</option>
+                      </select>
+                    ) : (
+                      <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                        {user.preferredContact || 'No preference specified'}
+                      </div>
                     )}
                   </div>
                 </div>

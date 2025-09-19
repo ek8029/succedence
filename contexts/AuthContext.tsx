@@ -6,7 +6,13 @@ import { showNotification } from '@/components/Notification';
 
 interface User {
   name: string;
+  email: string;
   role: 'BUYER' | 'SELLER' | 'ADMIN';
+  profilePicture?: string;
+  bio?: string;
+  preferredContact?: string;
+  location?: string;
+  phone?: string;
 }
 
 interface AuthContextType {
