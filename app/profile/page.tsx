@@ -32,6 +32,7 @@ function ProfilePageContent() {
   const [userNDAs, setUserNDAs] = useState<NDARequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const [aboutMeEditMode, setAboutMeEditMode] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [editedEmail, setEditedEmail] = useState('');
   const [editedRole, setEditedRole] = useState<'BUYER' | 'SELLER' | 'ADMIN'>('BUYER');
@@ -113,6 +114,24 @@ function ProfilePageContent() {
 
     // Refresh data with updated profile
     fetchUserData({ ...user, ...updatedProfile });
+  };
+
+  const handleSaveAboutMe = () => {
+    if (!user) return;
+
+    const aboutMeUpdates = {
+      profilePicture: editedProfilePicture.trim(),
+      bio: editedBio.trim(),
+      preferredContact: editedPreferredContact.trim(),
+      location: editedLocation.trim(),
+      phone: editedPhone.trim()
+    };
+
+    updateProfile(aboutMeUpdates);
+    setAboutMeEditMode(false);
+
+    // Refresh data with updated About Me info
+    fetchUserData({ ...user, ...aboutMeUpdates });
   };
 
   const formatCurrency = (amount: number) => {
@@ -287,10 +306,10 @@ function ProfilePageContent() {
                   <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Profile Picture</label>
                     <div className="flex flex-col items-center space-y-4">
-                      {(editMode ? editedProfilePicture : user.profilePicture) ? (
+                      {(aboutMeEditMode ? editedProfilePicture : user.profilePicture) ? (
                         <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-neutral-600">
                           <img
-                            src={editMode ? editedProfilePicture : user.profilePicture}
+                            src={aboutMeEditMode ? editedProfilePicture : user.profilePicture}
                             alt="Profile"
                             className="w-full h-full object-cover"
                           />
@@ -302,7 +321,7 @@ function ProfilePageContent() {
                           </span>
                         </div>
                       )}
-                      {editMode && (
+                      {aboutMeEditMode && (
                         <input
                           type="url"
                           value={editedProfilePicture}
@@ -317,7 +336,7 @@ function ProfilePageContent() {
                   {/* Bio */}
                   <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Bio</label>
-                    {editMode ? (
+                    {aboutMeEditMode ? (
                       <textarea
                         value={editedBio}
                         onChange={(e) => setEditedBio(e.target.value)}
@@ -335,7 +354,7 @@ function ProfilePageContent() {
                   {/* Location */}
                   <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Location</label>
-                    {editMode ? (
+                    {aboutMeEditMode ? (
                       <input
                         type="text"
                         value={editedLocation}
@@ -353,7 +372,7 @@ function ProfilePageContent() {
                   {/* Phone */}
                   <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Phone</label>
-                    {editMode ? (
+                    {aboutMeEditMode ? (
                       <input
                         type="tel"
                         value={editedPhone}
@@ -371,7 +390,7 @@ function ProfilePageContent() {
                   {/* Preferred Contact */}
                   <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Preferred Contact Method</label>
-                    {editMode ? (
+                    {aboutMeEditMode ? (
                       <select
                         value={editedPreferredContact}
                         onChange={(e) => setEditedPreferredContact(e.target.value)}
@@ -387,6 +406,40 @@ function ProfilePageContent() {
                       <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
                         {user.preferredContact || 'No preference specified'}
                       </div>
+                    )}
+                  </div>
+
+                  {/* About Me Edit Buttons */}
+                  <div className="flex justify-center space-x-4 pt-6">
+                    {aboutMeEditMode ? (
+                      <>
+                        <button
+                          onClick={handleSaveAboutMe}
+                          className="btn-success px-8 py-3 font-medium hover-lift"
+                        >
+                          Save About Me
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAboutMeEditMode(false);
+                            setEditedProfilePicture(user.profilePicture || '');
+                            setEditedBio(user.bio || '');
+                            setEditedPreferredContact(user.preferredContact || '');
+                            setEditedLocation(user.location || '');
+                            setEditedPhone(user.phone || '');
+                          }}
+                          className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => setAboutMeEditMode(true)}
+                        className="btn-primary px-8 py-3 font-medium hover-lift"
+                      >
+                        Edit About Me
+                      </button>
                     )}
                   </div>
                 </div>
