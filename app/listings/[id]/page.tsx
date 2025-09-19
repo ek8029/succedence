@@ -27,6 +27,7 @@ export default function ListingDetailPage() {
     allowPublicSharing: false
   });
   const [completingDeal, setCompletingDeal] = useState(false);
+  const [activeAccordion, setActiveAccordion] = useState<string | null>('overview');
 
   const listingId = params.id as string;
 
@@ -215,6 +216,42 @@ export default function ListingDetailPage() {
   const canRequestNDA = user && user.role === 'BUYER' && !ndas.some(nda => nda.buyerName === user.name);
   const canMessage = hasApprovedNDA || isOwner;
 
+  const toggleAccordion = (section: string) => {
+    setActiveAccordion(activeAccordion === section ? null : section);
+  };
+
+  const AccordionSection = ({ id, title, children, defaultOpen = false }: {
+    id: string;
+    title: string;
+    children: React.ReactNode;
+    defaultOpen?: boolean;
+  }) => {
+    const isOpen = activeAccordion === id;
+    return (
+      <div className="glass overflow-hidden">
+        <button
+          onClick={() => toggleAccordion(id)}
+          className="w-full p-6 flex justify-between items-center text-left hover:bg-neutral-800/30 transition-colors"
+        >
+          <h2 className="text-2xl text-white font-medium">{title}</h2>
+          <svg
+            className={`w-6 h-6 text-neutral-400 transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {isOpen && (
+          <div className="px-6 pb-6">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-brand-darker flex items-center justify-center">
@@ -253,162 +290,215 @@ export default function ListingDetailPage() {
 
         {/* Main Content */}
         <ScrollAnimation direction="up" delay={50}>
-          <div className="max-w-6xl mx-auto space-y-16">
-          {/* Business Overview */}
-          <div className="glass p-16">
-            <div className="flex flex-wrap gap-4 mb-10">
-              <span className={`status-badge ${listing.lane === 'MAIN' ? 'status-main' : 'status-starter'}`}>
-                {listing.lane}
-              </span>
-              <span className="status-badge bg-neutral-800 text-neutral-300 font-medium">
-                {listing.industry}
-              </span>
-            </div>
+          <div className="max-w-6xl mx-auto space-y-8">
 
-            <h1 className="text-heading text-white font-medium mb-8">
-              {listing.title}
-            </h1>
+            {/* Hero Section with Primary CTA */}
+            <div className="glass p-16">
+              <div className="flex flex-wrap gap-4 mb-10">
+                <span className={`status-badge ${listing.lane === 'MAIN' ? 'status-main' : 'status-starter'}`}>
+                  {listing.lane}
+                </span>
+                <span className="status-badge bg-neutral-800 text-neutral-300 font-medium">
+                  {listing.industry}
+                </span>
+              </div>
 
-            <div className="grid lg:grid-cols-2 gap-16">
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-2xl text-white font-medium mb-6">Business Description</h2>
+              <h1 className="text-heading text-white font-medium mb-8">
+                {listing.title}
+              </h1>
+
+              <div className="grid lg:grid-cols-3 gap-8 mb-12">
+                <div className="lg:col-span-2">
                   <p className="text-neutral-400 text-lg leading-relaxed">
                     {listing.description}
                   </p>
                 </div>
-              </div>
 
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-2xl text-white font-medium mb-6">Financial Overview</h2>
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center py-4 border-b border-neutral-600">
-                      <span className="text-neutral-400 font-medium">Contact</span>
-                      <span className="text-white font-semibold">{listing.owner}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-4 border-b border-neutral-600">
-                      <span className="text-neutral-400 font-medium">Annual Revenue</span>
-                      <span className="text-white font-bold text-financial text-xl">{formatCurrency(listing.revenue)}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-4 border-b border-neutral-600">
-                      <span className="text-neutral-400 font-medium">Valuation Range</span>
-                      <span className="text-white font-bold text-financial text-xl">
-                        {formatCurrency(listing.valuationLow)} — {formatCurrency(listing.valuationHigh)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {hasApprovedNDA && (
-              <div className="mt-16 p-12 border border-neutral-600 bg-neutral-900/50">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-neutral-800 border border-neutral-600 flex items-center justify-center mx-auto mb-6" style={{backgroundColor: 'var(--accent)', borderColor: 'var(--accent)'}}>
-                    <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl text-white font-medium mb-4">Confidential Data Room</h3>
-                  <p className="text-neutral-400 text-lg">
-                    You have authorized access to detailed financial statements, projections, and proprietary business information.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* NDA Management */}
-          {user && (
-            <div className="glass p-16">
-              <h2 className="text-2xl text-white font-medium mb-10">Due Diligence Access</h2>
-              
-              {canRequestNDA && (
-                <div className="mb-12 p-8 bg-neutral-900/50 border border-neutral-600">
-                  <h3 className="text-xl text-white font-medium mb-6">Request Access to Confidential Information</h3>
-                  <form onSubmit={handleNDASubmit} className="space-y-6">
-                    <div>
-                      <label htmlFor="buyerName" className="block text-lg text-neutral-300 font-medium mb-4">
-                        Your Company/Organization Name
-                      </label>
-                      <input
-                        type="text"
-                        id="buyerName"
-                        value={buyerName}
-                        onChange={(e) => setBuyerName(e.target.value)}
-                        className="form-control w-full py-4 px-6 text-lg"
-                        placeholder="Enter your company name"
-                        required
-                      />
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      disabled={submitting || !buyerName.trim()}
-                      className="btn-primary px-12 py-4 text-lg font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {submitting ? 'Submitting Request...' : 'Request NDA Access'}
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {ndas.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-xl text-white font-medium">Access Requests</h3>
-                  {ndas.map((nda) => (
-                    <div key={nda.id} className="p-6 bg-neutral-900/50 border border-neutral-600 flex justify-between items-center">
-                      <div>
-                        <span className="text-white font-semibold text-lg">{nda.buyerName}</span>
-                        <div className="mt-2">
-                          <span className={`status-badge ${
-                            nda.status === 'APPROVED' ? 'status-approved' :
-                            nda.status === 'REJECTED' ? 'status-rejected' : 'status-pending'
-                          }`}>
-                            {nda.status}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {isOwner && nda.status === 'REQUESTED' && (
-                        <div className="flex space-x-4">
-                          <button
-                            onClick={() => handleNDAStatusUpdate(nda.id, 'approve')}
-                            className="btn-success px-6 py-3 font-medium hover-lift"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleNDAStatusUpdate(nda.id, 'deny')}
-                            className="glass px-6 py-3 font-medium text-white hover-lift border border-neutral-600"
-                          >
-                            Decline
-                          </button>
-                        </div>
-                      )}
+                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
+                    <div className="text-3xl text-white font-bold mb-2">{formatCurrency(listing.revenue)}</div>
+                    <div className="text-neutral-400">Annual Revenue</div>
+                  </div>
+                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
+                    <div className="text-2xl text-white font-bold mb-2">
+                      {formatCurrency(listing.valuationLow)} — {formatCurrency(listing.valuationHigh)}
                     </div>
-                  ))}
+                    <div className="text-neutral-400">Valuation Range</div>
+                  </div>
                 </div>
-              )}
+              </div>
 
-              {/* Deal Completion Section for Owner */}
-              {isOwner && (
-                <div className="mt-12 p-8 border-t border-gold/30">
-                  <div className="text-center">
-                    <h3 className="text-xl text-white font-medium mb-4">Deal Management</h3>
-                    <p className="text-neutral-400 mb-6">Have you completed a transaction for this listing?</p>
-                    <button
-                      onClick={() => setShowDealCompleteModal(true)}
-                      className="btn-success px-8 py-3 font-medium hover-lift"
-                    >
-                      Mark Deal as Completed
-                    </button>
+              {/* Primary CTAs */}
+              <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+                {user && canRequestNDA && (
+                  <button
+                    onClick={() => toggleAccordion('access')}
+                    className="btn-primary px-8 py-4 text-lg font-medium hover-lift"
+                  >
+                    Request Due Diligence Access
+                  </button>
+                )}
+                {user && canMessage && (
+                  <button
+                    onClick={() => toggleAccordion('messages')}
+                    className="glass px-8 py-4 text-lg font-medium text-white hover-lift border border-neutral-600"
+                  >
+                    View Messages
+                  </button>
+                )}
+                {!user && (
+                  <Link
+                    href="/auth"
+                    className="btn-primary px-8 py-4 text-lg font-medium hover-lift inline-block"
+                  >
+                    Authenticate to Access Details
+                  </Link>
+                )}
+              </div>
+
+              {hasApprovedNDA && (
+                <div className="mt-12 p-8 border border-gold/30 bg-neutral-900/30">
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="w-12 h-12 bg-gold flex items-center justify-center" style={{backgroundColor: 'var(--accent)'}}>
+                      <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl text-white font-medium">Confidential Data Room Access Granted</h3>
+                      <p className="text-neutral-400">You can access detailed financial statements and proprietary information</p>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
-          )}
+
+            {/* Accordion Sections */}
+            <AccordionSection id="overview" title="Business Overview & Financials">
+              <div className="space-y-8">
+                <div className="grid lg:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-xl text-white font-medium mb-4">Contact Information</h3>
+                    <div className="p-4 bg-neutral-900/50 border border-neutral-600">
+                      <span className="text-white font-semibold text-lg">{listing.owner}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl text-white font-medium mb-4">Industry</h3>
+                    <div className="p-4 bg-neutral-900/50 border border-neutral-600">
+                      <span className="text-white font-semibold text-lg">{listing.industry}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-white font-medium mb-4">Detailed Financial Metrics</h3>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                      <div className="text-neutral-400 font-medium mb-2">Annual Revenue</div>
+                      <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.revenue)}</div>
+                    </div>
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                      <div className="text-neutral-400 font-medium mb-2">Valuation Range</div>
+                      <div className="text-white font-bold text-financial text-2xl">
+                        {formatCurrency(listing.valuationLow)} — {formatCurrency(listing.valuationHigh)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AccordionSection>
+
+            {/* NDA Management Accordion */}
+            {user && (
+              <AccordionSection id="access" title="Due Diligence Access">
+                <div className="space-y-8">
+                  {canRequestNDA && (
+                    <div className="p-8 bg-neutral-900/50 border border-neutral-600">
+                      <h3 className="text-xl text-white font-medium mb-6">Request Access to Confidential Information</h3>
+                      <form onSubmit={handleNDASubmit} className="space-y-6">
+                        <div>
+                          <label htmlFor="buyerName" className="block text-lg text-neutral-300 font-medium mb-4">
+                            Your Company/Organization Name
+                          </label>
+                          <input
+                            type="text"
+                            id="buyerName"
+                            value={buyerName}
+                            onChange={(e) => setBuyerName(e.target.value)}
+                            className="form-control w-full py-4 px-6 text-lg"
+                            placeholder="Enter your company name"
+                            required
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={submitting || !buyerName.trim()}
+                          className="btn-primary px-12 py-4 text-lg font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? 'Submitting Request...' : 'Request NDA Access'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {ndas.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl text-white font-medium">Access Requests</h3>
+                      {ndas.map((nda) => (
+                        <div key={nda.id} className="p-6 bg-neutral-900/50 border border-neutral-600 flex flex-wrap justify-between items-center gap-4">
+                          <div>
+                            <span className="text-white font-semibold text-lg">{nda.buyerName}</span>
+                            <div className="mt-2">
+                              <span className={`status-badge ${
+                                nda.status === 'APPROVED' ? 'status-approved' :
+                                nda.status === 'REJECTED' ? 'status-rejected' : 'status-pending'
+                              }`}>
+                                {nda.status}
+                              </span>
+                            </div>
+                          </div>
+
+                          {isOwner && nda.status === 'REQUESTED' && (
+                            <div className="flex space-x-4">
+                              <button
+                                onClick={() => handleNDAStatusUpdate(nda.id, 'approve')}
+                                className="btn-success px-6 py-3 font-medium hover-lift"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleNDAStatusUpdate(nda.id, 'deny')}
+                                className="glass px-6 py-3 font-medium text-white hover-lift border border-neutral-600"
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Deal Completion Section for Owner */}
+                  {isOwner && (
+                    <div className="p-8 border border-gold/30 bg-neutral-900/30">
+                      <div className="text-center">
+                        <h3 className="text-xl text-white font-medium mb-4">Deal Management</h3>
+                        <p className="text-neutral-400 mb-6">Have you completed a transaction for this listing?</p>
+                        <button
+                          onClick={() => setShowDealCompleteModal(true)}
+                          className="btn-success px-8 py-3 font-medium hover-lift"
+                        >
+                          Mark Deal as Completed
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </AccordionSection>
+            )}
 
           {/* Deal Complete Modal */}
           {showDealCompleteModal && (
@@ -509,67 +599,54 @@ export default function ListingDetailPage() {
             </div>
           )}
 
-          {/* Messaging */}
-          {user && canMessage && (
-            <div className="glass p-16">
-              <h2 className="text-2xl text-white font-medium mb-10">Private Communications</h2>
-              
-              <div className="mb-12 max-h-96 overflow-y-auto space-y-6">
-                {messages.length > 0 ? (
-                  messages.map((message) => (
-                    <div key={message.id} className="p-8 bg-neutral-900/50 border border-neutral-600">
-                      <div className="flex justify-between items-start mb-4">
-                        <span className="text-white font-semibold text-lg">{message.from}</span>
-                        <span className="text-neutral-400 text-sm">{formatDate(message.timestamp)}</span>
+            {/* Messaging Accordion */}
+            {user && canMessage && (
+              <AccordionSection id="messages" title="Private Communications">
+                <div className="space-y-8">
+                  <div className="max-h-80 overflow-y-auto space-y-4">
+                    {messages.length > 0 ? (
+                      messages.map((message) => (
+                        <div key={message.id} className="p-6 bg-neutral-900/50 border border-neutral-600">
+                          <div className="flex justify-between items-start mb-3">
+                            <span className="text-white font-semibold">{message.from}</span>
+                            <span className="text-neutral-400 text-sm">{formatDate(message.timestamp)}</span>
+                          </div>
+                          <p className="text-neutral-300 leading-relaxed">{message.body}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-neutral-400">
+                        <p>No messages yet. Begin the conversation.</p>
                       </div>
-                      <p className="text-neutral-300 leading-relaxed text-lg">{message.body}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-neutral-400">
-                    <p className="text-lg">No messages yet. Begin the conversation.</p>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <form onSubmit={handleMessageSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-lg text-neutral-300 font-medium mb-4">
-                    Compose Message
-                  </label>
-                  <textarea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message here..."
-                    rows={4}
-                    className="form-control w-full py-4 px-6 text-lg"
-                    required
-                  />
+                  <form onSubmit={handleMessageSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-lg text-neutral-300 font-medium mb-3">
+                        Compose Message
+                      </label>
+                      <textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message here..."
+                        rows={4}
+                        className="form-control w-full py-4 px-6"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={sendingMessage || !newMessage.trim()}
+                      className="btn-primary px-8 py-3 font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendingMessage ? 'Sending Message...' : 'Send Message'}
+                    </button>
+                  </form>
                 </div>
-                <button
-                  type="submit"
-                  disabled={sendingMessage || !newMessage.trim()}
-                  className="btn-primary px-12 py-4 text-lg font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {sendingMessage ? 'Sending Message...' : 'Send Message'}
-                </button>
-              </form>
-            </div>
-          )}
+              </AccordionSection>
+            )}
 
-          {!user && (
-            <div className="glass p-16 text-center">
-              <div className="max-w-2xl mx-auto">
-                <h3 className="text-2xl text-white font-medium mb-6">Authentication Required</h3>
-                <p className="text-xl text-neutral-400 mb-10 leading-relaxed">
-                  Please authenticate to access detailed business information, request due diligence materials, and communicate with the listing owner.
-                </p>
-                <Link href="/auth" className="btn-primary px-12 py-4 text-lg font-medium hover-lift">
-                  Authenticate Access
-                </Link>
-              </div>
-            </div>
-          )}
           </div>
         </ScrollAnimation>
       </div>
