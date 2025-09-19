@@ -10,9 +10,11 @@ interface User {
   role: 'BUYER' | 'SELLER' | 'ADMIN';
   profilePicture?: string;
   bio?: string;
-  preferredContact?: string;
+  preferredContact?: 'Phone' | 'Email' | 'Other';
+  preferredPhoneNumber?: string;
   location?: string;
   phone?: string;
+  contactInfoVisible?: boolean;
 }
 
 interface AuthContextType {

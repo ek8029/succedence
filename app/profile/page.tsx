@@ -13,9 +13,11 @@ interface User {
   role: 'BUYER' | 'SELLER' | 'ADMIN';
   profilePicture?: string;
   bio?: string;
-  preferredContact?: string;
+  preferredContact?: 'Phone' | 'Email' | 'Other';
+  preferredPhoneNumber?: string;
   location?: string;
   phone?: string;
+  contactInfoVisible?: boolean;
 }
 
 interface UserStats {
@@ -40,9 +42,11 @@ function ProfilePageContent() {
   const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
   const [profilePreviewUrl, setProfilePreviewUrl] = useState('');
   const [editedBio, setEditedBio] = useState('');
-  const [editedPreferredContact, setEditedPreferredContact] = useState('');
+  const [editedPreferredContact, setEditedPreferredContact] = useState<'Phone' | 'Email' | 'Other' | ''>('');
+  const [editedPreferredPhoneNumber, setEditedPreferredPhoneNumber] = useState('');
   const [editedLocation, setEditedLocation] = useState('');
   const [editedPhone, setEditedPhone] = useState('');
+  const [editedContactInfoVisible, setEditedContactInfoVisible] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -52,8 +56,10 @@ function ProfilePageContent() {
       setEditedProfilePicture(user.profilePicture || '');
       setEditedBio(user.bio || '');
       setEditedPreferredContact(user.preferredContact || '');
+      setEditedPreferredPhoneNumber(user.preferredPhoneNumber || '');
       setEditedLocation(user.location || '');
       setEditedPhone(user.phone || '');
+      setEditedContactInfoVisible(user.contactInfoVisible ?? true);
       fetchUserData(user);
     }
   }, [user]);
@@ -106,7 +112,7 @@ function ProfilePageContent() {
       role: editedRole,
       profilePicture: editedProfilePicture.trim(),
       bio: editedBio.trim(),
-      preferredContact: editedPreferredContact.trim(),
+      preferredContact: editedPreferredContact as 'Phone' | 'Email' | 'Other' | undefined,
       location: editedLocation.trim(),
       phone: editedPhone.trim()
     };
@@ -124,9 +130,11 @@ function ProfilePageContent() {
     const aboutMeUpdates = {
       profilePicture: profilePreviewUrl || editedProfilePicture.trim(),
       bio: editedBio.trim(),
-      preferredContact: editedPreferredContact.trim(),
+      preferredContact: editedPreferredContact as 'Phone' | 'Email' | 'Other' | undefined,
+      preferredPhoneNumber: editedPreferredPhoneNumber.trim(),
       location: editedLocation.trim(),
-      phone: editedPhone.trim()
+      phone: editedPhone.trim(),
+      contactInfoVisible: editedContactInfoVisible
     };
 
     updateProfile(aboutMeUpdates);
@@ -423,27 +431,71 @@ function ProfilePageContent() {
                     )}
                   </div>
 
-                  {/* Preferred Contact */}
+                  {/* Contact Information Privacy Toggle */}
                   <div className="space-y-4">
-                    <label className="block text-lg text-neutral-300 font-medium text-center">Preferred Contact Method</label>
+                    <label className="block text-lg text-neutral-300 font-medium text-center">Contact Information Visibility</label>
                     {aboutMeEditMode ? (
-                      <select
-                        value={editedPreferredContact}
-                        onChange={(e) => setEditedPreferredContact(e.target.value)}
-                        className="form-control w-full py-4 px-6 text-lg text-center"
-                      >
-                        <option value="">Select preferred contact method</option>
-                        <option value="Email">Email</option>
-                        <option value="Phone">Phone</option>
-                        <option value="SMS">SMS</option>
-                        <option value="Platform Messages">Platform Messages</option>
-                      </select>
+                      <div className="flex items-center justify-center space-x-4">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editedContactInfoVisible}
+                            onChange={(e) => setEditedContactInfoVisible(e.target.checked)}
+                            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-white text-lg">Make contact information visible to others</span>
+                        </label>
+                      </div>
                     ) : (
                       <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
-                        {user.preferredContact || 'No preference specified'}
+                        {user.contactInfoVisible ? 'Contact information is visible' : 'Contact information is private'}
                       </div>
                     )}
                   </div>
+
+                  {/* Contact Information Section - Only show if visible or in edit mode */}
+                  {(user.contactInfoVisible || aboutMeEditMode) && (
+                    <>
+                      {/* Preferred Contact Method */}
+                      <div className="space-y-4">
+                        <label className="block text-lg text-neutral-300 font-medium text-center">Preferred Contact Method</label>
+                        {aboutMeEditMode ? (
+                          <select
+                            value={editedPreferredContact}
+                            onChange={(e) => setEditedPreferredContact(e.target.value as 'Phone' | 'Email' | 'Other')}
+                            className="form-control w-full py-4 px-6 text-lg text-center"
+                          >
+                            <option value="">Select preferred contact method</option>
+                            <option value="Phone">Phone</option>
+                            <option value="Email">Email</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        ) : (
+                          <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                            {user.preferredContact || 'No preference specified'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Preferred Phone Number */}
+                      <div className="space-y-4">
+                        <label className="block text-lg text-neutral-300 font-medium text-center">Preferred Phone Number</label>
+                        {aboutMeEditMode ? (
+                          <input
+                            type="tel"
+                            value={editedPreferredPhoneNumber}
+                            onChange={(e) => setEditedPreferredPhoneNumber(e.target.value)}
+                            className="form-control w-full py-4 px-6 text-lg text-center"
+                            placeholder="Enter your preferred phone number"
+                          />
+                        ) : (
+                          <div className="py-4 px-6 bg-neutral-900/50 border border-neutral-600 text-white text-lg text-center">
+                            {user.preferredPhoneNumber || 'No preferred phone number provided'}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
 
                   {/* About Me Edit Buttons */}
                   <div className="flex justify-center space-x-4 pt-6">
@@ -461,8 +513,10 @@ function ProfilePageContent() {
                             setEditedProfilePicture(user.profilePicture || '');
                             setEditedBio(user.bio || '');
                             setEditedPreferredContact(user.preferredContact || '');
+                            setEditedPreferredPhoneNumber(user.preferredPhoneNumber || '');
                             setEditedLocation(user.location || '');
                             setEditedPhone(user.phone || '');
+                            setEditedContactInfoVisible(user.contactInfoVisible ?? true);
                             setSelectedProfileFile(null);
                             setProfilePreviewUrl('');
                           }}
