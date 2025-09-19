@@ -45,9 +45,15 @@ export interface CreateMessageRequest {
 }
 
 export interface ListingFilters {
+  search?: string;
   industry?: string;
   lane?: "MAIN" | "STARTER";
   minRevenue?: number;
+  maxRevenue?: number;
+  minValuation?: number;
+  maxValuation?: number;
+  sortBy?: "revenue" | "valuation" | "title" | "newest";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface User {

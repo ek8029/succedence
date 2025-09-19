@@ -16,8 +16,12 @@ export default function AuthPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'BUYER' as 'BUYER' | 'SELLER' | 'ADMIN'
+    role: 'BUYER' as 'BUYER' | 'SELLER' | 'ADMIN',
+    rememberMe: false
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -66,12 +70,26 @@ export default function AuthPage() {
     }
   };
 
+  const calculatePasswordStrength = (password: string) => {
+    if (password.length === 0) return '';
+    if (password.length < 6) return 'weak';
+    if (password.length < 8) return 'fair';
+    if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) return 'strong';
+    return 'good';
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : false;
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
+
+    if (name === 'password' && isSignUp) {
+      setPasswordStrength(calculatePasswordStrength(value));
+    }
   };
 
   return (
@@ -96,78 +114,166 @@ export default function AuthPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto">
-            {isSignUp && (
-              <div className="space-y-4">
-                <label htmlFor="name" className="form-label">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="form-control w-full py-4 px-6 text-lg"
-                  placeholder="Enter your full name"
-                  required={isSignUp}
-                />
-              </div>
-            )}
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto" noValidate>
+            <fieldset className="space-y-6">
+              <legend className="sr-only">
+                {isSignUp ? 'Create Account Information' : 'Sign In Credentials'}
+              </legend>
 
-            <div className="space-y-4">
-              <label htmlFor="email" className="form-label">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="form-control w-full py-4 px-6 text-lg"
-                placeholder="Enter your email address"
-                required
-              />
-            </div>
-
-            <div className="space-y-4">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="form-control w-full py-4 px-6 text-lg"
-                placeholder={isSignUp ? "Create a password (min 6 characters)" : "Enter your password"}
-                required
-              />
-            </div>
-
-            {isSignUp && (
-              <>
+              {isSignUp && (
                 <div className="space-y-4">
-                  <label htmlFor="confirmPassword" className="form-label">
-                    Confirm Password
+                  <label htmlFor="name" className="form-label">
+                    Full Name *
                   </label>
                   <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     className="form-control w-full py-4 px-6 text-lg"
-                    placeholder="Confirm your password"
+                    placeholder="Enter your full name"
                     required={isSignUp}
+                    aria-describedby={isSignUp ? "name-help" : undefined}
                   />
+                  {isSignUp && (
+                    <p id="name-help" className="text-sm text-neutral-400">
+                      This will be your display name on the platform
+                    </p>
+                  )}
                 </div>
+              )}
 
+              <div className="space-y-4">
+                <label htmlFor="email" className="form-label">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="form-control w-full py-4 px-6 text-lg"
+                  placeholder="Enter your email address"
+                  required
+                  aria-describedby="email-help"
+                />
+                <p id="email-help" className="text-sm text-neutral-400">
+                  We&apos;ll use this to send you important account notifications
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <label htmlFor="password" className="form-label">
+                  Password *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="form-control w-full py-4 px-6 pr-12 text-lg"
+                    placeholder={isSignUp ? "Create a password (min 6 characters)" : "Enter your password"}
+                    required
+                    aria-describedby={isSignUp ? "password-help password-strength" : "password-help"}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white focus:text-white focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <p id="password-help" className="text-sm text-neutral-400">
+                  {isSignUp ? "Minimum 6 characters. Use uppercase, numbers for stronger security." : "Enter your account password"}
+                </p>
+                {isSignUp && passwordStrength && (
+                  <div id="password-strength" className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-neutral-400">Strength:</span>
+                      <span className={`text-sm font-medium ${
+                        passwordStrength === 'weak' ? 'text-red-400' :
+                        passwordStrength === 'fair' ? 'text-yellow-400' :
+                        passwordStrength === 'good' ? 'text-blue-400' : 'text-green-400'
+                      }`}>
+                        {passwordStrength.charAt(0).toUpperCase() + passwordStrength.slice(1)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-neutral-700 rounded-full h-1.5">
+                      <div
+                        className={`h-1.5 rounded-full transition-all ${
+                          passwordStrength === 'weak' ? 'w-1/4 bg-red-400' :
+                          passwordStrength === 'fair' ? 'w-2/4 bg-yellow-400' :
+                          passwordStrength === 'good' ? 'w-3/4 bg-blue-400' : 'w-full bg-green-400'
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {isSignUp && (
+                <div className="space-y-4">
+                  <label htmlFor="confirmPassword" className="form-label">
+                    Confirm Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="form-control w-full py-4 px-6 pr-12 text-lg"
+                      placeholder="Confirm your password"
+                      required={isSignUp}
+                      aria-describedby="confirm-password-help"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white focus:text-white focus:outline-none"
+                      aria-label={showConfirmPassword ? "Hide password confirmation" : "Show password confirmation"}
+                    >
+                      {showConfirmPassword ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  <p id="confirm-password-help" className="text-sm text-neutral-400">
+                    Re-enter your password to confirm
+                  </p>
+                </div>
+              )}
+            </fieldset>
+
+            {isSignUp && (
+              <fieldset className="space-y-6">
+                <legend className="form-label mb-4">Account Type</legend>
                 <div className="space-y-4">
                   <label htmlFor="role" className="form-label">
-                    Your Role
+                    Your Role *
                   </label>
                   <select
                     id="role"
@@ -176,13 +282,36 @@ export default function AuthPage() {
                     onChange={handleInputChange}
                     className="form-control w-full py-4 px-6 text-lg"
                     required
+                    aria-describedby="role-help"
                   >
                     <option value="BUYER">Investor — Seeking acquisition opportunities</option>
                     <option value="SELLER">Business Owner — Considering divestiture</option>
                     <option value="ADMIN">Administrator — Platform management</option>
                   </select>
+                  <p id="role-help" className="text-sm text-neutral-400">
+                    Choose the option that best describes your intended use of the platform
+                  </p>
                 </div>
-              </>
+              </fieldset>
+            )}
+
+            {!isSignUp && (
+              <fieldset className="space-y-4">
+                <legend className="sr-only">Sign In Options</legend>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    name="rememberMe"
+                    checked={formData.rememberMe}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-gold bg-neutral-800 border-neutral-600 rounded focus:ring-gold focus:ring-2"
+                  />
+                  <label htmlFor="rememberMe" className="ml-3 text-sm text-neutral-300">
+                    Remember me for 30 days
+                  </label>
+                </div>
+              </fieldset>
             )}
 
             <div className="pt-8 space-y-6">

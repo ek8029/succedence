@@ -16,17 +16,17 @@
   --warm-gray: #4B5563;
   --cool-gray: #6B7280;
 
-  /* Gold Accent System - More Selective */
-  --gold: #C9A96E;
-  --gold-light: #D4B574;
-  --gold-muted: #B89A5F;
-  --gold-subtle: rgba(201, 169, 110, 0.1);
+  /* Gold Accent System - WCAG AA Compliant */
+  --gold: #E6C687;
+  --gold-light: #F0D49B;
+  --gold-muted: #D4B574;
+  --gold-subtle: rgba(230, 198, 135, 0.1);
 
-  /* Refined Neutrals */
-  --off-white: #F8FAFC;
+  /* Refined Neutrals - Better Contrast */
+  --off-white: #FAFAFA;
   --warm-white: #FFFFFF;
-  --silver: #D1D5DB;
-  --platinum: #E5E7EB;
+  --silver: #E5E5E5;
+  --platinum: #F0F0F0;
 
   /* Sophisticated Gradients */
   --primary-gradient: linear-gradient(135deg, var(--midnight) 0%, var(--charcoal) 100%);
@@ -853,9 +853,9 @@ h6, .text-micro {
 /* Premium Form Elements */
 .form-control {
   background: linear-gradient(135deg,
-    rgba(26, 26, 26, 0.95) 0%,
-    rgba(44, 44, 44, 0.90) 100%);
-  border: 2px solid rgba(212, 175, 55, 0.2);
+    rgba(30, 30, 30, 0.95) 0%,
+    rgba(50, 50, 50, 0.90) 100%);
+  border: 2px solid rgba(230, 198, 135, 0.3);
   border-radius: 8px;
   padding: 0.875rem 1.25rem;
   color: var(--warm-white);
@@ -870,16 +870,23 @@ h6, .text-micro {
   outline: none;
   border-color: var(--gold);
   background: linear-gradient(135deg,
-    rgba(28, 35, 64, 0.95) 0%,
-    rgba(44, 44, 44, 0.95) 100%);
+    rgba(35, 35, 35, 0.95) 0%,
+    rgba(55, 55, 55, 0.95) 100%);
   box-shadow:
-    0 0 0 3px rgba(212, 175, 55, 0.2),
+    0 0 0 3px rgba(230, 198, 135, 0.4),
     0 8px 24px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
 }
 
+/* Enhanced focus styles for accessibility */
+.form-control:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Better contrast for placeholders */
 .form-control::placeholder {
-  color: var(--silver);
+  color: #B0B0B0;
   transition: color 0.2s ease-in-out;
 }
 
