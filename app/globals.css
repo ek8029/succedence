@@ -163,27 +163,32 @@ body::before {
   font-size: 1.125rem;
 }
 
-.btn-success::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--gold-gradient);
-  transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  z-index: -1;
-}
-
-.btn-success:hover::before {
-  left: 0;
+.btn-success {
+  background: var(--accent-gradient);
+  border: none;
+  color: var(--midnight);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
 }
 
 .btn-success:hover {
-  color: var(--obsidian);
-  border-color: var(--gold);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: var(--luxury-shadow);
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+  filter: brightness(1.1);
 }
 
 /* Minimal navigation */
@@ -192,62 +197,9 @@ body::before {
   border-bottom: 1px solid #262626;
 }
 
-/* Premium geometric status badges */
-.status-badge {
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  padding: 0.5rem 1rem;
-  border-radius: 0;
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-  border: 1px solid;
-  display: inline-block;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.status-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.status-main {
-  background: transparent;
-  border-color: var(--gold);
-  color: var(--gold);
-  box-shadow: var(--subtle-glow);
-  animation: subtle-pulse 3s ease-in-out infinite;
-}
-
-.status-starter {
-  background: transparent;
-  border-color: var(--platinum);
-  color: var(--platinum);
-  box-shadow: 0 0 15px rgba(229, 228, 226, 0.1);
-}
-
 @keyframes subtle-pulse {
   0%, 100% { box-shadow: var(--subtle-glow); }
   50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.25); }
-}
-
-.status-pending {
-  background: transparent;
-  border-color: #666666;
-  color: #666666;
-}
-
-.status-approved {
-  background: transparent;
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.status-rejected {
-  background: transparent;
-  border-color: #666666;
-  color: #666666;
 }
 
 /* Elegant table styling */
@@ -861,6 +813,7 @@ h6, .text-micro {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 1px solid transparent;
+  font-family: 'Inter', sans-serif;
   transition: all 0.2s ease-in-out;
 }
 
