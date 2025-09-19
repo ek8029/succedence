@@ -104,12 +104,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-primary-gradient relative overflow-hidden">
+    <div className="min-h-screen bg-primary-gradient relative overflow-hidden pb-0 mb-0">
       <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
       <div className="relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 pb-0 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 md:pt-16 lg:pt-20 pb-0 max-w-7xl">
           <ScrollAnimation direction="fade">
             <div className="text-center mb-16 sm:mb-24 md:mb-32 lg:mb-40 mt-8 sm:mt-12 md:mt-16 lg:mt-24">
               <div className="max-w-6xl mx-auto px-2 sm:px-0">
@@ -680,7 +680,7 @@ export default function Home() {
           </ScrollAnimation>
 
           {/* Social Contact Footer Banner */}
-          <div className="mt-16 py-8 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]" style={{background: '#1a1a1a', borderTop: '2px solid rgba(230, 198, 135, 0.3)'}}>
+          <div className="mt-16 py-8 pb-0 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] -mb-8" style={{background: '#1a1a1a', borderTop: '2px solid rgba(230, 198, 135, 0.3)'}}>
       <ScrollAnimation direction="fade" delay={200}>
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h3 className="text-2xl md:text-3xl font-semibold text-warm-white mb-8 tracking-refined">
