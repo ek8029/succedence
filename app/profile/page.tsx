@@ -37,6 +37,8 @@ function ProfilePageContent() {
   const [editedEmail, setEditedEmail] = useState('');
   const [editedRole, setEditedRole] = useState<'BUYER' | 'SELLER' | 'ADMIN'>('BUYER');
   const [editedProfilePicture, setEditedProfilePicture] = useState('');
+  const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
+  const [profilePreviewUrl, setProfilePreviewUrl] = useState('');
   const [editedBio, setEditedBio] = useState('');
   const [editedPreferredContact, setEditedPreferredContact] = useState('');
   const [editedLocation, setEditedLocation] = useState('');
@@ -120,7 +122,7 @@ function ProfilePageContent() {
     if (!user) return;
 
     const aboutMeUpdates = {
-      profilePicture: editedProfilePicture.trim(),
+      profilePicture: profilePreviewUrl || editedProfilePicture.trim(),
       bio: editedBio.trim(),
       preferredContact: editedPreferredContact.trim(),
       location: editedLocation.trim(),
@@ -130,8 +132,38 @@ function ProfilePageContent() {
     updateProfile(aboutMeUpdates);
     setAboutMeEditMode(false);
 
+    // Clear file selection
+    setSelectedProfileFile(null);
+    setProfilePreviewUrl('');
+
     // Refresh data with updated About Me info
     fetchUserData({ ...user, ...aboutMeUpdates });
+  };
+
+  const handleProfileFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      setSelectedProfileFile(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfilePreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -306,10 +338,10 @@ function ProfilePageContent() {
                   <div className="space-y-4">
                     <label className="block text-lg text-neutral-300 font-medium text-center">Profile Picture</label>
                     <div className="flex flex-col items-center space-y-4">
-                      {(aboutMeEditMode ? editedProfilePicture : user.profilePicture) ? (
+                      {(aboutMeEditMode ? (profilePreviewUrl || editedProfilePicture) : user.profilePicture) ? (
                         <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-neutral-600">
                           <img
-                            src={aboutMeEditMode ? editedProfilePicture : user.profilePicture}
+                            src={aboutMeEditMode ? (profilePreviewUrl || editedProfilePicture) : user.profilePicture}
                             alt="Profile"
                             className="w-full h-full object-cover"
                           />
@@ -322,13 +354,17 @@ function ProfilePageContent() {
                         </div>
                       )}
                       {aboutMeEditMode && (
-                        <input
-                          type="url"
-                          value={editedProfilePicture}
-                          onChange={(e) => setEditedProfilePicture(e.target.value)}
-                          className="form-control w-full py-3 px-4 text-center"
-                          placeholder="Enter image URL"
-                        />
+                        <div className="space-y-3 w-full">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProfileFileSelect}
+                            className="form-control w-full py-3 px-4 text-center file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          />
+                          <div className="text-center text-sm text-neutral-400">
+                            Select an image file (max 5MB)
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -427,6 +463,8 @@ function ProfilePageContent() {
                             setEditedPreferredContact(user.preferredContact || '');
                             setEditedLocation(user.location || '');
                             setEditedPhone(user.phone || '');
+                            setSelectedProfileFile(null);
+                            setProfilePreviewUrl('');
                           }}
                           className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
                         >
