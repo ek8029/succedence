@@ -20,7 +20,8 @@
       "Bash(npm ls:*)",
       "Bash(dir applistings)",
       "Bash(npm install:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

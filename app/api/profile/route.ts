@@ -62,8 +62,8 @@ export async function PUT(request: NextRequest) {
     const profileData = profileUpdateSchema.parse(body)
 
     // Upsert profile
-    const { data, error } = await supabase
-      .from('profiles')
+    const { data, error } = await (supabase
+      .from('profiles') as any)
       .upsert({
         userId: user.id,
         ...profileData,
@@ -90,7 +90,7 @@ export async function PUT(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       )
     }

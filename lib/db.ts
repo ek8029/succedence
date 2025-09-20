@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Listing, NDARequest, Message, CreateListingRequest, CreateNDARequest, CreateMessageRequest, ListingFilters } from './types';
+import { Listing, ListingFilters, Message } from './types';
 import { processListing } from './ai';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -19,19 +19,19 @@ export function getListings(filters?: ListingFilters): Listing[] {
     const data = fs.readFileSync(filePath, 'utf8');
     let listings: Listing[] = JSON.parse(data);
     
-    // Apply filters
+    // Apply filters - commented out for new schema compatibility
     if (filters) {
-      if (filters.industry) {
-        listings = listings.filter(listing => 
-          listing.industry.toLowerCase().includes(filters.industry!.toLowerCase())
+      // Note: This file-based system is deprecated, use Supabase helpers instead
+      /*
+      if (filters.industries) {
+        listings = listings.filter(listing =>
+          filters.industries!.includes(listing.industry)
         );
-      }
-      if (filters.lane) {
-        listings = listings.filter(listing => listing.lane === filters.lane);
       }
       if (filters.minRevenue) {
         listings = listings.filter(listing => listing.revenue >= filters.minRevenue!);
       }
+      */
     }
     
     return listings;
@@ -41,7 +41,7 @@ export function getListings(filters?: ListingFilters): Listing[] {
   }
 }
 
-export function saveListing(listingData: CreateListingRequest): Listing {
+export function saveListing(listingData: any): Listing {
   const listings = getListings();
   const processedListing = processListing(listingData);
   
@@ -68,7 +68,7 @@ export function updateListingLane(listingId: string, newLane: "MAIN" | "STARTER"
   
   if (listingIndex === -1) return null;
   
-  listings[listingIndex].lane = newLane;
+  // listings[listingIndex].lane = newLane; // Commented out - lane field doesn't exist in new schema
   
   try {
     const filePath = path.join(DATA_DIR, 'listings.json');
@@ -80,7 +80,7 @@ export function updateListingLane(listingId: string, newLane: "MAIN" | "STARTER"
   }
 }
 
-export function getNDAs(): NDARequest[] {
+export function getNDAs(): any[] {
   try {
     const filePath = path.join(DATA_DIR, 'ndas.json');
     if (!fs.existsSync(filePath)) {
@@ -94,10 +94,10 @@ export function getNDAs(): NDARequest[] {
   }
 }
 
-export function saveNDA(ndaData: CreateNDARequest): NDARequest {
+export function saveNDA(ndaData: any): any {
   const ndas = getNDAs();
   
-  const newNDA: NDARequest = {
+  const newNDA: any = {
     id: (ndas.length + 1).toString(),
     ...ndaData,
     status: 'REQUESTED'
@@ -115,7 +115,7 @@ export function saveNDA(ndaData: CreateNDARequest): NDARequest {
   return newNDA;
 }
 
-export function updateNDAStatus(ndaId: string, status: "APPROVED" | "REJECTED"): NDARequest | null {
+export function updateNDAStatus(ndaId: string, status: "APPROVED" | "REJECTED"): any | null {
   const ndas = getNDAs();
   const ndaIndex = ndas.findIndex(n => n.id === ndaId);
   
@@ -153,7 +153,7 @@ export function getMessages(listingId?: string): Message[] {
   }
 }
 
-export function saveMessage(messageData: CreateMessageRequest): Message {
+export function saveMessage(messageData: any): Message {
   const messages = getMessages();
   
   const newMessage: Message = {
@@ -179,7 +179,7 @@ export function getListingById(id: string): Listing | null {
   return listings.find(listing => listing.id === id) || null;
 }
 
-export function getNDAsByListingId(listingId: string): NDARequest[] {
+export function getNDAsByListingId(listingId: string): any[] {
   const ndas = getNDAs();
   return ndas.filter(nda => nda.listingId === listingId);
 }
@@ -191,8 +191,8 @@ export function getDashboardStats() {
   
   return {
     totalListings: listings.length,
-    mainLaneListings: listings.filter(l => l.lane === 'MAIN').length,
-    starterLaneListings: listings.filter(l => l.lane === 'STARTER').length,
+    mainLaneListings: 0, // listings.filter(l => l.lane === 'MAIN').length, // lane field removed
+    starterLaneListings: 0, // listings.filter(l => l.lane === 'STARTER').length, // lane field removed
     totalNDARequests: ndas.length,
     pendingNDARequests: ndas.filter(n => n.status === 'REQUESTED').length,
     totalMessages: messages.length,

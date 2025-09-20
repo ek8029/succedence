@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceClient()
 
     // Check if user already exists
-    const { data: existingUser } = await supabase
-      .from('users')
+    const { data: existingUser } = await (supabase
+      .from('users') as any)
       .select('id')
       .eq('id', userId)
       .single()
@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user record
-    const { error: userError } = await supabase
-      .from('users')
+    const { error: userError } = await (supabase
+      .from('users') as any)
       .insert({
         id: userId,
         email,
@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create profile record
-    const { error: profileError } = await supabase
-      .from('profiles')
+    const { error: profileError } = await (supabase
+      .from('profiles') as any)
       .insert({
         userId: userId,
         updatedAt: new Date().toISOString()
@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create default preferences
-    const { error: preferencesError } = await supabase
-      .from('preferences')
+    const { error: preferencesError } = await (supabase
+      .from('preferences') as any)
       .insert({
         userId: userId,
         alertFrequency: 'weekly',
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       )
     }

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import type { UserWithProfile, AuthUser } from '../lib/types'
 import { useRouter } from 'next/navigation'
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       setSession(session)
       if (session?.user) {
         fetchUserProfile(session.user.id)
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       setSession(session)
       if (session?.user) {
         await fetchUserProfile(session.user.id)
@@ -87,15 +87,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       const authUser: AuthUser = {
-        id: userData.id,
-        email: userData.email,
-        role: userData.role,
-        plan: userData.plan,
-        status: userData.status,
+        id: (userData as any).id,
+        email: (userData as any).email,
+        name: (userData as any).name,
+        role: (userData as any).role,
+        plan: (userData as any).plan,
+        status: (userData as any).status,
       }
 
       const userWithProfile: UserWithProfile = {
-        ...userData,
+        ...(userData as any),
         profile: profileData,
         preferences: preferencesData,
       }

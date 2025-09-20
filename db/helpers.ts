@@ -1,4 +1,5 @@
 import { eq, and, desc, gte, lte, ilike, inArray } from 'drizzle-orm';
+import type { ListingStatus } from '../lib/types';
 import { db } from './connection';
 import {
   users,
@@ -112,13 +113,13 @@ export async function getListings(filters?: {
   state?: string;
   minRevenue?: number;
   maxPrice?: number;
-  status?: string;
+  status?: ListingStatus | ListingStatus[];
   limit?: number;
   offset?: number;
 }): Promise<Listing[]> {
-  let query = db.select().from(listings);
+  let query: any = db.select().from(listings);
 
-  const conditions = [];
+  const conditions: any[] = [];
 
   if (filters?.industry) {
     conditions.push(eq(listings.industry, filters.industry));
@@ -137,7 +138,11 @@ export async function getListings(filters?: {
   }
 
   if (filters?.status) {
-    conditions.push(eq(listings.status, filters.status));
+    if (Array.isArray(filters.status)) {
+      conditions.push(inArray(listings.status, filters.status));
+    } else {
+      conditions.push(eq(listings.status, filters.status));
+    }
   }
 
   if (conditions.length > 0) {

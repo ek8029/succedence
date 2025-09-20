@@ -67,7 +67,8 @@ function AdminPageContent() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -267,7 +268,7 @@ function AdminPageContent() {
 
 export default function AdminPage() {
   return (
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole="admin">
       <AdminPageContent />
     </ProtectedRoute>
   );

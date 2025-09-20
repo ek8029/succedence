@@ -35,7 +35,7 @@ export default function SignInPage() {
         if (result.error) throw result.error
         if (result.data.user && !result.data.session) {
           setSuccess('Please check your email to confirm your account!')
-        } else {
+        } else if (result.data.user) {
           // Auto sign in successful
           await createUserProfile(result.data.user.id, email)
           router.push('/profile')

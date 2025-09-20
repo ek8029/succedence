@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMessages, saveMessage } from '@/lib/db';
-import { CreateMessageRequest } from '@/lib/types';
+
+interface CreateMessageRequest {
+  listingId: string;
+  from: string;
+  body: string;
+}
 
 export async function GET(request: NextRequest) {
   try {

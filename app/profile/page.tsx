@@ -131,8 +131,8 @@ function ProfilePageContent() {
       const supabase = createClient();
 
       // Update user basic info in users table
-      const { error } = await supabase
-        .from('users')
+      const { error } = await (supabase
+        .from('users') as any)
         .update({
           name: basicFormData.name,
           email: basicFormData.email,

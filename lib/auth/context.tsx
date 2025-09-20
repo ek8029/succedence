@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', userId)
         .single()
 
-      if (userError) {
+      if (userError || !userData) {
         console.error('Error fetching user:', userError)
         setLoading(false)
         return
@@ -82,15 +82,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       const authUser: AuthUser = {
-        id: userData.id,
-        email: userData.email,
-        role: userData.role,
-        plan: userData.plan,
-        status: userData.status,
+        id: (userData as any).id,
+        email: (userData as any).email,
+        name: (userData as any).name,
+        role: (userData as any).role,
+        plan: (userData as any).plan,
+        status: (userData as any).status,
       }
 
       const userWithProfile: UserWithProfile = {
-        ...userData,
+        ...(userData as any),
         profile: profileData,
         preferences: preferencesData,
       }
@@ -129,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: userData.role as any,
             plan: 'free',
             status: 'active',
-          })
+          } as any)
 
         if (userError) {
           console.error('Error creating user record:', userError)
@@ -141,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('profiles')
           .insert({
             user_id: data.user.id,
-          })
+          } as any)
 
         // Create default preferences
         await supabase
@@ -149,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .insert({
             user_id: data.user.id,
             alert_frequency: 'weekly',
-          })
+          } as any)
       }
 
       return {}

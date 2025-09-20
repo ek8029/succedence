@@ -32,7 +32,8 @@ export default function Home() {
     fetchFeaturedListings();
   }, []);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -303,8 +304,8 @@ export default function Home() {
                         <div className="p-8 pb-6">
                           <div className="flex items-start justify-between mb-6">
                             <div className="flex flex-wrap gap-2">
-                              <span className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${listing.lane === 'MAIN' ? 'bg-accent-gradient text-midnight border-gold' : 'bg-slate/50 text-silver border-silver/50'}`}>
-                                {listing.lane}
+                              <span className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${listing.status === 'active' ? 'bg-accent-gradient text-midnight border-gold' : 'bg-slate/50 text-silver border-silver/50'}`}>
+                                {listing.status}
                               </span>
                               <span className="px-3 py-1 text-xs font-medium uppercase tracking-wider bg-charcoal/50 text-silver/80 rounded-full border border-silver/20">
                                 {listing.industry}
@@ -329,7 +330,7 @@ export default function Home() {
                           <div className="flex justify-between items-center">
                             <span className="font-sans text-xs text-silver/70 font-medium uppercase tracking-wide">Valuation</span>
                             <span className="font-mono text-sm text-gold font-bold">
-                              {formatCurrency(listing.valuationLow)} - {formatCurrency(listing.valuationHigh)}
+                              {formatCurrency(listing.price)}
                             </span>
                           </div>
                         </div>

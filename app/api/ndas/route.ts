@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveNDA, getNDAs } from '@/lib/db';
-import { CreateNDARequest } from '@/lib/types';
+
+interface CreateNDARequest {
+  listingId: string;
+  buyerName: string;
+  buyerEmail?: string;
+}
 
 export async function GET() {
   try {

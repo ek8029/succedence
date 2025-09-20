@@ -95,7 +95,7 @@ export default function Navbar() {
                   My Preferences
                 </Link>
 
-                {user.role === 'ADMIN' && (
+                {user.role === 'admin' && (
                   <Link href="/admin" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                     Admin Dashboard
                   </Link>

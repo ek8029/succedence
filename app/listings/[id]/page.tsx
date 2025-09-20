@@ -4,7 +4,29 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
-import { Listing, NDARequest, Message, User } from '@/lib/types';
+import { Listing } from '@/lib/types';
+
+interface NDARequest {
+  id: string;
+  listingId: string;
+  buyerName: string;
+  status: string;
+}
+
+interface Message {
+  id: string;
+  listingId: string;
+  from: string;
+  body: string;
+  timestamp: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 export default function ListingDetailPage() {
   const params = useParams();
@@ -73,7 +95,8 @@ export default function ListingDetailPage() {
     fetchListingData();
   }, [fetchListingData]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -212,7 +235,7 @@ export default function ListingDetailPage() {
   };
 
   const hasApprovedNDA = ndas.some(nda => nda.status === 'APPROVED');
-  const isOwner = user && listing && user.name === listing.owner;
+  const isOwner = user && listing && user.id === listing.ownerUserId;
   const canRequestNDA = user && user.role === 'BUYER' && !ndas.some(nda => nda.buyerName === user.name);
   const canMessage = hasApprovedNDA || isOwner;
 
@@ -295,8 +318,8 @@ export default function ListingDetailPage() {
             {/* Hero Section with Primary CTA */}
             <div className="glass p-16">
               <div className="flex flex-wrap gap-4 mb-10">
-                <span className={`status-badge ${listing.lane === 'MAIN' ? 'status-main' : 'status-starter'}`}>
-                  {listing.lane}
+                <span className={`status-badge ${listing.status === 'active' ? 'status-main' : 'status-pending'}`}>
+                  {listing.status}
                 </span>
                 <span className="status-badge bg-neutral-800 text-neutral-300 font-medium">
                   {listing.industry}
@@ -321,7 +344,7 @@ export default function ListingDetailPage() {
                   </div>
                   <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
                     <div className="text-2xl text-white font-bold mb-2">
-                      {formatCurrency(listing.valuationLow)} — {formatCurrency(listing.valuationHigh)}
+                      {formatCurrency(listing.price)}
                     </div>
                     <div className="text-neutral-400">Valuation Range</div>
                   </div>
@@ -380,7 +403,7 @@ export default function ListingDetailPage() {
                   <div>
                     <h3 className="text-xl text-white font-medium mb-4">Contact Information</h3>
                     <div className="p-4 bg-neutral-900/50 border border-neutral-600">
-                      <span className="text-white font-semibold text-lg">{listing.owner}</span>
+                      <span className="text-white font-semibold text-lg">{listing.source}</span>
                     </div>
                   </div>
                   <div>
@@ -401,7 +424,7 @@ export default function ListingDetailPage() {
                     <div className="p-6 bg-neutral-900/50 border border-neutral-600">
                       <div className="text-neutral-400 font-medium mb-2">Valuation Range</div>
                       <div className="text-white font-bold text-financial text-2xl">
-                        {formatCurrency(listing.valuationLow)} — {formatCurrency(listing.valuationHigh)}
+                        {formatCurrency(listing.price)}
                       </div>
                     </div>
                   </div>

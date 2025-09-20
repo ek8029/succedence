@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (userError || userData?.role !== 'admin') {
+    if (userError || (userData as any)?.role !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       supabase.from('listings').select('industry').neq('industry', null)
     ])
 
-    const industries = Array.from(new Set(industriesData?.map(item => item.industry))).sort()
+    const industries = Array.from(new Set(industriesData?.map((item: any) => item.industry))).sort()
 
     return NextResponse.json({
       totalListings: totalListings || 0,
@@ -87,7 +87,7 @@ export async function PATCH(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (userError || userData?.role !== 'admin') {
+    if (userError || (userData as any)?.role !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
@@ -95,8 +95,8 @@ export async function PATCH(request: NextRequest) {
     const { listingId, newStatus } = updateStatusSchema.parse(body)
 
     // Update listing status
-    const { error: updateError } = await supabase
-      .from('listings')
+    const { error: updateError } = await (supabase
+      .from('listings') as any)
       .update({ status: newStatus })
       .eq('id', listingId)
 
@@ -117,7 +117,7 @@ export async function PATCH(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       )
     }

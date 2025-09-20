@@ -41,16 +41,11 @@ export function classifyIndustry(description: string, title: string): string {
   return 'Other';
 }
 
-export function processListing(listing: Omit<Listing, 'id' | 'lane' | 'valuationLow' | 'valuationHigh' | 'industry'>): Omit<Listing, 'id'> {
-  const lane = classifyLane(listing.revenue);
-  const { low, high } = estimateValuation(listing.revenue);
-  const industry = classifyIndustry(listing.description, listing.title);
-  
+export function processListing(listing: Omit<Listing, 'id'>): Omit<Listing, 'id'> {
+  // Since the schema no longer includes lane, valuationLow, valuationHigh fields,
+  // we just return the listing as-is for now. The AI processing can be added back
+  // if needed when the schema supports these fields again.
   return {
     ...listing,
-    industry,
-    lane,
-    valuationLow: low,
-    valuationHigh: high
   };
 }

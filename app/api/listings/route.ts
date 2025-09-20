@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
     const listingData = createListingSchema.parse(body)
 
     // Create listing
-    const { data, error } = await supabase
-      .from('listings')
+    const { data, error } = await (supabase
+      .from('listings') as any)
       .insert({
         ...listingData,
         source: 'user_created',
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       )
     }

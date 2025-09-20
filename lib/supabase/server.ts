@@ -1,9 +1,9 @@
-import { createServerSupabaseClient } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '../types'
 
 export const createClient = () =>
-  createServerSupabaseClient<Database>(
+  createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -35,7 +35,7 @@ export const createClient = () =>
 
 // Service role client for server-side operations that bypass RLS
 export const createServiceClient = () =>
-  createServerSupabaseClient<Database>(
+  createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {

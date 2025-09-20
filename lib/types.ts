@@ -186,6 +186,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 export interface AuthUser {
   id: string
   email: string
+  name: string
   role: UserRole
   plan: PlanType
   status: UserStatus
