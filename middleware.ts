@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Create Supabase client
-  const supabase = createServerSupabaseClient(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
         .eq('id', session.user.id)
         .single()
 
-      if (userError || userData?.role !== 'admin') {
+      if (userError || (userData as any)?.role !== 'admin') {
         // Redirect non-admin users to home
         return NextResponse.redirect(new URL('/', request.url))
       }

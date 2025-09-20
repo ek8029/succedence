@@ -398,7 +398,7 @@ async function seedDatabase() {
     console.log('Creating users...');
     const createdUsers = [];
     for (const userData of sampleUsers) {
-      const user = await db.insert(users).values(userData).returning();
+      const user = await db.insert(users).values(userData as any).returning();
       createdUsers.push(user[0]);
       console.log(`Created user: ${user[0].email}`);
     }
@@ -429,7 +429,7 @@ async function seedDatabase() {
     console.log('Creating listings...');
     const createdListings = [];
     for (const listingData of sampleListings) {
-      const listing = await db.insert(listings).values(listingData).returning();
+      const listing = await db.insert(listings).values(listingData as any).returning();
       createdListings.push(listing[0]);
       console.log(`Created listing: ${listing[0].title}`);
     }
