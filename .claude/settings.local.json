@@ -18,7 +18,9 @@
       "Bash(sed:*)",
       "Bash(npx eslint:*)",
       "Bash(npm ls:*)",
-      "Bash(dir applistings)"
+      "Bash(dir applistings)",
+      "Bash(npm install:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

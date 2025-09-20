@@ -17,7 +17,8 @@ A modern, dark-themed AI-assisted business marketplace built with Next.js 14, Ty
 
 - **Frontend**: Next.js 14 (App Router) + TypeScript + TailwindCSS
 - **Backend**: Next.js API Routes with validation
-- **Persistence**: Static JSON files in `/data/`
+- **Database**: PostgreSQL with Drizzle ORM
+- **Persistence**: Relational database with migrations
 - **AI**: Mock AI helpers for classification and valuation
 - **Authentication**: LocalStorage-based session management
 
@@ -43,64 +44,170 @@ succedence/
 │   └── page.tsx                     # Landing page
 ├── components/
 │   └── Navbar.tsx                   # Navigation with user info
-├── data/
-│   ├── listings.json                # Business listings data
-│   ├── ndas.json                    # NDA requests data
-│   └── messages.json                # Messages data
+├── db/
+│   ├── connection.ts                # Database connection
+│   ├── schema.ts                    # Drizzle schema definitions
+│   ├── helpers.ts                   # Database helper functions
+│   └── index.ts                     # Database exports
+├── drizzle/
+│   └── *.sql                        # Database migrations
 ├── lib/
 │   ├── ai.ts                        # AI helpers (classification, valuation)
-│   ├── db.ts                        # JSON persistence helpers
 │   └── types.ts                     # TypeScript definitions
 ├── scripts/
-│   └── seed.ts                      # Data reset script
+│   └── seed.ts                      # Database seeding script
+├── drizzle.config.ts                # Drizzle configuration
+├── .env.example                     # Environment variables template
 └── README.md
 ```
 
-## 📊 Data Models
+## 🗄️ Database Schema
 
-### Listing
-```typescript
-{
-  id: string;
-  title: string;
-  description: string;
-  owner: string;
-  industry: string;
-  lane: "MAIN" | "STARTER";
-  valuationLow: number;
-  valuationHigh: number;
-  revenue: number;
-}
+### Core Tables
+
+#### Users
+```sql
+users(
+  id uuid pk,
+  email text unique,
+  name text,
+  role text,
+  plan text,
+  created_at timestamptz default now(),
+  status text
+)
 ```
 
-### NDARequest
-```typescript
-{
-  id: string;
-  listingId: string;
-  buyerName: string;
-  status: "REQUESTED" | "APPROVED" | "REJECTED";
-}
+#### Profiles
+```sql
+profiles(
+  user_id fk→users,
+  phone text,
+  company text,
+  headline text,
+  location text,
+  avatar_url text,
+  kyc_status text,
+  updated_at timestamptz default now()
+)
 ```
 
-### Message
-```typescript
-{
-  id: string;
-  listingId: string;
-  from: string;
-  body: string;
-  timestamp: string;
-}
+#### Preferences
+```sql
+preferences(
+  user_id fk→users,
+  industries text[],
+  states text[],
+  min_revenue int,
+  min_metric int,
+  metric_type text,
+  owner_hours_max int,
+  price_max int,
+  alert_frequency text,
+  keywords text[],
+  updated_at timestamptz default now()
+)
 ```
 
-### User
-```typescript
-{
-  name: string;
-  role: "BUYER" | "SELLER" | "ADMIN";
-}
+#### Listings
+```sql
+listings(
+  id uuid pk,
+  source text,
+  title text,
+  description text,
+  industry text,
+  city text,
+  state text,
+  revenue int,
+  ebitda int,
+  metric_type text,
+  owner_hours int,
+  employees int,
+  price int,
+  status text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  owner_user_id uuid null
+)
 ```
+
+### Supporting Tables
+
+#### Listing Media
+```sql
+listing_media(
+  id uuid pk,
+  listing_id fk,
+  url text,
+  kind text,
+  created_at timestamptz default now()
+)
+```
+
+#### Matches
+```sql
+matches(
+  id uuid pk,
+  user_id fk,
+  listing_id fk,
+  score int,
+  reasons_json jsonb,
+  created_at timestamptz default now()
+)
+```
+
+#### Alerts
+```sql
+alerts(
+  id uuid pk,
+  user_id fk,
+  digest_date date,
+  listing_ids uuid[],
+  type text,
+  opened_at timestamptz null,
+  clicked_ids uuid[] null
+)
+```
+
+#### Messages
+```sql
+messages(
+  id uuid pk,
+  from_user fk,
+  to_user fk,
+  listing_id fk,
+  body text,
+  created_at timestamptz default now()
+)
+```
+
+#### Billing Events & Audit Logs
+```sql
+billing_events(
+  id uuid pk,
+  user_id fk,
+  type text,
+  raw_json jsonb,
+  created_at timestamptz default now()
+)
+
+audit_logs(
+  id uuid pk,
+  actor_id fk,
+  action text,
+  subject_type text,
+  subject_id uuid,
+  created_at timestamptz default now()
+)
+```
+
+### Database Indexes
+
+- `listings(industry, state)` - For location-based filtering
+- `listings(updated_at desc)` - For chronological sorting
+- `matches(user_id, created_at desc)` - For user match history
+- `alerts(user_id, digest_date desc)` - For user alert retrieval
 
 ## 🎨 Dark Mode Design
 
@@ -147,18 +254,37 @@ The app features a beautiful iOS-style dark theme with:
    npm install
    ```
 
-2. **Run Development Server**
+2. **Database Setup**
+   ```bash
+   # Copy environment template
+   cp .env.example .env
+
+   # Edit .env with your PostgreSQL database URL
+   # DATABASE_URL="postgresql://username:password@localhost:5432/dealsense"
+
+   # Generate and run migrations
+   npm run db:generate
+   npm run db:push
+
+   # Seed the database with sample data
+   npm run seed
+   ```
+
+3. **Run Development Server**
    ```bash
    npm run dev
    ```
 
-3. **Reset Data (Optional)**
-   ```bash
-   npm run seed
-   ```
-
 4. **Open Browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Database Scripts
+
+- `npm run db:generate` - Generate new migrations from schema changes
+- `npm run db:migrate` - Run pending migrations
+- `npm run db:push` - Push schema changes directly to database
+- `npm run db:studio` - Open Drizzle Studio for database exploration
+- `npm run seed` - Populate database with sample data
 
 ## 📖 Usage Guide
 
@@ -182,16 +308,50 @@ The app features a beautiful iOS-style dark theme with:
 2. View platform statistics and manage listing lanes
 3. Monitor all NDA requests and messages
 
+## 📊 Database Helper Functions
+
+The `/db/helpers.ts` file provides typed helper functions for common database operations:
+
+### User Operations
+- `createUser(userData)` - Create a new user
+- `getUserById(id)` - Get user by ID
+- `getUserByEmail(email)` - Get user by email
+- `updateUser(id, updates)` - Update user data
+
+### Profile & Preferences
+- `upsertProfile(profileData)` - Create or update user profile
+- `getProfileByUserId(userId)` - Get user profile
+- `upsertPreferences(preferencesData)` - Create or update user preferences
+- `getPreferencesByUserId(userId)` - Get user preferences
+
+### Listing Operations
+- `createListing(listingData)` - Create a new listing
+- `getListingById(id)` - Get listing by ID
+- `getListings(filters?)` - Get filtered listings
+- `updateListing(id, updates)` - Update listing
+- `searchListings(searchTerm)` - Search listings by title
+
+### Complex Queries
+- `getUserWithProfileAndPreferences(userId)` - Get complete user data
+- `getListingWithMedia(listingId)` - Get listing with media files
+- `getRecommendedListings(userId)` - Get personalized recommendations
+
 ## 📊 Seed Data
 
-The app comes with 7 sample listings across different industries:
-- **SaaS Analytics Platform** (MAIN lane)
-- **Local HVAC Service Business** (MAIN lane)
-- **E-commerce Dropshipping Store** (STARTER lane)
-- **Digital Marketing Agency** (MAIN lane)
-- **Mobile App Development Studio** (STARTER lane)
-- **Restaurant Chain** (MAIN lane)
-- **Online Fitness Coaching** (STARTER lane)
+The database seeding script creates realistic sample data:
+- **3 Users**: Buyer, Seller, and Broker with complete profiles
+- **20 Business Listings** across various industries:
+  - Italian Restaurant (Austin, TX) - $650K
+  - Tech Consulting Firm (San Francisco, CA) - $1.8M
+  - Auto Repair Shop (Dallas, TX) - $495K
+  - Marketing Agency (Miami, FL) - $1.4M
+  - Coffee Shop Chain (Phoenix, AZ) - $850K
+  - E-commerce Business (Denver, CO) - $2.8M
+  - HVAC Service Company (Atlanta, GA) - $1.6M
+  - Manufacturing (Houston, TX) - $2.2M
+  - Dental Practice (Plano, TX) - $900K
+  - Pet Grooming Chain (Scottsdale, AZ) - $385K
+  - And 10 more diverse businesses...
 
 ## 🔌 API Endpoints
 
@@ -221,16 +381,18 @@ The app comes with 7 sample listings across different industries:
 
 ## 🔧 Development Notes
 
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Migrations**: Automatically generated SQL migrations with versioning
+- **Type Safety**: Full TypeScript types inferred from database schema
 - **Authentication**: Uses localStorage for simplicity (production should use proper auth)
-- **Persistence**: JSON files for demo purposes (production should use database)
 - **AI Features**: Mocked but demonstrate intended functionality
 - **Security**: Basic validation implemented (production needs enhanced security)
 
 ## 🚀 Next Steps
 
 For a production version, consider:
-- **Database Integration**: PostgreSQL, MongoDB, or similar
 - **Real Authentication**: NextAuth.js, Auth0, or custom solution
+- **Database Scaling**: Connection pooling, read replicas, caching
 - **Real AI/ML**: OpenAI API, custom models, or third-party services
 - **Enhanced Security**: JWT tokens, rate limiting, input validation
 - **Real-time Features**: WebSockets for live messaging

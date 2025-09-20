@@ -9,14 +9,14 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 
 export default function AuthPage() {
   const router = useRouter();
-  const { user, isLoading, signIn } = useAuth();
+  const { user, isLoading, signUp, signInWithEmail } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'BUYER' as 'BUYER' | 'SELLER' | 'ADMIN',
+    role: 'buyer' as 'buyer' | 'seller' | 'admin',
     rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -54,17 +54,33 @@ export default function AuthPage() {
     }
 
     try {
-      // Simulate authentication (no actual backend yet)
-      await signIn({
-        name: formData.name.trim() || formData.email.split('@')[0],
-        email: formData.email.trim(),
-        role: formData.role
-      });
+      if (isSignUp) {
+        // Use Supabase sign up
+        const { error } = await signUp(
+          formData.email.trim(),
+          formData.password,
+          {
+            name: formData.name.trim(),
+            role: formData.role
+          }
+        );
 
-      showNotification(
-        isSignUp ? 'Account created successfully!' : 'Login successful!',
-        'success'
-      );
+        if (error) {
+          showNotification(error, 'error');
+          return;
+        }
+      } else {
+        // Use Supabase sign in
+        const { error } = await signInWithEmail(
+          formData.email.trim(),
+          formData.password
+        );
+
+        if (error) {
+          showNotification(error, 'error');
+          return;
+        }
+      }
     } catch (error) {
       showNotification('Authentication failed. Please try again.', 'error');
     }
@@ -284,9 +300,9 @@ export default function AuthPage() {
                     required
                     aria-describedby="role-help"
                   >
-                    <option value="BUYER">Investor — Seeking acquisition opportunities</option>
-                    <option value="SELLER">Business Owner — Considering divestiture</option>
-                    <option value="ADMIN">Administrator — Platform management</option>
+                    <option value="buyer">Investor — Seeking acquisition opportunities</option>
+                    <option value="seller">Business Owner — Considering divestiture</option>
+                    <option value="admin">Administrator — Platform management</option>
                   </select>
                   <p id="role-help" className="text-sm text-neutral-400">
                     Choose the option that best describes your intended use of the platform

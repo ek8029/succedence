@@ -1,68 +1,84 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { showNotification } from '@/components/Notification';
 import ScrollAnimation from '@/components/ScrollAnimation';
-import ImageUpload from '@/components/ImageUpload';
+import { supabase } from '@/lib/supabaseClient';
+import type { PreferencesFormData, AlertFrequency } from '@/lib/types';
 
-export default function PreferencesPage() {
-  const [formData, setFormData] = useState({
-    // Personal preferences
-    interests: [] as string[],
-    industries: [] as string[],
-
-    // Financial preferences
-    minRevenue: '',
-    maxRevenue: '',
-    minPrice: '',
-    maxPrice: '',
-
-    // Geographic preferences
-    locations: [] as string[],
-
-    // Business preferences
-    businessTypes: [] as string[],
-    growthStage: '',
-
-    // Notification preferences
-    emailFrequency: 'weekly',
-    instantAlerts: true,
-
-    // Optional business info (for sellers)
-    businessLogo: null as File | null,
-    businessName: '',
-    businessDescription: ''
-  });
-
+function PreferencesPageContent() {
+  const { user, userProfile, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('financial');
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  const [formData, setFormData] = useState<PreferencesFormData>({
+    industries: [],
+    states: [],
+    minRevenue: undefined,
+    minMetric: undefined,
+    metricType: undefined,
+    ownerHoursMax: undefined,
+    priceMax: undefined,
+    alertFrequency: 'weekly',
+    keywords: [],
+  });
+
+  useEffect(() => {
+    if (userProfile?.preferences && initialLoad) {
+      // Load existing preferences
+      setFormData({
+        industries: userProfile.preferences.industries || [],
+        states: userProfile.preferences.states || [],
+        minRevenue: userProfile.preferences.minRevenue || undefined,
+        minMetric: userProfile.preferences.minMetric || undefined,
+        metricType: userProfile.preferences.metricType || undefined,
+        ownerHoursMax: userProfile.preferences.ownerHoursMax || undefined,
+        priceMax: userProfile.preferences.priceMax || undefined,
+        alertFrequency: (userProfile.preferences.alertFrequency as AlertFrequency) || 'weekly',
+        keywords: userProfile.preferences.keywords || [],
+      });
+      setInitialLoad(false);
+    }
+  }, [userProfile, initialLoad]);
 
   const industryOptions = [
     'Technology', 'Healthcare', 'Finance', 'Real Estate', 'Manufacturing',
     'Retail', 'Food & Beverage', 'Automotive', 'Energy', 'Education',
-    'Consulting', 'Marketing', 'Construction', 'Transportation', 'Agriculture'
+    'Consulting', 'Marketing', 'Construction', 'Transportation', 'Agriculture',
+    'Entertainment', 'Legal Services', 'Professional Services', 'Beauty & Wellness'
   ];
 
-  const locationOptions = [
-    'United States', 'Canada', 'United Kingdom', 'Germany', 'France',
-    'Australia', 'Japan', 'Singapore', 'Netherlands', 'Switzerland'
+  const stateOptions = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
+    'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho',
+    'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
+    'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+    'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada',
+    'New Hampshire', 'New Jersey', 'New Mexico', 'New York',
+    'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon',
+    'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
+    'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
+    'West Virginia', 'Wisconsin', 'Wyoming'
   ];
 
-  const businessTypeOptions = [
-    'SaaS', 'E-commerce', 'Manufacturing', 'Service-based', 'Brick & Mortar',
-    'Franchise', 'Digital Agency', 'Healthcare Practice', 'Restaurant',
-    'Tech Startup', 'Traditional Business'
+  const metricTypeOptions = [
+    { value: 'revenue', label: 'Annual Revenue' },
+    { value: 'ebitda', label: 'EBITDA' },
+    { value: 'gross_profit', label: 'Gross Profit' },
+    { value: 'net_income', label: 'Net Income' }
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
-    if (type === 'checkbox') {
-      const checkbox = e.target as HTMLInputElement;
+    if (type === 'number') {
       setFormData(prev => ({
         ...prev,
-        [name]: checkbox.checked
+        [name]: value ? parseInt(value) : undefined
       }));
     } else {
       setFormData(prev => ({
@@ -72,9 +88,9 @@ export default function PreferencesPage() {
     }
   };
 
-  const handleArrayChange = (name: string, value: string) => {
+  const handleArrayChange = (name: 'industries' | 'states' | 'keywords', value: string) => {
     setFormData(prev => {
-      const currentArray = prev[name as keyof typeof prev] as string[] || [];
+      const currentArray = prev[name] || [];
       return {
         ...prev,
         [name]: currentArray.includes(value)
@@ -84,30 +100,89 @@ export default function PreferencesPage() {
     });
   };
 
+  const handleKeywordAdd = (keyword: string) => {
+    if (keyword.trim() && !formData.keywords?.includes(keyword.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        keywords: [...(prev.keywords || []), keyword.trim()]
+      }));
+    }
+  };
+
+  const handleKeywordRemove = (keyword: string) => {
+    setFormData(prev => ({
+      ...prev,
+      keywords: prev.keywords?.filter(k => k !== keyword) || []
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { error } = await supabase
+        .from('preferences')
+        .upsert({
+          user_id: user.id,
+          industries: formData.industries,
+          states: formData.states,
+          min_revenue: formData.minRevenue,
+          min_metric: formData.minMetric,
+          metric_type: formData.metricType,
+          owner_hours_max: formData.ownerHoursMax,
+          price_max: formData.priceMax,
+          alert_frequency: formData.alertFrequency,
+          keywords: formData.keywords,
+          updated_at: new Date().toISOString(),
+        });
 
-      showNotification('Your preferences have been saved! We\'ll start sending you tailored opportunities.', 'success');
+      if (error) {
+        showNotification('Failed to save preferences. Please try again.', 'error');
+      } else {
+        showNotification('Your preferences have been saved! We\'ll start sending you tailored opportunities.', 'success');
+      }
     } catch (error) {
-      showNotification('Failed to save preferences. Please try again.', 'error');
+      console.error('Error saving preferences:', error);
+      showNotification('An error occurred while saving. Please try again.', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
   const tabs = [
-    { id: 'financial', label: 'Financial', icon: '' },
-    { id: 'industry', label: 'Industry', icon: '' },
-    { id: 'location', label: 'Location', icon: '' },
-    { id: 'business', label: 'Business Type', icon: '' },
-    { id: 'notifications', label: 'Notifications', icon: '' },
-    { id: 'profile', label: 'Business Profile', icon: '' }
+    { id: 'financial', label: 'Financial', icon: '💰' },
+    { id: 'industry', label: 'Industry', icon: '🏭' },
+    { id: 'location', label: 'Location', icon: '📍' },
+    { id: 'business', label: 'Business Details', icon: '📊' },
+    { id: 'notifications', label: 'Notifications', icon: '🔔' },
   ];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-xl text-white font-medium">Loading preferences...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl text-white font-medium mb-4">Authentication Required</h1>
+          <Link href="/auth" className="btn-primary px-8 py-3 font-medium hover-lift">
+            Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-brand-darker">
@@ -115,11 +190,11 @@ export default function PreferencesPage() {
         <ScrollAnimation direction="fade">
           <div className="text-center mb-16 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">
-              Tailored Business Matching
+              Acquisition Preferences
             </h1>
             <p className="text-xl text-neutral-400 leading-relaxed max-w-3xl mx-auto">
-              Tell us your preferences and we&apos;ll send you carefully curated business opportunities
-              that match your investment criteria and interests.
+              Tell us your investment criteria and we&apos;ll send you carefully curated business opportunities
+              that match your acquisition preferences.
             </p>
           </div>
         </ScrollAnimation>
@@ -160,73 +235,63 @@ export default function PreferencesPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        <label className="form-label">Minimum Annual Revenue</label>
-                        <select
+                        <label className="form-label">Minimum Annual Revenue ($)</label>
+                        <input
+                          type="number"
                           name="minRevenue"
-                          value={formData.minRevenue}
+                          value={formData.minRevenue || ''}
                           onChange={handleInputChange}
                           className="form-control"
-                        >
-                          <option value="">No minimum</option>
-                          <option value="50000">$50K+</option>
-                          <option value="100000">$100K+</option>
-                          <option value="250000">$250K+</option>
-                          <option value="500000">$500K+</option>
-                          <option value="1000000">$1M+</option>
-                          <option value="5000000">$5M+</option>
-                        </select>
+                          placeholder="e.g., 500000"
+                          min="0"
+                        />
+                        <p className="text-neutral-400 text-sm">Minimum annual revenue for target businesses</p>
                       </div>
 
                       <div className="space-y-4">
-                        <label className="form-label">Maximum Annual Revenue</label>
-                        <select
-                          name="maxRevenue"
-                          value={formData.maxRevenue}
+                        <label className="form-label">Maximum Purchase Price ($)</label>
+                        <input
+                          type="number"
+                          name="priceMax"
+                          value={formData.priceMax || ''}
                           onChange={handleInputChange}
                           className="form-control"
-                        >
-                          <option value="">No maximum</option>
-                          <option value="100000">$100K</option>
-                          <option value="500000">$500K</option>
-                          <option value="1000000">$1M</option>
-                          <option value="5000000">$5M</option>
-                          <option value="10000000">$10M</option>
-                          <option value="50000000">$50M+</option>
-                        </select>
+                          placeholder="e.g., 2000000"
+                          min="0"
+                        />
+                        <p className="text-neutral-400 text-sm">Maximum amount you&apos;re willing to pay</p>
                       </div>
 
                       <div className="space-y-4">
-                        <label className="form-label">Minimum Purchase Price</label>
+                        <label className="form-label">Metric Type</label>
                         <select
-                          name="minPrice"
-                          value={formData.minPrice}
+                          name="metricType"
+                          value={formData.metricType || ''}
                           onChange={handleInputChange}
                           className="form-control"
                         >
-                          <option value="">No minimum</option>
-                          <option value="25000">$25K+</option>
-                          <option value="50000">$50K+</option>
-                          <option value="100000">$100K+</option>
-                          <option value="500000">$500K+</option>
-                          <option value="1000000">$1M+</option>
+                          <option value="">Select metric type</option>
+                          {metricTypeOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
                         </select>
+                        <p className="text-neutral-400 text-sm">Primary financial metric for evaluation</p>
                       </div>
 
                       <div className="space-y-4">
-                        <label className="form-label">Maximum Purchase Price</label>
-                        <select
-                          name="maxPrice"
-                          value={formData.maxPrice}
+                        <label className="form-label">Minimum Metric Value ($)</label>
+                        <input
+                          type="number"
+                          name="minMetric"
+                          value={formData.minMetric || ''}
                           onChange={handleInputChange}
                           className="form-control"
-                        >
-                          <option value="">No maximum</option>
-                          <option value="100000">$100K</option>
-                          <option value="500000">$500K</option>
-                          <option value="1000000">$1M</option>
-                          <option value="5000000">$5M</option>
-                          <option value="10000000">$10M+</option>
-                        </select>
+                          placeholder="e.g., 100000"
+                          min="0"
+                        />
+                        <p className="text-neutral-400 text-sm">Minimum value for selected metric</p>
                       </div>
                     </div>
                   </div>
@@ -243,23 +308,23 @@ export default function PreferencesPage() {
                         <label
                           key={industry}
                           className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-all hover-lift ${
-                            formData.industries.includes(industry)
+                            formData.industries?.includes(industry)
                               ? 'border-gold bg-gold/10 text-gold'
                               : 'border-neutral-600 text-neutral-300 hover:border-gold/50'
                           }`}
                         >
                           <input
                             type="checkbox"
-                            checked={formData.industries.includes(industry)}
+                            checked={formData.industries?.includes(industry) || false}
                             onChange={() => handleArrayChange('industries', industry)}
                             className="sr-only"
                           />
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                            formData.industries.includes(industry)
+                            formData.industries?.includes(industry)
                               ? 'border-gold bg-gold'
                               : 'border-neutral-500'
                           }`}>
-                            {formData.industries.includes(industry) && (
+                            {formData.industries?.includes(industry) && (
                               <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
@@ -276,97 +341,97 @@ export default function PreferencesPage() {
                 {activeTab === 'location' && (
                   <div className="space-y-8">
                     <h2 className="text-2xl font-semibold text-white mb-6">Geographic Preferences</h2>
-                    <p className="text-neutral-400 mb-6">Select the locations where you&apos;d like to find opportunities:</p>
+                    <p className="text-neutral-400 mb-6">Select the states where you&apos;d like to find opportunities:</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {locationOptions.map((location) => (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {stateOptions.map((state) => (
                         <label
-                          key={location}
-                          className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-all hover-lift ${
-                            formData.locations.includes(location)
+                          key={state}
+                          className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-all hover-lift text-sm ${
+                            formData.states?.includes(state)
                               ? 'border-gold bg-gold/10 text-gold'
                               : 'border-neutral-600 text-neutral-300 hover:border-gold/50'
                           }`}
                         >
                           <input
                             type="checkbox"
-                            checked={formData.locations.includes(location)}
-                            onChange={() => handleArrayChange('locations', location)}
+                            checked={formData.states?.includes(state) || false}
+                            onChange={() => handleArrayChange('states', state)}
                             className="sr-only"
                           />
-                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                            formData.locations.includes(location)
+                          <div className={`w-3 h-3 rounded border flex items-center justify-center ${
+                            formData.states?.includes(state)
                               ? 'border-gold bg-gold'
                               : 'border-neutral-500'
                           }`}>
-                            {formData.locations.includes(location) && (
-                              <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            {formData.states?.includes(state) && (
+                              <svg className="w-2 h-2 text-black" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             )}
                           </div>
-                          <span className="font-medium">{location}</span>
+                          <span className="font-medium">{state}</span>
                         </label>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Business Type Preferences */}
+                {/* Business Details */}
                 {activeTab === 'business' && (
                   <div className="space-y-8">
-                    <h2 className="text-2xl font-semibold text-white mb-6">Business Type Preferences</h2>
+                    <h2 className="text-2xl font-semibold text-white mb-6">Business Details</h2>
 
                     <div className="space-y-6">
-                      <div>
-                        <p className="text-neutral-400 mb-4">Select the types of businesses you&apos;re interested in:</p>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          {businessTypeOptions.map((type) => (
-                            <label
-                              key={type}
-                              className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-all hover-lift ${
-                                formData.businessTypes.includes(type)
-                                  ? 'border-gold bg-gold/10 text-gold'
-                                  : 'border-neutral-600 text-neutral-300 hover:border-gold/50'
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={formData.businessTypes.includes(type)}
-                                onChange={() => handleArrayChange('businessTypes', type)}
-                                className="sr-only"
-                              />
-                              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                                formData.businessTypes.includes(type)
-                                  ? 'border-gold bg-gold'
-                                  : 'border-neutral-500'
-                              }`}>
-                                {formData.businessTypes.includes(type) && (
-                                  <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                )}
-                              </div>
-                              <span className="font-medium">{type}</span>
-                            </label>
-                          ))}
-                        </div>
+                      <div className="space-y-4">
+                        <label className="form-label">Maximum Owner Hours per Week</label>
+                        <input
+                          type="number"
+                          name="ownerHoursMax"
+                          value={formData.ownerHoursMax || ''}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          placeholder="e.g., 40"
+                          min="0"
+                          max="168"
+                        />
+                        <p className="text-neutral-400 text-sm">Maximum weekly time commitment you want from the current owner</p>
                       </div>
 
                       <div className="space-y-4">
-                        <label className="form-label">Business Growth Stage</label>
-                        <select
-                          name="growthStage"
-                          value={formData.growthStage}
-                          onChange={handleInputChange}
-                          className="form-control"
-                        >
-                          <option value="">Any stage</option>
-                          <option value="startup">Startup (0-2 years)</option>
-                          <option value="growth">Growth Stage (3-7 years)</option>
-                          <option value="mature">Mature Business (8+ years)</option>
-                          <option value="established">Established Enterprise (15+ years)</option>
-                        </select>
+                        <label className="form-label">Keywords</label>
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap gap-2">
+                            {formData.keywords?.map((keyword, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gold/20 text-gold border border-gold/30"
+                              >
+                                {keyword}
+                                <button
+                                  type="button"
+                                  onClick={() => handleKeywordRemove(keyword)}
+                                  className="ml-2 text-gold/70 hover:text-gold"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Add a keyword and press Enter"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleKeywordAdd(e.currentTarget.value);
+                                e.currentTarget.value = '';
+                              }
+                            }}
+                          />
+                          <p className="text-neutral-400 text-sm">Add keywords to help match relevant businesses (press Enter to add)</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -379,85 +444,19 @@ export default function PreferencesPage() {
 
                     <div className="space-y-6">
                       <div className="space-y-4">
-                        <label className="form-label">Email Frequency</label>
+                        <label className="form-label">Alert Frequency</label>
                         <select
-                          name="emailFrequency"
-                          value={formData.emailFrequency}
+                          name="alertFrequency"
+                          value={formData.alertFrequency || 'weekly'}
                           onChange={handleInputChange}
                           className="form-control"
                         >
+                          <option value="instant">Instant notifications</option>
                           <option value="daily">Daily digest</option>
                           <option value="weekly">Weekly summary</option>
                           <option value="monthly">Monthly report</option>
                         </select>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <label className="flex items-center space-x-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            name="instantAlerts"
-                            checked={formData.instantAlerts}
-                            onChange={handleInputChange}
-                            className="sr-only"
-                          />
-                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                            formData.instantAlerts
-                              ? 'border-gold bg-gold'
-                              : 'border-neutral-500'
-                          }`}>
-                            {formData.instantAlerts && (
-                              <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </div>
-                          <span className="text-neutral-300 font-medium">
-                            Receive instant alerts for high-priority matches
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Business Profile */}
-                {activeTab === 'profile' && (
-                  <div className="space-y-8">
-                    <h2 className="text-2xl font-semibold text-white mb-6">Your Business Profile</h2>
-                    <p className="text-neutral-400 mb-6">
-                      Optional: Add details about your business if you&apos;re also considering selling.
-                    </p>
-
-                    <div className="space-y-6">
-                      <ImageUpload
-                        onImageSelect={(file) => setFormData(prev => ({ ...prev, businessLogo: file }))}
-                        label="Business Logo"
-                        accept="image/*"
-                      />
-
-                      <div className="space-y-4">
-                        <label className="form-label">Business Name</label>
-                        <input
-                          type="text"
-                          name="businessName"
-                          value={formData.businessName}
-                          onChange={handleInputChange}
-                          className="form-control"
-                          placeholder="Enter your business name"
-                        />
-                      </div>
-
-                      <div className="space-y-4">
-                        <label className="form-label">Business Description</label>
-                        <textarea
-                          name="businessDescription"
-                          value={formData.businessDescription}
-                          onChange={handleInputChange}
-                          rows={4}
-                          className="form-control"
-                          placeholder="Briefly describe your business, its services, and unique value proposition..."
-                        />
+                        <p className="text-neutral-400 text-sm">How often would you like to receive matching opportunities?</p>
                       </div>
                     </div>
                   </div>
@@ -467,10 +466,10 @@ export default function PreferencesPage() {
               {/* Action Buttons */}
               <div className="flex justify-between items-center">
                 <Link
-                  href="/"
+                  href="/profile"
                   className="text-neutral-400 hover:text-white transition-colors duration-200 font-medium"
                 >
-                  ← Back to Home
+                  ← Back to Profile
                 </Link>
 
                 <button
@@ -494,5 +493,13 @@ export default function PreferencesPage() {
         </ScrollAnimation>
       </div>
     </div>
+  );
+}
+
+export default function PreferencesPage() {
+  return (
+    <ProtectedRoute>
+      <PreferencesPageContent />
+    </ProtectedRoute>
   );
 }

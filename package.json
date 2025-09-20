@@ -7,10 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
     "next": "14.0.0",
+    "postgres": "^3.4.7",
     "react": "^18",
     "react-dom": "^18"
   },
@@ -19,6 +27,8 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "dotenv-cli": "^10.0.0",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^8",
     "eslint-config-next": "14.0.0",
     "postcss": "^8",

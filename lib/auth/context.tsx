@@ -2,19 +2,16 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabaseClient'
-import type { UserWithProfile, AuthUser } from '../lib/types'
-import { useRouter } from 'next/navigation'
-import { showNotification } from '@/components/Notification'
+import { supabase } from '../supabaseClient'
+import type { UserWithProfile, AuthUser } from '../types'
 
 interface AuthContextType {
   user: AuthUser | null
   session: Session | null
   userProfile: UserWithProfile | null
-  isLoading: boolean
+  loading: boolean
   signUp: (email: string, password: string, userData: { name: string; role: string }) => Promise<{ error?: string }>
-  signIn: (userData?: any) => Promise<void>
-  signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>
+  signIn: (email: string, password: string) => Promise<{ error?: string }>
   signOut: () => Promise<void>
   updateProfile: (profileData: any) => Promise<{ error?: string }>
 }
@@ -25,8 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<AuthUser | null>(null)
   const [userProfile, setUserProfile] = useState<UserWithProfile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Get initial session
@@ -35,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         fetchUserProfile(session.user.id)
       } else {
-        setIsLoading(false)
+        setLoading(false)
       }
     })
 
@@ -49,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null)
         setUserProfile(null)
-        setIsLoading(false)
+        setLoading(false)
       }
     })
 
@@ -67,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (userError) {
         console.error('Error fetching user:', userError)
-        setIsLoading(false)
+        setLoading(false)
         return
       }
 
@@ -104,13 +100,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   const signUp = async (email: string, password: string, userData: { name: string; role: string }) => {
     try {
-      setIsLoading(true)
+      setLoading(true)
 
       // Sign up with Supabase Auth
       const { data, error: authError } = await supabase.auth.signUp({
@@ -154,37 +150,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user_id: data.user.id,
             alert_frequency: 'weekly',
           })
-
-        showNotification('Account created successfully! Please check your email to verify your account.', 'success')
       }
 
       return {}
     } catch (error: any) {
       return { error: error.message }
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  // Legacy support for the existing auth page
-  const signIn = async (userData?: any) => {
-    if (userData?.email && userData?.role) {
-      // This is for the existing auth page compatibility
-      showNotification(`Welcome ${userData.name || userData.email}!`, 'success')
-      // Redirect based on role
-      setTimeout(() => {
-        if (userData.role === 'ADMIN') {
-          router.push('/admin')
-        } else {
-          router.push('/')
-        }
-      }, 500)
-    }
-  }
-
-  const signInWithEmail = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string) => {
     try {
-      setIsLoading(true)
+      setLoading(true)
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -194,27 +172,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message }
       }
 
-      showNotification('Login successful!', 'success')
       return {}
     } catch (error: any) {
       return { error: error.message }
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   const signOut = async () => {
-    try {
-      setIsLoading(true)
-      await supabase.auth.signOut()
-      showNotification('Successfully signed out', 'success')
-      router.push('/')
-    } catch (error) {
-      console.error('Error signing out:', error)
-      showNotification('Error signing out', 'error')
-    } finally {
-      setIsLoading(false)
-    }
+    await supabase.auth.signOut()
   }
 
   const updateProfile = async (profileData: any) => {
@@ -235,7 +202,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Refresh profile
       await fetchUserProfile(user.id)
-      showNotification('Profile updated successfully', 'success')
       return {}
     } catch (error: any) {
       return { error: error.message }
@@ -246,10 +212,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     userProfile,
-    isLoading,
+    loading,
     signUp,
     signIn,
-    signInWithEmail,
     signOut,
     updateProfile,
   }
