@@ -37,8 +37,12 @@ export default function SignInPage() {
           setSuccess('Please check your email to confirm your account!')
         } else if (result.data.user) {
           // Auto sign in successful
-          await createUserProfile(result.data.user.id, email)
-          router.push('/profile')
+          try {
+            await createUserProfile(result.data.user.id, email)
+            router.push('/profile')
+          } catch (profileError: any) {
+            setError(`Account created but profile setup failed: ${profileError.message}`)
+          }
         }
       } else {
         result = await supabase.auth.signInWithPassword({
@@ -77,18 +81,28 @@ export default function SignInPage() {
     }
   }
 
-  const createUserProfile = async (userId: string, email: string) => {
+  const createUserProfile = async (userId: string, email: string, name?: string) => {
     try {
       const response = await fetch('/api/auth/create-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, email })
+        body: JSON.stringify({
+          userId,
+          email,
+          name: name || email.split('@')[0],
+          role: 'buyer'
+        })
       })
+
       if (!response.ok) {
-        console.error('Failed to create user profile')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create user profile')
       }
+
+      return await response.json()
     } catch (error) {
       console.error('Error creating user profile:', error)
+      throw error // Re-throw to handle in calling function
     }
   }
 

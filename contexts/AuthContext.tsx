@@ -30,23 +30,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
+    let isMounted = true
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      setSession(session)
-      if (session?.user) {
-        fetchUserProfile(session.user.id)
-      } else {
-        setIsLoading(false)
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+
+        if (!isMounted) return
+
+        setSession(session)
+        if (session?.user) {
+          await fetchUserProfile(session.user.id)
+        } else {
+          setIsLoading(false)
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
-    })
+    }
+
+    initializeAuth()
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
+      if (!isMounted) return
+
       setSession(session)
       if (session?.user) {
-        await fetchUserProfile(session.user.id)
+        // Only fetch profile if it's not already being fetched
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          await fetchUserProfile(session.user.id)
+        }
       } else {
         setUser(null)
         setUserProfile(null)
@@ -54,11 +74,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [supabase])
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      setIsLoading(true)
+
       // Fetch user data from our users table
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -68,7 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (userError) {
         console.error('Error fetching user:', userError)
-        setIsLoading(false)
+        setUser(null)
+        setUserProfile(null)
         return
       }
 
@@ -105,6 +131,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(userWithProfile)
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
+      setUser(null)
+      setUserProfile(null)
     } finally {
       setIsLoading(false)
     }

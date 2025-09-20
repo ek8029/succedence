@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
     const { error: profileError } = await (supabase
       .from('profiles') as any)
       .insert({
-        userId: userId,
-        updatedAt: new Date().toISOString()
+        user_id: userId,
+        updated_at: new Date().toISOString()
       })
 
     if (profileError) {
@@ -65,9 +65,9 @@ export async function POST(request: NextRequest) {
     const { error: preferencesError } = await (supabase
       .from('preferences') as any)
       .insert({
-        userId: userId,
-        alertFrequency: 'weekly',
-        updatedAt: new Date().toISOString()
+        user_id: userId,
+        alert_frequency: 'weekly',
+        updated_at: new Date().toISOString()
       })
 
     if (preferencesError) {
