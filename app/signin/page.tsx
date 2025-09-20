@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+
+const supabase = createClient()
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -12,171 +14,93 @@ export default function SignInPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isSignUp, setIsSignUp] = useState(false)
-  const [magicLinkSent, setMagicLinkSent] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
 
-  // Check for environment issues on component mount
-  React.useEffect(() => {
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
 
+    console.log('🔥 SUBMIT HANDLER CALLED')
+    console.log('Current loading state:', loading)
     console.log('Environment check:', {
-      hasUrl: !!url,
-      hasAnonKey: !!anonKey,
-      anonKeyFormat: anonKey?.startsWith('sb_publishable_') ? 'new' : 'legacy',
-      urlValid: url?.startsWith('https://')
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      anonKeyStart: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20)
     })
 
-    if (!url || !anonKey) {
-      setError('Configuration error: Missing authentication service configuration.')
-    } else if (!anonKey.startsWith('sb_publishable_')) {
-      setError('Authentication service is using legacy keys that have been disabled. Please contact support.')
-    }
-  }, [])
-
-  const handleEmailPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
     setError('')
     setSuccess('')
+    setLoading(true)
+
+    console.log('✅ Set loading to true')
+
+    const fd = new FormData(e.currentTarget)
+    const emailValue = String(fd.get('email'))
+    const passwordValue = String(fd.get('password'))
+
+    console.log('📧 Form data:', { email: emailValue, hasPassword: !!passwordValue })
 
     try {
-      let result
       if (isSignUp) {
-        console.log('Attempting signup...')
-        result = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`
-          }
+        console.log('🆕 Attempting signup...')
+        const { data, error } = await supabase.auth.signUp({
+          email: emailValue,
+          password: passwordValue
         })
 
-        console.log('Signup result:', result)
+        console.log('🆕 Signup result:', { data, error })
 
-        if (result.error) {
-          console.error('Signup error:', result.error)
-          throw result.error
-        }
+        if (error) throw error
 
-        if (result.data.user && !result.data.session) {
+        if (data.user && !data.session) {
+          console.log('📧 Email confirmation required')
           setSuccess('Please check your email to confirm your account!')
-          return
-        }
-
-        if (result.data.user) {
-          // Auto sign in successful - create profile
-          console.log('Creating user profile...')
-          try {
-            await createUserProfile(result.data.user.id, email)
-            console.log('Profile created, redirecting...')
-            router.push('/profile')
-            return
-          } catch (profileError: any) {
-            console.error('Profile creation failed:', profileError)
-            setError(`Account created but profile setup failed: ${profileError.message}`)
-            return
-          }
+        } else if (data.user) {
+          console.log('👤 Creating user profile...')
+          // Create profile and redirect
+          await createUserProfile(data.user.id, emailValue)
+          console.log('✅ Profile created, redirecting...')
+          window.location.href = '/profile'
         }
       } else {
-        console.log('Attempting signin...')
-        result = await supabase.auth.signInWithPassword({
-          email,
-          password
+        console.log('🔐 Attempting signin...')
+        const { error } = await supabase.auth.signInWithPassword({
+          email: emailValue,
+          password: passwordValue
         })
 
-        console.log('Signin result:', result)
+        console.log('🔐 Signin result:', { error })
 
-        if (result.error) {
-          console.error('Signin error:', result.error)
-          throw result.error
-        }
-
-        console.log('Signin successful, redirecting...')
-        router.push('/profile')
+        if (error) throw error
+        console.log('✅ Signin successful, redirecting...')
+        window.location.href = '/profile'
       }
     } catch (err: any) {
-      console.error('Auth handler error:', err)
-
-      // Handle specific Supabase errors
-      if (err.message?.includes('Legacy API keys are disabled')) {
-        setError('Configuration error: Please contact support. The authentication service needs to be updated.')
-      } else if (err.message?.includes('Invalid login credentials')) {
-        setError('Invalid email or password. Please check your credentials and try again.')
-      } else if (err.message?.includes('Email not confirmed')) {
-        setError('Please check your email and click the confirmation link before signing in.')
-      } else {
-        setError(err.message || 'Authentication failed. Please try again.')
-      }
+      console.error('❌ Auth error:', err)
+      setError(err.message || 'Authentication failed')
     } finally {
-      console.log('Setting loading to false')
+      console.log('🔄 Setting loading to false')
       setLoading(false)
     }
   }
 
-  const handleMagicLink = async () => {
-    setLoading(true)
-    setError('')
-    setSuccess('')
-
-    try {
-      console.log('Attempting magic link for email:', email)
-      const { error } = await supabase.auth.signInWithOtp({
+  const createUserProfile = async (userId: string, email: string) => {
+    const response = await fetch('/api/auth/create-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
         email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
-        }
+        name: email.split('@')[0],
+        role: 'buyer'
       })
+    })
 
-      if (error) {
-        console.error('Magic link error:', error)
-        throw error
-      }
-
-      console.log('Magic link sent successfully')
-      setMagicLinkSent(true)
-      setSuccess('Magic link sent! Check your email.')
-    } catch (err: any) {
-      console.error('Magic link handler error:', err)
-
-      // Handle specific errors
-      if (err.message?.includes('Legacy API keys are disabled')) {
-        setError('Configuration error: Please contact support. The authentication service needs to be updated.')
-      } else if (err.message?.includes('Email address is invalid')) {
-        setError('Please enter a valid email address.')
-      } else {
-        setError(err.message || 'Failed to send magic link. Please try again.')
-      }
-    } finally {
-      console.log('Magic link: setting loading to false')
-      setLoading(false)
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to create user profile')
     }
-  }
 
-  const createUserProfile = async (userId: string, email: string, name?: string) => {
-    try {
-      const response = await fetch('/api/auth/create-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          email,
-          name: name || email.split('@')[0],
-          role: 'buyer'
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create user profile')
-      }
-
-      return await response.json()
-    } catch (error) {
-      console.error('Error creating user profile:', error)
-      throw error // Re-throw to handle in calling function
-    }
+    return response.json()
   }
 
   return (
@@ -209,16 +133,15 @@ export default function SignInPage() {
             </div>
           )}
 
-          <form onSubmit={handleEmailPassword} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
                 Email Address
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter your email"
@@ -231,9 +154,8 @@ export default function SignInPage() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter your password"
@@ -249,27 +171,6 @@ export default function SignInPage() {
             </button>
           </form>
 
-          {/* Magic Link Option */}
-          <div className="mt-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-transparent text-gray-400">or</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleMagicLink}
-              disabled={loading || !email || magicLinkSent}
-              className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors"
-            >
-              {magicLinkSent ? 'Magic Link Sent!' : 'Continue with Magic Link'}
-            </button>
-          </div>
-
           {/* Toggle Sign Up/Sign In */}
           <div className="mt-6 text-center">
             <button
@@ -278,7 +179,7 @@ export default function SignInPage() {
                 setIsSignUp(!isSignUp)
                 setError('')
                 setSuccess('')
-                setMagicLinkSent(false)
+                setLoading(false)
               }}
               className="text-blue-300 hover:text-blue-200 text-sm transition-colors"
             >
