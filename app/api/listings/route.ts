@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       .from('listings')
       .select('*')
       .eq('status', 'active')
-      .order('updatedAt', { ascending: false })
+      .order('updated_at', { ascending: false })
 
     // Apply filters
     if (q) {
