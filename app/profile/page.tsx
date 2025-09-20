@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ScrollAnimation from '@/components/ScrollAnimation';
-import { supabase } from '@/lib/supabaseClient';
+import { createClient } from '@/lib/supabase/client';
 import type { ProfileFormData, UserRole } from '@/lib/types';
 import { showNotification } from '@/components/Notification';
 
@@ -61,17 +61,19 @@ function ProfilePageContent() {
     if (!user) return;
 
     try {
+      const supabase = createClient();
+
       // Get user's listings count
       const { count: listingsCount } = await supabase
         .from('listings')
         .select('*', { count: 'exact', head: true })
-        .eq('owner_user_id', user.id);
+        .eq('ownerUserId', user.id);
 
       // Get user's messages count
       const { count: messagesCount } = await supabase
         .from('messages')
         .select('*', { count: 'exact', head: true })
-        .eq('from_user', user.id);
+        .eq('fromUser', user.id);
 
       // Calculate profile completeness
       const profileFields = [
@@ -100,13 +102,25 @@ function ProfilePageContent() {
   const handleUpdateProfile = async () => {
     if (!user) return;
 
-    const { error } = await updateProfile(formData);
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-    if (error) {
-      showNotification(error, 'error');
-    } else {
-      setEditMode(false);
-      showNotification('Profile updated successfully!', 'success');
+      const data = await response.json();
+
+      if (!response.ok) {
+        showNotification(data.error || 'Failed to update profile', 'error');
+      } else {
+        setEditMode(false);
+        showNotification('Profile updated successfully!', 'success');
+        // Refresh user profile
+        window.location.reload();
+      }
+    } catch (error) {
+      showNotification('Failed to update profile', 'error');
     }
   };
 
@@ -114,6 +128,8 @@ function ProfilePageContent() {
     if (!user) return;
 
     try {
+      const supabase = createClient();
+
       // Update user basic info in users table
       const { error } = await supabase
         .from('users')
@@ -129,6 +145,7 @@ function ProfilePageContent() {
         setEditingBasic(false);
         showNotification('Basic information updated successfully!', 'success');
         // The auth context will automatically refresh the user data
+        window.location.reload();
       }
     } catch (error) {
       showNotification('An error occurred while updating', 'error');

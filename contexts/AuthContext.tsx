@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabaseClient'
+import { createClient } from '@/lib/supabase/client'
 import type { UserWithProfile, AuthUser } from '../lib/types'
 import { useRouter } from 'next/navigation'
 import { showNotification } from '@/components/Notification'
@@ -27,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserWithProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
     // Get initial session
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase])
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -123,37 +124,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data.user) {
-        // Create user record in our users table
-        const { error: userError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            email: data.user.email!,
-            name: userData.name,
-            role: userData.role as any,
-            plan: 'free',
-            status: 'active',
+        // Create user profile via API
+        try {
+          const response = await fetch('/api/auth/create-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: data.user.id,
+              email: data.user.email,
+              name: userData.name,
+              role: userData.role
+            })
           })
 
-        if (userError) {
-          console.error('Error creating user record:', userError)
+          if (!response.ok) {
+            const errorData = await response.json()
+            return { error: errorData.error || 'Failed to create user profile' }
+          }
+        } catch (error) {
+          console.error('Error creating user profile:', error)
           return { error: 'Failed to create user profile' }
         }
-
-        // Create empty profile
-        await supabase
-          .from('profiles')
-          .insert({
-            user_id: data.user.id,
-          })
-
-        // Create default preferences
-        await supabase
-          .from('preferences')
-          .insert({
-            user_id: data.user.id,
-            alert_frequency: 'weekly',
-          })
 
         showNotification('Account created successfully! Please check your email to verify your account.', 'success')
       }
@@ -206,6 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setIsLoading(true)
+      await fetch('/api/auth/signout', { method: 'POST' })
       await supabase.auth.signOut()
       showNotification('Successfully signed out', 'success')
       router.push('/')

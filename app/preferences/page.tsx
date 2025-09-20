@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { showNotification } from '@/components/Notification';
 import ScrollAnimation from '@/components/ScrollAnimation';
-import { supabase } from '@/lib/supabaseClient';
 import type { PreferencesFormData, AlertFrequency } from '@/lib/types';
 
 function PreferencesPageContent() {
@@ -28,22 +27,35 @@ function PreferencesPageContent() {
   });
 
   useEffect(() => {
-    if (userProfile?.preferences && initialLoad) {
-      // Load existing preferences
-      setFormData({
-        industries: userProfile.preferences.industries || [],
-        states: userProfile.preferences.states || [],
-        minRevenue: userProfile.preferences.minRevenue || undefined,
-        minMetric: userProfile.preferences.minMetric || undefined,
-        metricType: userProfile.preferences.metricType || undefined,
-        ownerHoursMax: userProfile.preferences.ownerHoursMax || undefined,
-        priceMax: userProfile.preferences.priceMax || undefined,
-        alertFrequency: (userProfile.preferences.alertFrequency as AlertFrequency) || 'weekly',
-        keywords: userProfile.preferences.keywords || [],
-      });
-      setInitialLoad(false);
-    }
-  }, [userProfile, initialLoad]);
+    const loadPreferences = async () => {
+      if (!user || !initialLoad) return;
+
+      try {
+        const response = await fetch('/api/preferences');
+        const data = await response.json();
+
+        if (response.ok && data) {
+          setFormData({
+            industries: data.industries || [],
+            states: data.states || [],
+            minRevenue: data.minRevenue || undefined,
+            minMetric: data.minMetric || undefined,
+            metricType: data.metricType || undefined,
+            ownerHoursMax: data.ownerHoursMax || undefined,
+            priceMax: data.priceMax || undefined,
+            alertFrequency: data.alertFrequency || 'weekly',
+            keywords: data.keywords || [],
+          });
+        }
+      } catch (error) {
+        console.error('Error loading preferences:', error);
+      } finally {
+        setInitialLoad(false);
+      }
+    };
+
+    loadPreferences();
+  }, [user, initialLoad]);
 
   const industryOptions = [
     'Technology', 'Healthcare', 'Finance', 'Real Estate', 'Manufacturing',
@@ -123,24 +135,26 @@ function PreferencesPageContent() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('preferences')
-        .upsert({
-          user_id: user.id,
+      const response = await fetch('/api/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           industries: formData.industries,
           states: formData.states,
-          min_revenue: formData.minRevenue,
-          min_metric: formData.minMetric,
-          metric_type: formData.metricType,
-          owner_hours_max: formData.ownerHoursMax,
-          price_max: formData.priceMax,
-          alert_frequency: formData.alertFrequency,
-          keywords: formData.keywords,
-          updated_at: new Date().toISOString(),
-        });
+          minRevenue: formData.minRevenue,
+          minMetric: formData.minMetric,
+          metricType: formData.metricType,
+          ownerHoursMax: formData.ownerHoursMax,
+          priceMax: formData.priceMax,
+          alertFrequency: formData.alertFrequency,
+          keywords: formData.keywords
+        })
+      });
 
-      if (error) {
-        showNotification('Failed to save preferences. Please try again.', 'error');
+      const data = await response.json();
+
+      if (!response.ok) {
+        showNotification(data.error || 'Failed to save preferences. Please try again.', 'error');
       } else {
         showNotification('Your preferences have been saved! We\'ll start sending you tailored opportunities.', 'success');
       }

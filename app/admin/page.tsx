@@ -8,10 +8,10 @@ import { Listing } from '@/lib/types';
 
 interface DashboardStats {
   totalListings: number;
-  mainLaneListings: number;
-  starterLaneListings: number;
-  totalNDARequests: number;
-  pendingNDARequests: number;
+  activeListings: number;
+  draftListings: number;
+  rejectedListings: number;
+  archivedListings: number;
   totalMessages: number;
   industries: string[];
 }
@@ -44,26 +44,26 @@ function AdminPageContent() {
     }
   };
 
-  const handleLaneUpdate = async (listingId: string, newLane: "MAIN" | "STARTER") => {
+  const handleStatusUpdate = async (listingId: string, newStatus: "active" | "draft" | "rejected" | "archived") => {
     try {
       const response = await fetch('/api/admin', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ listingId, newLane }),
+        body: JSON.stringify({ listingId, newStatus }),
       });
 
       if (response.ok) {
         // Refresh data
         fetchDashboardData();
-        alert('Lane updated successfully!');
+        alert('Status updated successfully!');
       } else {
-        alert('Failed to update lane');
+        alert('Failed to update status');
       }
     } catch (error) {
-      console.error('Error updating lane:', error);
-      alert('Failed to update lane');
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
     }
   };
 
@@ -129,34 +129,34 @@ function AdminPageContent() {
           
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.1s'}}>
               <div className="flex items-center justify-between mb-6">
-                <span className="text-caption text-neutral-500">Main Street</span>
+                <span className="text-caption text-neutral-500">Active</span>
               </div>
-              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.mainLaneListings}</div>
-              <div className="text-neutral-400">High-Value Listings</div>
+              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.activeListings}</div>
+              <div className="text-neutral-400">Live Listings</div>
             </div>
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.2s'}}>
               <div className="flex items-center justify-between mb-6">
-                <span className="text-caption text-neutral-500">Starter</span>
+                <span className="text-caption text-neutral-500">Draft</span>
               </div>
-              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.starterLaneListings}</div>
-              <div className="text-neutral-400">Entry-Level Listings</div>
+              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.draftListings}</div>
+              <div className="text-neutral-400">Draft Listings</div>
             </div>
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.3s'}}>
               <div className="flex items-center justify-between mb-6">
-                <span className="text-caption text-neutral-500">Total</span>
+                <span className="text-caption text-neutral-500">Rejected</span>
               </div>
-              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.totalNDARequests}</div>
-              <div className="text-neutral-400">NDA Requests</div>
+              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.rejectedListings}</div>
+              <div className="text-neutral-400">Rejected Listings</div>
             </div>
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.4s'}}>
               <div className="flex items-center justify-between mb-6">
-                <span className="text-caption text-neutral-500">Pending</span>
+                <span className="text-caption text-neutral-500">Archived</span>
               </div>
-              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.pendingNDARequests}</div>
-              <div className="text-neutral-400">Awaiting Review</div>
+              <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.archivedListings}</div>
+              <div className="text-neutral-400">Archived Listings</div>
             </div>
             
             <div className="metric-card p-8 slide-up" style={{animationDelay: '0.5s'}}>
@@ -198,7 +198,7 @@ function AdminPageContent() {
                     <th className="text-left py-6 px-8">Business</th>
                     <th className="text-left py-6 px-8">Industry</th>
                     <th className="text-left py-6 px-8">Revenue</th>
-                    <th className="text-left py-6 px-8">Current Tier</th>
+                    <th className="text-left py-6 px-8">Status</th>
                     <th className="text-left py-6 px-8">Actions</th>
                   </tr>
                 </thead>
@@ -208,7 +208,7 @@ function AdminPageContent() {
                       <td className="py-6 px-8">
                         <div>
                           <div className="text-white font-semibold text-lg">{listing.title}</div>
-                          <div className="text-neutral-400 text-sm">{listing.owner}</div>
+                          <div className="text-neutral-400 text-sm">{listing.source}</div>
                         </div>
                       </td>
                       <td className="py-6 px-8">
@@ -220,34 +220,36 @@ function AdminPageContent() {
                         {formatCurrency(listing.revenue)}
                       </td>
                       <td className="py-6 px-8">
-                        <span className={`status-badge ${listing.lane === 'MAIN' ? 'status-main' : 'status-starter'}`}>
-                          {listing.lane}
+                        <span className={`status-badge ${listing.status === 'active' ? 'status-approved' : 'status-pending'}`}>
+                          {listing.status}
                         </span>
                       </td>
                       <td className="py-6 px-8">
                         <div className="flex space-x-3">
-                          <button
-                            onClick={() => handleLaneUpdate(listing.id, 'MAIN')}
-                            disabled={listing.lane === 'MAIN'}
-                            className={`px-6 py-3 text-sm font-medium focus-ring hover-lift transition-all ${
-                              listing.lane === 'MAIN'
-                                ? 'glass text-neutral-500 cursor-not-allowed opacity-50 border border-neutral-600'
-                                : 'btn-primary'
-                            }`}
-                          >
-                            Main Street
-                          </button>
-                          <button
-                            onClick={() => handleLaneUpdate(listing.id, 'STARTER')}
-                            disabled={listing.lane === 'STARTER'}
-                            className={`px-6 py-3 text-sm font-medium focus-ring hover-lift transition-all ${
-                              listing.lane === 'STARTER'
-                                ? 'glass text-neutral-500 cursor-not-allowed opacity-50 border border-neutral-600'
-                                : 'btn-success'
-                            }`}
-                          >
-                            Starter
-                          </button>
+                          {listing.status !== 'active' && (
+                            <button
+                              onClick={() => handleStatusUpdate(listing.id, 'active')}
+                              className="px-4 py-2 text-sm font-medium btn-success"
+                            >
+                              Activate
+                            </button>
+                          )}
+                          {listing.status !== 'rejected' && (
+                            <button
+                              onClick={() => handleStatusUpdate(listing.id, 'rejected')}
+                              className="px-4 py-2 text-sm font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700"
+                            >
+                              Reject
+                            </button>
+                          )}
+                          {listing.status !== 'archived' && (
+                            <button
+                              onClick={() => handleStatusUpdate(listing.id, 'archived')}
+                              className="px-4 py-2 text-sm font-medium glass border border-neutral-600 text-neutral-300 hover:text-white"
+                            >
+                              Archive
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
