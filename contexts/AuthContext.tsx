@@ -29,13 +29,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const supabase = createClient()
 
+  // Fallback timeout to prevent permanent loading state
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      console.warn('Auth initialization taking too long, forcing loading to false')
+      setIsLoading(false)
+    }, 15000) // 15 second fallback
+
+    return () => clearTimeout(fallbackTimer)
+  }, [])
+
+  // Clear fallback timer when loading completes
+  useEffect(() => {
+    if (!isLoading) {
+      // Loading completed successfully, no need for fallback
+    }
+  }, [isLoading])
+
   useEffect(() => {
     let isMounted = true
 
-    // Get initial session
+    // Get initial session with timeout protection
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        // Add timeout to prevent hanging indefinitely
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+        )
+
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any
 
         if (!isMounted) return
 
@@ -49,28 +72,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Error getting initial session:', error)
         if (isMounted) {
           setIsLoading(false)
+          setUser(null)
+          setUserProfile(null)
+          setSession(null)
         }
       }
     }
 
     initializeAuth()
 
-    // Listen for auth changes
+    // Listen for auth changes with error handling
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      if (!isMounted) return
+      try {
+        if (!isMounted) return
 
-      setSession(session)
-      if (session?.user) {
-        // Only fetch profile if it's not already being fetched
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await fetchUserProfile(session.user.id)
+        setSession(session)
+        if (session?.user) {
+          // Only fetch profile if it's not already being fetched
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            await fetchUserProfile(session.user.id)
+          }
+        } else {
+          setUser(null)
+          setUserProfile(null)
+          setIsLoading(false)
         }
-      } else {
-        setUser(null)
-        setUserProfile(null)
-        setIsLoading(false)
+      } catch (error) {
+        console.error('Error in auth state change handler:', error)
+        if (isMounted) {
+          setIsLoading(false)
+          setUser(null)
+          setUserProfile(null)
+        }
       }
     })
 
@@ -84,33 +119,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true)
 
-      // Fetch user data from our users table
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single()
+      // Add timeout protection for database calls
+      const fetchPromise = Promise.all([
+        supabase.from('users').select('*').eq('id', userId).single(),
+        supabase.from('profiles').select('*').eq('user_id', userId).single(),
+        supabase.from('preferences').select('*').eq('user_id', userId).single()
+      ])
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 8000)
+      )
+
+      const [userResult, profileResult, preferencesResult] = await Promise.race([fetchPromise, timeoutPromise]) as any
+
+      const { data: userData, error: userError } = userResult
+      const { data: profileData } = profileResult
+      const { data: preferencesData } = preferencesResult
 
       if (userError) {
         console.error('Error fetching user:', userError)
         setUser(null)
         setUserProfile(null)
+        setIsLoading(false)
         return
       }
-
-      // Fetch profile data
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
-
-      // Fetch preferences data
-      const { data: preferencesData } = await supabase
-        .from('preferences')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
 
       const authUser: AuthUser = {
         id: (userData as any).id,
