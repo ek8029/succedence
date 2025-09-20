@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -16,6 +16,25 @@ export default function SignInPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  // Check for environment issues on component mount
+  React.useEffect(() => {
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+    console.log('Environment check:', {
+      hasUrl: !!url,
+      hasAnonKey: !!anonKey,
+      anonKeyFormat: anonKey?.startsWith('sb_publishable_') ? 'new' : 'legacy',
+      urlValid: url?.startsWith('https://')
+    })
+
+    if (!url || !anonKey) {
+      setError('Configuration error: Missing authentication service configuration.')
+    } else if (!anonKey.startsWith('sb_publishable_')) {
+      setError('Authentication service is using legacy keys that have been disabled. Please contact support.')
+    }
+  }, [])
+
   const handleEmailPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -25,6 +44,7 @@ export default function SignInPage() {
     try {
       let result
       if (isSignUp) {
+        console.log('Attempting signup...')
         result = await supabase.auth.signUp({
           email,
           password,
@@ -32,29 +52,65 @@ export default function SignInPage() {
             emailRedirectTo: `${window.location.origin}/auth/callback`
           }
         })
-        if (result.error) throw result.error
+
+        console.log('Signup result:', result)
+
+        if (result.error) {
+          console.error('Signup error:', result.error)
+          throw result.error
+        }
+
         if (result.data.user && !result.data.session) {
           setSuccess('Please check your email to confirm your account!')
-        } else if (result.data.user) {
-          // Auto sign in successful
+          return
+        }
+
+        if (result.data.user) {
+          // Auto sign in successful - create profile
+          console.log('Creating user profile...')
           try {
             await createUserProfile(result.data.user.id, email)
+            console.log('Profile created, redirecting...')
             router.push('/profile')
+            return
           } catch (profileError: any) {
+            console.error('Profile creation failed:', profileError)
             setError(`Account created but profile setup failed: ${profileError.message}`)
+            return
           }
         }
       } else {
+        console.log('Attempting signin...')
         result = await supabase.auth.signInWithPassword({
           email,
           password
         })
-        if (result.error) throw result.error
+
+        console.log('Signin result:', result)
+
+        if (result.error) {
+          console.error('Signin error:', result.error)
+          throw result.error
+        }
+
+        console.log('Signin successful, redirecting...')
         router.push('/profile')
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication failed')
+      console.error('Auth handler error:', err)
+
+      // Handle specific Supabase errors
+      if (err.message?.includes('Legacy API keys are disabled')) {
+        setError('Configuration error: Please contact support. The authentication service needs to be updated.')
+      } else if (err.message?.includes('Invalid login credentials')) {
+        setError('Invalid email or password. Please check your credentials and try again.')
+      } else if (err.message?.includes('Email not confirmed')) {
+        setError('Please check your email and click the confirmation link before signing in.')
+      } else {
+        setError(err.message || 'Authentication failed. Please try again.')
+      }
     } finally {
+      console.log('Setting loading to false')
       setLoading(false)
     }
   }
@@ -65,18 +121,35 @@ export default function SignInPage() {
     setSuccess('')
 
     try {
+      console.log('Attempting magic link for email:', email)
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
-      if (error) throw error
+
+      if (error) {
+        console.error('Magic link error:', error)
+        throw error
+      }
+
+      console.log('Magic link sent successfully')
       setMagicLinkSent(true)
       setSuccess('Magic link sent! Check your email.')
     } catch (err: any) {
-      setError(err.message || 'Failed to send magic link')
+      console.error('Magic link handler error:', err)
+
+      // Handle specific errors
+      if (err.message?.includes('Legacy API keys are disabled')) {
+        setError('Configuration error: Please contact support. The authentication service needs to be updated.')
+      } else if (err.message?.includes('Email address is invalid')) {
+        setError('Please enter a valid email address.')
+      } else {
+        setError(err.message || 'Failed to send magic link. Please try again.')
+      }
     } finally {
+      console.log('Magic link: setting loading to false')
       setLoading(false)
     }
   }
