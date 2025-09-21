@@ -159,7 +159,7 @@ export default function EditListingPage() {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
+        (error as any).errors.forEach((err: any) => {
           if (err.path[0]) {
             fieldErrors[err.path[0] as string] = err.message;
           }

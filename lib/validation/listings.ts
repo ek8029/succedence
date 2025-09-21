@@ -118,7 +118,7 @@ export const FileUploadInput = z.object({
       `File size must be less than ${FileUploadConstraints.maxSize / 1024 / 1024}MB`
     )
     .refine(
-      (file) => FileUploadConstraints.allowedTypes.includes(file.type),
+      (file) => FileUploadConstraints.allowedTypes.includes(file.type as any),
       `File type must be one of: ${FileUploadConstraints.allowedTypes.join(', ')}`
     )
 })
