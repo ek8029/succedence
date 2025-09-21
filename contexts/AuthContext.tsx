@@ -89,10 +89,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (!isMounted) return
 
+        console.log('Auth state change:', event, !!session?.user)
         setSession(session)
         if (session?.user) {
-          // Only fetch profile if it's not already being fetched
-          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          // Always fetch profile on sign in to ensure we have the user data
+          if (event === 'SIGNED_IN') {
+            await fetchUserProfile(session.user.id)
+          } else if (event === 'TOKEN_REFRESHED' && !user) {
+            // Only fetch if we don't already have user data
             await fetchUserProfile(session.user.id)
           }
         } else {
@@ -253,18 +257,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await Promise.race([signInPromise, timeoutPromise]) as any
 
       if (error) {
+        setIsLoading(false) // Only set loading false on error
         return { error: error.message }
       }
 
       showNotification('Login successful!', 'success')
+      // Don't set loading false here - let the auth state change handler manage it
       return {}
     } catch (error: any) {
+      setIsLoading(false) // Set loading false on error
       if (error.message === 'Sign-in timeout') {
         return { error: 'Sign-in is taking too long. Please check your connection and try again.' }
       }
       return { error: error.message }
-    } finally {
-      setIsLoading(false)
     }
   }
 

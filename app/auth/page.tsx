@@ -27,17 +27,20 @@ export default function AuthPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
+      console.log('User authenticated, redirecting...', user)
       router.push('/');
     }
   }, [user, router]);
 
-  // Reset auth state and form when component unmounts or navigation happens
+  // Only reset auth state if there's an error or user navigates away without completing auth
   useEffect(() => {
     return () => {
-      // Reset auth state when leaving the page
-      resetAuthState();
+      // Only reset if user is not authenticated and we're not in the middle of submission
+      if (!user && !isSubmitting) {
+        resetAuthState();
+      }
     };
-  }, [resetAuthState]);
+  }, [resetAuthState, user, isSubmitting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,18 +87,21 @@ export default function AuthPage() {
         }
       } else {
         // Use Supabase sign in
+        console.log('Attempting sign in...')
         const { error } = await signInWithEmail(
           formData.email.trim(),
           formData.password
         );
+
+        console.log('Sign in result:', { error })
 
         if (error) {
           showNotification(error, 'error');
           return;
         }
 
-        // Redirect immediately on successful sign-in
-        router.push('/');
+        console.log('Sign in successful, waiting for auth state change...')
+        // Don't redirect here - let the useEffect handle it when user state updates
       }
     } catch (error) {
       showNotification('Authentication failed. Please try again.', 'error');
