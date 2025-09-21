@@ -8,6 +8,8 @@ import { z } from 'zod'
 import { createServiceClient } from '@/lib/supabase/server'
 import { matchUserToListings } from '@/lib/matchEngine'
 
+export const dynamic = 'force-dynamic'
+
 // Request schema
 const runMatchJobSchema = z.object({
   since: z.string().optional()
