@@ -38,9 +38,9 @@ export async function middleware(request: NextRequest) {
   // Get the user session
   const { data: { session }, error } = await supabase.auth.getSession()
 
-  // If no session and trying to access protected route, redirect to signin
+  // If no session and trying to access protected route, redirect to auth
   if (!session) {
-    const redirectUrl = new URL('/signin', request.url)
+    const redirectUrl = new URL('/auth', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(redirectUrl)
   }

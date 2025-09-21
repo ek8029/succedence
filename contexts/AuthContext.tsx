@@ -122,8 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      // Don't set loading if already fetched for this user
-      if (!isLoading) setIsLoading(true)
+      console.log('Fetching user profile for:', userId)
+      setIsLoading(true)
 
       // Fetch user data first (most critical)
       const { data: userData, error: userError } = await supabase
@@ -131,6 +131,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('id', userId)
         .single()
+
+      console.log('User data fetch result:', { userData: !!userData, userError })
 
       if (userError) {
         console.error('Error fetching user:', userError)
@@ -149,6 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         plan: (userData as any).plan,
         status: (userData as any).status,
       }
+
+      console.log('Setting user:', authUser)
       setUser(authUser)
       setIsLoading(false) // Set loading false after basic user data
 
@@ -167,6 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         preferences: preferencesData,
       }
 
+      console.log('Setting user profile complete')
       setUserProfile(userWithProfile)
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
@@ -179,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, userData: { name: string; role: string }) => {
     try {
       setIsLoading(true)
+      console.log('Starting sign-up process for:', email)
 
       // Sign up with Supabase Auth
       const { data, error: authError } = await supabase.auth.signUp({
@@ -186,11 +192,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       })
 
+      console.log('Sign-up response:', { data: !!data, authError, user: !!data?.user, session: !!data?.session })
+
       if (authError) {
+        console.error('Sign-up error:', authError)
         return { error: authError.message }
       }
 
       if (data.user) {
+        console.log('User created, creating profile...')
         // Create user profile via API
         try {
           const response = await fetch('/api/auth/create-profile', {
@@ -204,20 +214,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
           })
 
+          const result = await response.json()
+          console.log('Profile creation result:', { ok: response.ok, result })
+
           if (!response.ok) {
-            const errorData = await response.json()
-            return { error: errorData.error || 'Failed to create user profile' }
+            return { error: result.error || 'Failed to create user profile' }
           }
         } catch (error) {
           console.error('Error creating user profile:', error)
           return { error: 'Failed to create user profile' }
         }
 
-        showNotification('Account created successfully! Please check your email to verify your account.', 'success')
+        // Check if email confirmation is required
+        if (data.session) {
+          console.log('User signed up and automatically signed in')
+          showNotification('Account created and you are now signed in!', 'success')
+        } else {
+          console.log('Email confirmation required')
+          showNotification('Account created successfully! Please check your email to verify your account before signing in.', 'success')
+        }
+      } else {
+        console.warn('Sign-up succeeded but no user returned')
+        return { error: 'Account creation failed - no user data returned' }
       }
 
       return {}
     } catch (error: any) {
+      console.error('Sign-up exception:', error)
       return { error: error.message }
     } finally {
       setIsLoading(false)
@@ -243,32 +266,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setIsLoading(true)
+      console.log('Starting sign-in process...')
 
-      // Add timeout protection for sign-in
-      const signInPromise = supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Sign-in timeout')), 8000)
-      )
-
-      const { error } = await Promise.race([signInPromise, timeoutPromise]) as any
+      console.log('Sign-in response:', { data: !!data, error, session: !!data?.session, user: !!data?.user })
 
       if (error) {
-        setIsLoading(false) // Only set loading false on error
+        console.error('Sign-in error:', error)
+        setIsLoading(false)
         return { error: error.message }
       }
 
-      showNotification('Login successful!', 'success')
-      // Don't set loading false here - let the auth state change handler manage it
-      return {}
-    } catch (error: any) {
-      setIsLoading(false) // Set loading false on error
-      if (error.message === 'Sign-in timeout') {
-        return { error: 'Sign-in is taking too long. Please check your connection and try again.' }
+      if (data?.user && data?.session) {
+        console.log('Sign-in successful, session created')
+        showNotification('Login successful!', 'success')
+        // Let the auth state change handler manage the rest
+        return {}
+      } else {
+        console.warn('Sign-in succeeded but no user/session returned')
+        setIsLoading(false)
+        return { error: 'Sign-in succeeded but no session was created' }
       }
+    } catch (error: any) {
+      console.error('Sign-in exception:', error)
+      setIsLoading(false)
       return { error: error.message }
     }
   }
