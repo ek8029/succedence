@@ -8,6 +8,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import { createClient } from '@/lib/supabase/client';
 import type { ProfileFormData, UserRole } from '@/lib/types';
 import { showNotification } from '@/components/Notification';
+import MyMatches from '@/components/MyMatches';
 
 interface UserStats {
   listingsCreated: number;
@@ -297,6 +298,9 @@ function ProfilePageContent() {
                 )}
               </div>
             </div>
+
+            {/* My Matches */}
+            <MyMatches />
 
             {/* Profile Details */}
             <div className="glass p-16">
