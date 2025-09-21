@@ -19,9 +19,9 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const { searchParams } = new URL(request.url)
     const queryParams = {
-      limit: searchParams.get('limit'),
-      offset: searchParams.get('offset'),
-      order: searchParams.get('order')
+      limit: searchParams.get('limit') || undefined,
+      offset: searchParams.get('offset') || undefined,
+      order: searchParams.get('order') || undefined
     }
 
     // Validate parameters
