@@ -8,6 +8,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 // SCORING WEIGHTS (Constants)
 // ===================================================================
 const SCORING_WEIGHTS = {
+  BASE_LISTING_SCORE: 15, // Base score for any active listing
   INDUSTRY_MATCH: 40,
   STATE_MATCH: 15,
   REVENUE_GATE: 15,
@@ -20,7 +21,8 @@ const SCORING_WEIGHTS = {
 } as const
 
 // Minimum score threshold for storing matches
-export const MATCH_THRESHOLD = 40
+// Lower threshold to support users with partial preferences
+export const MATCH_THRESHOLD = 20
 
 // ===================================================================
 // TYPES
@@ -63,19 +65,28 @@ export function computeListingScore(
   preferences: UserPreferences,
   listing: Listing
 ): MatchResult {
-  let score = 0
+  // Start with base score for any active listing
+  let score = SCORING_WEIGHTS.BASE_LISTING_SCORE
   const reasons: string[] = []
 
   // Industry overlap (+40 if listing.industry in prefs.industries)
   if (preferences.industries?.includes(listing.industry)) {
     score += SCORING_WEIGHTS.INDUSTRY_MATCH
     reasons.push('Industry match')
+  } else if (!preferences.industries?.length) {
+    // Give partial credit if no industries specified (open to all)
+    score += Math.floor(SCORING_WEIGHTS.INDUSTRY_MATCH * 0.3)
+    reasons.push('Open to all industries')
   }
 
   // State overlap (+15 if listing.state in prefs.states)
   if (preferences.states?.includes(listing.state)) {
     score += SCORING_WEIGHTS.STATE_MATCH
     reasons.push('State match')
+  } else if (!preferences.states?.length) {
+    // Give partial credit if no states specified (open to all locations)
+    score += Math.floor(SCORING_WEIGHTS.STATE_MATCH * 0.4)
+    reasons.push('Open to all locations')
   }
 
   // Revenue gate (+15 if listing.revenue >= prefs.min_revenue)
@@ -86,6 +97,10 @@ export function computeListingScore(
   ) {
     score += SCORING_WEIGHTS.REVENUE_GATE
     reasons.push('Meets min revenue')
+  } else if (!preferences.min_revenue && listing.revenue) {
+    // Give partial credit if no revenue requirement but listing has revenue data
+    score += Math.floor(SCORING_WEIGHTS.REVENUE_GATE * 0.5)
+    reasons.push('Revenue information available')
   }
 
   // Metric gate (+10 if metric type matches and value meets threshold)
@@ -170,10 +185,8 @@ export async function matchUserToListings(
       .eq('user_id', userId)
       .single()
 
-    if (prefsError || !preferencesData) {
-      console.log(`No preferences found for user ${userId}, skipping matching`)
-      return 0
-    }
+    // Allow matching even if no preferences exist - use empty preferences object
+    const preferences = preferencesData || {}
 
     // Build listing query
     let listingQuery = supabase
@@ -203,7 +216,7 @@ export async function matchUserToListings(
     const matchesToUpsert = []
 
     for (const listing of listings) {
-      const { score, reasons } = computeListingScore(preferencesData, listing)
+      const { score, reasons } = computeListingScore(preferences, listing)
 
       // Only store matches that meet the threshold
       if (score >= MATCH_THRESHOLD) {

@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // Query parameters schema
 const matchesQuerySchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
