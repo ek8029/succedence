@@ -9,7 +9,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 
 export default function AuthPage() {
   const router = useRouter();
-  const { user, isLoading, signUp, signInWithEmail } = useAuth();
+  const { user, isLoading, signUp, signInWithEmail, resetAuthState } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -22,6 +22,7 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -30,8 +31,18 @@ export default function AuthPage() {
     }
   }, [user, router]);
 
+  // Reset auth state and form when component unmounts or navigation happens
+  useEffect(() => {
+    return () => {
+      // Reset auth state when leaving the page
+      resetAuthState();
+    };
+  }, [resetAuthState]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSubmitting) return; // Prevent double submission
 
     if (!formData.email.trim() || !formData.password.trim()) {
       showNotification('Please enter your email and password', 'error');
@@ -52,6 +63,8 @@ export default function AuthPage() {
         return;
       }
     }
+
+    setIsSubmitting(true);
 
     try {
       if (isSignUp) {
@@ -80,9 +93,14 @@ export default function AuthPage() {
           showNotification(error, 'error');
           return;
         }
+
+        // Redirect immediately on successful sign-in
+        router.push('/');
       }
     } catch (error) {
       showNotification('Authentication failed. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -333,11 +351,11 @@ export default function AuthPage() {
             <div className="pt-8 space-y-6">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting || isLoading}
                 className="btn-primary w-full py-5 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed block"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', cursor: 'pointer' }}
               >
-                {isLoading ? (
+                {(isSubmitting || isLoading) ? (
                   <div className="flex items-center justify-center space-x-3">
                     <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                     <span>{isSignUp ? 'Creating Account...' : 'Signing In...'}</span>
@@ -350,7 +368,20 @@ export default function AuthPage() {
               <div className="text-center">
                 <button
                   type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setIsSubmitting(false);
+                    resetAuthState();
+                    // Reset form data
+                    setFormData({
+                      name: '',
+                      email: '',
+                      password: '',
+                      confirmPassword: '',
+                      role: 'buyer' as 'buyer' | 'seller' | 'admin',
+                      rememberMe: false
+                    });
+                  }}
                   className="text-neutral-400 hover:text-white transition-colors duration-200 font-medium text-lg"
                 >
                   {isSignUp ?

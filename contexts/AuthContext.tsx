@@ -17,6 +17,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>
   signOut: () => Promise<void>
   updateProfile: (profileData: any) => Promise<{ error?: string }>
+  resetAuthState: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -238,10 +239,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setIsLoading(true)
-      const { error } = await supabase.auth.signInWithPassword({
+
+      // Add timeout protection for sign-in
+      const signInPromise = supabase.auth.signInWithPassword({
         email,
         password,
       })
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Sign-in timeout')), 8000)
+      )
+
+      const { error } = await Promise.race([signInPromise, timeoutPromise]) as any
 
       if (error) {
         return { error: error.message }
@@ -250,6 +259,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       showNotification('Login successful!', 'success')
       return {}
     } catch (error: any) {
+      if (error.message === 'Sign-in timeout') {
+        return { error: 'Sign-in is taking too long. Please check your connection and try again.' }
+      }
       return { error: error.message }
     } finally {
       setIsLoading(false)
@@ -296,6 +308,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const resetAuthState = () => {
+    setIsLoading(false)
+    setUser(null)
+    setUserProfile(null)
+    setSession(null)
+  }
+
   const value = {
     user,
     session,
@@ -306,6 +325,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithEmail,
     signOut,
     updateProfile,
+    resetAuthState,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
