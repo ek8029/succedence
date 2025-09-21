@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prepareDigests } from '@/lib/matchEngine'
+import { sendDigestEmails } from '@/lib/email/digest-sender'
 
 // Request schema
 const digestJobSchema = z.object({
@@ -37,20 +38,26 @@ export async function POST(request: NextRequest) {
     // Default to today if no date parameter provided
     const targetDate = date || new Date().toISOString().split('T')[0]
 
-    console.log(`Starting digest preparation for date: ${targetDate}`)
+    console.log(`Starting digest preparation and email sending for date: ${targetDate}`)
 
-    // Prepare digests
-    const result = await prepareDigests(targetDate)
+    // Step 1: Prepare digests (create digest rows in alerts table)
+    const digestResult = await prepareDigests(targetDate)
+    console.log('Digest preparation completed:', digestResult)
+
+    // Step 2: Send emails based on prepared digests
+    const emailResult = await sendDigestEmails(targetDate)
+    console.log('Email sending completed:', emailResult)
 
     const duration = Date.now() - startTime
     const response = {
-      message: 'Digest preparation completed successfully',
+      message: 'Digest preparation and email sending completed successfully',
       date: targetDate,
-      ...result,
+      digest: digestResult,
+      email: emailResult,
       duration
     }
 
-    console.log('Digest preparation completed:', response)
+    console.log('Full digest job completed:', response)
     return NextResponse.json(response)
 
   } catch (error) {

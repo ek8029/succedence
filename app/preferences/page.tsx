@@ -454,23 +454,55 @@ function PreferencesPageContent() {
                 {/* Notification Preferences */}
                 {activeTab === 'notifications' && (
                   <div className="space-y-8">
-                    <h2 className="text-2xl font-semibold text-white mb-6">Notification Preferences</h2>
+                    <h2 className="text-2xl font-semibold text-white mb-6">Email Preferences</h2>
 
                     <div className="space-y-6">
                       <div className="space-y-4">
-                        <label className="form-label">Alert Frequency</label>
+                        <label className="form-label">Email me top matches</label>
                         <select
                           name="alertFrequency"
                           value={formData.alertFrequency || 'weekly'}
                           onChange={handleInputChange}
                           className="form-control"
                         >
-                          <option value="instant">Instant notifications</option>
-                          <option value="daily">Daily digest</option>
-                          <option value="weekly">Weekly summary</option>
-                          <option value="monthly">Monthly report</option>
+                          <option value="off">Never send emails</option>
+                          <option value="instant">Instantly when new matches are found</option>
+                          <option value="daily">Daily digest of matches</option>
+                          <option value="weekly">Weekly summary of matches</option>
                         </select>
-                        <p className="text-neutral-400 text-sm">How often would you like to receive matching opportunities?</p>
+                        <p className="text-neutral-400 text-sm">
+                          Choose how often you&apos;d like to receive emails about businesses that match your criteria.
+                          {formData.alertFrequency === 'off' && (
+                            <span className="block mt-2 text-yellow-400">
+                              ⚠️ You won&apos;t receive any email notifications with this setting.
+                            </span>
+                          )}
+                          {formData.alertFrequency === 'daily' && (
+                            <span className="block mt-2 text-green-400">
+                              📧 Daily emails sent at 3 AM with your top matches from the previous day.
+                            </span>
+                          )}
+                          {formData.alertFrequency === 'weekly' && (
+                            <span className="block mt-2 text-blue-400">
+                              📅 Weekly summary emails sent every Monday morning.
+                            </span>
+                          )}
+                          {formData.alertFrequency === 'instant' && (
+                            <span className="block mt-2 text-purple-400">
+                              ⚡ Immediate emails when high-scoring matches are found (may be frequent).
+                            </span>
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="bg-neutral-800/50 border border-neutral-700 rounded-lg p-4">
+                        <h3 className="text-lg font-medium text-white mb-2">How Email Matching Works</h3>
+                        <div className="space-y-2 text-sm text-neutral-300">
+                          <p>• We automatically score new business listings against your preferences</p>
+                          <p>• Only high-quality matches (40+ score) trigger email notifications</p>
+                          <p>• Each email includes match reasons and key business details</p>
+                          <p>• You can unsubscribe or change frequency anytime from any email</p>
+                        </div>
                       </div>
                     </div>
                   </div>

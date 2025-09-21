@@ -257,11 +257,12 @@ export async function prepareDigests(forDate: string | Date): Promise<{
   try {
     const targetDate = typeof forDate === 'string' ? forDate : forDate.toISOString().split('T')[0]
 
-    // Get users with alert preferences
+    // Get users with alert preferences (excluding 'off')
     const { data: users, error: usersError } = await supabase
       .from('preferences')
       .select('user_id, alert_frequency')
       .in('alert_frequency', ['daily', 'weekly', 'instant'])
+      .neq('alert_frequency', 'off')
       .returns<{user_id: string; alert_frequency: string}[]>()
 
     if (usersError) {

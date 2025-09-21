@@ -30,7 +30,8 @@
       "Bash(start http://localhost:3000/browse)",
       "Bash(start http://localhost:3002/browse)",
       "Bash(start http://localhost:3002/signin)",
-      "Bash(start http://localhost:3002/auth)"
+      "Bash(start http://localhost:3002/auth)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []
