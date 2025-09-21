@@ -30,14 +30,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const supabase = createClient()
 
-  // Fallback timeout to prevent permanent loading state
+  // Ultra-aggressive fallback timeout to prevent permanent loading state
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       console.warn('Auth initialization taking too long, forcing loading to false')
       if (isLoading) {
         setIsLoading(false)
+        // If we still don't have a user but have a session, create emergency user
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && !user) {
+            console.log('Creating emergency user from session after timeout')
+            setUser({
+              id: session.user.id,
+              email: session.user.email || 'user@example.com',
+              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              role: 'buyer',
+              plan: 'free',
+              status: 'active'
+            })
+          }
+        })
       }
-    }, 10000) // Increased to 10 second fallback
+    }, 8000) // Reduced to 8 second fallback
 
     return () => clearTimeout(fallbackTimer)
   }, [])
@@ -97,10 +111,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           // Always fetch profile on sign in to ensure we have the user data
           if (event === 'SIGNED_IN') {
-            await fetchUserProfile(session.user.id)
+            // Add timeout protection for profile fetching
+            Promise.race([
+              fetchUserProfile(session.user.id),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+              )
+            ]).catch((error) => {
+              console.error('Profile fetch failed or timed out:', error)
+              // Create emergency fallback user to prevent hanging
+              setUser({
+                id: session.user.id,
+                email: session.user.email || 'user@example.com',
+                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                role: 'buyer',
+                plan: 'free',
+                status: 'active'
+              })
+              setIsLoading(false)
+            })
           } else if (event === 'TOKEN_REFRESHED' && !user) {
             // Only fetch if we don't already have user data
-            await fetchUserProfile(session.user.id)
+            fetchUserProfile(session.user.id).catch((error) => {
+              console.error('Profile refresh failed:', error)
+            })
           }
         } else {
           setUser(null)
@@ -131,11 +165,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession()
       const sessionUser = sessionData?.session?.user
 
-      // Simplified timeout helper with more aggressive timeout
-      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
+      // Ultra-aggressive timeout helper - fail fast
+      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 2000): Promise<T> => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
-            reject(new Error(`Database operation timeout after ${timeoutMs}ms`))
+            console.log(`Database operation timed out after ${timeoutMs}ms`)
+            reject(new Error(`Database timeout after ${timeoutMs}ms`))
           }, timeoutMs)
 
           promise
@@ -163,7 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', userId)
           .single()
 
-        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 3000)
+        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 2000)
         userData = result.data
         userError = result.error
 
@@ -354,9 +389,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      setIsLoading(true)
       console.log('Starting sign-in process for:', email)
 
+      // Call Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -366,51 +401,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Sign-in error:', error)
-        setIsLoading(false)
         return { error: error.message }
       }
 
       if (data?.user && data?.session) {
-        console.log('Sign-in successful, session created - waiting for profile fetch')
-
-        // Give the auth state change handler time to complete
-        // But set a maximum wait time to prevent infinite loading
-        const maxWaitTime = 8000 // 8 seconds max
-        const startTime = Date.now()
-
-        const waitForAuth = () => {
-          return new Promise((resolve) => {
-            const checkAuth = () => {
-              const elapsed = Date.now() - startTime
-
-              // If we have a user or we've waited too long, resolve
-              if (user || elapsed > maxWaitTime) {
-                console.log('Auth wait completed:', { hasUser: !!user, elapsed })
-                resolve(true)
-                return
-              }
-
-              // Check again in 100ms
-              setTimeout(checkAuth, 100)
-            }
-
-            checkAuth()
-          })
-        }
-
-        await waitForAuth()
-
-        console.log('Sign-in process completed')
+        console.log('Sign-in successful - auth state change will handle the rest')
         showNotification('Login successful!', 'success')
+
+        // Let the auth state change handler manage profile fetching
+        // Don't wait here - return immediately to prevent hanging
         return {}
       } else {
         console.warn('Sign-in succeeded but no user/session returned')
-        setIsLoading(false)
         return { error: 'Sign-in succeeded but no session was created' }
       }
     } catch (error: any) {
       console.error('Sign-in exception:', error)
-      setIsLoading(false)
       return { error: error.message }
     }
   }

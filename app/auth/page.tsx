@@ -100,8 +100,16 @@ export default function AuthPage() {
           return;
         }
 
-        console.log('Sign in successful, waiting for auth state change...')
-        // Don't redirect here - let the useEffect handle it when user state updates
+        console.log('Sign in successful - waiting for redirect...')
+
+        // Wait a moment for the auth state to update, then force completion
+        setTimeout(() => {
+          console.log('Checking auth state after sign-in...', { user: !!user, isSubmitting })
+          if (isSubmitting) {
+            console.log('Forcing sign-in completion')
+            setIsSubmitting(false)
+          }
+        }, 3000) // Shorter 3 second timeout
       }
     } catch (error) {
       showNotification('Authentication failed. Please try again.', 'error');
