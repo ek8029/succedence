@@ -17,7 +17,7 @@ async function isAdmin(userId: string): Promise<boolean> {
     return false
   }
 
-  return user.role === 'admin'
+  return (user as any)?.role === 'admin'
 }
 
 // Helper to check if user owns the listing
@@ -35,7 +35,7 @@ async function checkListingOwnership(listingId: string, userId: string): Promise
   }
 
   return {
-    isOwner: listing.owner_user_id === userId,
+    isOwner: (listing as any)?.owner_user_id === userId,
     listing
   }
 }

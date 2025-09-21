@@ -16,9 +16,12 @@ async function checkListingOwnership(listingId: string, userId: string): Promise
     return { isOwner: false }
   }
 
+  // Type assertion to fix TypeScript error
+  const listingData = listing as { owner_user_id: string | null; status: string }
+
   return {
-    isOwner: listing.owner_user_id === userId,
-    status: listing.status
+    isOwner: listingData.owner_user_id === userId,
+    status: listingData.status
   }
 }
 
@@ -83,8 +86,8 @@ export async function POST(
 
     // Save media record to database
     const serviceSupabase = createServiceClient()
-    const { data: mediaRecord, error: dbError } = await serviceSupabase
-      .from('listing_media')
+    const { data: mediaRecord, error: dbError } = await (serviceSupabase
+      .from('listing_media') as any)
       .insert({
         listing_id: listingId,
         url: url,
@@ -110,14 +113,15 @@ export async function POST(
       )
     }
 
+    const record = mediaRecord as any;
     return NextResponse.json({
       message: 'Media uploaded successfully',
       media: {
-        id: mediaRecord.id,
-        listing_id: mediaRecord.listing_id,
-        url: mediaRecord.url,
-        kind: mediaRecord.kind,
-        created_at: mediaRecord.created_at
+        id: record?.id,
+        listing_id: record?.listing_id,
+        url: record?.url,
+        kind: record?.kind,
+        created_at: record?.created_at
       }
     }, { status: 201 })
 
@@ -177,8 +181,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    const record = mediaRecord as any;
+
     // Check ownership
-    if (mediaRecord.listings.owner_user_id !== user.id) {
+    if (record?.listings?.owner_user_id !== user.id) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -186,7 +192,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check listing status
-    if (!['draft', 'rejected'].includes(mediaRecord.listings.status)) {
+    if (!['draft', 'rejected'].includes(record?.listings?.status)) {
       return NextResponse.json(
         { error: 'Media can only be deleted from draft or rejected listings' },
         { status: 400 }
@@ -194,7 +200,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Extract storage path from URL
-    const storagePath = extractStoragePath(mediaRecord.url)
+    const storagePath = extractStoragePath(record?.url)
 
     // Delete from database first
     const { error: deleteError } = await serviceSupabase
