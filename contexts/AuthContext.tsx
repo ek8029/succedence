@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Fetching user profile for:', userId)
 
       // Simplified timeout helper with more aggressive timeout
-      const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
+      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
             reject(new Error(`Database operation timeout after ${timeoutMs}ms`))
@@ -153,13 +153,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let userError = null
 
       try {
-        const userFetch = supabase
+        const userFetchPromise = supabase
           .from('users')
           .select('*')
           .eq('id', userId)
           .single()
 
-        const result = await withTimeout(userFetch, 3000)
+        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 3000)
         userData = result.data
         userError = result.error
 
@@ -206,8 +206,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           console.log('Starting background profile fetch...')
           const [profileResult, preferencesResult] = await Promise.allSettled([
-            withTimeout(supabase.from('profiles').select('*').eq('user_id', userId).single(), 2000),
-            withTimeout(supabase.from('preferences').select('*').eq('user_id', userId).single(), 2000)
+            withTimeout(supabase.from('profiles').select('*').eq('user_id', userId).single() as unknown as Promise<any>, 2000),
+            withTimeout(supabase.from('preferences').select('*').eq('user_id', userId).single() as unknown as Promise<any>, 2000)
           ])
 
           const profileData = profileResult.status === 'fulfilled' ? profileResult.value?.data : null
