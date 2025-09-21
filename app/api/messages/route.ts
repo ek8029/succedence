@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the message
-    const { data: newMessage, error: createError } = await supabase
-      .from('messages')
+    const { data: newMessage, error: createError } = await (supabase
+      .from('messages') as any)
       .insert({
         from_user: user.id,
         to_user: toUserId,

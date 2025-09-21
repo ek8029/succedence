@@ -42,8 +42,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
+    const listingData = listing as any;
+
     // Check if user is the listing owner
-    if (listing.owner_user_id !== user.id) {
+    if (listingData?.owner_user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only update NDAs for your own listings' }, { status: 403 });
     }
 
