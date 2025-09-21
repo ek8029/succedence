@@ -99,9 +99,11 @@ export async function GET(
       )
     }
 
+    const listingData = listing as any;
+
     // Generate signed URLs for media
-    if (listing.listing_media && listing.listing_media.length > 0) {
-      const storagePaths = listing.listing_media
+    if (listingData.listing_media && listingData.listing_media.length > 0) {
+      const storagePaths = listingData.listing_media
         .map((media: any) => extractStoragePath(media.url))
         .filter(Boolean) as string[]
 
@@ -109,7 +111,7 @@ export async function GET(
         try {
           const signedUrls = await getSignedMediaUrls(storagePaths)
 
-          listing.listing_media = listing.listing_media.map((media: any) => {
+          listingData.listing_media = listingData.listing_media.map((media: any) => {
             const storagePath = extractStoragePath(media.url)
             return {
               ...media,
@@ -125,25 +127,25 @@ export async function GET(
 
     return NextResponse.json({
       listing: {
-        id: listing.id,
-        owner_user_id: listing.owner_user_id,
-        source: listing.source,
-        title: listing.title,
-        description: listing.description,
-        industry: listing.industry,
-        city: listing.city,
-        state: listing.state,
-        revenue: listing.revenue,
-        ebitda: listing.ebitda,
-        metric_type: listing.metric_type,
-        owner_hours: listing.owner_hours,
-        employees: listing.employees,
-        price: listing.price,
-        status: listing.status,
-        created_at: listing.created_at,
-        updated_at: listing.updated_at,
-        media: listing.listing_media || [],
-        owner: userIsAdmin ? listing.users : undefined
+        id: listingData.id,
+        owner_user_id: listingData.owner_user_id,
+        source: listingData.source,
+        title: listingData.title,
+        description: listingData.description,
+        industry: listingData.industry,
+        city: listingData.city,
+        state: listingData.state,
+        revenue: listingData.revenue,
+        ebitda: listingData.ebitda,
+        metric_type: listingData.metric_type,
+        owner_hours: listingData.owner_hours,
+        employees: listingData.employees,
+        price: listingData.price,
+        status: listingData.status,
+        created_at: listingData.created_at,
+        updated_at: listingData.updated_at,
+        media: listingData.listing_media || [],
+        owner: userIsAdmin ? listingData.users : undefined
       }
     })
 
@@ -200,8 +202,8 @@ export async function PATCH(
 
       // Update status or add a flag to indicate publish request
       const serviceSupabase = createServiceClient()
-      const { error: updateError } = await serviceSupabase
-        .from('listings')
+      const { error: updateError } = await (serviceSupabase
+        .from('listings') as any)
         .update({
           status: 'pending_review', // You might want to add this status
           updated_at: new Date().toISOString()
@@ -235,8 +237,8 @@ export async function PATCH(
 
     // Update listing
     const serviceSupabase = createServiceClient()
-    const { data: updatedListing, error: updateError } = await serviceSupabase
-      .from('listings')
+    const { data: updatedListing, error: updateError } = await (serviceSupabase
+      .from('listings') as any)
       .update({
         ...validatedData,
         updated_at: new Date().toISOString()
@@ -253,12 +255,13 @@ export async function PATCH(
       )
     }
 
+    const updated = updatedListing as any;
     return NextResponse.json({
       message: 'Listing updated successfully',
       listing: {
-        id: updatedListing.id,
-        status: updatedListing.status,
-        updated_at: updatedListing.updated_at
+        id: updated?.id,
+        status: updated?.status,
+        updated_at: updated?.updated_at
       }
     })
 
@@ -310,8 +313,8 @@ export async function DELETE(
 
     // Soft delete by setting status to 'archived'
     const serviceSupabase = createServiceClient()
-    const { error: deleteError } = await serviceSupabase
-      .from('listings')
+    const { error: deleteError } = await (serviceSupabase
+      .from('listings') as any)
       .update({
         status: 'archived',
         updated_at: new Date().toISOString()

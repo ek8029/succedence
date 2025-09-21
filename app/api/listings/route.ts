@@ -101,8 +101,8 @@ export async function POST(request: NextRequest) {
     const serviceSupabase = createServiceClient()
 
     // Create the listing
-    const { data: listing, error: createError } = await serviceSupabase
-      .from('listings')
+    const { data: listing, error: createError } = await (serviceSupabase
+      .from('listings') as any)
       .insert({
         owner_user_id: user.id,
         source: validatedData.source,
@@ -132,12 +132,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const created = listing as any;
     return NextResponse.json({
       message: 'Listing created successfully',
       listing: {
-        id: listing.id,
-        status: listing.status,
-        created_at: listing.created_at
+        id: created?.id,
+        status: created?.status,
+        created_at: created?.created_at
       }
     }, { status: 201 })
 

@@ -38,12 +38,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform to match expected format
-    const transformedMessages = messages?.map(msg => ({
-      id: msg.id,
-      listingId: msg.listing_id,
-      from: msg.from_user?.name || 'Unknown',
-      body: msg.body,
-      timestamp: msg.created_at
+    const transformedMessages = messages?.map((msg: any) => ({
+      id: msg?.id,
+      listingId: msg?.listing_id,
+      from: msg?.from_user?.name || 'Unknown',
+      body: msg?.body,
+      timestamp: msg?.created_at
     })) || [];
 
     return NextResponse.json(transformedMessages);
@@ -87,9 +87,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
+    const listingData = listing as any;
+
     // Determine recipient (if sender is owner, message goes to last buyer who messaged, otherwise goes to owner)
-    let toUserId = listing.owner_user_id;
-    if (user.id === listing.owner_user_id) {
+    let toUserId = listingData?.owner_user_id;
+    if (user.id === listingData?.owner_user_id) {
       // If owner is sending, we'll set to_user to the same as from_user for now
       // In a real system, you'd track conversation participants
       toUserId = user.id;
@@ -119,12 +121,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform to match expected format
+    const msgData = newMessage as any;
     const transformedMessage = {
-      id: newMessage.id,
-      listingId: newMessage.listing_id,
-      from: newMessage.from_user?.name || 'Unknown',
-      body: newMessage.body,
-      timestamp: newMessage.created_at
+      id: msgData?.id,
+      listingId: msgData?.listing_id,
+      from: msgData?.from_user?.name || 'Unknown',
+      body: msgData?.body,
+      timestamp: msgData?.created_at
     };
 
     return NextResponse.json(transformedMessage, { status: 201 });
