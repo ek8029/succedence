@@ -40,12 +40,23 @@ export default function MyMatches() {
         const response = await fetch('/api/matches?limit=10')
 
         if (!response.ok) {
-          throw new Error('Failed to fetch matches')
+          const errorData = await response.json()
+          console.error('Matches fetch failed:', { status: response.status, errorData })
+
+          // Handle specific error cases
+          if (response.status === 401) {
+            throw new Error('Please sign in to view your matches')
+          } else if (response.status === 404) {
+            throw new Error('Matches feature not available')
+          } else {
+            throw new Error(errorData.error || 'Failed to fetch matches')
+          }
         }
 
         const data: MatchesResponse = await response.json()
-        setMatches(data.matches)
+        setMatches(data.matches || [])
       } catch (err) {
+        console.error('Error fetching matches:', err)
         setError(err instanceof Error ? err.message : 'Failed to load matches')
       } finally {
         setLoading(false)

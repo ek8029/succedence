@@ -127,6 +127,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('Fetching user profile for:', userId)
 
+      // Get current session for fallback data
+      const { data: sessionData } = await supabase.auth.getSession()
+      const sessionUser = sessionData?.session?.user
+
       // Simplified timeout helper with more aggressive timeout
       const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
         return new Promise((resolve, reject) => {
@@ -169,18 +173,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userError = fetchError
       }
 
-      // If user fetch fails, create a minimal user immediately
+      // If user fetch fails, create a fallback user using session data when available
       if (userError || !userData) {
         console.log('Creating fallback user due to fetch failure')
+
+        // Use session data to create a better fallback
         const fallbackUser: AuthUser = {
           id: userId,
-          email: 'user@example.com', // We'll get this from session if available
-          name: 'User',
+          email: sessionUser?.email || 'user@example.com',
+          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email?.split('@')[0] || 'User',
           role: 'buyer',
           plan: 'free',
           status: 'active'
         }
 
+        console.log('Created fallback user with session data:', fallbackUser)
         setUser(fallbackUser)
         setIsLoading(false)
         console.log('Fallback user set, authentication complete')
@@ -228,18 +235,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     } catch (error) {
       console.error('Critical error in fetchUserProfile:', error)
-      // Emergency fallback
-      const emergencyUser: AuthUser = {
-        id: userId,
-        email: 'user@example.com',
-        name: 'User',
-        role: 'buyer',
-        plan: 'free',
-        status: 'active'
+
+      // Try to get session data for emergency fallback
+      try {
+        const { data: sessionData } = await supabase.auth.getSession()
+        const sessionUser = sessionData?.session?.user
+
+        const emergencyUser: AuthUser = {
+          id: userId,
+          email: sessionUser?.email || 'user@example.com',
+          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email?.split('@')[0] || 'User',
+          role: 'buyer',
+          plan: 'free',
+          status: 'active'
+        }
+        setUser(emergencyUser)
+        setIsLoading(false)
+        console.log('Emergency user fallback activated with session data:', emergencyUser)
+      } catch (sessionError) {
+        console.error('Failed to get session for emergency fallback:', sessionError)
+        // Final fallback without session data
+        const emergencyUser: AuthUser = {
+          id: userId,
+          email: 'user@example.com',
+          name: 'User',
+          role: 'buyer',
+          plan: 'free',
+          status: 'active'
+        }
+        setUser(emergencyUser)
+        setIsLoading(false)
+        console.log('Final emergency user fallback activated')
       }
-      setUser(emergencyUser)
-      setIsLoading(false)
-      console.log('Emergency user fallback activated')
     }
   }
 

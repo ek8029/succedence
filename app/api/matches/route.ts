@@ -85,6 +85,21 @@ export async function GET(request: NextRequest) {
 
     if (matchesError) {
       console.error('Error fetching matches:', matchesError)
+
+      // Check if the error is due to missing table
+      if (matchesError.message?.includes('relation') && matchesError.message?.includes('does not exist')) {
+        console.log('Matches table does not exist, returning empty matches')
+        return NextResponse.json({
+          matches: [],
+          pagination: {
+            limit,
+            offset,
+            total: 0,
+            hasMore: false
+          }
+        })
+      }
+
       return NextResponse.json(
         { error: 'Failed to fetch matches' },
         { status: 500 }
@@ -98,6 +113,29 @@ export async function GET(request: NextRequest) {
 
     if (countError) {
       console.error('Error counting matches:', countError)
+
+      // Handle missing table for count as well
+      if (countError.message?.includes('relation') && countError.message?.includes('does not exist')) {
+        console.log('Matches table does not exist for count, using 0')
+        const formattedMatches = matches?.map(match => ({
+          id: match.id,
+          score: match.score,
+          reasons: match.reasons_json || [],
+          createdAt: match.created_at,
+          listing: match.listing
+        })) || []
+
+        return NextResponse.json({
+          matches: formattedMatches,
+          pagination: {
+            limit,
+            offset,
+            total: 0,
+            hasMore: false
+          }
+        })
+      }
+
       return NextResponse.json(
         { error: 'Failed to count matches' },
         { status: 500 }
