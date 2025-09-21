@@ -132,6 +132,17 @@ export const messages = pgTable('messages', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+// NDAs table
+export const ndas = pgTable('ndas', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  listingId: uuid('listing_id').references(() => listings.id).notNull(),
+  buyerUserId: uuid('buyer_user_id').references(() => users.id).notNull(),
+  buyerName: text('buyer_name').notNull(),
+  status: text('status').notNull().default('REQUESTED'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
 // Audit logs table
 export const auditLogs = pgTable('audit_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -152,6 +163,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   billingEvents: many(billingEvents),
   sentMessages: many(messages, { relationName: 'sentMessages' }),
   receivedMessages: many(messages, { relationName: 'receivedMessages' }),
+  ndas: many(ndas),
   auditLogs: many(auditLogs),
 }));
 
@@ -177,6 +189,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   media: many(listingMedia),
   matches: many(matches),
   messages: many(messages),
+  ndas: many(ndas),
 }));
 
 export const listingMediaRelations = relations(listingMedia, ({ one }) => ({
@@ -228,6 +241,17 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+export const ndasRelations = relations(ndas, ({ one }) => ({
+  listing: one(listings, {
+    fields: [ndas.listingId],
+    references: [listings.id],
+  }),
+  buyer: one(users, {
+    fields: [ndas.buyerUserId],
+    references: [users.id],
+  }),
+}));
+
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   actor: one(users, {
     fields: [auditLogs.actorId],
@@ -254,5 +278,7 @@ export type BillingEvent = typeof billingEvents.$inferSelect;
 export type NewBillingEvent = typeof billingEvents.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+export type NDA = typeof ndas.$inferSelect;
+export type NewNDA = typeof ndas.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;

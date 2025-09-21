@@ -1,14 +1,41 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
-import { ListingCreateInput } from '@/lib/validation/listings';
+import { ListingUpdateInput } from '@/lib/validation/listings';
 import { z } from 'zod';
 
-export default function NewListingPage() {
+interface Listing {
+  id: string;
+  title: string;
+  description: string;
+  industry: string;
+  city: string;
+  state: string;
+  revenue: number;
+  ebitda: number | null;
+  metric_type: string;
+  owner_hours: number | null;
+  employees: number | null;
+  price: number | null;
+  status: string;
+  media: Array<{
+    id: string;
+    url: string;
+    signed_url?: string;
+    kind: string;
+  }>;
+}
+
+export default function EditListingPage() {
   const router = useRouter();
+  const params = useParams();
+  const listingId = params.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [listing, setListing] = useState<Listing | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -21,22 +48,80 @@ export default function NewListingPage() {
     owner_hours: '',
     employees: '',
     price: '',
-    source: 'manual' as const
   });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [listingId, setListingId] = useState<string | null>(null);
-  const [isDraft, setIsDraft] = useState(true);
 
-  const saveDraft = async () => {
+  useEffect(() => {
+    fetchListing();
+  }, [listingId]);
+
+  const fetchListing = async () => {
+    try {
+      const response = await fetch(`/api/listings/${listingId}`);
+      if (!response.ok) {
+        if (response.status === 403) {
+          showNotification('You do not have permission to edit this listing', 'error');
+          router.push('/listings');
+          return;
+        }
+        throw new Error('Failed to fetch listing');
+      }
+
+      const data = await response.json();
+      const listing = data.listing;
+
+      setListing(listing);
+      setFormData({
+        title: listing.title || '',
+        description: listing.description || '',
+        industry: listing.industry || '',
+        city: listing.city || '',
+        state: listing.state || '',
+        revenue: listing.revenue?.toString() || '',
+        ebitda: listing.ebitda?.toString() || '',
+        metric_type: listing.metric_type || 'annual',
+        owner_hours: listing.owner_hours?.toString() || '',
+        employees: listing.employees?.toString() || '',
+        price: listing.price?.toString() || '',
+      });
+
+      // Check if listing can be edited
+      if (!['draft', 'rejected'].includes(listing.status)) {
+        showNotification('This listing cannot be edited in its current status', 'error');
+        router.push('/listings');
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching listing:', error);
+      showNotification('Failed to load listing', 'error');
+      router.push('/listings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const updateListing = async () => {
     setSubmitting(true);
     setErrors({});
 
     try {
       // Validate the data
-      const validatedData = ListingCreateInput.parse({
+      const validatedData = ListingUpdateInput.parse({
         ...formData,
         revenue: formData.revenue ? parseInt(formData.revenue, 10) : 0,
         ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) || null : null,
@@ -45,8 +130,8 @@ export default function NewListingPage() {
         price: formData.price ? parseInt(formData.price, 10) || null : null,
       });
 
-      const response = await fetch('/api/listings', {
-        method: 'POST',
+      const response = await fetch(`/api/listings/${listingId}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -54,18 +139,22 @@ export default function NewListingPage() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        setListingId(result.listing.id);
-
-        // Upload media if any
+        // Upload new media if any
         if (uploadedImages.length > 0) {
-          await uploadMedia(result.listing.id);
+          await uploadMedia();
         }
 
-        showNotification('✓ Draft saved successfully', 'success');
+        showNotification('✓ Listing updated successfully', 'success');
+
+        // Refresh listing data
+        await fetchListing();
+
+        // Clear uploaded images after successful update
+        setUploadedImages([]);
+        setImagePreviews([]);
       } else {
         const error = await response.json();
-        showNotification(`✗ ${error.error || 'Failed to save draft'}`, 'error');
+        showNotification(`✗ ${error.error || 'Failed to update listing'}`, 'error');
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -78,7 +167,7 @@ export default function NewListingPage() {
         setErrors(fieldErrors);
         showNotification('Please fix the errors below', 'error');
       } else {
-        console.error('Error saving draft:', error);
+        console.error('Error updating listing:', error);
         showNotification('Network error - please try again', 'error');
       }
     } finally {
@@ -87,11 +176,6 @@ export default function NewListingPage() {
   };
 
   const requestPublish = async () => {
-    if (!listingId) {
-      await saveDraft();
-      return;
-    }
-
     setSubmitting(true);
 
     try {
@@ -105,7 +189,6 @@ export default function NewListingPage() {
 
       if (response.ok) {
         showNotification('✓ Listing submitted for review!', 'success');
-        setIsDraft(false);
         setTimeout(() => router.push('/listings'), 2000);
       } else {
         const error = await response.json();
@@ -119,13 +202,13 @@ export default function NewListingPage() {
     }
   };
 
-  const uploadMedia = async (listingIdParam: string) => {
+  const uploadMedia = async () => {
     for (const file of uploadedImages) {
       try {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch(`/api/listings/${listingIdParam}/media`, {
+        const response = await fetch(`/api/listings/${listingId}/media`, {
           method: 'POST',
           body: formData,
         });
@@ -139,27 +222,27 @@ export default function NewListingPage() {
     }
   };
 
-  const showNotification = (message: string, type: 'success' | 'error') => {
-    const notification = document.createElement('div');
-    notification.className = `notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up ${
-      type === 'success' ? 'bg-green-600' : 'bg-red-600'
-    }`;
-    notification.innerHTML = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 4000);
-  };
+  const deleteMedia = async (mediaId: string) => {
+    try {
+      const response = await fetch(`/api/listings/${listingId}/media`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mediaId }),
+      });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await saveDraft();
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+      if (response.ok) {
+        showNotification('✓ Image deleted', 'success');
+        await fetchListing(); // Refresh to update media list
+      } else {
+        const error = await response.json();
+        showNotification(`✗ ${error.error || 'Failed to delete image'}`, 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting media:', error);
+      showNotification('Network error - please try again', 'error');
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,10 +284,49 @@ export default function NewListingPage() {
     showNotification(`✓ ${validFiles.length} image(s) ready for upload`, 'success');
   };
 
-  const removeImage = (index: number) => {
+  const removeNewImage = (index: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
+
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    const notification = document.createElement('div');
+    notification.className = `notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up ${
+      type === 'success' ? 'bg-green-600' : 'bg-red-600'
+    }`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 4000);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updateListing();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl text-white font-medium mb-4">Loading listing...</div>
+          <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl text-white font-medium mb-4">Listing not found</div>
+          <Link href="/listings" className="btn-primary px-6 py-3">
+            Back to Listings
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-brand-darker">
@@ -213,13 +335,22 @@ export default function NewListingPage() {
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
             <div className="max-w-4xl mx-auto">
-              <h1 className="text-heading text-white font-medium mb-8">Submit Business Listing</h1>
+              <h1 className="text-heading text-white font-medium mb-8">Edit Listing</h1>
               <p className="text-2xl text-neutral-400 leading-relaxed mb-12">
-                Present your business opportunity to our network of qualified investors and acquirers.
+                Update your business information and manage media files.
               </p>
-              <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
-                ← Return Home
-              </Link>
+              <div className="flex gap-4 justify-center">
+                <Link href="/listings" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+                  ← Back to Listings
+                </Link>
+                <div className={`px-4 py-2 rounded text-sm font-medium ${
+                  listing.status === 'draft' ? 'bg-yellow-600/20 text-yellow-400' :
+                  listing.status === 'rejected' ? 'bg-red-600/20 text-red-400' :
+                  'bg-gray-600/20 text-gray-400'
+                }`}>
+                  Status: {listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
+                </div>
+              </div>
             </div>
           </div>
         </ScrollAnimation>
@@ -234,7 +365,7 @@ export default function NewListingPage() {
                 <h2 className="text-2xl text-white font-medium border-b border-neutral-600 pb-4">
                   Business Overview
                 </h2>
-                
+
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label htmlFor="title" className="block text-lg text-neutral-300 font-medium">
@@ -302,7 +433,7 @@ export default function NewListingPage() {
                     className={`form-control w-full py-4 px-6 text-lg ${
                       errors.description ? 'border-red-500' : ''
                     }`}
-                    placeholder="Provide a comprehensive description of your business, including products/services, market position, competitive advantages, and growth opportunities..."
+                    placeholder="Provide a comprehensive description of your business..."
                     required
                   />
                   {errors.description && (
@@ -377,10 +508,34 @@ export default function NewListingPage() {
                   Business Images
                 </h2>
 
+                {/* Existing Images */}
+                {listing.media && listing.media.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg text-white font-medium">Current Images ({listing.media.length})</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {listing.media.map((media) => (
+                        <div key={media.id} className="relative group">
+                          <img
+                            src={media.signed_url || media.url}
+                            alt="Business image"
+                            className="w-full h-32 object-cover rounded-lg border border-neutral-600"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => deleteMedia(media.id)}
+                            className="absolute top-2 right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm hover:bg-red-700"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-6">
                   <p className="text-neutral-400">
-                    Upload images of your business including logo, facility photos, products, or operations.
-                    These help potential buyers better understand your business.
+                    Upload additional images of your business including logo, facility photos, products, or operations.
                   </p>
 
                   {/* Upload Area */}
@@ -401,7 +556,7 @@ export default function NewListingPage() {
                           </svg>
                         </div>
                         <div>
-                          <div className="text-lg text-white font-medium">Upload Business Images</div>
+                          <div className="text-lg text-white font-medium">Upload More Images</div>
                           <div className="text-neutral-400 text-sm mt-2">
                             Click to browse or drag and drop<br/>
                             PNG, JPG, or GIF up to 10MB each
@@ -411,21 +566,21 @@ export default function NewListingPage() {
                     </label>
                   </div>
 
-                  {/* Image Previews */}
+                  {/* New Image Previews */}
                   {imagePreviews.length > 0 && (
                     <div className="space-y-4">
-                      <h3 className="text-lg text-white font-medium">Uploaded Images ({imagePreviews.length})</h3>
+                      <h3 className="text-lg text-white font-medium">New Images to Upload ({imagePreviews.length})</h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {imagePreviews.map((preview, index) => (
                           <div key={index} className="relative group">
                             <img
                               src={preview}
-                              alt={`Business image ${index + 1}`}
+                              alt={`New business image ${index + 1}`}
                               className="w-full h-32 object-cover rounded-lg border border-neutral-600"
                             />
                             <button
                               type="button"
-                              onClick={() => removeImage(index)}
+                              onClick={() => removeNewImage(index)}
                               className="absolute top-2 right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm hover:bg-red-700"
                             >
                               ×
@@ -436,9 +591,6 @@ export default function NewListingPage() {
                           </div>
                         ))}
                       </div>
-                      <p className="text-neutral-400 text-sm">
-                        💡 Tip: Include your logo, storefront, products, team photos, or facility images to make your listing more attractive to buyers.
-                      </p>
                     </div>
                   )}
                 </div>
@@ -449,7 +601,7 @@ export default function NewListingPage() {
                 <h2 className="text-2xl text-white font-medium border-b border-neutral-600 pb-4">
                   Financial Information
                 </h2>
-                
+
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label htmlFor="revenue" className="block text-lg text-neutral-300 font-medium">
@@ -547,7 +699,6 @@ export default function NewListingPage() {
                 </div>
               </div>
 
-
               {/* Submit */}
               <div className="pt-8 border-t border-neutral-600">
                 <div className="text-center space-y-8">
@@ -557,10 +708,10 @@ export default function NewListingPage() {
                       disabled={submitting}
                       className="btn-secondary px-12 py-4 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {submitting ? 'Saving...' : 'Save Draft'}
+                      {submitting ? 'Updating...' : 'Update Listing'}
                     </button>
 
-                    {listingId && isDraft && (
+                    {listing.status === 'draft' && (
                       <button
                         type="button"
                         onClick={requestPublish}
@@ -573,44 +724,17 @@ export default function NewListingPage() {
                   </div>
 
                   <p className="text-neutral-400 text-sm max-w-2xl mx-auto">
-                    {isDraft ? (
-                      'Save as draft to add media and make changes, then submit for admin review when ready.'
+                    {listing.status === 'draft' ? (
+                      'Save changes and submit for admin review when ready.'
+                    ) : listing.status === 'rejected' ? (
+                      'Update your listing based on feedback and resubmit for review.'
                     ) : (
-                      'All listings are reviewed by our team to ensure quality and accuracy. You will be notified once your listing is approved and published.'
+                      'Update your listing information and media files.'
                     )}
                   </p>
                 </div>
               </div>
               </form>
-            </div>
-          </div>
-
-          {/* AI Features Notice */}
-          <div className="mt-16 mb-16 glass p-12 border border-neutral-600">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl text-white font-medium mb-4">Intelligent Processing</h3>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8 text-neutral-400">
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full mt-3 flex-shrink-0"></div>
-                  <p>Automatic classification into investment tiers (Main Street vs. Starter opportunities)</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full mt-3 flex-shrink-0"></div>
-                  <p>Intelligent valuation estimates based on industry benchmarks and financial metrics</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full mt-3 flex-shrink-0"></div>
-                  <p>Enhanced business descriptions and market positioning analysis</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full mt-3 flex-shrink-0"></div>
-                  <p>Quality assessment and recommendation optimization</p>
-                </div>
-              </div>
             </div>
           </div>
         </ScrollAnimation>

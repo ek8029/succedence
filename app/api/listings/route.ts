@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { z } from 'zod'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { ListingCreateInput } from '@/lib/validation/listings'
 
 export async function GET(request: NextRequest) {
   try {
@@ -80,48 +80,52 @@ export async function GET(request: NextRequest) {
   }
 }
 
-const createListingSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  industry: z.string().min(1),
-  city: z.string().min(1),
-  state: z.string().min(1),
-  revenue: z.number().positive().optional(),
-  ebitda: z.number().optional(),
-  metricType: z.string().optional(),
-  ownerHours: z.number().optional(),
-  employees: z.number().optional(),
-  price: z.number().positive().optional()
-})
-
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user
     const supabase = createClient()
-
-    // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
     }
 
+    // Parse and validate request body
     const body = await request.json()
-    const listingData = createListingSchema.parse(body)
+    const validatedData = ListingCreateInput.parse(body)
 
-    // Create listing
-    const { data, error } = await (supabase
-      .from('listings') as any)
+    // Use service client for write operations (bypasses RLS)
+    const serviceSupabase = createServiceClient()
+
+    // Create the listing
+    const { data: listing, error: createError } = await serviceSupabase
+      .from('listings')
       .insert({
-        ...listingData,
-        source: 'user_created',
-        status: 'active',
-        ownerUserId: user.id
+        owner_user_id: user.id,
+        source: validatedData.source,
+        title: validatedData.title,
+        description: validatedData.description,
+        industry: validatedData.industry,
+        city: validatedData.city,
+        state: validatedData.state,
+        revenue: validatedData.revenue,
+        ebitda: validatedData.ebitda,
+        metric_type: validatedData.metric_type,
+        owner_hours: validatedData.owner_hours,
+        employees: validatedData.employees,
+        price: validatedData.price,
+        status: 'draft',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
-      .select()
+      .select('id, status, created_at')
       .single()
 
-    if (error) {
-      console.error('Error creating listing:', error)
+    if (createError) {
+      console.error('Error creating listing:', createError)
       return NextResponse.json(
         { error: 'Failed to create listing' },
         { status: 500 }
@@ -130,15 +134,19 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: 'Listing created successfully',
-      listing: data
+      listing: {
+        id: listing.id,
+        status: listing.status,
+        created_at: listing.created_at
+      }
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error in POST listings:', error)
+    console.error('Error in listings POST:', error)
 
-    if (error instanceof z.ZodError) {
+    if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.issues },
+        { error: 'Invalid input data', details: error },
         { status: 400 }
       )
     }

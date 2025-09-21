@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import { Listing } from '@/lib/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NDARequest {
   id: string;
@@ -31,10 +32,10 @@ interface User {
 export default function ListingDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [ndas, setNdas] = useState<NDARequest[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [buyerName, setBuyerName] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -87,12 +88,6 @@ export default function ListingDetailPage() {
   }, [listingId, router]);
 
   useEffect(() => {
-    // Get user from localStorage
-    const userData = localStorage.getItem('succedence_user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-
     fetchListingData();
   }, [fetchListingData]);
 
@@ -185,7 +180,6 @@ export default function ListingDetailPage() {
         },
         body: JSON.stringify({
           listingId,
-          from: user.name,
           body: newMessage.trim(),
         }),
       });
@@ -237,7 +231,7 @@ export default function ListingDetailPage() {
 
   const hasApprovedNDA = ndas.some(nda => nda.status === 'APPROVED');
   const isOwner = user && listing && user.id === listing.ownerUserId;
-  const canRequestNDA = user && user.role === 'BUYER' && !ndas.some(nda => nda.buyerName === user.name);
+  const canRequestNDA = user && user.role === 'buyer' && !ndas.some(nda => nda.buyerName === user.name);
   const canMessage = hasApprovedNDA || isOwner;
 
   const toggleAccordion = (section: string) => {
