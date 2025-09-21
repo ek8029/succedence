@@ -57,7 +57,8 @@ export default function ListingDetailPage() {
     try {
       // Fetch listing details
       const listingsResponse = await fetch('/api/listings');
-      const listings: Listing[] = await listingsResponse.json();
+      const listingsData = await listingsResponse.json();
+      const listings: Listing[] = listingsData.listings || listingsData;
       const foundListing = listings.find(l => l.id === listingId);
       
       if (foundListing) {

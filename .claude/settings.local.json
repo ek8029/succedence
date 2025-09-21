@@ -21,7 +21,16 @@
       "Bash(dir applistings)",
       "Bash(npm install:*)",
       "Bash(mkdir:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(start http://localhost:3001/signin)",
+      "Bash(node:*)",
+      "Bash(start http://localhost:3001/signin-test)",
+      "Bash(start http://localhost:3000/signin)",
+      "Bash(npx tsx:*)",
+      "Bash(start http://localhost:3000/browse)",
+      "Bash(start http://localhost:3002/browse)",
+      "Bash(start http://localhost:3002/signin)",
+      "Bash(start http://localhost:3002/auth)"
     ],
     "deny": [],
     "ask": []

@@ -109,17 +109,17 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-darker flex items-center justify-center px-4 page-content">
+    <div className="min-h-screen bg-brand-darker flex flex-col items-center justify-start px-4 pt-20 pb-20">
       <div className="w-full max-w-2xl">
         <ScrollAnimation direction="fade">
-          <div className="glass p-16 tier-premium">
-          <div className="text-center mb-16">
-            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-10" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
+          <div className="glass p-8 tier-premium">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
               <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h1 className="text-heading text-white font-medium mb-6">
+            <h1 className="text-heading text-white font-medium mb-4">
               {isSignUp ? 'Join Succedence' : 'Welcome Back'}
             </h1>
             <p className="text-xl text-neutral-400 leading-relaxed max-w-xl mx-auto">
@@ -130,8 +130,8 @@ export default function AuthPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto" noValidate>
-            <fieldset className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto" noValidate>
+            <fieldset className="space-y-4">
               <legend className="sr-only">
                 {isSignUp ? 'Create Account Information' : 'Sign In Credentials'}
               </legend>

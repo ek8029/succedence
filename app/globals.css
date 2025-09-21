@@ -1496,7 +1496,7 @@ nav.header-professional,
 .border-gold-light { border-color: var(--gold-light); }
 .border-gold-dark { border-color: var(--gold-dark); }
 
-/* FINAL OVERRIDE: Force button fonts to use Inter - must be at end of file */
+/* FINAL OVERRIDE: Force button fonts to use Crimson Text - must be at end of file */
 button.btn-primary,
 button.btn-success,
 button.btn-secondary,
@@ -1506,7 +1506,8 @@ a.btn-secondary,
 .btn-primary,
 .btn-success,
 .btn-secondary {
-  font-weight: 500 !important;
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 400 !important;
 }
 
 /* Override any Tailwind font classes specifically */
@@ -1515,8 +1516,15 @@ a.btn-secondary,
 .btn-secondary.font-medium,
 button.btn-primary.font-medium,
 button.btn-success.font-medium,
-button.btn-secondary.font-medium {
-  font-weight: 500 !important;
+button.btn-secondary.font-medium,
+.btn-primary.font-sans,
+.btn-success.font-sans,
+.btn-secondary.font-sans,
+.btn-primary.font-semibold,
+.btn-success.font-semibold,
+.btn-secondary.font-semibold {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 400 !important;
 }
 
 /* TARGET THE ACTUAL CLASSES BEING USED - View Details buttons etc */
@@ -1550,4 +1558,36 @@ pre {
 /* Remove bold from all buttons */
 button {
   font-weight: normal !important;
+}
+
+/* ULTRA-SPECIFIC OVERRIDES for Tailwind conflicts */
+a[class*="btn-"],
+button[class*="btn-"],
+link[class*="btn-"],
+.btn-primary,
+.btn-secondary,
+.btn-success {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 400 !important;
+}
+
+/* Override any combination of Tailwind utility classes */
+.btn-secondary.w-full.py-3.text-center.hover-lift,
+.btn-secondary.inline-flex.items-center.px-8.py-4,
+a.btn-secondary,
+Link.btn-secondary {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 400 !important;
+}
+
+/* NUCLEAR OPTION: Override ALL link and button elements */
+a, button, .btn, [class*="btn-"] {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 400 !important;
+}
+
+/* Specifically target Next.js Link components */
+a[href] {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 400 !important;
 }

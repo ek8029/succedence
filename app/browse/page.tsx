@@ -65,10 +65,13 @@ export default function BrowsePage() {
       <div className="container mx-auto px-8 pb-24 max-w-7xl page-content">
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
+            <div className="mb-8 px-6 py-3 bg-gold/20 border border-gold/40 rounded-lg inline-block">
+              <p className="text-gold font-medium text-sm">🧪 Demo Content - Sample Business Listings for Testing</p>
+            </div>
             <h1 className="font-serif text-4xl md:text-5xl font-semibold text-warm-white mb-8">Browse Opportunities</h1>
             <p className="font-sans text-xl text-platinum/90">Discover exceptional businesses ready for acquisition</p>
             <div className="mt-12">
-              <Link href="/" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gold/40 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-lg transition-all duration-300">
+              <Link href="/" className="btn-secondary inline-flex items-center px-8 py-4" style={{ fontFamily: "'Crimson Text', Georgia, serif", fontWeight: 400 }}>
                 ← Return to Home
               </Link>
             </div>
@@ -118,7 +121,7 @@ export default function BrowsePage() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
               {listings.map((listing) => (
-                <div key={listing.id} className="glass-card p-8 rounded-lg hover-lift">
+                <div key={listing.id} className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300">
                   {/* Industry Badge */}
                   <div className="flex justify-between items-start mb-6">
                     <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-accent-gradient text-midnight">
@@ -185,7 +188,8 @@ export default function BrowsePage() {
                   <div className="pt-4 border-t border-white/10">
                     <Link
                       href={`/listings/${listing.id}`}
-                      className="btn-secondary w-full py-3 text-center font-medium hover-lift"
+                      className="btn-secondary w-full py-3 text-center hover-lift"
+                      style={{ fontFamily: "'Crimson Text', Georgia, serif", fontWeight: 400 }}
                     >
                       View Details
                     </Link>
