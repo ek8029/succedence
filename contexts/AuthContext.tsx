@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const fallbackTimer = setTimeout(() => {
       console.warn('Auth initialization taking too long, forcing loading to false')
       setIsLoading(false)
-    }, 15000) // 15 second fallback
+    }, 5000) // Reduced to 5 second fallback
 
     return () => clearTimeout(fallbackTimer)
   }, [])
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Add timeout to prevent hanging indefinitely
         const sessionPromise = supabase.auth.getSession()
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 3000)
         )
 
         const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any
@@ -117,24 +117,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      setIsLoading(true)
+      // Don't set loading if already fetched for this user
+      if (!isLoading) setIsLoading(true)
 
-      // Add timeout protection for database calls
-      const fetchPromise = Promise.all([
-        supabase.from('users').select('*').eq('id', userId).single(),
-        supabase.from('profiles').select('*').eq('user_id', userId).single(),
-        supabase.from('preferences').select('*').eq('user_id', userId).single()
-      ])
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 8000)
-      )
-
-      const [userResult, profileResult, preferencesResult] = await Promise.race([fetchPromise, timeoutPromise]) as any
-
-      const { data: userData, error: userError } = userResult
-      const { data: profileData } = profileResult
-      const { data: preferencesData } = preferencesResult
+      // Fetch user data first (most critical)
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
       if (userError) {
         console.error('Error fetching user:', userError)
@@ -144,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
+      // Set basic user immediately to improve perceived performance
       const authUser: AuthUser = {
         id: (userData as any).id,
         email: (userData as any).email,
@@ -152,6 +144,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         plan: (userData as any).plan,
         status: (userData as any).status,
       }
+      setUser(authUser)
+      setIsLoading(false) // Set loading false after basic user data
+
+      // Fetch additional profile data in background
+      const [profileResult, preferencesResult] = await Promise.allSettled([
+        supabase.from('profiles').select('*').eq('user_id', userId).single(),
+        supabase.from('preferences').select('*').eq('user_id', userId).single()
+      ])
+
+      const profileData = profileResult.status === 'fulfilled' ? profileResult.value.data : null
+      const preferencesData = preferencesResult.status === 'fulfilled' ? preferencesResult.value.data : null
 
       const userWithProfile: UserWithProfile = {
         ...(userData as any),
@@ -159,13 +162,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         preferences: preferencesData,
       }
 
-      setUser(authUser)
       setUserProfile(userWithProfile)
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
       setUser(null)
       setUserProfile(null)
-    } finally {
       setIsLoading(false)
     }
   }

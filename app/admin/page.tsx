@@ -187,13 +187,13 @@ function AdminPageContent() {
           </div>
         </ScrollAnimation>
 
-        {/* Lane Management */}
+        {/* Listing Management */}
         <ScrollAnimation direction="up" delay={150}>
-          <div className="max-w-6xl mx-auto">
-          <div className="glass p-16 slide-up" style={{animationDelay: '0.7s'}}>
+          <div className="max-w-full mx-auto px-4">
+          <div className="glass p-8 lg:p-16 slide-up" style={{animationDelay: '0.7s'}}>
             <h2 className="text-2xl text-white font-medium mb-10">Listing Management</h2>
             <div className="overflow-x-auto">
-              <table className="data-table w-full">
+              <table className="data-table w-full min-w-[1200px]">
                 <thead>
                   <tr>
                     <th className="text-left py-6 px-8">Business</th>
@@ -225,12 +225,12 @@ function AdminPageContent() {
                           {listing.status}
                         </span>
                       </td>
-                      <td className="py-6 px-8">
-                        <div className="flex space-x-3">
+                      <td className="py-6 px-8 min-w-[300px]">
+                        <div className="flex flex-wrap gap-2">
                           {listing.status !== 'active' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'active')}
-                              className="px-4 py-2 text-sm font-medium btn-success"
+                              className="px-3 py-1.5 text-xs font-medium btn-success whitespace-nowrap"
                             >
                               Activate
                             </button>
@@ -238,7 +238,7 @@ function AdminPageContent() {
                           {listing.status !== 'rejected' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'rejected')}
-                              className="px-4 py-2 text-sm font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700"
+                              className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 whitespace-nowrap"
                             >
                               Reject
                             </button>
@@ -246,7 +246,7 @@ function AdminPageContent() {
                           {listing.status !== 'archived' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'archived')}
-                              className="px-4 py-2 text-sm font-medium glass border border-neutral-600 text-neutral-300 hover:text-white"
+                              className="px-3 py-1.5 text-xs font-medium glass border border-neutral-600 text-neutral-300 hover:text-white whitespace-nowrap"
                             >
                               Archive
                             </button>
