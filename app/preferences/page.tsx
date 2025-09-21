@@ -479,7 +479,7 @@ function PreferencesPageContent() {
                           )}
                           {formData.alertFrequency === 'daily' && (
                             <span className="block mt-2 text-green-400">
-                              📧 Daily emails sent at 3 AM with your top matches from the previous day.
+                              📧 Daily emails sent at 5 AM with your top matches from the previous day.
                             </span>
                           )}
                           {formData.alertFrequency === 'weekly' && (
