@@ -23,7 +23,7 @@ export default function Home() {
       try {
         const response = await fetch('/api/listings');
         const data = await response.json();
-        setFeaturedListings(data.slice(0, 3));
+        setFeaturedListings((data.listings || []).slice(0, 3));
       } catch (error) {
         console.error('Error fetching featured listings:', error);
       }

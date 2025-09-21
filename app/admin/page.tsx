@@ -29,14 +29,14 @@ function AdminPageContent() {
     try {
       const [statsResponse, listingsResponse] = await Promise.all([
         fetch('/api/admin'),
-        fetch('/api/listings')
+        fetch('/api/admin/listings') // Use admin-specific listings endpoint
       ]);
-      
+
       const statsData = await statsResponse.json();
       const listingsData = await listingsResponse.json();
-      
+
       setStats(statsData);
-      setListings(listingsData);
+      setListings(listingsData || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

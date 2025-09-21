@@ -7,7 +7,7 @@ const profileUpdateSchema = z.object({
   company: z.string().optional(),
   headline: z.string().optional(),
   location: z.string().optional(),
-  avatarUrl: z.string().url().optional()
+  avatar_url: z.string().url().optional()
 })
 
 export async function GET(request: NextRequest) {
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('userId', user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (profileError) {
@@ -65,9 +65,9 @@ export async function PUT(request: NextRequest) {
     const { data, error } = await (supabase
       .from('profiles') as any)
       .upsert({
-        userId: user.id,
+        user_id: user.id,
         ...profileData,
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
       .select()
       .single()

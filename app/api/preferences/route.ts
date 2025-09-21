@@ -5,12 +5,12 @@ import { z } from 'zod'
 const preferencesSchema = z.object({
   industries: z.array(z.string()).optional(),
   states: z.array(z.string()).optional(),
-  minRevenue: z.number().optional(),
-  minMetric: z.number().optional(),
-  metricType: z.enum(['EBITDA', 'SDE']).optional(),
-  ownerHoursMax: z.number().optional(),
-  priceMax: z.number().optional(),
-  alertFrequency: z.enum(['never', 'instant', 'daily', 'weekly']).optional(),
+  min_revenue: z.number().optional(),
+  min_metric: z.number().optional(),
+  metric_type: z.enum(['EBITDA', 'SDE']).optional(),
+  owner_hours_max: z.number().optional(),
+  price_max: z.number().optional(),
+  alert_frequency: z.enum(['never', 'instant', 'daily', 'weekly']).optional(),
   keywords: z.array(z.string()).optional()
 })
 
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const { data: preferences, error: preferencesError } = await supabase
       .from('preferences')
       .select('*')
-      .eq('userId', user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (preferencesError && preferencesError.code !== 'PGRST116') {
@@ -69,9 +69,9 @@ export async function POST(request: NextRequest) {
     const { data, error } = await (supabase
       .from('preferences') as any)
       .upsert({
-        userId: user.id,
+        user_id: user.id,
         ...preferencesData,
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
       .select()
       .single()
