@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 
-export default function ListingConfirmationPage() {
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const [listingId, setListingId] = useState<string | null>(null);
   const [isDraft, setIsDraft] = useState(true);
@@ -147,5 +147,20 @@ export default function ListingConfirmationPage() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function ListingConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-xl text-white font-medium">Loading...</div>
+        </div>
+      </div>
+    }>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
