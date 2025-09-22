@@ -719,7 +719,7 @@ export default function Home() {
             </a>
 
             {/* Email */}
-            <div className="relative group">
+            <div className="relative group" id="email-dropdown-home">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -747,13 +747,30 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+
+              {/* Success notification */}
+              <div id="email-success-home" className="hidden absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg z-60">
+                ✓ Email copied!
+              </div>
+
               <div className="hidden absolute top-full left-0 mt-2 w-48 bg-slate border border-gold/30 rounded-luxury shadow-lg z-50">
                 <button
                   onClick={(e) => {
+                    e.preventDefault();
                     const email = 'founder@succedence.com';
-                    window.location.href = `mailto:${email}`;
+
+                    // Create mailto link and trigger it
+                    const mailtoLink = document.createElement('a');
+                    mailtoLink.href = `mailto:${email}`;
+                    mailtoLink.target = '_blank';
+                    mailtoLink.rel = 'noopener noreferrer';
+                    document.body.appendChild(mailtoLink);
+                    mailtoLink.click();
+                    document.body.removeChild(mailtoLink);
+
+                    // Close dropdown
                     const button = e.target as HTMLElement;
-                    const dropdown = button.closest('.relative')?.querySelector('div');
+                    const dropdown = button.closest('.relative')?.querySelector('div:last-child');
                     if (dropdown) dropdown.classList.add('hidden');
                   }}
                   className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300"
@@ -765,20 +782,28 @@ export default function Home() {
                 </button>
                 <button
                   onClick={(e) => {
+                    e.preventDefault();
                     const email = 'founder@succedence.com';
+
                     navigator.clipboard.writeText(email).then(() => {
-                      // Show notification
-                      const notification = document.createElement('div');
-                      notification.className = 'notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up';
-                      notification.style.backgroundColor = 'var(--accent)';
-                      notification.style.color = '#000';
-                      notification.innerHTML = '📧 Email copied to clipboard!';
-                      document.body.appendChild(notification);
-                      setTimeout(() => notification.remove(), 3000);
+                      // Show green notification above email
+                      const notification = document.getElementById('email-success-home');
+                      if (notification) {
+                        notification.classList.remove('hidden');
+                        setTimeout(() => {
+                          notification.classList.add('hidden');
+                        }, 2000);
+                      }
 
                       // Close dropdown
                       const button = e.target as HTMLElement;
-                      const dropdown = button.closest('.relative')?.querySelector('div');
+                      const dropdown = button.closest('.relative')?.querySelector('div:last-child');
+                      if (dropdown) dropdown.classList.add('hidden');
+                    }).catch(() => {
+                      // Fallback notification if clipboard fails
+                      alert('Email address: ' + email);
+                      const button = e.target as HTMLElement;
+                      const dropdown = button.closest('.relative')?.querySelector('div:last-child');
                       if (dropdown) dropdown.classList.add('hidden');
                     });
                   }}
