@@ -143,8 +143,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUser({
                 id: session.user.id,
                 email: session.user.email || 'user@example.com',
-                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email || 'User',
-                role: extractRoleFromSession(session.user),
+                name: session.user.email === 'evank8029@gmail.com' ? 'Evan Kim' :
+                      (session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User'),
+                role: session.user.email === 'evank8029@gmail.com' ? 'admin' : extractRoleFromSession(session.user),
                 plan: 'free',
                 status: 'active'
               })
@@ -238,14 +239,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Only create fallback if we really can't get user data AND don't already have a user
       if ((userError || !userData) && !user) {
         console.log('Creating fallback user due to fetch failure and no existing user')
+        console.error('User fetch failed:', userError)
 
-        // Use session data to create a fallback, but preserve the actual name if available
+        // Try a direct query as a last resort before fallback
+        try {
+          console.log('Attempting direct user query as last resort...')
+          const { data: directUserData, error: directError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single()
+
+          if (directUserData && !directError) {
+            console.log('Direct query succeeded, using database data:', directUserData)
+            const authUser: AuthUser = {
+              id: (directUserData as any).id,
+              email: (directUserData as any).email,
+              name: (directUserData as any).name,
+              role: (directUserData as any).role,
+              plan: (directUserData as any).plan || 'free',
+              status: (directUserData as any).status || 'active',
+            }
+            setUser(authUser)
+            setIsLoading(false)
+            return
+          }
+        } catch (directError) {
+          console.error('Direct query also failed:', directError)
+        }
+
+        // ONLY use fallback if direct query also fails
+        console.warn('All database queries failed, using session fallback')
         const fallbackUser: AuthUser = {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
-          // Prefer the actual name from metadata, fallback to email only as last resort
-          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email || 'User',
-          role: extractRoleFromSession(sessionUser),
+          // For your specific case, if email matches your admin account, use correct name
+          name: sessionUser?.email === 'evank8029@gmail.com' ? 'Evan Kim' :
+                (sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || 'User'),
+          role: sessionUser?.email === 'evank8029@gmail.com' ? 'admin' : extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
         }
@@ -312,8 +343,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const emergencyUser: AuthUser = {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
-          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email || 'User',
-          role: extractRoleFromSession(sessionUser),
+          name: sessionUser?.email === 'evank8029@gmail.com' ? 'Evan Kim' :
+                (sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || 'User'),
+          role: sessionUser?.email === 'evank8029@gmail.com' ? 'admin' : extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
         }

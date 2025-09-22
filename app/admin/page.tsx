@@ -179,10 +179,10 @@ function AdminPageContent() {
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container-professional py-16">
+      <div className="container-professional pb-16">
         {/* Header */}
         <ScrollAnimation direction="fade">
-          <div className="text-center mb-16">
+          <div className="text-center mb-20 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">Administration Dashboard</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Platform analytics and business listing management</p>
             <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
