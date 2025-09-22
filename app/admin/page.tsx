@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 
 interface DashboardStats {
@@ -461,6 +462,7 @@ function AdminPageContent() {
           </div>
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -668,6 +669,7 @@ export default function ListingDetailPage() {
           </div>
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { showNotification } from '@/components/Notification';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 import type { PreferencesFormData, AlertFrequency } from '@/lib/types';
 
 function PreferencesPageContent() {
@@ -561,6 +562,7 @@ function PreferencesPageContent() {
           </div>
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }

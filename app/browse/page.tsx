@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Listing } from '@/lib/types';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 
 export default function BrowsePage() {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -200,6 +201,7 @@ export default function BrowsePage() {
           )}
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }

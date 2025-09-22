@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { showNotification } from '@/components/Notification';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -429,6 +430,7 @@ export default function AuthPage() {
           </div>
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }

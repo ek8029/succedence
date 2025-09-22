@@ -8,6 +8,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import { createClient } from '@/lib/supabase/client';
 import type { ProfileFormData, UserRole } from '@/lib/types';
 import { showNotification } from '@/components/Notification';
+import Footer from '@/components/Footer';
 import MyMatches from '@/components/MyMatches';
 
 interface UserStats {
@@ -464,6 +465,7 @@ function ProfilePageContent() {
           </div>
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }
