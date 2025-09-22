@@ -198,7 +198,7 @@ function ProfilePageContent() {
 
             {/* Profile Completeness */}
             {stats && (
-              <div className="glass p-8">
+              <div className="glass p-8 border border-gold/30 rounded-luxury">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl text-white font-medium">Profile Completeness</h3>
                   <span className="text-2xl font-bold text-gold">{stats.profileCompleteness}%</span>
@@ -216,7 +216,7 @@ function ProfilePageContent() {
             )}
 
             {/* Basic Information */}
-            <div className="glass p-16">
+            <div className="glass p-16 border border-gold/30 rounded-luxury">
               <div className="flex items-center justify-between mb-10">
                 <h2 className="text-2xl text-white font-medium">Basic Information</h2>
                 <button
@@ -303,7 +303,7 @@ function ProfilePageContent() {
             <MyMatches />
 
             {/* Profile Details */}
-            <div className="glass p-16">
+            <div className="glass p-16 border border-gold/30 rounded-luxury">
               <div className="flex items-center justify-between mb-10">
                 <h2 className="text-2xl text-white font-medium">Profile Details</h2>
                 <button
@@ -400,7 +400,7 @@ function ProfilePageContent() {
 
             {/* Activity Statistics */}
             {stats && (
-              <div className="glass p-16">
+              <div className="glass p-16 border border-gold/30 rounded-luxury">
                 <h2 className="text-2xl text-white font-medium mb-10 text-center">Activity Overview</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
@@ -423,7 +423,7 @@ function ProfilePageContent() {
             )}
 
             {/* Quick Actions */}
-            <div className="glass p-16">
+            <div className="glass p-16 border border-gold/30 rounded-luxury">
               <h2 className="text-2xl text-white font-medium mb-10 text-center">Quick Actions</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">

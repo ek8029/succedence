@@ -16,10 +16,25 @@ interface DashboardStats {
   industries: string[];
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  created_at: string;
+}
+
 function AdminPageContent() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+  const [newAdminData, setNewAdminData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
 
   useEffect(() => {
     fetchDashboardData();
@@ -27,16 +42,19 @@ function AdminPageContent() {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsResponse, listingsResponse] = await Promise.all([
+      const [statsResponse, listingsResponse, usersResponse] = await Promise.all([
         fetch('/api/admin'),
-        fetch('/api/admin/listings') // Use admin-specific listings endpoint
+        fetch('/api/admin/listings'),
+        fetch('/api/admin/users')
       ]);
 
       const statsData = await statsResponse.json();
       const listingsData = await listingsResponse.json();
+      const usersData = await usersResponse.json();
 
       setStats(statsData);
       setListings(listingsData || []);
+      setUsers(usersData.users || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -64,6 +82,62 @@ function AdminPageContent() {
     } catch (error) {
       console.error('Error updating status:', error);
       alert('Failed to update status');
+    }
+  };
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!newAdminData.name || !newAdminData.email || !newAdminData.password) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newAdminData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Admin created successfully!');
+        setShowCreateAdmin(false);
+        setNewAdminData({ name: '', email: '', password: '' });
+        fetchDashboardData(); // Refresh data
+      } else {
+        alert(data.error || 'Failed to create admin');
+      }
+    } catch (error) {
+      console.error('Error creating admin:', error);
+      alert('Failed to create admin');
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users?userId=${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('User deleted successfully!');
+        fetchDashboardData(); // Refresh data
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user');
     }
   };
 
@@ -174,7 +248,7 @@ function AdminPageContent() {
         {/* Industries */}
         <ScrollAnimation direction="up" delay={100}>
           <div className="max-w-6xl mx-auto mb-16">
-          <div className="glass p-16 slide-up" style={{animationDelay: '0.6s'}}>
+          <div className="glass p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.6s'}}>
             <h2 className="text-2xl text-white font-medium mb-10">Industry Distribution</h2>
             <div className="flex flex-wrap gap-4">
               {stats.industries.map(industry => (
@@ -187,10 +261,135 @@ function AdminPageContent() {
           </div>
         </ScrollAnimation>
 
+        {/* Admin Management */}
+        <ScrollAnimation direction="up" delay={125}>
+          <div className="max-w-6xl mx-auto mb-16">
+          <div className="glass p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
+            <div className="flex justify-between items-center mb-10">
+              <h2 className="text-2xl text-white font-medium">User Management</h2>
+              <button
+                onClick={() => setShowCreateAdmin(true)}
+                className="btn-primary px-6 py-3 font-medium hover-lift"
+              >
+                Create New Admin
+              </button>
+            </div>
+
+            {/* Create Admin Modal */}
+            {showCreateAdmin && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="glass p-8 border border-gold/30 rounded-luxury max-w-md w-full mx-4">
+                  <h3 className="text-xl text-white font-medium mb-6">Create New Admin</h3>
+                  <form onSubmit={handleCreateAdmin} className="space-y-4">
+                    <div>
+                      <label className="form-label">Full Name</label>
+                      <input
+                        type="text"
+                        value={newAdminData.name}
+                        onChange={(e) => setNewAdminData({...newAdminData, name: e.target.value})}
+                        className="form-control w-full"
+                        placeholder="Enter full name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label">Email Address</label>
+                      <input
+                        type="email"
+                        value={newAdminData.email}
+                        onChange={(e) => setNewAdminData({...newAdminData, email: e.target.value})}
+                        className="form-control w-full"
+                        placeholder="Enter email address"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label">Password</label>
+                      <input
+                        type="password"
+                        value={newAdminData.password}
+                        onChange={(e) => setNewAdminData({...newAdminData, password: e.target.value})}
+                        className="form-control w-full"
+                        placeholder="Enter password (min 6 characters)"
+                        minLength={6}
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      <button
+                        type="submit"
+                        className="btn-primary px-6 py-3 font-medium flex-1"
+                      >
+                        Create Admin
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCreateAdmin(false);
+                          setNewAdminData({ name: '', email: '', password: '' });
+                        }}
+                        className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Users Table */}
+            <div className="overflow-x-auto">
+              <table className="data-table w-full min-w-[800px]">
+                <thead>
+                  <tr>
+                    <th className="text-left py-6 px-8">User</th>
+                    <th className="text-left py-6 px-8">Role</th>
+                    <th className="text-left py-6 px-8">Created</th>
+                    <th className="text-left py-6 px-8">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id}>
+                      <td className="py-6 px-8">
+                        <div>
+                          <div className="text-white font-semibold text-lg">{user.name}</div>
+                          <div className="text-neutral-400 text-sm">{user.email}</div>
+                        </div>
+                      </td>
+                      <td className="py-6 px-8">
+                        <span className={`status-badge ${
+                          user.role === 'admin' ? 'status-approved' :
+                          user.role === 'seller' ? 'status-pending' : 'status-info'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="py-6 px-8 text-neutral-400">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="py-6 px-8">
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.name)}
+                          className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          </div>
+        </ScrollAnimation>
+
         {/* Listing Management */}
         <ScrollAnimation direction="up" delay={150}>
           <div className="max-w-full mx-auto px-4">
-          <div className="glass p-8 lg:p-16 slide-up" style={{animationDelay: '0.7s'}}>
+          <div className="glass p-8 lg:p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.7s'}}>
             <h2 className="text-2xl text-white font-medium mb-10">Listing Management</h2>
             <div className="overflow-x-auto">
               <table className="data-table w-full min-w-[1200px]">

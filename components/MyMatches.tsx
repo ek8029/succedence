@@ -160,7 +160,7 @@ export default function MyMatches() {
   }
 
   return (
-    <div className="glass p-6">
+    <div className="glass p-6 border border-gold/30 rounded-luxury">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-medium text-white">My Matches</h3>
         {matches.length > 0 && (
@@ -201,7 +201,7 @@ export default function MyMatches() {
           {matches.map((match) => (
             <div
               key={match.id}
-              className="border border-neutral-700 rounded-lg p-4 hover:border-neutral-600 transition-colors"
+              className="border border-gold/20 rounded-luxury p-4 hover:border-gold/40 transition-colors"
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">

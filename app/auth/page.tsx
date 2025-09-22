@@ -16,13 +16,14 @@ export default function AuthPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'buyer' as 'buyer' | 'seller' | 'admin',
+    role: 'buyer' as 'buyer' | 'seller',
     rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -44,25 +45,26 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Clear previous errors
 
     if (isSubmitting) return; // Prevent double submission
 
     if (!formData.email.trim() || !formData.password.trim()) {
-      showNotification('Please enter your email and password', 'error');
+      setError('Please enter your email and password');
       return;
     }
 
     if (isSignUp) {
       if (!formData.name.trim()) {
-        showNotification('Please enter your full name', 'error');
+        setError('Please enter your full name');
         return;
       }
       if (formData.password !== formData.confirmPassword) {
-        showNotification('Passwords do not match', 'error');
+        setError('Passwords do not match');
         return;
       }
       if (formData.password.length < 6) {
-        showNotification('Password must be at least 6 characters', 'error');
+        setError('Password must be at least 6 characters');
         return;
       }
     }
@@ -82,7 +84,7 @@ export default function AuthPage() {
         );
 
         if (error) {
-          showNotification(error, 'error');
+          setError(error);
           return;
         }
       } else {
@@ -96,7 +98,7 @@ export default function AuthPage() {
         console.log('Sign in result:', { error })
 
         if (error) {
-          showNotification(error, 'error');
+          setError(error);
           return;
         }
 
@@ -112,7 +114,7 @@ export default function AuthPage() {
         }, 3000) // Shorter 3 second timeout
       }
     } catch (error) {
-      showNotification('Authentication failed. Please try again.', 'error');
+      setError('Authentication failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -144,7 +146,7 @@ export default function AuthPage() {
     <div className="min-h-screen bg-brand-darker flex flex-col items-center justify-start px-4 pt-20 pb-20">
       <div className="w-full max-w-2xl">
         <ScrollAnimation direction="fade">
-          <div className="glass p-8 tier-premium">
+          <div className="glass p-8 border border-gold/30 rounded-luxury tier-premium">
           <div className="text-center mb-8">
             <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
               <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,6 +163,18 @@ export default function AuthPage() {
               }
             </p>
           </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="max-w-lg mx-auto mb-6 p-4 bg-red-600/20 border border-red-500/30 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-red-400 font-medium">{error}</span>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto" noValidate>
             <fieldset className="space-y-4">
@@ -334,7 +348,6 @@ export default function AuthPage() {
                   >
                     <option value="buyer">Investor — Seeking acquisition opportunities</option>
                     <option value="seller">Business Owner — Considering divestiture</option>
-                    <option value="admin">Administrator — Platform management</option>
                   </select>
                   <p id="role-help" className="text-sm text-neutral-400">
                     Choose the option that best describes your intended use of the platform
@@ -385,6 +398,7 @@ export default function AuthPage() {
                   onClick={() => {
                     setIsSignUp(!isSignUp);
                     setIsSubmitting(false);
+                    setError(''); // Clear errors
                     resetAuthState();
                     // Reset form data
                     setFormData({
@@ -392,7 +406,7 @@ export default function AuthPage() {
                       email: '',
                       password: '',
                       confirmPassword: '',
-                      role: 'buyer' as 'buyer' | 'seller' | 'admin',
+                      role: 'buyer' as 'buyer' | 'seller',
                       rememberMe: false
                     });
                   }}

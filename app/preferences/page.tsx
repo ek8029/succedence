@@ -244,7 +244,7 @@ function PreferencesPageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Tab Navigation */}
           <div className="lg:col-span-1">
-            <div className="glass p-6 sticky top-8">
+            <div className="glass p-6 border border-gold/30 rounded-luxury sticky top-8">
               <h3 className="text-lg font-semibold text-white mb-6">Preferences</h3>
               <div className="space-y-2">
                 {tabs.map((tab) => (
@@ -267,7 +267,7 @@ function PreferencesPageContent() {
           {/* Content Area */}
           <div className="lg:col-span-3">
             <form onSubmit={handleSubmit}>
-              <div className="glass p-8 mb-8">
+              <div className="glass p-8 mb-8 border border-gold/30 rounded-luxury">
                 {/* Financial Preferences */}
                 {activeTab === 'financial' && (
                   <div className="space-y-8">
@@ -427,8 +427,8 @@ function PreferencesPageContent() {
                           name="ownerHoursMax"
                           value={formData.ownerHoursMax || ''}
                           onChange={handleInputChange}
-                          className="form-control"
-                          placeholder="e.g., 40"
+                          className="form-control-large w-full"
+                          placeholder="e.g., 40 hours per week"
                           min="0"
                           max="168"
                         />
@@ -457,8 +457,8 @@ function PreferencesPageContent() {
                           </div>
                           <input
                             type="text"
-                            className="form-control"
-                            placeholder="Add a keyword and press Enter"
+                            className="form-control-large w-full"
+                            placeholder="Add keywords to help match relevant businesses (press Enter to add)"
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();
