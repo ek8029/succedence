@@ -62,7 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser({
               id: session.user.id,
               email: session.user.email || 'user@example.com',
-              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              // Use the full email or actual name, don't split email as fallback name
+              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email || 'User',
               role: extractRoleFromSession(session.user),
               plan: 'free',
               status: 'active'
@@ -142,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUser({
                 id: session.user.id,
                 email: session.user.email || 'user@example.com',
-                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email || 'User',
                 role: extractRoleFromSession(session.user),
                 plan: 'free',
                 status: 'active'
@@ -180,12 +181,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('Fetching user profile for:', userId)
 
+      // Check if we already have a valid user with the same ID to avoid unnecessary refetches
+      if (user && user.id === userId) {
+        console.log('User already exists with same ID, skipping fetch')
+        setIsLoading(false)
+        return
+      }
+
       // Get current session for fallback data
       const { data: sessionData } = await supabase.auth.getSession()
       const sessionUser = sessionData?.session?.user
 
-      // Ultra-aggressive timeout helper - fail fast
-      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 2000): Promise<T> => {
+      // More generous timeout for database operations
+      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 5000): Promise<T> => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
             console.log(`Database operation timed out after ${timeoutMs}ms`)
@@ -206,7 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.log('Starting user data fetch...')
 
-      // Try to fetch user data with aggressive timeout
+      // Try to fetch user data with improved timeout and retry logic
       let userData = null
       let userError = null
 
@@ -217,7 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', userId)
           .single()
 
-        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 2000)
+        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 5000)
         userData = result.data
         userError = result.error
 
@@ -227,15 +235,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userError = fetchError
       }
 
-      // If user fetch fails, create a fallback user using session data when available
-      if (userError || !userData) {
-        console.log('Creating fallback user due to fetch failure')
+      // Only create fallback if we really can't get user data AND don't already have a user
+      if ((userError || !userData) && !user) {
+        console.log('Creating fallback user due to fetch failure and no existing user')
 
-        // Use session data to create a better fallback
+        // Use session data to create a fallback, but preserve the actual name if available
         const fallbackUser: AuthUser = {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
-          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email?.split('@')[0] || 'User',
+          // Prefer the actual name from metadata, fallback to email only as last resort
+          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email || 'User',
           role: extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
@@ -245,6 +254,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(fallbackUser)
         setIsLoading(false)
         console.log('Fallback user set, authentication complete')
+        return
+      } else if ((userError || !userData) && user) {
+        // If we already have a user and fetch fails, just keep the existing user
+        console.log('User fetch failed but keeping existing user data')
+        setIsLoading(false)
         return
       }
 
@@ -298,7 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const emergencyUser: AuthUser = {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
-          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email?.split('@')[0] || 'User',
+          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email || 'User',
           role: extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
