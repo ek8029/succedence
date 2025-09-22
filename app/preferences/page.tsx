@@ -98,15 +98,27 @@ function PreferencesPageContent() {
     return isNaN(numValue) ? undefined : numValue;
   };
 
+  const handleFinancialInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    // Remove all non-digit characters
+    const numbersOnly = value.replace(/[^\d]/g, '');
+
+    // Parse as number and store
+    const numValue = numbersOnly ? parseInt(numbersOnly) : undefined;
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: numValue
+    }));
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
-    if (type === 'number' || ['minRevenue', 'priceMax', 'minMetric'].includes(name)) {
-      // For financial fields, parse comma-formatted numbers
-      setFormData(prev => ({
-        ...prev,
-        [name]: parseNumberFromCommas(value)
-      }));
+    if (['minRevenue', 'priceMax', 'minMetric'].includes(name)) {
+      // Handle financial inputs separately
+      return;
     } else {
       setFormData(prev => ({
         ...prev,
@@ -182,11 +194,11 @@ function PreferencesPageContent() {
   };
 
   const tabs = [
-    { id: 'financial', label: 'Financial', icon: '💰' },
-    { id: 'industry', label: 'Industry', icon: '🏭' },
-    { id: 'location', label: 'Location', icon: '📍' },
-    { id: 'business', label: 'Business Details', icon: '📊' },
-    { id: 'notifications', label: 'Notifications', icon: '🔔' },
+    { id: 'financial', label: 'Financial' },
+    { id: 'industry', label: 'Industry' },
+    { id: 'location', label: 'Location' },
+    { id: 'business', label: 'Business Details' },
+    { id: 'notifications', label: 'Notifications' },
   ];
 
   if (authLoading) {
@@ -245,7 +257,6 @@ function PreferencesPageContent() {
                         : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white'
                     }`}
                   >
-                    <span className="mr-3">{tab.icon}</span>
                     {tab.label}
                   </button>
                 ))}
@@ -269,7 +280,7 @@ function PreferencesPageContent() {
                           type="text"
                           name="minRevenue"
                           value={formatNumberWithCommas(formData.minRevenue)}
-                          onChange={handleInputChange}
+                          onChange={handleFinancialInputChange}
                           className="form-control no-spinners"
                           placeholder="e.g., 500,000"
                         />
@@ -282,7 +293,7 @@ function PreferencesPageContent() {
                           type="text"
                           name="priceMax"
                           value={formatNumberWithCommas(formData.priceMax)}
-                          onChange={handleInputChange}
+                          onChange={handleFinancialInputChange}
                           className="form-control no-spinners"
                           placeholder="e.g., 2,000,000"
                         />
@@ -313,7 +324,7 @@ function PreferencesPageContent() {
                           type="text"
                           name="minMetric"
                           value={formatNumberWithCommas(formData.minMetric)}
-                          onChange={handleInputChange}
+                          onChange={handleFinancialInputChange}
                           className="form-control no-spinners"
                           placeholder="e.g., 100,000"
                         />
@@ -486,22 +497,22 @@ function PreferencesPageContent() {
                           Choose how often you&apos;d like to receive emails about businesses that match your criteria.
                           {formData.alertFrequency === 'off' && (
                             <span className="block mt-2 text-yellow-400">
-                              ⚠️ You won&apos;t receive any email notifications with this setting.
+                              Note: You won&apos;t receive any email notifications with this setting.
                             </span>
                           )}
                           {formData.alertFrequency === 'daily' && (
                             <span className="block mt-2 text-green-400">
-                              📧 Daily emails sent at 5 AM with your top matches from the previous day.
+                              Daily emails sent at 5 AM with your top matches from the previous day.
                             </span>
                           )}
                           {formData.alertFrequency === 'weekly' && (
                             <span className="block mt-2 text-blue-400">
-                              📅 Weekly summary emails sent every Monday morning.
+                              Weekly summary emails sent every Monday morning.
                             </span>
                           )}
                           {formData.alertFrequency === 'instant' && (
                             <span className="block mt-2 text-purple-400">
-                              ⚡ Immediate emails when high-scoring matches are found (may be frequent).
+                              Immediate emails when high-scoring matches are found (may be frequent).
                             </span>
                           )}
                         </p>

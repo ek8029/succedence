@@ -8,16 +8,18 @@ import { createServiceClient } from '@/lib/supabase/server'
 // SCORING WEIGHTS (Constants)
 // ===================================================================
 const SCORING_WEIGHTS = {
-  BASE_LISTING_SCORE: 25, // Base score for any active listing (increased to ensure matches)
-  INDUSTRY_MATCH: 40,
-  STATE_MATCH: 15,
+  BASE_LISTING_SCORE: 15, // Reduced base score for more variation
+  INDUSTRY_MATCH: 25,     // Reduced from 40 for more nuanced scoring
+  STATE_MATCH: 12,        // Slightly reduced
   REVENUE_GATE: 15,
-  METRIC_GATE: 10,
-  OWNER_HOURS: 10,
+  METRIC_GATE: 12,        // Increased from 10
+  OWNER_HOURS: 8,         // Reduced from 10
   PRICE_CEILING: 10,
-  KEYWORD_HIT: 5,
-  KEYWORD_MAX: 20,
-  FRESHNESS_BONUS: 10,
+  KEYWORD_HIT: 4,         // Reduced from 5
+  KEYWORD_MAX: 16,        // Reduced from 20
+  FRESHNESS_BONUS: 8,     // Reduced from 10
+  BUSINESS_SIZE_BONUS: 6, // New factor for business size
+  PRICING_COMPETITIVENESS: 8, // New factor for price-to-revenue ratio
 } as const
 
 // Minimum score threshold for storing matches
@@ -74,8 +76,16 @@ export function computeListingScore(
     score += SCORING_WEIGHTS.INDUSTRY_MATCH
     reasons.push('Industry match')
   } else if (!preferences.industries?.length) {
-    // Give partial credit if no industries specified (open to all)
-    score += Math.floor(SCORING_WEIGHTS.INDUSTRY_MATCH * 0.3)
+    // Give variable partial credit based on listing characteristics
+    let industryPartialCredit = 0.2 // Base partial credit
+
+    // Increase credit for well-established industries
+    const establishedIndustries = ['Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Real Estate']
+    if (establishedIndustries.includes(listing.industry)) {
+      industryPartialCredit = 0.35
+    }
+
+    score += Math.floor(SCORING_WEIGHTS.INDUSTRY_MATCH * industryPartialCredit)
     reasons.push('Open to all industries')
   }
 
@@ -84,8 +94,16 @@ export function computeListingScore(
     score += SCORING_WEIGHTS.STATE_MATCH
     reasons.push('State match')
   } else if (!preferences.states?.length) {
-    // Give partial credit if no states specified (open to all locations)
-    score += Math.floor(SCORING_WEIGHTS.STATE_MATCH * 0.4)
+    // Give variable partial credit based on location desirability
+    let locationPartialCredit = 0.3 // Base partial credit
+
+    // Higher credit for business-friendly states
+    const businessFriendlyStates = ['Texas', 'Florida', 'Delaware', 'Nevada', 'Tennessee', 'Wyoming']
+    if (businessFriendlyStates.includes(listing.state)) {
+      locationPartialCredit = 0.5
+    }
+
+    score += Math.floor(SCORING_WEIGHTS.STATE_MATCH * locationPartialCredit)
     reasons.push('Open to all locations')
   }
 
@@ -162,6 +180,32 @@ export function computeListingScore(
   if (listingDate >= fourteenDaysAgo) {
     score += SCORING_WEIGHTS.FRESHNESS_BONUS
     reasons.push('Recently updated')
+  }
+
+  // Business size bonus (based on revenue and employee count)
+  if (listing.revenue) {
+    if (listing.revenue > 5000000) {
+      score += SCORING_WEIGHTS.BUSINESS_SIZE_BONUS
+      reasons.push('Large established business')
+    } else if (listing.revenue > 1000000) {
+      score += Math.floor(SCORING_WEIGHTS.BUSINESS_SIZE_BONUS * 0.7)
+      reasons.push('Medium-sized business')
+    } else if (listing.revenue > 250000) {
+      score += Math.floor(SCORING_WEIGHTS.BUSINESS_SIZE_BONUS * 0.4)
+      reasons.push('Small business opportunity')
+    }
+  }
+
+  // Price competitiveness (price-to-revenue ratio)
+  if (listing.price && listing.revenue && listing.revenue > 0) {
+    const priceToRevenueRatio = listing.price / listing.revenue
+    if (priceToRevenueRatio < 2) {
+      score += SCORING_WEIGHTS.PRICING_COMPETITIVENESS
+      reasons.push('Competitive pricing')
+    } else if (priceToRevenueRatio < 3) {
+      score += Math.floor(SCORING_WEIGHTS.PRICING_COMPETITIVENESS * 0.6)
+      reasons.push('Fair market pricing')
+    }
   }
 
   return { score, reasons }

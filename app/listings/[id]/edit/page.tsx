@@ -377,7 +377,7 @@ export default function EditListingPage() {
                       name="title"
                       value={formData.title}
                       onChange={handleInputChange}
-                      className={`form-control w-full py-4 px-6 text-lg ${
+                      className={`form-control-large w-full ${
                         errors.title ? 'border-red-500' : ''
                       }`}
                       placeholder="Enter business name"
@@ -397,7 +397,7 @@ export default function EditListingPage() {
                       name="industry"
                       value={formData.industry}
                       onChange={handleInputChange}
-                      className={`form-control w-full py-4 px-6 text-lg ${
+                      className={`form-control-large w-full ${
                         errors.industry ? 'border-red-500' : ''
                       }`}
                       required
@@ -430,7 +430,7 @@ export default function EditListingPage() {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={6}
-                    className={`form-control w-full py-4 px-6 text-lg ${
+                    className={`form-control-large w-full ${
                       errors.description ? 'border-red-500' : ''
                     }`}
                     placeholder="Provide a comprehensive description of your business..."
@@ -452,7 +452,7 @@ export default function EditListingPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={`form-control w-full py-4 px-6 text-lg ${
+                      className={`form-control-large w-full ${
                         errors.city ? 'border-red-500' : ''
                       }`}
                       placeholder="City"
@@ -473,7 +473,7 @@ export default function EditListingPage() {
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      className={`form-control w-full py-4 px-6 text-lg ${
+                      className={`form-control-large w-full ${
                         errors.state ? 'border-red-500' : ''
                       }`}
                       placeholder="State"
@@ -494,7 +494,7 @@ export default function EditListingPage() {
                       name="employees"
                       value={formData.employees}
                       onChange={handleInputChange}
-                      className="form-control w-full py-4 px-6 text-lg"
+                      className="form-control-large w-full"
                       placeholder="Number of employees"
                       min="0"
                     />
@@ -613,7 +613,7 @@ export default function EditListingPage() {
                       name="revenue"
                       value={formData.revenue}
                       onChange={handleInputChange}
-                      className={`form-control w-full py-4 px-6 text-lg text-financial ${
+                      className={`form-control-large w-full text-financial ${
                         errors.revenue ? 'border-red-500' : ''
                       }`}
                       placeholder="0"
@@ -635,7 +635,7 @@ export default function EditListingPage() {
                       name="ebitda"
                       value={formData.ebitda}
                       onChange={handleInputChange}
-                      className="form-control w-full py-4 px-6 text-lg text-financial"
+                      className="form-control-large w-full text-financial"
                       placeholder="0"
                       min="0"
                     />
@@ -653,7 +653,7 @@ export default function EditListingPage() {
                       name="owner_hours"
                       value={formData.owner_hours}
                       onChange={handleInputChange}
-                      className="form-control w-full py-4 px-6 text-lg"
+                      className="form-control-large w-full"
                       placeholder="Hours per week"
                       min="0"
                       max="168"
@@ -669,7 +669,7 @@ export default function EditListingPage() {
                       name="metric_type"
                       value={formData.metric_type}
                       onChange={handleInputChange}
-                      className="form-control w-full py-4 px-6 text-lg"
+                      className="form-control-large w-full"
                       required
                     >
                       <option value="annual">Annual</option>
@@ -689,7 +689,7 @@ export default function EditListingPage() {
                     name="price"
                     value={formData.price}
                     onChange={handleInputChange}
-                    className="form-control w-full py-4 px-6 text-lg text-financial"
+                    className="form-control-large w-full text-financial"
                     placeholder="Leave blank for AI valuation estimate"
                     min="0"
                   />

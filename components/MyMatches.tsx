@@ -115,7 +115,12 @@ export default function MyMatches() {
       'Revenue information available': 'Financial data is provided for your evaluation',
       'Meets min ebitda': 'EBITDA meets your minimum profitability requirements',
       'Meets min gross_profit': 'Gross profit meets your minimum requirements',
-      'Meets min net_income': 'Net income meets your minimum requirements'
+      'Meets min net_income': 'Net income meets your minimum requirements',
+      'Large established business': 'High-revenue business with proven market presence',
+      'Medium-sized business': 'Well-established business with solid revenue base',
+      'Small business opportunity': 'Emerging business with growth potential',
+      'Competitive pricing': 'Excellent value proposition with favorable price-to-revenue ratio',
+      'Fair market pricing': 'Reasonably priced within market standards'
     }
 
     // Handle keyword matches
@@ -168,15 +173,15 @@ export default function MyMatches() {
       {/* Matching system explanation */}
       <div className="mb-6 p-4 bg-gradient-to-r from-neutral-900/40 to-neutral-800/40 border border-neutral-700 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-gold text-lg">🎯</div>
           <div>
             <h4 className="text-white font-medium mb-2">How Match Percentages Work</h4>
             <div className="text-sm text-neutral-400 space-y-1">
-              <p>• <strong className="text-neutral-300">Base Score (25%)</strong>: All active listings start with this foundation</p>
-              <p>• <strong className="text-neutral-300">Industry Match (40%)</strong>: Perfect alignment with your industry preferences</p>
-              <p>• <strong className="text-neutral-300">Location Match (15%)</strong>: Located in your target geographic areas</p>
-              <p>• <strong className="text-neutral-300">Financial Criteria (15%)</strong>: Meets your revenue and profitability requirements</p>
-              <p>• <strong className="text-neutral-300">Additional Factors</strong>: Owner time commitment, listing freshness, keywords, and price range</p>
+              <p>• <strong className="text-neutral-300">Base Score (15%)</strong>: Foundation score for active listings</p>
+              <p>• <strong className="text-neutral-300">Industry Match (25%)</strong>: Alignment with your industry preferences</p>
+              <p>• <strong className="text-neutral-300">Location Match (12%)</strong>: Geographic preference alignment</p>
+              <p>• <strong className="text-neutral-300">Financial Criteria (27%)</strong>: Revenue, profitability, and pricing factors</p>
+              <p>• <strong className="text-neutral-300">Business Quality (14%)</strong>: Size, competitiveness, and operational factors</p>
+              <p>• <strong className="text-neutral-300">Additional Factors</strong>: Keywords, listing freshness, and owner time commitment</p>
             </div>
           </div>
         </div>
@@ -224,7 +229,7 @@ export default function MyMatches() {
 
               {/* Score explanation */}
               <div className="mb-3 p-2 bg-neutral-900/30 rounded text-xs text-neutral-400">
-                💡 <span className="italic">{getScoreDescription(match.score)}</span>
+                <span className="italic">{getScoreDescription(match.score)}</span>
               </div>
 
               {/* Enhanced reasons display */}

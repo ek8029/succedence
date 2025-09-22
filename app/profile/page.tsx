@@ -429,7 +429,6 @@ function ProfilePageContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 <Link href="/preferences" className="metric-card p-6 hover-lift block">
                   <div className="text-center">
-                    <div className="text-3xl mb-4">⚙️</div>
                     <h3 className="text-white font-medium mb-2">Set Preferences</h3>
                     <p className="text-neutral-400 text-sm">Configure your acquisition preferences</p>
                   </div>
@@ -437,7 +436,6 @@ function ProfilePageContent() {
 
                 <Link href="/browse" className="metric-card p-6 hover-lift block">
                   <div className="text-center">
-                    <div className="text-3xl mb-4">🔍</div>
                     <h3 className="text-white font-medium mb-2">Browse Listings</h3>
                     <p className="text-neutral-400 text-sm">Explore available opportunities</p>
                   </div>
@@ -446,7 +444,6 @@ function ProfilePageContent() {
                 {user.role === 'seller' && (
                   <Link href="/listings/new" className="metric-card p-6 hover-lift block">
                     <div className="text-center">
-                      <div className="text-3xl mb-4">➕</div>
                       <h3 className="text-white font-medium mb-2">Create Listing</h3>
                       <p className="text-neutral-400 text-sm">List your business for sale</p>
                     </div>
