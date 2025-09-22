@@ -719,15 +719,74 @@ export default function Home() {
             </a>
 
             {/* Email */}
-            <a
-              href="mailto:founder@succedence.com"
-              className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              founder@succedence.com
-            </a>
+            <div className="relative group">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  const dropdown = e.currentTarget.nextElementSibling;
+                  dropdown.classList.toggle('hidden');
+
+                  // Add click outside listener
+                  if (!dropdown.classList.contains('hidden')) {
+                    const closeDropdown = (event) => {
+                      if (!e.currentTarget.contains(event.target) && !dropdown.contains(event.target)) {
+                        dropdown.classList.add('hidden');
+                        document.removeEventListener('click', closeDropdown);
+                      }
+                    };
+                    setTimeout(() => document.addEventListener('click', closeDropdown), 10);
+                  }
+                }}
+                className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                founder@succedence.com
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="hidden absolute top-full left-0 mt-2 w-48 bg-slate border border-gold/30 rounded-luxury shadow-lg z-50">
+                <button
+                  onClick={(e) => {
+                    const email = 'founder@succedence.com';
+                    window.location.href = `mailto:${email}`;
+                    e.target.closest('.relative').querySelector('div').classList.add('hidden');
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Send Email
+                </button>
+                <button
+                  onClick={(e) => {
+                    const email = 'founder@succedence.com';
+                    navigator.clipboard.writeText(email).then(() => {
+                      // Show notification
+                      const notification = document.createElement('div');
+                      notification.className = 'notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up';
+                      notification.style.backgroundColor = 'var(--accent)';
+                      notification.style.color = '#000';
+                      notification.innerHTML = '📧 Email copied to clipboard!';
+                      document.body.appendChild(notification);
+                      setTimeout(() => notification.remove(), 3000);
+
+                      // Close dropdown
+                      e.target.closest('.relative').querySelector('div').classList.add('hidden');
+                    });
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300 border-t border-gold/20"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy Email
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="text-sm text-neutral-400 border-t border-gold/10 pt-8">
