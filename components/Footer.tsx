@@ -40,23 +40,25 @@ export default function Footer() {
             </a>
 
             {/* Email */}
-            <div className="relative group" id="email-dropdown-footer">
+            <div className="relative">
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  const dropdown = e.currentTarget.nextElementSibling?.nextElementSibling;
-                  dropdown?.classList.toggle('hidden');
+                  const email = 'succedence@gmail.com';
 
-                  // Add click outside listener
-                  if (!dropdown?.classList.contains('hidden')) {
-                    const closeDropdown = (event) => {
-                      if (!e.currentTarget.contains(event.target) && !dropdown.contains(event.target)) {
-                        dropdown.classList.add('hidden');
-                        document.removeEventListener('click', closeDropdown);
-                      }
-                    };
-                    setTimeout(() => document.addEventListener('click', closeDropdown), 10);
-                  }
+                  navigator.clipboard.writeText(email).then(() => {
+                    // Show green notification above email
+                    const notification = document.getElementById('email-success-footer');
+                    if (notification) {
+                      notification.classList.remove('hidden');
+                      setTimeout(() => {
+                        notification.classList.add('hidden');
+                      }, 2000);
+                    }
+                  }).catch(() => {
+                    // Fallback notification if clipboard fails
+                    alert('Email address: ' + email);
+                  });
                 }}
                 className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
               >
@@ -64,77 +66,11 @@ export default function Footer() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 succedence@gmail.com
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
               </button>
 
               {/* Success notification */}
               <div id="email-success-footer" className="hidden absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg z-60">
                 ✓ Email copied!
-              </div>
-
-              <div className="hidden absolute top-full left-0 mt-2 w-48 bg-slate border border-gold/30 rounded-luxury shadow-lg z-50">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const email = 'succedence@gmail.com';
-
-                    // Create mailto link and trigger it
-                    const mailtoLink = document.createElement('a');
-                    mailtoLink.href = `mailto:${email}`;
-                    mailtoLink.target = '_blank';
-                    mailtoLink.rel = 'noopener noreferrer';
-                    document.body.appendChild(mailtoLink);
-                    mailtoLink.click();
-                    document.body.removeChild(mailtoLink);
-
-                    // Close dropdown
-                    const button = e.target as HTMLElement;
-                    const dropdown = button.closest('.relative')?.querySelector('div:last-child');
-                    if (dropdown) dropdown.classList.add('hidden');
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Send Email
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const email = 'succedence@gmail.com';
-
-                    navigator.clipboard.writeText(email).then(() => {
-                      // Show green notification above email
-                      const notification = document.getElementById('email-success-footer');
-                      if (notification) {
-                        notification.classList.remove('hidden');
-                        setTimeout(() => {
-                          notification.classList.add('hidden');
-                        }, 2000);
-                      }
-
-                      // Close dropdown
-                      const button = e.target as HTMLElement;
-                      const dropdown = button.closest('.relative')?.querySelector('div:last-child');
-                      if (dropdown) dropdown.classList.add('hidden');
-                    }).catch(() => {
-                      // Fallback notification if clipboard fails
-                      alert('Email address: ' + email);
-                      const button = e.target as HTMLElement;
-                      const dropdown = button.closest('.relative')?.querySelector('div:last-child');
-                      if (dropdown) dropdown.classList.add('hidden');
-                    });
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300 border-t border-gold/20"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copy Email
-                </button>
               </div>
             </div>
           </div>
