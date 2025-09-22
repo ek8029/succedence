@@ -73,7 +73,9 @@ export default function Footer() {
                   onClick={(e) => {
                     const email = 'succedence@gmail.com';
                     window.location.href = `mailto:${email}`;
-                    e.target.closest('.relative').querySelector('div').classList.add('hidden');
+                    const button = e.target as HTMLElement;
+                    const dropdown = button.closest('.relative')?.querySelector('div');
+                    if (dropdown) dropdown.classList.add('hidden');
                   }}
                   className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300"
                 >
@@ -96,7 +98,9 @@ export default function Footer() {
                       setTimeout(() => notification.remove(), 3000);
 
                       // Close dropdown
-                      e.target.closest('.relative').querySelector('div').classList.add('hidden');
+                      const button = e.target as HTMLElement;
+                      const dropdown = button.closest('.relative')?.querySelector('div');
+                      if (dropdown) dropdown.classList.add('hidden');
                     });
                   }}
                   className="flex items-center gap-3 w-full px-4 py-3 text-gold hover:bg-gold/10 transition-all duration-300 border-t border-gold/20"
