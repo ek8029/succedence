@@ -10,6 +10,7 @@ import type { ProfileFormData, UserRole } from '@/lib/types';
 import { showNotification } from '@/components/Notification';
 import Footer from '@/components/Footer';
 import MyMatches from '@/components/MyMatches';
+import MyDrafts from '@/components/MyDrafts';
 
 interface UserStats {
   listingsCreated: number;
@@ -302,6 +303,9 @@ function ProfilePageContent() {
 
             {/* My Matches */}
             <MyMatches />
+
+            {/* My Drafts */}
+            <MyDrafts />
 
             {/* Profile Details */}
             <div className="glass p-16 border border-gold/30 rounded-luxury">

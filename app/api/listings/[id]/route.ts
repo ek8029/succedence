@@ -196,6 +196,51 @@ export async function PATCH(
 
     const body = await request.json()
 
+    // Check if this is a draft update
+    if (body.action === 'update_draft') {
+      const { action, ...updateData } = body;
+
+      // Update listing with new data
+      const serviceSupabase = createServiceClient()
+      const { data: updatedListing, error: updateError } = await (serviceSupabase
+        .from('listings') as any)
+        .update({
+          title: updateData.title,
+          description: updateData.description,
+          industry: updateData.industry,
+          city: updateData.city,
+          state: updateData.state,
+          revenue: updateData.revenue,
+          ebitda: updateData.ebitda,
+          metric_type: updateData.metric_type,
+          owner_hours: updateData.owner_hours,
+          employees: updateData.employees,
+          price: updateData.price,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select('id, status, updated_at')
+        .single()
+
+      if (updateError) {
+        console.error('Error updating draft:', updateError)
+        return NextResponse.json(
+          { error: 'Failed to update draft' },
+          { status: 500 }
+        )
+      }
+
+      const updated = updatedListing as any;
+      return NextResponse.json({
+        message: 'Draft updated successfully',
+        listing: {
+          id: updated?.id,
+          status: updated?.status,
+          updated_at: updated?.updated_at
+        }
+      })
+    }
+
     // Check if this is a request to publish
     if (body.action === 'request_publish') {
       const validatedRequest = ListingRequestPublishInput.parse(body)

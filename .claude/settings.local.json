@@ -36,7 +36,9 @@
       "Bash(cat:*)",
       "Bash(git fetch:*)",
       "Bash(start http://localhost:3006)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(start http://localhost:3004/listings/new)",
+      "Bash(start http://localhost:3004/profile)"
     ],
     "deny": [],
     "ask": []

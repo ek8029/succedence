@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
@@ -30,43 +30,71 @@ export default function NewListingPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [listingId, setListingId] = useState<string | null>(null);
   const [isDraft, setIsDraft] = useState(true);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const saveDraft = async () => {
-    setSubmitting(true);
+  const saveDraft = async (isAutoSave = false) => {
+    if (isAutoSave) {
+      setAutoSaving(true);
+    } else {
+      setSubmitting(true);
+    }
     setErrors({});
 
     try {
-      // Validate the data
-      const validatedData = ListingCreateInput.parse({
+      const requestData = {
         ...formData,
         revenue: formData.revenue ? parseInt(formData.revenue, 10) : 0,
         ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) || null : null,
         owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) || null : null,
         employees: formData.employees ? parseInt(formData.employees, 10) || null : null,
         price: formData.price ? parseInt(formData.price, 10) || null : null,
-      });
+      };
 
-      const response = await fetch('/api/listings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(validatedData),
-      });
+      let response;
+
+      if (listingId) {
+        // Update existing draft
+        response = await fetch(`/api/listings/${listingId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action: 'update_draft', ...requestData }),
+        });
+      } else {
+        // Create new draft
+        response = await fetch('/api/listings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
+      }
 
       if (response.ok) {
         const result = await response.json();
-        setListingId(result.listing.id);
+        if (!listingId) {
+          setListingId(result.listing.id);
+        }
 
         // Upload media if any
         if (uploadedImages.length > 0) {
           await uploadMedia(result.listing.id);
         }
 
-        showNotification('✓ Draft saved successfully', 'success');
+        setLastSaved(new Date());
+        if (!isAutoSave) {
+          showNotification('✓ Draft saved successfully', 'success');
+        }
+        return true;
       } else {
         const error = await response.json();
-        showNotification(`✗ ${error.error || 'Failed to save draft'}`, 'error');
+        if (!isAutoSave) {
+          showNotification(`✗ ${error.error || 'Failed to save draft'}`, 'error');
+        }
+        return false;
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -77,20 +105,30 @@ export default function NewListingPage() {
           }
         });
         setErrors(fieldErrors);
-        showNotification('Please fix the errors below', 'error');
+        if (!isAutoSave) {
+          showNotification('Please fix the errors below', 'error');
+        }
+        return false;
       } else {
         console.error('Error saving draft:', error);
-        showNotification('Network error - please try again', 'error');
+        if (!isAutoSave) {
+          showNotification('Network error - please try again', 'error');
+        }
+        return false;
       }
     } finally {
-      setSubmitting(false);
+      if (isAutoSave) {
+        setAutoSaving(false);
+      } else {
+        setSubmitting(false);
+      }
     }
   };
 
   const requestPublish = async () => {
     if (!listingId) {
-      await saveDraft();
-      return;
+      const saved = await saveDraft();
+      if (!saved) return;
     }
 
     setSubmitting(true);
@@ -107,7 +145,9 @@ export default function NewListingPage() {
       if (response.ok) {
         showNotification('✓ Listing submitted for review!', 'success');
         setIsDraft(false);
-        setTimeout(() => router.push('/listings'), 2000);
+        setTimeout(() => {
+          router.push(`/listings/confirmation?id=${listingId}&status=submitted`);
+        }, 1500);
       } else {
         const error = await response.json();
         showNotification(`✗ ${error.error || 'Failed to submit for review'}`, 'error');
@@ -152,11 +192,73 @@ export default function NewListingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await saveDraft();
+    const saved = await saveDraft();
+    if (saved && listingId) {
+      router.push(`/listings/confirmation?id=${listingId}&status=draft`);
+    }
+  };
+
+  // Auto-save functionality
+  const debouncedSave = useCallback(() => {
+    const debounced = debounce(() => {
+      if (listingId && Object.values(formData).some(value => value.trim() !== '')) {
+        saveDraft(true);
+      }
+    }, 3000);
+    debounced();
+    return debounced;
+  }, [formData, listingId]);
+
+  useEffect(() => {
+    const debounced = debouncedSave();
+    return () => debounced.cancel();
+  }, [debouncedSave]);
+
+  // Debounce utility function
+  function debounce(func: Function, wait: number) {
+    let timeout: NodeJS.Timeout;
+    const debounced = (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(null, args), wait);
+    };
+    debounced.cancel = () => clearTimeout(timeout);
+    return debounced;
+  }
+
+  // Helper function to format numbers with commas
+  const formatNumberWithCommas = (value: string | number): string => {
+    if (!value) return '';
+    const numValue = typeof value === 'string' ? parseInt(value) : value;
+    if (isNaN(numValue)) return '';
+    return numValue.toLocaleString('en-US');
+  };
+
+  // Helper function to parse comma-formatted numbers
+  const parseNumberFromCommas = (value: string): string => {
+    if (!value) return '';
+    return value.replace(/,/g, '');
+  };
+
+  const handleFinancialInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    // Remove all non-digit characters
+    const numbersOnly = value.replace(/[^\d]/g, '');
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: numbersOnly
+    }));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    // Handle financial inputs separately
+    if (['revenue', 'ebitda', 'price'].includes(name)) {
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -214,7 +316,29 @@ export default function NewListingPage() {
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
             <div className="max-w-4xl mx-auto">
-              <h1 className="text-heading text-white font-medium mb-8">Submit Business Listing</h1>
+              <h1 className="text-heading text-white font-medium mb-4">Submit Business Listing</h1>
+
+              {/* Status Indicator */}
+              <div className="flex items-center justify-center space-x-4 mb-8">
+                {autoSaving && (
+                  <div className="flex items-center space-x-2 bg-blue-600/20 border border-blue-500/30 rounded-lg px-4 py-2">
+                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-blue-300 text-sm font-medium">Auto-saving...</span>
+                  </div>
+                )}
+
+                {lastSaved && !autoSaving && (
+                  <div className="flex items-center space-x-2 bg-green-600/20 border border-green-500/30 rounded-lg px-4 py-2">
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-green-300 text-sm font-medium">
+                      Saved {lastSaved.toLocaleTimeString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <p className="text-2xl text-neutral-400 leading-relaxed mb-12">
                 Present your business opportunity to our network of qualified investors and acquirers.
               </p>
@@ -474,16 +598,15 @@ export default function NewListingPage() {
                       Annual Revenue (USD) *
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       id="revenue"
                       name="revenue"
-                      value={formData.revenue}
-                      onChange={handleInputChange}
-                      className={`form-control-large w-full text-financial ${
+                      value={formatNumberWithCommas(formData.revenue)}
+                      onChange={handleFinancialInputChange}
+                      className={`form-control-large w-full text-financial no-spinners ${
                         errors.revenue ? 'border-red-500' : ''
                       }`}
-                      placeholder="0"
-                      min="0"
+                      placeholder="e.g., 500,000"
                       required
                     />
                     {errors.revenue && (
@@ -496,14 +619,13 @@ export default function NewListingPage() {
                       EBITDA (USD)
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       id="ebitda"
                       name="ebitda"
-                      value={formData.ebitda}
-                      onChange={handleInputChange}
-                      className="form-control-large w-full text-financial"
-                      placeholder="0"
-                      min="0"
+                      value={formatNumberWithCommas(formData.ebitda)}
+                      onChange={handleFinancialInputChange}
+                      className="form-control-large w-full text-financial no-spinners"
+                      placeholder="e.g., 100,000"
                     />
                   </div>
                 </div>
@@ -550,14 +672,13 @@ export default function NewListingPage() {
                     Asking Price (USD)
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     id="price"
                     name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    className="form-control-large w-full text-financial"
-                    placeholder="Leave blank for AI valuation estimate"
-                    min="0"
+                    value={formatNumberWithCommas(formData.price)}
+                    onChange={handleFinancialInputChange}
+                    className="form-control-large w-full text-financial no-spinners"
+                    placeholder="e.g., 2,000,000 (leave blank for AI valuation)"
                   />
                   <p className="text-neutral-400 text-sm">
                     If left blank, our AI will provide a valuation estimate based on industry standards and financial metrics.

@@ -15,8 +15,54 @@ export async function GET(request: NextRequest) {
     const priceMax = searchParams.get('price_max')
     const page = parseInt(searchParams.get('page') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '10')
+    const status = searchParams.get('status') // draft, active, etc.
+    const myListings = searchParams.get('my_listings') === 'true'
 
-    // Build query
+    // If requesting user's own listings/drafts, check authentication
+    if (myListings) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+      if (authError || !user) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
+
+      // Use service client to bypass RLS for user's own listings
+      const serviceSupabase = createServiceClient()
+      let query = serviceSupabase
+        .from('listings')
+        .select('*')
+        .eq('owner_user_id', user.id)
+        .order('updated_at', { ascending: false })
+
+      if (status) {
+        query = query.eq('status', status)
+      }
+
+      const { data: listings, error } = await query
+
+      if (error) {
+        console.error('Error fetching user listings:', error)
+        return NextResponse.json(
+          { error: 'Failed to fetch listings' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({
+        listings: listings || [],
+        pagination: {
+          page: 1,
+          pageSize: listings?.length || 0,
+          total: listings?.length || 0,
+          totalPages: 1
+        }
+      })
+    }
+
+    // Build query for public listings
     let query = supabase
       .from('listings')
       .select('*')
