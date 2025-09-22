@@ -681,7 +681,7 @@ export default function Home() {
           </ScrollAnimation>
 
           {/* Social Contact Footer Banner */}
-          <div className="mt-16 py-8 pb-0 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] -mb-8" style={{background: '#1a1a1a', borderTop: '2px solid rgba(212, 166, 80, 0.3)'}}>
+          <div className="mt-16 py-16 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]" style={{background: '#1a1a1a', borderTop: '2px solid rgba(212, 166, 80, 0.3)'}}>
       <ScrollAnimation direction="fade" delay={200}>
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h3 className="text-2xl md:text-3xl font-semibold text-warm-white mb-8 tracking-refined">
