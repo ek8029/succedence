@@ -8,12 +8,6 @@ import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface NDARequest {
-  id: string;
-  listingId: string;
-  buyerName: string;
-  status: string;
-}
 
 interface Message {
   id: string;
@@ -35,7 +29,6 @@ export default function ListingDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
-  const [ndas, setNdas] = useState<NDARequest[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [buyerName, setBuyerName] = useState('');
@@ -70,11 +63,6 @@ export default function ListingDetailPage() {
         return;
       }
 
-      // Fetch NDAs for this listing
-      const ndasResponse = await fetch('/api/ndas');
-      const allNdas: NDARequest[] = await ndasResponse.json();
-      const listingNdas = allNdas.filter(nda => nda.listingId === listingId);
-      setNdas(listingNdas);
 
       // Fetch messages for this listing
       const messagesResponse = await fetch(`/api/messages?listingId=${listingId}`);
@@ -112,61 +100,6 @@ export default function ListingDetailPage() {
     });
   };
 
-  const handleNDASubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!buyerName.trim() || !user) return;
-
-    setSubmitting(true);
-    try {
-      const response = await fetch('/api/ndas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listingId,
-          buyerName: buyerName.trim(),
-        }),
-      });
-
-      if (response.ok) {
-        const newNDA = await response.json();
-        setNdas([...ndas, newNDA]);
-        setBuyerName('');
-        alert('NDA request submitted successfully');
-      } else {
-        alert('Failed to submit NDA request');
-      }
-    } catch (error) {
-      console.error('Error submitting NDA:', error);
-      alert('Failed to submit NDA request');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleNDAStatusUpdate = async (ndaId: string, action: 'approve' | 'deny') => {
-    try {
-      const response = await fetch(`/api/ndas/${ndaId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action }),
-      });
-
-      if (response.ok) {
-        const updatedNDA = await response.json();
-        setNdas(ndas.map(nda => nda.id === ndaId ? updatedNDA : nda));
-        alert(`NDA ${action}d successfully`);
-      } else {
-        alert(`Failed to ${action} NDA`);
-      }
-    } catch (error) {
-      console.error(`Error ${action}ing NDA:`, error);
-      alert(`Failed to ${action} NDA`);
-    }
-  };
 
   const handleMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,10 +163,8 @@ export default function ListingDetailPage() {
     }
   };
 
-  const hasApprovedNDA = ndas.some(nda => nda.status === 'APPROVED');
   const isOwner = user && listing && user.id === listing.ownerUserId;
-  const canRequestNDA = user && user.role === 'buyer' && !ndas.some(nda => nda.buyerName === user.name);
-  const canMessage = hasApprovedNDA || isOwner;
+  const canMessage = user && (user.role === 'buyer' || isOwner);
 
   const toggleAccordion = (section: string) => {
     setActiveAccordion(activeAccordion === section ? null : section);
@@ -349,14 +280,6 @@ export default function ListingDetailPage() {
 
               {/* Primary CTAs */}
               <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
-                {user && canRequestNDA && (
-                  <button
-                    onClick={() => toggleAccordion('access')}
-                    className="btn-primary px-8 py-4 text-lg font-medium hover-lift"
-                  >
-                    Request Due Diligence Access
-                  </button>
-                )}
                 {user && canMessage && (
                   <button
                     onClick={() => toggleAccordion('messages')}
@@ -428,95 +351,20 @@ export default function ListingDetailPage() {
               </div>
             </AccordionSection>
 
-            {/* NDA Management Accordion */}
-            {user && (
-              <AccordionSection id="access" title="Due Diligence Access">
-                <div className="space-y-8">
-                  {canRequestNDA && (
-                    <div className="p-8 bg-neutral-900/50 border border-neutral-600">
-                      <h3 className="text-xl text-white font-medium mb-6">Request Access to Confidential Information</h3>
-                      <form onSubmit={handleNDASubmit} className="space-y-6">
-                        <div>
-                          <label htmlFor="buyerName" className="block text-lg text-neutral-300 font-medium mb-4">
-                            Your Company/Organization Name
-                          </label>
-                          <input
-                            type="text"
-                            id="buyerName"
-                            value={buyerName}
-                            onChange={(e) => setBuyerName(e.target.value)}
-                            className="form-control w-full py-4 px-6 text-lg"
-                            placeholder="Enter your company name"
-                            required
-                          />
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={submitting || !buyerName.trim()}
-                          className="btn-primary px-12 py-4 text-lg font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {submitting ? 'Submitting Request...' : 'Request NDA Access'}
-                        </button>
-                      </form>
-                    </div>
-                  )}
-
-                  {ndas.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-xl text-white font-medium">Access Requests</h3>
-                      {ndas.map((nda) => (
-                        <div key={nda.id} className="p-6 bg-neutral-900/50 border border-neutral-600 flex flex-wrap justify-between items-center gap-4">
-                          <div>
-                            <span className="text-white font-semibold text-lg">{nda.buyerName}</span>
-                            <div className="mt-2">
-                              <span className={`status-badge ${
-                                nda.status === 'APPROVED' ? 'status-approved' :
-                                nda.status === 'REJECTED' ? 'status-rejected' : 'status-pending'
-                              }`}>
-                                {nda.status}
-                              </span>
-                            </div>
-                          </div>
-
-                          {isOwner && nda.status === 'REQUESTED' && (
-                            <div className="flex space-x-4">
-                              <button
-                                onClick={() => handleNDAStatusUpdate(nda.id, 'approve')}
-                                className="btn-success px-6 py-3 font-medium hover-lift"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => handleNDAStatusUpdate(nda.id, 'deny')}
-                                className="glass px-6 py-3 font-medium text-white hover-lift border border-neutral-600"
-                              >
-                                Decline
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Deal Completion Section for Owner */}
-                  {isOwner && (
-                    <div className="p-8 border border-gold/30 bg-neutral-900/30">
-                      <div className="text-center">
-                        <h3 className="text-xl text-white font-medium mb-4">Deal Management</h3>
-                        <p className="text-neutral-400 mb-6">Have you completed a transaction for this listing?</p>
-                        <button
-                          onClick={() => setShowDealCompleteModal(true)}
-                          className="btn-success px-8 py-3 font-medium hover-lift"
-                        >
-                          Mark Deal as Completed
-                        </button>
-                      </div>
-                    </div>
-                  )}
+            {/* Deal Completion Section for Owner */}
+            {user && isOwner && (
+              <div className="glass p-8 border border-gold/30 rounded-luxury mb-8">
+                <div className="text-center">
+                  <h3 className="text-xl text-white font-medium mb-4">Deal Management</h3>
+                  <p className="text-neutral-400 mb-6">Have you completed a transaction for this listing?</p>
+                  <button
+                    onClick={() => setShowDealCompleteModal(true)}
+                    className="btn-success px-8 py-3 font-medium hover-lift"
+                  >
+                    Mark Deal as Completed
+                  </button>
                 </div>
-              </AccordionSection>
+              </div>
             )}
 
           {/* Deal Complete Modal */}

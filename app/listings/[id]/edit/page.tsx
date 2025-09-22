@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { ListingUpdateInput } from '@/lib/validation/listings';
 import { z } from 'zod';
 
@@ -29,7 +30,7 @@ interface Listing {
   }>;
 }
 
-export default function EditListingPage() {
+function EditListingContent() {
   const router = useRouter();
   const params = useParams();
   const listingId = params.id as string;
@@ -740,5 +741,13 @@ export default function EditListingPage() {
         </ScrollAnimation>
       </div>
     </div>
+  );
+}
+
+export default function EditListingPage() {
+  return (
+    <ProtectedRoute>
+      <EditListingContent />
+    </ProtectedRoute>
   );
 }
