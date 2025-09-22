@@ -8,7 +8,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 // SCORING WEIGHTS (Constants)
 // ===================================================================
 const SCORING_WEIGHTS = {
-  BASE_LISTING_SCORE: 15, // Base score for any active listing
+  BASE_LISTING_SCORE: 25, // Base score for any active listing (increased to ensure matches)
   INDUSTRY_MATCH: 40,
   STATE_MATCH: 15,
   REVENUE_GATE: 15,
@@ -224,8 +224,7 @@ export async function matchUserToListings(
           user_id: userId,
           listing_id: listing.id,
           score,
-          reasons_json: reasons,
-          updated_at: new Date().toISOString()
+          reasons_json: reasons
         })
       }
     }
