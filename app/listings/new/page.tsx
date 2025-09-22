@@ -208,9 +208,8 @@ export default function NewListingPage() {
   };
 
   return (
-    <div className="h-screen bg-brand-darker flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
-        <div className="container-professional pb-8 page-content-large">
+    <div className="min-h-screen bg-brand-darker">
+      <div className="container-professional pb-16 page-content-large">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
@@ -633,7 +632,6 @@ export default function NewListingPage() {
             </div>
           </div>
         </ScrollAnimation>
-        </div>
       </div>
       <Footer />
     </div>

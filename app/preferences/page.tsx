@@ -231,9 +231,8 @@ function PreferencesPageContent() {
   }
 
   return (
-    <div className="h-screen bg-brand-darker flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-8 pb-8 max-w-6xl page-content-large">
+    <div className="min-h-screen bg-brand-darker">
+      <div className="container mx-auto px-8 pb-20 max-w-6xl page-content-large">
         <ScrollAnimation direction="fade">
           <div className="text-center mb-16 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">
@@ -566,7 +565,6 @@ function PreferencesPageContent() {
           </div>
           </div>
         </ScrollAnimation>
-        </div>
       </div>
       <Footer />
     </div>
