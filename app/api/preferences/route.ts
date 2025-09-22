@@ -2,15 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic'
+
 const preferencesSchema = z.object({
   industries: z.array(z.string()).optional(),
   states: z.array(z.string()).optional(),
   min_revenue: z.number().optional(),
   min_metric: z.number().optional(),
-  metric_type: z.enum(['EBITDA', 'SDE']).optional(),
+  metric_type: z.enum(['revenue', 'ebitda', 'gross_profit', 'net_income']).optional(),
   owner_hours_max: z.number().optional(),
   price_max: z.number().optional(),
-  alert_frequency: z.enum(['never', 'instant', 'daily', 'weekly']).optional(),
+  alert_frequency: z.enum(['off', 'instant', 'daily', 'weekly']).optional(),
   keywords: z.array(z.string()).optional()
 })
 

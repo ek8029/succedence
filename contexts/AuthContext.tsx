@@ -30,6 +30,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const supabase = createClient()
 
+  // Helper function to extract role from session metadata
+  const extractRoleFromSession = (sessionUser: any): 'buyer' | 'seller' | 'admin' => {
+    // Check various places where role might be stored in session metadata
+    const role = sessionUser?.user_metadata?.role ||
+                 sessionUser?.app_metadata?.role ||
+                 sessionUser?.user_metadata?.user_role ||
+                 sessionUser?.app_metadata?.user_role
+
+    // Validate the role is one we expect
+    if (role && ['admin', 'buyer', 'seller'].includes(role)) {
+      console.log('Extracted role from session metadata:', role)
+      return role as 'buyer' | 'seller' | 'admin'
+    }
+
+    // Default to buyer if no valid role found
+    console.log('No valid role found in session, defaulting to buyer')
+    return 'buyer'
+  }
+
   // Ultra-aggressive fallback timeout to prevent permanent loading state
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
@@ -44,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               id: session.user.id,
               email: session.user.email || 'user@example.com',
               name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-              role: 'buyer',
+              role: extractRoleFromSession(session.user),
               plan: 'free',
               status: 'active'
             })
@@ -124,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 id: session.user.id,
                 email: session.user.email || 'user@example.com',
                 name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-                role: 'buyer',
+                role: extractRoleFromSession(session.user),
                 plan: 'free',
                 status: 'active'
               })
@@ -217,7 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
           name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email?.split('@')[0] || 'User',
-          role: 'buyer',
+          role: extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
         }
@@ -280,7 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
           name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || sessionUser?.email?.split('@')[0] || 'User',
-          role: 'buyer',
+          role: extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
         }
@@ -289,12 +308,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Emergency user fallback activated with session data:', emergencyUser)
       } catch (sessionError) {
         console.error('Failed to get session for emergency fallback:', sessionError)
-        // Final fallback without session data
+        // Final fallback without session data - default to buyer
         const emergencyUser: AuthUser = {
           id: userId,
           email: 'user@example.com',
           name: 'User',
-          role: 'buyer',
+          role: 'buyer', // No session data available, defaulting to buyer
           plan: 'free',
           status: 'active'
         }

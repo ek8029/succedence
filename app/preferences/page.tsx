@@ -38,12 +38,12 @@ function PreferencesPageContent() {
           setFormData({
             industries: data.industries || [],
             states: data.states || [],
-            minRevenue: data.minRevenue || undefined,
-            minMetric: data.minMetric || undefined,
-            metricType: data.metricType || undefined,
-            ownerHoursMax: data.ownerHoursMax || undefined,
-            priceMax: data.priceMax || undefined,
-            alertFrequency: data.alertFrequency || 'weekly',
+            minRevenue: data.min_revenue || undefined,
+            minMetric: data.min_metric || undefined,
+            metricType: data.metric_type || undefined,
+            ownerHoursMax: data.owner_hours_max || undefined,
+            priceMax: data.price_max || undefined,
+            alertFrequency: data.alert_frequency || 'weekly',
             keywords: data.keywords || [],
           });
         }
@@ -141,12 +141,12 @@ function PreferencesPageContent() {
         body: JSON.stringify({
           industries: formData.industries,
           states: formData.states,
-          minRevenue: formData.minRevenue,
-          minMetric: formData.minMetric,
-          metricType: formData.metricType,
-          ownerHoursMax: formData.ownerHoursMax,
-          priceMax: formData.priceMax,
-          alertFrequency: formData.alertFrequency,
+          min_revenue: formData.minRevenue,
+          min_metric: formData.minMetric,
+          metric_type: formData.metricType,
+          owner_hours_max: formData.ownerHoursMax,
+          price_max: formData.priceMax,
+          alert_frequency: formData.alertFrequency,
           keywords: formData.keywords
         })
       });

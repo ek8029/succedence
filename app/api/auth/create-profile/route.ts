@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic'
+
 const createProfileSchema = z.object({
   userId: z.string().uuid(),
   email: z.string().email(),
@@ -28,6 +30,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User already exists' })
     }
 
+    const userRole = (role as any) || 'buyer'
+
+    // Update user metadata to include role for session access
+    const { error: metadataError } = await supabase.auth.admin.updateUserById(userId, {
+      user_metadata: { role: userRole, name: name || email.split('@')[0] }
+    })
+
+    if (metadataError) {
+      console.error('Error updating user metadata:', metadataError)
+      // Continue anyway - metadata is not critical for basic functionality
+    }
+
     // Create user record
     const { error: userError } = await (supabase
       .from('users') as any)
@@ -35,7 +49,7 @@ export async function POST(request: NextRequest) {
         id: userId,
         email,
         name: name || email.split('@')[0], // Default name to email prefix
-        role: (role as any) || 'buyer',
+        role: userRole,
         plan: 'free',
         status: 'active'
       })
