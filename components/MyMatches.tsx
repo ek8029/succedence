@@ -33,6 +33,7 @@ export default function MyMatches() {
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [expandedMatch, setExpandedMatch] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchMatches() {
@@ -87,6 +88,45 @@ export default function MyMatches() {
     return 'bg-orange-500/20 border-orange-500/30'
   }
 
+  const getScoreLabel = (score: number) => {
+    if (score >= 80) return 'Excellent Match'
+    if (score >= 60) return 'Good Match'
+    if (score >= 40) return 'Fair Match'
+    return 'Basic Match'
+  }
+
+  const getScoreDescription = (score: number) => {
+    if (score >= 80) return 'Highly aligned with your preferences and criteria'
+    if (score >= 60) return 'Well-matched to several of your key requirements'
+    if (score >= 40) return 'Meets some of your acquisition preferences'
+    return 'Limited alignment but may still be of interest'
+  }
+
+  const enhanceReasonExplanation = (reason: string) => {
+    const explanations: { [key: string]: string } = {
+      'Industry match': 'This business operates in one of your preferred industries',
+      'State match': 'Located in one of your target geographic regions',
+      'Meets min revenue': 'Revenue meets or exceeds your minimum threshold',
+      'Within price range': 'Asking price is within your maximum budget',
+      'Owner hours match': 'Current owner time commitment aligns with your availability',
+      'Recently updated': 'Fresh listing with current information',
+      'Open to all industries': 'You haven\'t specified industry preferences, so all sectors are considered',
+      'Open to all locations': 'You haven\'t specified location preferences, so all regions are included',
+      'Revenue information available': 'Financial data is provided for your evaluation',
+      'Meets min ebitda': 'EBITDA meets your minimum profitability requirements',
+      'Meets min gross_profit': 'Gross profit meets your minimum requirements',
+      'Meets min net_income': 'Net income meets your minimum requirements'
+    }
+
+    // Handle keyword matches
+    if (reason.startsWith('Keyword:')) {
+      const keyword = reason.replace('Keyword: ', '')
+      return `Contains your search term "${keyword}" in the listing details`
+    }
+
+    return explanations[reason] || reason
+  }
+
   if (loading) {
     return (
       <div className="glass p-6">
@@ -116,13 +156,30 @@ export default function MyMatches() {
 
   return (
     <div className="glass p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-medium text-white">My Matches</h3>
         {matches.length > 0 && (
           <span className="text-sm text-neutral-400">
             Top {matches.length} matches
           </span>
         )}
+      </div>
+
+      {/* Matching system explanation */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-neutral-900/40 to-neutral-800/40 border border-neutral-700 rounded-lg">
+        <div className="flex items-start gap-3">
+          <div className="text-gold text-lg">🎯</div>
+          <div>
+            <h4 className="text-white font-medium mb-2">How Match Percentages Work</h4>
+            <div className="text-sm text-neutral-400 space-y-1">
+              <p>• <strong className="text-neutral-300">Base Score (25%)</strong>: All active listings start with this foundation</p>
+              <p>• <strong className="text-neutral-300">Industry Match (40%)</strong>: Perfect alignment with your industry preferences</p>
+              <p>• <strong className="text-neutral-300">Location Match (15%)</strong>: Located in your target geographic areas</p>
+              <p>• <strong className="text-neutral-300">Financial Criteria (15%)</strong>: Meets your revenue and profitability requirements</p>
+              <p>• <strong className="text-neutral-300">Additional Factors</strong>: Owner time commitment, listing freshness, keywords, and price range</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {matches.length === 0 ? (
@@ -153,30 +210,55 @@ export default function MyMatches() {
                     {match.listing.industry} • {match.listing.city}, {match.listing.state}
                   </div>
                 </div>
-                <div className={`px-2 py-1 rounded border ${getScoreBadgeColor(match.score)}`}>
-                  <span className={`text-sm font-medium ${getScoreColor(match.score)}`}>
-                    {match.score}%
-                  </span>
+                <div className="text-right">
+                  <div className={`px-3 py-1 rounded border ${getScoreBadgeColor(match.score)} mb-1`}>
+                    <span className={`text-sm font-medium ${getScoreColor(match.score)}`}>
+                      {match.score}%
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-400">
+                    {getScoreLabel(match.score)}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-3">
-                {match.reasons.slice(0, 3).map((reason, index) => (
-                  <span
-                    key={index}
-                    className="text-xs px-2 py-1 bg-neutral-800 text-neutral-300 rounded"
-                  >
-                    {reason}
-                  </span>
-                ))}
+              {/* Score explanation */}
+              <div className="mb-3 p-2 bg-neutral-900/30 rounded text-xs text-neutral-400">
+                💡 <span className="italic">{getScoreDescription(match.score)}</span>
+              </div>
+
+              {/* Enhanced reasons display */}
+              <div className="mb-3">
+                <div className="text-xs text-neutral-500 mb-2 font-medium">Why this matches your criteria:</div>
+                <div className="space-y-1">
+                  {match.reasons.slice(0, expandedMatch === match.id ? match.reasons.length : 3).map((reason, index) => (
+                    <div
+                      key={index}
+                      className="text-xs p-2 bg-neutral-800/50 border border-neutral-700 rounded flex items-start gap-2"
+                    >
+                      <span className="text-green-400 flex-shrink-0 mt-0.5">✓</span>
+                      <div>
+                        <div className="text-neutral-300 font-medium">{reason}</div>
+                        <div className="text-neutral-500 mt-0.5">{enhanceReasonExplanation(reason)}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {match.reasons.length > 3 && (
-                  <span className="text-xs px-2 py-1 bg-neutral-800 text-neutral-400 rounded">
-                    +{match.reasons.length - 3} more
-                  </span>
+                  <button
+                    onClick={() => setExpandedMatch(expandedMatch === match.id ? null : match.id)}
+                    className="text-xs text-gold hover:text-gold-light mt-2 font-medium"
+                  >
+                    {expandedMatch === match.id
+                      ? '↑ Show less'
+                      : `↓ Show ${match.reasons.length - 3} more reasons`
+                    }
+                  </button>
                 )}
               </div>
 
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center text-sm border-t border-neutral-700 pt-3">
                 <div className="text-neutral-400">
                   {match.listing.revenue && (
                     <span>Revenue: {formatCurrency(match.listing.revenue)}</span>
