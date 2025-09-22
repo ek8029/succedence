@@ -467,11 +467,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data?.user && data?.session) {
-        console.log('Sign-in successful - auth state change will handle the rest')
-        showNotification('Login successful!', 'success')
+        console.log('Sign-in successful - updating user state immediately')
 
-        // Let the auth state change handler manage profile fetching
-        // Don't wait here - return immediately to prevent hanging
+        // Immediately fetch and set user profile to prevent delays
+        try {
+          await fetchUserProfile(data.user.id)
+        } catch (fetchError) {
+          console.log('Profile fetch failed during sign-in, but continuing...')
+        }
+
         return {}
       } else {
         console.warn('Sign-in succeeded but no user/session returned')

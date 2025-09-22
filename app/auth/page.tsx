@@ -25,6 +25,8 @@ export default function AuthPage() {
   const [passwordStrength, setPasswordStrength] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | 'confirmation'>('error');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -47,25 +49,30 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(''); // Clear previous errors
+    setMessage(''); // Clear previous messages
 
     if (isSubmitting) return; // Prevent double submission
 
     if (!formData.email.trim() || !formData.password.trim()) {
-      setError('Please enter your email and password');
+      setMessage('Please enter your email and password');
+      setMessageType('error');
       return;
     }
 
     if (isSignUp) {
       if (!formData.name.trim()) {
-        setError('Please enter your full name');
+        setMessage('Please enter your full name');
+        setMessageType('error');
         return;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
+        setMessage('Passwords do not match');
+        setMessageType('error');
         return;
       }
       if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters');
+        setMessage('Password must be at least 6 characters');
+        setMessageType('error');
         return;
       }
     }
@@ -85,7 +92,13 @@ export default function AuthPage() {
         );
 
         if (error) {
-          setError(error);
+          setMessage(error);
+          setMessageType('error');
+          return;
+        } else {
+          // Check if this is an email confirmation message
+          setMessage('Account created successfully! Please check your email to verify your account before signing in.');
+          setMessageType('confirmation');
           return;
         }
       } else {
@@ -99,14 +112,24 @@ export default function AuthPage() {
         console.log('Sign in result:', { error })
 
         if (error) {
-          setError(error);
+          setMessage(error);
+          setMessageType('error');
           return;
         }
 
-        console.log('Sign in successful - AuthContext will handle redirect automatically')
+        // Sign in successful - force a redirect after a short delay to ensure auth state is updated
+        console.log('Sign in successful - redirecting to home')
+        setMessage('Login successful! Redirecting...');
+        setMessageType('confirmation');
+
+        // Give the auth context time to update the user state
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
       }
     } catch (error) {
-      setError('Authentication failed. Please try again.');
+      setMessage('Authentication failed. Please try again.');
+      setMessageType('error');
     } finally {
       setIsSubmitting(false);
     }
@@ -156,14 +179,26 @@ export default function AuthPage() {
             </p>
           </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="max-w-lg mx-auto mb-6 p-4 bg-red-600/20 border border-red-500/30 rounded-lg">
+          {/* Message Display */}
+          {message && (
+            <div className={`max-w-lg mx-auto mb-6 p-4 rounded-lg ${
+              messageType === 'confirmation'
+                ? 'bg-green-600/20 border border-green-500/30'
+                : 'bg-red-600/20 border border-red-500/30'
+            }`}>
               <div className="flex items-center space-x-3">
-                <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-red-400 font-medium">{error}</span>
+                {messageType === 'confirmation' ? (
+                  <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                <span className={`font-medium ${messageType === 'confirmation' ? 'text-green-400' : 'text-red-400'}`}>
+                  {message}
+                </span>
               </div>
             </div>
           )}
@@ -391,6 +426,7 @@ export default function AuthPage() {
                     setIsSignUp(!isSignUp);
                     setIsSubmitting(false);
                     setError(''); // Clear errors
+                    setMessage(''); // Clear messages
                     resetAuthState();
                     // Reset form data
                     setFormData({

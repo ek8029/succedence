@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 import { ListingCreateInput } from '@/lib/validation/listings';
 import { z } from 'zod';
 
@@ -207,8 +208,9 @@ export default function NewListingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-darker">
-      <div className="container-professional pb-16 page-content-large">
+    <div className="h-screen bg-brand-darker flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="container-professional pb-8 page-content-large">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
@@ -272,15 +274,32 @@ export default function NewListingPage() {
                       required
                     >
                       <option value="">Select Industry</option>
-                      <option value="SaaS">Software as a Service</option>
-                      <option value="E-commerce">E-commerce & Retail</option>
-                      <option value="Manufacturing">Manufacturing</option>
-                      <option value="Healthcare">Healthcare & Medical</option>
-                      <option value="Technology">Technology & IT</option>
-                      <option value="Financial Services">Financial Services</option>
-                      <option value="Real Estate">Real Estate</option>
-                      <option value="Food & Beverage">Food & Beverage</option>
+                      <option value="HVAC Services">HVAC Services</option>
+                      <option value="Plumbing Services">Plumbing Services</option>
+                      <option value="Electrical Services">Electrical Services</option>
+                      <option value="Roofing & Siding">Roofing & Siding</option>
+                      <option value="Landscaping & Lawn Care">Landscaping & Lawn Care</option>
+                      <option value="Pest Control">Pest Control</option>
+                      <option value="Cleaning Services">Cleaning Services</option>
+                      <option value="Auto Repair & Service">Auto Repair & Service</option>
+                      <option value="Construction & Contracting">Construction & Contracting</option>
+                      <option value="Property Management">Property Management</option>
+                      <option value="Retail (Local/Traditional)">Retail (Local/Traditional)</option>
+                      <option value="Food & Beverage">Food & Beverage (Restaurants/Bars)</option>
+                      <option value="Manufacturing">Manufacturing (Small-Scale)</option>
+                      <option value="Transportation & Logistics">Transportation & Logistics</option>
                       <option value="Professional Services">Professional Services</option>
+                      <option value="Medical & Dental Practices">Medical & Dental Practices</option>
+                      <option value="Accounting & Tax Services">Accounting & Tax Services</option>
+                      <option value="Insurance Services">Insurance Services</option>
+                      <option value="Real Estate Services">Real Estate Services</option>
+                      <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+                      <option value="Dry Cleaning & Laundry">Dry Cleaning & Laundry</option>
+                      <option value="Pet Services">Pet Services</option>
+                      <option value="Home Security Services">Home Security Services</option>
+                      <option value="Appliance Repair">Appliance Repair</option>
+                      <option value="Carpet & Flooring">Carpet & Flooring</option>
+                      <option value="Funeral Services">Funeral Services</option>
                       <option value="Other">Other</option>
                     </select>
                     {errors.industry && (
@@ -614,7 +633,9 @@ export default function NewListingPage() {
             </div>
           </div>
         </ScrollAnimation>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }

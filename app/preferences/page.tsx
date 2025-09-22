@@ -59,10 +59,14 @@ function PreferencesPageContent() {
   }, [user, initialLoad]);
 
   const industryOptions = [
-    'Technology', 'Healthcare', 'Finance', 'Real Estate', 'Manufacturing',
-    'Retail', 'Food & Beverage', 'Automotive', 'Energy', 'Education',
-    'Consulting', 'Marketing', 'Construction', 'Transportation', 'Agriculture',
-    'Entertainment', 'Legal Services', 'Professional Services', 'Beauty & Wellness'
+    'HVAC Services', 'Plumbing Services', 'Electrical Services', 'Roofing & Siding',
+    'Landscaping & Lawn Care', 'Pest Control', 'Cleaning Services', 'Auto Repair & Service',
+    'Construction & Contracting', 'Property Management', 'Retail (Local/Traditional)',
+    'Food & Beverage (Restaurants/Bars)', 'Manufacturing (Small-Scale)', 'Transportation & Logistics',
+    'Professional Services', 'Medical & Dental Practices', 'Accounting & Tax Services',
+    'Insurance Services', 'Real Estate Services', 'Beauty & Personal Care',
+    'Dry Cleaning & Laundry', 'Pet Services', 'Home Security Services',
+    'Appliance Repair', 'Carpet & Flooring', 'Funeral Services'
   ];
 
   const stateOptions = [
@@ -227,8 +231,9 @@ function PreferencesPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-darker">
-      <div className="container mx-auto px-8 pb-20 max-w-6xl page-content-large">
+    <div className="h-screen bg-brand-darker flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="container mx-auto px-8 pb-8 max-w-6xl page-content-large">
         <ScrollAnimation direction="fade">
           <div className="text-center mb-16 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">
@@ -561,6 +566,7 @@ function PreferencesPageContent() {
           </div>
           </div>
         </ScrollAnimation>
+        </div>
       </div>
       <Footer />
     </div>
