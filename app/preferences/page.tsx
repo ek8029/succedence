@@ -84,13 +84,28 @@ function PreferencesPageContent() {
     { value: 'net_income', label: 'Net Income' }
   ];
 
+  // Helper function to format numbers with commas
+  const formatNumberWithCommas = (value: number | undefined): string => {
+    if (!value) return '';
+    return value.toLocaleString('en-US');
+  };
+
+  // Helper function to parse comma-formatted numbers
+  const parseNumberFromCommas = (value: string): number | undefined => {
+    if (!value) return undefined;
+    const cleanValue = value.replace(/,/g, '');
+    const numValue = parseInt(cleanValue);
+    return isNaN(numValue) ? undefined : numValue;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
-    if (type === 'number') {
+    if (type === 'number' || ['minRevenue', 'priceMax', 'minMetric'].includes(name)) {
+      // For financial fields, parse comma-formatted numbers
       setFormData(prev => ({
         ...prev,
-        [name]: value ? parseInt(value) : undefined
+        [name]: parseNumberFromCommas(value)
       }));
     } else {
       setFormData(prev => ({
@@ -251,13 +266,12 @@ function PreferencesPageContent() {
                       <div className="space-y-4">
                         <label className="form-label">Minimum Annual Revenue ($)</label>
                         <input
-                          type="number"
+                          type="text"
                           name="minRevenue"
-                          value={formData.minRevenue || ''}
+                          value={formatNumberWithCommas(formData.minRevenue)}
                           onChange={handleInputChange}
-                          className="form-control"
-                          placeholder="e.g., 500000"
-                          min="0"
+                          className="form-control no-spinners"
+                          placeholder="e.g., 500,000"
                         />
                         <p className="text-neutral-400 text-sm">Minimum annual revenue for target businesses</p>
                       </div>
@@ -265,13 +279,12 @@ function PreferencesPageContent() {
                       <div className="space-y-4">
                         <label className="form-label">Maximum Purchase Price ($)</label>
                         <input
-                          type="number"
+                          type="text"
                           name="priceMax"
-                          value={formData.priceMax || ''}
+                          value={formatNumberWithCommas(formData.priceMax)}
                           onChange={handleInputChange}
-                          className="form-control"
-                          placeholder="e.g., 2000000"
-                          min="0"
+                          className="form-control no-spinners"
+                          placeholder="e.g., 2,000,000"
                         />
                         <p className="text-neutral-400 text-sm">Maximum amount you&apos;re willing to pay</p>
                       </div>
@@ -297,13 +310,12 @@ function PreferencesPageContent() {
                       <div className="space-y-4">
                         <label className="form-label">Minimum Metric Value ($)</label>
                         <input
-                          type="number"
+                          type="text"
                           name="minMetric"
-                          value={formData.minMetric || ''}
+                          value={formatNumberWithCommas(formData.minMetric)}
                           onChange={handleInputChange}
-                          className="form-control"
-                          placeholder="e.g., 100000"
-                          min="0"
+                          className="form-control no-spinners"
+                          placeholder="e.g., 100,000"
                         />
                         <p className="text-neutral-400 text-sm">Minimum value for selected metric</p>
                       </div>

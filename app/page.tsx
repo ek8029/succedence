@@ -707,7 +707,7 @@ export default function Home() {
 
             {/* Twitter/X */}
             <a
-              href="https://twitter.com/succedence"
+              href="https://x.com/SuccedenceSMB"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
@@ -720,7 +720,7 @@ export default function Home() {
 
             {/* Email */}
             <a
-              href="mailto:hello@succedence.com"
+              href="mailto:succedence@gmail.com"
               className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
