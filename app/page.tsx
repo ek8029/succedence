@@ -110,31 +110,31 @@ export default function Home() {
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
       <div className="relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 md:pt-16 lg:pt-20 pb-0 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-12 lg:pt-16 pb-0 max-w-7xl">
           <ScrollAnimation direction="fade">
-            <div className="text-center mb-16 sm:mb-24 md:mb-32 lg:mb-40 mt-8 sm:mt-12 md:mt-16 lg:mt-24">
-              <div className="max-w-6xl mx-auto px-2 sm:px-0">
-                <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-28">
-                  <h1 className="font-serif text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-warm-white mb-4 xs:mb-6 sm:mb-8 lg:mb-12 tracking-refined leading-tight">
+            <div className="text-center mb-12 sm:mb-16 md:mb-24 lg:mb-32 mt-6 sm:mt-8 md:mt-12 lg:mt-16">
+              <div className="max-w-6xl mx-auto px-2 sm:px-4">
+                <div className="mb-8 sm:mb-12 md:mb-16 lg:mb-20">
+                  <h1 className="font-serif text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-warm-white mb-3 xs:mb-4 sm:mb-6 lg:mb-8 tracking-refined leading-tight">
                     Succedence
                   </h1>
-                  <div className="h-1 xs:h-1.5 sm:h-2 lg:h-3 w-24 xs:w-32 sm:w-48 lg:w-64 bg-accent-gradient mx-auto mb-6 xs:mb-8 sm:mb-12 lg:mb-16"></div>
+                  <div className="h-0.5 xs:h-1 sm:h-1.5 lg:h-2 w-16 xs:w-20 sm:w-32 lg:w-48 bg-accent-gradient mx-auto mb-4 xs:mb-6 sm:mb-8 lg:mb-12"></div>
                 </div>
-                <h2 className="font-serif text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-warm-white mb-6 xs:mb-8 sm:mb-12 lg:mb-16 tracking-refined leading-tight">
+                <h2 className="font-serif text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold text-warm-white mb-4 xs:mb-6 sm:mb-8 lg:mb-12 tracking-refined leading-tight">
                   Acquire Premium
                   <span className="block text-gold tracking-luxury"> Businesses</span>
                 </h2>
-                <p className="font-sans text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed xs:leading-luxury text-platinum/90 mb-8 xs:mb-12 sm:mb-16 lg:mb-20 max-w-xs xs:max-w-md sm:max-w-3xl lg:max-w-4xl mx-auto px-2 xs:px-0">
+                <p className="font-sans text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed xs:leading-luxury text-platinum/90 mb-6 xs:mb-8 sm:mb-12 lg:mb-16 max-w-xs xs:max-w-sm sm:max-w-2xl lg:max-w-3xl mx-auto px-2 xs:px-0">
                   Discover exceptional acquisition opportunities from verified sellers. Connect with business owners ready to transition their legacy.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 justify-center items-center">
-                  <Link href="/browse" className="group inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 justify-center items-center">
+                  <Link href="/browse" className="group inline-flex items-center justify-center px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm sm:text-base lg:text-lg w-full sm:w-auto max-w-xs sm:max-w-none">
                     Browse Opportunities
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ml-2 sm:ml-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </Link>
-                  <Link href="/auth" className="inline-flex items-center px-8 sm:px-10 lg:px-12 py-4 sm:py-5 lg:py-6 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+                  <Link href="/auth" className="inline-flex items-center justify-center px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-sm sm:text-base lg:text-lg w-full sm:w-auto max-w-xs sm:max-w-none">
                     List Your Business
                   </Link>
                 </div>
@@ -149,22 +149,22 @@ export default function Home() {
                 <p className="font-sans text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl text-platinum/80 max-w-xs xs:max-w-md sm:max-w-3xl md:max-w-4xl mx-auto leading-relaxed mb-12 xs:mb-16 sm:mb-20 lg:mb-24">Current business acquisition processes are inefficient, time-consuming, and often miss the best opportunities.</p>
 
                 {/* Statistics Grid */}
-                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 xs:gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto mb-16 xs:mb-20 sm:mb-28 lg:mb-36">
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">90%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Reduction in Manual Review Time</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 max-w-7xl mx-auto mb-12 sm:mb-16 lg:mb-24">
+                  <div className="glass p-4 sm:p-6 lg:p-8 xl:p-10 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gold mb-2 sm:mb-3 lg:mb-4 font-mono leading-none flex items-center justify-center w-full">90%</div>
+                    <div className="text-xs sm:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Reduction in Manual Review Time</div>
                   </div>
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">6-12</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Months to Find Target</div>
+                  <div className="glass p-4 sm:p-6 lg:p-8 xl:p-10 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gold mb-2 sm:mb-3 lg:mb-4 font-mono leading-none flex items-center justify-center w-full">6-12</div>
+                    <div className="text-xs sm:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Months to Find Target</div>
                   </div>
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">35%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Faster Deal Closures with AI</div>
+                  <div className="glass p-4 sm:p-6 lg:p-8 xl:p-10 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gold mb-2 sm:mb-3 lg:mb-4 font-mono leading-none flex items-center justify-center w-full">35%</div>
+                    <div className="text-xs sm:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">Faster Deal Closures with AI</div>
                   </div>
-                  <div className="glass p-6 xs:p-8 lg:p-14 xl:p-16 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
-                    <div className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gold mb-3 xs:mb-4 lg:mb-6 font-mono leading-none whitespace-nowrap flex items-center justify-center w-full">45%</div>
-                    <div className="text-xs xs:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">More Efficient Due Diligence</div>
+                  <div className="glass p-4 sm:p-6 lg:p-8 xl:p-10 rounded-luxury border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gold mb-2 sm:mb-3 lg:mb-4 font-mono leading-none flex items-center justify-center w-full">45%</div>
+                    <div className="text-xs sm:text-sm lg:text-base text-gold uppercase tracking-wider leading-relaxed font-medium px-1">More Efficient Due Diligence</div>
                   </div>
                 </div>
 
@@ -469,60 +469,60 @@ export default function Home() {
                     </div>
 
                     {/* Waitlist Form */}
-                    <div className="max-w-2xl mx-auto">
+                    <div className="max-w-2xl mx-auto px-4 sm:px-0">
                       {waitlistSubmitted ? (
                         /* Confirmation Message */
-                        <div className="text-center space-y-6 py-8">
-                          <div className="w-20 h-20 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-10 h-10 text-midnight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="text-center space-y-4 sm:space-y-6 py-6 sm:py-8">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-accent-gradient rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-midnight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
 
-                          <h3 className="font-serif text-3xl font-semibold text-warm-white mb-4 tracking-refined">
+                          <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-warm-white mb-3 sm:mb-4 tracking-refined">
                             You&apos;re on the list! 🎉
                           </h3>
 
-                          <p className="font-sans text-lg text-platinum/90 leading-relaxed mb-6">
+                          <p className="font-sans text-base sm:text-lg text-platinum/90 leading-relaxed mb-4 sm:mb-6 px-2">
                             Welcome to the Succedence beta program. We&apos;ll notify you as soon as we launch and keep you updated on our progress.
                           </p>
 
-                          <div className="glass p-6 rounded-luxury border border-gold/20">
-                            <h4 className="font-serif text-xl font-semibold text-warm-white mb-4">What happens next?</h4>
-                            <div className="space-y-3 text-left">
+                          <div className="glass p-4 sm:p-6 rounded-luxury border border-gold/20">
+                            <h4 className="font-serif text-lg sm:text-xl font-semibold text-warm-white mb-3 sm:mb-4">What happens next?</h4>
+                            <div className="space-y-2 sm:space-y-3 text-left">
                               <div className="flex items-start space-x-3">
-                                <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gold"></div>
                                 </div>
-                                <p className="font-sans text-silver/80 text-sm">You&apos;ll receive a confirmation email within the next few minutes</p>
+                                <p className="font-sans text-silver/80 text-xs sm:text-sm">You&apos;ll receive a confirmation email within the next few minutes</p>
                               </div>
                               <div className="flex items-start space-x-3">
-                                <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gold"></div>
                                 </div>
-                                <p className="font-sans text-silver/80 text-sm">We&apos;ll send you exclusive updates on our development progress</p>
+                                <p className="font-sans text-silver/80 text-xs sm:text-sm">We&apos;ll send you exclusive updates on our development progress</p>
                               </div>
                               <div className="flex items-start space-x-3">
-                                <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gold"></div>
                                 </div>
-                                <p className="font-sans text-silver/80 text-sm">You&apos;ll be among the first to get beta access when we launch</p>
+                                <p className="font-sans text-silver/80 text-xs sm:text-sm">You&apos;ll be among the first to get beta access when we launch</p>
                               </div>
                             </div>
                           </div>
 
                           <button
                             onClick={() => setWaitlistSubmitted(false)}
-                            className="inline-flex items-center px-6 py-3 bg-transparent border-2 border-silver/30 text-silver hover:border-gold/50 hover:text-gold font-medium rounded-luxury transition-all duration-300 font-sans text-sm"
+                            className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-transparent border-2 border-silver/30 text-silver hover:border-gold/50 hover:text-gold font-medium rounded-luxury transition-all duration-300 font-sans text-xs sm:text-sm"
                           >
                             Sign up another person
                           </button>
                         </div>
                       ) : (
-                        <form onSubmit={handleWaitlistSubmit} className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <form onSubmit={handleWaitlistSubmit} className="space-y-4 sm:space-y-6">
+                        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                           <div className="space-y-2">
-                            <label htmlFor="waitlist-name" className="form-label text-sm">
+                            <label htmlFor="waitlist-name" className="form-label text-xs sm:text-sm">
                               Full Name *
                             </label>
                             <input
@@ -531,14 +531,14 @@ export default function Home() {
                               name="name"
                               value={waitlistData.name}
                               onChange={handleWaitlistInputChange}
-                              className="form-control w-full py-3 px-4"
+                              className="form-control w-full py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
                               placeholder="Your name"
                               required
                             />
                           </div>
 
                           <div className="space-y-2">
-                            <label htmlFor="waitlist-email" className="form-label text-sm">
+                            <label htmlFor="waitlist-email" className="form-label text-xs sm:text-sm">
                               Email Address *
                             </label>
                             <input
@@ -547,16 +547,16 @@ export default function Home() {
                               name="email"
                               value={waitlistData.email}
                               onChange={handleWaitlistInputChange}
-                              className="form-control w-full py-3 px-4"
+                              className="form-control w-full py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
                               placeholder="your@email.com"
                               required
                             />
                           </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                           <div className="space-y-2">
-                            <label htmlFor="waitlist-role" className="form-label text-sm">
+                            <label htmlFor="waitlist-role" className="form-label text-xs sm:text-sm">
                               Primary Role
                             </label>
                             <select
@@ -564,7 +564,7 @@ export default function Home() {
                               name="role"
                               value={waitlistData.role}
                               onChange={handleWaitlistInputChange}
-                              className="form-control w-full py-3 px-4"
+                              className="form-control w-full py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
                             >
                               <option value="BUYER">Buyer/Investor</option>
                               <option value="SELLER">Business Owner/Seller</option>
@@ -573,7 +573,7 @@ export default function Home() {
                           </div>
 
                           <div className="space-y-2">
-                            <label htmlFor="waitlist-company" className="form-label text-sm">
+                            <label htmlFor="waitlist-company" className="form-label text-xs sm:text-sm">
                               Company (Optional)
                             </label>
                             <input
@@ -582,14 +582,14 @@ export default function Home() {
                               name="company"
                               value={waitlistData.company}
                               onChange={handleWaitlistInputChange}
-                              className="form-control w-full py-3 px-4"
+                              className="form-control w-full py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
                               placeholder="Your company"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <label htmlFor="waitlist-dealsize" className="form-label text-sm">
+                          <label htmlFor="waitlist-dealsize" className="form-label text-xs sm:text-sm">
                             Target Deal Size
                           </label>
                           <select
@@ -597,7 +597,7 @@ export default function Home() {
                             name="dealSize"
                             value={waitlistData.dealSize}
                             onChange={handleWaitlistInputChange}
-                            className="form-control w-full py-3 px-4"
+                            className="form-control w-full py-2.5 sm:py-3 px-3 sm:px-4 text-sm"
                           >
                             <option value="">Select range</option>
                             <option value="50K-250K">$50K - $250K</option>
@@ -609,17 +609,17 @@ export default function Home() {
                         </div>
 
                         {/* Interests */}
-                        <div className="space-y-4">
-                          <label className="form-label text-sm">
+                        <div className="space-y-3 sm:space-y-4">
+                          <label className="form-label text-xs sm:text-sm">
                             Industries of Interest (Optional)
                           </label>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                             {['SaaS', 'E-commerce', 'Manufacturing', 'Healthcare', 'Technology', 'Food & Beverage', 'Professional Services', 'Real Estate', 'Financial Services'].map(interest => (
                               <button
                                 key={interest}
                                 type="button"
                                 onClick={() => handleInterestToggle(interest)}
-                                className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-300 ${
+                                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border-2 text-xs sm:text-sm font-medium transition-all duration-300 ${
                                   waitlistData.interests.includes(interest)
                                     ? 'bg-accent-gradient text-midnight border-gold'
                                     : 'bg-transparent text-silver border-silver/30 hover:border-gold/50'
@@ -631,15 +631,15 @@ export default function Home() {
                           </div>
                         </div>
 
-                        <div className="pt-6">
+                        <div className="pt-4 sm:pt-6">
                           <button
                             type="submit"
                             disabled={isSubmittingWaitlist || !waitlistData.email || !waitlistData.name}
-                            className="w-full py-4 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-3 sm:py-4 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSubmittingWaitlist ? (
-                              <div className="flex items-center justify-center space-x-3">
-                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                              <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+                                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                                 <span>Joining Waitlist...</span>
                               </div>
                             ) : (
@@ -647,7 +647,7 @@ export default function Home() {
                             )}
                           </button>
 
-                          <p className="text-neutral-400 text-sm text-center mt-4">
+                          <p className="text-neutral-400 text-xs sm:text-sm text-center mt-3 sm:mt-4 px-2">
                             No spam, ever. We&apos;ll only email you when the beta launches and with important updates.
                           </p>
                         </div>

@@ -7,48 +7,50 @@ export default function Navbar() {
   const { user, isLoading, signOut } = useAuth();
 
   return (
-    <nav className="header-professional px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-50">
+    <nav className="header-professional px-3 sm:px-6 py-2 sm:py-3 sticky top-0 z-50">
       <div className="container-professional">
         {/* Mobile Layout */}
         <div className="block sm:hidden">
           {/* Top row - Logo */}
-          <div className="flex justify-center items-center mb-3">
+          <div className="flex justify-center items-center mb-2">
             <Link href="/" className="flex items-center group hover-lift">
-              <span className="text-xl text-white font-semibold tracking-tight" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              <span className="text-lg text-white font-semibold tracking-tight" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 Succedence
               </span>
             </Link>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex flex-col space-y-2">
+          {/* Navigation Links - Simplified for mobile */}
+          <div className="flex flex-col space-y-1.5">
             {/* First row - Public links */}
-            <div className="flex justify-center space-x-6">
-              <Link href="/browse" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                Browse Opportunities
+            <div className="flex justify-center space-x-4">
+              <Link href="/browse" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Browse
               </Link>
-              <Link href="/success" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                Success Stories
+              <Link href="/success" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Success
               </Link>
+              {user && (
+                <Link href="/listings/new" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  List
+                </Link>
+              )}
             </div>
 
             {/* Second row - User-specific links and auth */}
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-3">
               {user ? (
                 <>
-                  <Link href="/listings/new" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                    List Business
+                  <Link href="/preferences" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                    Preferences
                   </Link>
-                  <Link href="/preferences" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                    My Preferences
-                  </Link>
-                  <Link href="/profile" className="text-xs text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  <Link href="/profile" className="text-xs text-neutral-400 hover:text-white transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                     Profile
                   </Link>
                   <button
                     onClick={() => signOut()}
                     disabled={isLoading}
-                    className="text-xs text-neutral-400 hover:text-white transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="text-xs text-neutral-400 hover:text-white transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                   >
                     Sign Out
@@ -57,7 +59,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/auth"
-                  className="text-xs bg-gold/20 border border-gold/40 text-gold hover:bg-gold hover:text-midnight px-4 py-2 font-semibold rounded transition-all duration-200"
+                  className="text-xs bg-gold/20 border border-gold/40 text-gold hover:bg-gold hover:text-midnight px-3 py-1.5 font-semibold rounded transition-all duration-200"
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >
                   Sign In
