@@ -59,15 +59,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session?.user && !user) {
             console.log('Creating emergency user from session after timeout')
-            setUser({
-              id: session.user.id,
-              email: session.user.email || 'user@example.com',
-              // Use the full email or actual name, don't split email as fallback name
-              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email || 'User',
-              role: extractRoleFromSession(session.user),
-              plan: 'free',
-              status: 'active'
-            })
+            // BULLETPROOF ADMIN ACCOUNT HANDLING
+            if (session.user.email === 'evank8029@gmail.com' || session.user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+              console.log('🔒 TIMEOUT ADMIN EMERGENCY - Using hardcoded admin data')
+              setUser({
+                id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+                email: 'evank8029@gmail.com',
+                name: 'Evan Kim',
+                role: 'admin',
+                plan: 'free',
+                status: 'active'
+              })
+            } else {
+              setUser({
+                id: session.user.id,
+                email: session.user.email || 'user@example.com',
+                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
+                role: extractRoleFromSession(session.user),
+                plan: 'free',
+                status: 'active'
+              })
+            }
           }
         })
       }
@@ -139,16 +151,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               )
             ]).catch((error) => {
               console.error('Profile fetch failed or timed out:', error)
-              // Create emergency fallback user to prevent hanging
-              setUser({
-                id: session.user.id,
-                email: session.user.email || 'user@example.com',
-                name: session.user.email === 'evank8029@gmail.com' ? 'Evan Kim' :
-                      (session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User'),
-                role: session.user.email === 'evank8029@gmail.com' ? 'admin' : extractRoleFromSession(session.user),
-                plan: 'free',
-                status: 'active'
-              })
+              // BULLETPROOF ADMIN ACCOUNT HANDLING
+              if (session.user.email === 'evank8029@gmail.com' || session.user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+                console.log('🔒 ADMIN ACCOUNT EMERGENCY - Using hardcoded admin data')
+                setUser({
+                  id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+                  email: 'evank8029@gmail.com',
+                  name: 'Evan Kim',
+                  role: 'admin',
+                  plan: 'free',
+                  status: 'active'
+                })
+              } else {
+                // Create emergency fallback user to prevent hanging for non-admin
+                setUser({
+                  id: session.user.id,
+                  email: session.user.email || 'user@example.com',
+                  name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
+                  role: extractRoleFromSession(session.user),
+                  plan: 'free',
+                  status: 'active'
+                })
+              }
               setIsLoading(false)
             })
           } else if (event === 'TOKEN_REFRESHED' && !user) {
@@ -189,12 +213,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // Get current session for fallback data
+      // Get current session for admin account detection
       const { data: sessionData } = await supabase.auth.getSession()
       const sessionUser = sessionData?.session?.user
 
+      // BULLETPROOF ADMIN ACCOUNT HANDLING - Skip all database queries for admin
+      if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+        console.log('🔒 ADMIN ACCOUNT DETECTED - Using hardcoded admin data')
+        const adminUser: AuthUser = {
+          id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+          email: 'evank8029@gmail.com',
+          name: 'Evan Kim',
+          role: 'admin',
+          plan: 'free',
+          status: 'active'
+        }
+        console.log('✅ Admin user set:', adminUser)
+        setUser(adminUser)
+        setIsLoading(false)
+        return
+      }
+
+      // For non-admin users, proceed with normal database queries
+      console.log('📋 Regular user - fetching from database...')
+
       // More generous timeout for database operations
-      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 5000): Promise<T> => {
+      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
             console.log(`Database operation timed out after ${timeoutMs}ms`)
@@ -213,8 +257,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
       }
 
-      console.log('Starting user data fetch...')
-
       // Try to fetch user data with improved timeout and retry logic
       let userData = null
       let userError = null
@@ -226,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', userId)
           .single()
 
-        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 5000)
+        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 10000)
         userData = result.data
         userError = result.error
 
@@ -241,42 +283,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Creating fallback user due to fetch failure and no existing user')
         console.error('User fetch failed:', userError)
 
-        // Try a direct query as a last resort before fallback
-        try {
-          console.log('Attempting direct user query as last resort...')
-          const { data: directUserData, error: directError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single()
-
-          if (directUserData && !directError) {
-            console.log('Direct query succeeded, using database data:', directUserData)
-            const authUser: AuthUser = {
-              id: (directUserData as any).id,
-              email: (directUserData as any).email,
-              name: (directUserData as any).name,
-              role: (directUserData as any).role,
-              plan: (directUserData as any).plan || 'free',
-              status: (directUserData as any).status || 'active',
-            }
-            setUser(authUser)
-            setIsLoading(false)
-            return
-          }
-        } catch (directError) {
-          console.error('Direct query also failed:', directError)
-        }
-
-        // ONLY use fallback if direct query also fails
-        console.warn('All database queries failed, using session fallback')
+        // Create sensible fallback for non-admin users
         const fallbackUser: AuthUser = {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
-          // For your specific case, if email matches your admin account, use correct name
-          name: sessionUser?.email === 'evank8029@gmail.com' ? 'Evan Kim' :
-                (sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || 'User'),
-          role: sessionUser?.email === 'evank8029@gmail.com' ? 'admin' : extractRoleFromSession(sessionUser),
+          name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || 'User',
+          role: extractRoleFromSession(sessionUser),
           plan: 'free',
           status: 'active'
         }
@@ -284,7 +296,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Created fallback user with session data:', fallbackUser)
         setUser(fallbackUser)
         setIsLoading(false)
-        console.log('Fallback user set, authentication complete')
         return
       } else if ((userError || !userData) && user) {
         // If we already have a user and fetch fails, just keep the existing user
@@ -340,18 +351,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: sessionData } = await supabase.auth.getSession()
         const sessionUser = sessionData?.session?.user
 
-        const emergencyUser: AuthUser = {
-          id: userId,
-          email: sessionUser?.email || 'user@example.com',
-          name: sessionUser?.email === 'evank8029@gmail.com' ? 'Evan Kim' :
-                (sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || 'User'),
-          role: sessionUser?.email === 'evank8029@gmail.com' ? 'admin' : extractRoleFromSession(sessionUser),
-          plan: 'free',
-          status: 'active'
+        // BULLETPROOF ADMIN ACCOUNT HANDLING
+        if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+          console.log('🔒 FINAL ADMIN EMERGENCY - Using hardcoded admin data')
+          const emergencyUser: AuthUser = {
+            id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+            email: 'evank8029@gmail.com',
+            name: 'Evan Kim',
+            role: 'admin',
+            plan: 'free',
+            status: 'active'
+          }
+          setUser(emergencyUser)
+          setIsLoading(false)
+          console.log('✅ Final admin emergency activated:', emergencyUser)
+        } else {
+          // Regular emergency fallback for non-admin users
+          const emergencyUser: AuthUser = {
+            id: userId,
+            email: sessionUser?.email || 'user@example.com',
+            name: sessionUser?.user_metadata?.name || sessionUser?.user_metadata?.full_name || 'User',
+            role: extractRoleFromSession(sessionUser),
+            plan: 'free',
+            status: 'active'
+          }
+          setUser(emergencyUser)
+          setIsLoading(false)
+          console.log('Emergency user fallback activated with session data:', emergencyUser)
         }
-        setUser(emergencyUser)
-        setIsLoading(false)
-        console.log('Emergency user fallback activated with session data:', emergencyUser)
       } catch (sessionError) {
         console.error('Failed to get session for emergency fallback:', sessionError)
         // Final fallback without session data - default to buyer
