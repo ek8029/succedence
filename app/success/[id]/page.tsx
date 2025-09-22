@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 
 interface SuccessStory {
   id: string;
@@ -370,6 +371,7 @@ export default function SuccessStoryDetailPage() {
           </div>
         </ScrollAnimation>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
+import Footer from '@/components/Footer';
 
 interface SuccessStory {
   id: string;
@@ -502,6 +503,7 @@ export default function SuccessPage() {
           </ScrollAnimation>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

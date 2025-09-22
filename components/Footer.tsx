@@ -4,10 +4,13 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-darker border-t border-gold/10 py-16">
-      <div className="container-professional">
+    <footer className="mt-16 py-16 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-brand-darker border-t-2 border-gold/30">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="text-center">
-          <h3 className="text-xl text-white font-medium mb-8">Connect with Succedence</h3>
+          <h3 className="text-2xl md:text-3xl font-semibold text-warm-white mb-8 tracking-refined">Connect with Succedence</h3>
+          <p className="text-lg text-platinum/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Follow our journey and stay updated on the latest business acquisition opportunities and platform developments.
+          </p>
 
           <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mb-12">
             {/* LinkedIn */}
