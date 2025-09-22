@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { ListingUpdateInput } from '@/lib/validation/listings';
@@ -55,11 +56,7 @@ function EditListingContent() {
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchListing();
-  }, [listingId]);
-
-  const fetchListing = async () => {
+  const fetchListing = useCallback(async () => {
     try {
       const response = await fetch(`/api/listings/${listingId}`);
       if (!response.ok) {
@@ -102,7 +99,11 @@ function EditListingContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [listingId, router]);
+
+  useEffect(() => {
+    fetchListing();
+  }, [fetchListing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -516,11 +517,14 @@ function EditListingContent() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {listing.media.map((media) => (
                         <div key={media.id} className="relative group">
-                          <img
-                            src={media.signed_url || media.url}
-                            alt="Business image"
-                            className="w-full h-32 object-cover rounded-lg border border-neutral-600"
-                          />
+                          <div className="relative w-full h-32">
+                            <Image
+                              src={media.signed_url || media.url}
+                              alt="Business image"
+                              fill
+                              className="object-cover rounded-lg border border-neutral-600"
+                            />
+                          </div>
                           <button
                             type="button"
                             onClick={() => deleteMedia(media.id)}
@@ -574,11 +578,14 @@ function EditListingContent() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {imagePreviews.map((preview, index) => (
                           <div key={index} className="relative group">
-                            <img
-                              src={preview}
-                              alt={`New business image ${index + 1}`}
-                              className="w-full h-32 object-cover rounded-lg border border-neutral-600"
-                            />
+                            <div className="relative w-full h-32">
+                              <Image
+                                src={preview}
+                                alt={`New business image ${index + 1}`}
+                                fill
+                                className="object-cover rounded-lg border border-neutral-600"
+                              />
+                            </div>
                             <button
                               type="button"
                               onClick={() => removeNewImage(index)}

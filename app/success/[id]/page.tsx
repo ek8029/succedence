@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
@@ -34,7 +34,7 @@ export default function SuccessStoryDetailPage() {
   const storyId = params.id as string;
 
   // Enhanced mock data with full story details
-  const mockStories: SuccessStory[] = [
+  const mockStories: SuccessStory[] = useMemo(() => [
     {
       id: '1',
       title: 'Strategic Tech Acquisition Completed in 60 Days',
@@ -149,7 +149,7 @@ export default function SuccessStoryDetailPage() {
         { metric: 'Customer Continuity', value: '100%', description: 'Seamless transition with zero customer churn' }
       ]
     }
-  ];
+  ], []);
 
   useEffect(() => {
     const fetchStory = async () => {
@@ -167,7 +167,7 @@ export default function SuccessStoryDetailPage() {
     };
 
     fetchStory();
-  }, [storyId, router]);
+  }, [storyId, router, mockStories]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

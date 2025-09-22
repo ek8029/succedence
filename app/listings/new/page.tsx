@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { ListingCreateInput } from '@/lib/validation/listings';
@@ -33,7 +34,27 @@ export default function NewListingPage() {
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const saveDraft = async (isAutoSave = false) => {
+  const uploadMedia = useCallback(async (listingIdParam: string) => {
+    for (const file of uploadedImages) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`/api/listings/${listingIdParam}/media`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          console.error('Failed to upload media:', await response.text());
+        }
+      } catch (error) {
+        console.error('Error uploading media:', error);
+      }
+    }
+  }, [uploadedImages]);
+
+  const saveDraft = useCallback(async (isAutoSave = false) => {
     if (isAutoSave) {
       setAutoSaving(true);
     } else {
@@ -123,7 +144,7 @@ export default function NewListingPage() {
         setSubmitting(false);
       }
     }
-  };
+  }, [formData, listingId, uploadedImages, uploadMedia]);
 
   const requestPublish = async () => {
     if (!listingId) {
@@ -160,26 +181,6 @@ export default function NewListingPage() {
     }
   };
 
-  const uploadMedia = async (listingIdParam: string) => {
-    for (const file of uploadedImages) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(`/api/listings/${listingIdParam}/media`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          console.error('Failed to upload media:', await response.text());
-        }
-      } catch (error) {
-        console.error('Error uploading media:', error);
-      }
-    }
-  };
-
   const showNotification = (message: string, type: 'success' | 'error') => {
     const notification = document.createElement('div');
     notification.className = `notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up ${
@@ -207,7 +208,7 @@ export default function NewListingPage() {
     }, 3000);
     debounced();
     return debounced;
-  }, [formData, listingId]);
+  }, [formData, listingId, saveDraft]);
 
   useEffect(() => {
     const debounced = debouncedSave();
@@ -560,11 +561,14 @@ export default function NewListingPage() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {imagePreviews.map((preview, index) => (
                           <div key={index} className="relative group">
-                            <img
-                              src={preview}
-                              alt={`Business image ${index + 1}`}
-                              className="w-full h-32 object-cover rounded-lg border border-neutral-600"
-                            />
+                            <div className="relative w-full h-32">
+                              <Image
+                                src={preview}
+                                alt={`Business image ${index + 1}`}
+                                fill
+                                className="object-cover rounded-lg border border-neutral-600"
+                              />
+                            </div>
                             <button
                               type="button"
                               onClick={() => removeImage(index)}

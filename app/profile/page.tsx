@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -40,27 +40,7 @@ function ProfilePageContent() {
     email: '',
   });
 
-  useEffect(() => {
-    if (userProfile) {
-      // Set form data from current profile
-      setFormData({
-        phone: userProfile.profile?.phone || '',
-        company: userProfile.profile?.company || '',
-        headline: userProfile.profile?.headline || '',
-        location: userProfile.profile?.location || '',
-        avatarUrl: userProfile.profile?.avatarUrl || '',
-      });
-
-      setBasicFormData({
-        name: userProfile.name || '',
-        email: userProfile.email || '',
-      });
-
-      fetchUserStats();
-    }
-  }, [userProfile]);
-
-  const fetchUserStats = async () => {
+  const fetchUserStats = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -100,7 +80,27 @@ function ProfilePageContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, userProfile]);
+
+  useEffect(() => {
+    if (userProfile) {
+      // Set form data from current profile
+      setFormData({
+        phone: userProfile.profile?.phone || '',
+        company: userProfile.profile?.company || '',
+        headline: userProfile.profile?.headline || '',
+        location: userProfile.profile?.location || '',
+        avatarUrl: userProfile.profile?.avatarUrl || '',
+      });
+
+      setBasicFormData({
+        name: userProfile.name || '',
+        email: userProfile.email || '',
+      });
+
+      fetchUserStats();
+    }
+  }, [userProfile, fetchUserStats]);
 
   const handleUpdateProfile = async () => {
     if (!user) return;

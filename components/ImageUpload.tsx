@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 
 interface ImageUploadProps {
   onImageSelect: (file: File | null) => void;
@@ -97,11 +98,14 @@ export default function ImageUpload({
 
         {preview ? (
           <div className="space-y-4">
-            <img
-              src={preview}
-              alt="Preview"
-              className="max-h-32 max-w-full mx-auto object-contain rounded"
-            />
+            <div className="relative w-full h-32 mx-auto">
+              <Image
+                src={preview}
+                alt="Preview"
+                fill
+                className="object-contain rounded"
+              />
+            </div>
             <div className="flex justify-center space-x-4">
               <button
                 type="button"
