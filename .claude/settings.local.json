@@ -38,7 +38,8 @@
       "Bash(start http://localhost:3006)",
       "Bash(npm audit:*)",
       "Bash(start http://localhost:3004/listings/new)",
-      "Bash(start http://localhost:3004/profile)"
+      "Bash(start http://localhost:3004/profile)",
+      "Bash(start http://localhost:3005/profile)"
     ],
     "deny": [],
     "ask": []
