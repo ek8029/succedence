@@ -34,7 +34,8 @@
       "Bash(psql:*)",
       "Bash(npx vercel:*)",
       "Bash(cat:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(start http://localhost:3006)"
     ],
     "deny": [],
     "ask": []

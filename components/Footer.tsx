@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="mt-16 py-16 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-brand-darker border-t-2 border-gold/30">
+    <footer className="mt-16 py-16 w-full bg-brand-darker border-t-2 border-gold/30">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center">
           <h3 className="text-2xl md:text-3xl font-semibold text-warm-white mb-8 tracking-refined">Connect with Succedence</h3>

@@ -103,16 +103,7 @@ export default function AuthPage() {
           return;
         }
 
-        console.log('Sign in successful - waiting for redirect...')
-
-        // Wait a moment for the auth state to update, then force completion
-        setTimeout(() => {
-          console.log('Checking auth state after sign-in...', { user: !!user, isSubmitting })
-          if (isSubmitting) {
-            console.log('Forcing sign-in completion')
-            setIsSubmitting(false)
-          }
-        }, 3000) // Shorter 3 second timeout
+        console.log('Sign in successful - AuthContext will handle redirect automatically')
       }
     } catch (error) {
       setError('Authentication failed. Please try again.');

@@ -141,40 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Auth state change:', event, !!session?.user)
         setSession(session)
         if (session?.user) {
-          // Always fetch profile on sign in to ensure we have the user data
           if (event === 'SIGNED_IN') {
-            // Add timeout protection for profile fetching
-            Promise.race([
-              fetchUserProfile(session.user.id),
-              new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
-              )
-            ]).catch((error) => {
-              console.error('Profile fetch failed or timed out:', error)
-              // BULLETPROOF ADMIN ACCOUNT HANDLING
-              if (session.user.email === 'evank8029@gmail.com' || session.user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-                console.log('🔒 ADMIN ACCOUNT EMERGENCY - Using hardcoded admin data')
-                setUser({
-                  id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-                  email: 'evank8029@gmail.com',
-                  name: 'Evan Kim',
-                  role: 'admin',
-                  plan: 'free',
-                  status: 'active'
-                })
-              } else {
-                // Create emergency fallback user to prevent hanging for non-admin
-                setUser({
-                  id: session.user.id,
-                  email: session.user.email || 'user@example.com',
-                  name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
-                  role: extractRoleFromSession(session.user),
-                  plan: 'free',
-                  status: 'active'
-                })
-              }
-              setIsLoading(false)
-            })
+            console.log('User signed in, setting up profile...')
+            // For immediate authentication, set user quickly and fetch profile in background
+            fetchUserProfile(session.user.id)
           } else if (event === 'TOKEN_REFRESHED' && !user) {
             // Only fetch if we don't already have user data
             fetchUserProfile(session.user.id).catch((error) => {
@@ -217,9 +187,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession()
       const sessionUser = sessionData?.session?.user
 
-      // BULLETPROOF ADMIN ACCOUNT HANDLING - Skip all database queries for admin
+      // BULLETPROOF ADMIN ACCOUNT HANDLING - Instant authentication for admin
       if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-        console.log('🔒 ADMIN ACCOUNT DETECTED - Using hardcoded admin data')
+        console.log('🔒 ADMIN ACCOUNT DETECTED - Instant authentication')
         const adminUser: AuthUser = {
           id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
           email: 'evank8029@gmail.com',
@@ -228,17 +198,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           plan: 'free',
           status: 'active'
         }
-        console.log('✅ Admin user set:', adminUser)
         setUser(adminUser)
         setIsLoading(false)
+        console.log('✅ Admin authenticated instantly, redirecting...')
         return
       }
 
       // For non-admin users, proceed with normal database queries
       console.log('📋 Regular user - fetching from database...')
 
-      // More generous timeout for database operations
-      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
+      // Faster timeout for database operations to prevent hanging
+      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
             console.log(`Database operation timed out after ${timeoutMs}ms`)
@@ -268,7 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', userId)
           .single()
 
-        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 10000)
+        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 3000)
         userData = result.data
         userError = result.error
 
