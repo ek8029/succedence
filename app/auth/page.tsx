@@ -165,7 +165,7 @@ export default function AuthPage() {
       <div className="relative z-10 flex flex-col items-center justify-start px-4 pt-16 pb-20">
         <div className="w-full max-w-2xl">
         <ScrollAnimation direction="fade">
-          <div className="glass p-8 border border-gold/30 rounded-luxury tier-premium">
+          <div className="bg-charcoal/80 backdrop-blur-sm p-8 border border-gold/50 rounded-luxury tier-premium">
           <div className="text-center mb-8">
             <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6" style={{background: 'var(--luxury-gradient)', boxShadow: 'var(--premium-shadow)'}}>
               <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">

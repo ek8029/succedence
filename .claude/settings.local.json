@@ -46,7 +46,10 @@
       "Bash(dir:*)",
       "Bash(wmic process where:*)",
       "Bash(start http://localhost:3003)",
-      "Bash(start http://localhost:3003/auth)"
+      "Bash(start http://localhost:3003/auth)",
+      "Bash(start http://localhost:3004/auth)",
+      "Bash(start http://localhost:3005)",
+      "Bash(start http://localhost:3005/auth)"
     ],
     "deny": [],
     "ask": []
