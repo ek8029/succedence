@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateBuyerBusinessMatch, isAIEnabled } from '@/lib/ai/openai';
 import { createClient } from '@/lib/supabase/server';
+import type { Preferences, Listing } from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
       .from('listings')
       .select('*')
       .eq('id', listingId)
-      .single();
+      .single() as { data: Listing | null; error: any };
 
     if (listingError || !listing) {
       return NextResponse.json(
@@ -54,16 +55,24 @@ export async function POST(request: NextRequest) {
       .from('preferences')
       .select('*')
       .eq('userId', user.id)
-      .single();
+      .single() as { data: Preferences | null; error: any };
+
+    // Handle case where no preferences exist
+    if (preferencesError || !preferences) {
+      return NextResponse.json(
+        { error: 'User preferences not found. Please set up your investment preferences first.' },
+        { status: 400 }
+      );
+    }
 
     // Build buyer preferences object
     const buyerPreferences = {
-      industries: preferences?.industries || [],
-      dealSizeMin: preferences?.minRevenue || undefined,
-      dealSizeMax: preferences?.priceMax || undefined,
-      geographicPreferences: preferences?.states || [],
-      riskTolerance: 'medium',
-      experienceLevel: 'experienced'
+      industries: preferences.industries || [],
+      dealSizeMin: preferences.minRevenue || undefined,
+      dealSizeMax: preferences.priceMax || undefined,
+      geographicPreferences: preferences.states || [],
+      riskTolerance: 'medium' as const,
+      experienceLevel: 'experienced' as const
     };
 
     // Calculate match score

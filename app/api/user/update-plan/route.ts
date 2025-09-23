@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user's plan in the database
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('users')
       .update({ plan })
       .eq('id', user.id);

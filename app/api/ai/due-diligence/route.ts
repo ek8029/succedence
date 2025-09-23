@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDueDiligenceChecklist, isAIEnabled } from '@/lib/ai/openai';
 import { createClient } from '@/lib/supabase/server';
+import type { Listing } from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
       .from('listings')
       .select('*')
       .eq('id', listingId)
-      .single();
+      .single() as { data: Listing | null; error: any };
 
     if (listingError || !listing) {
       return NextResponse.json(

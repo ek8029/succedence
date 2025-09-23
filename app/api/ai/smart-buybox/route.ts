@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSmartBuyBox, isAIEnabled } from '@/lib/ai/openai';
 import { createClient } from '@/lib/supabase/server';
+import type { Preferences, Profile } from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,13 +31,13 @@ export async function POST(request: NextRequest) {
       .from('preferences')
       .select('*')
       .eq('userId', user.id)
-      .single();
+      .single() as { data: Preferences | null; error: any };
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('userId', user.id)
-      .single();
+      .single() as { data: Profile | null; error: any };
 
     // Build user profile for AI analysis
     const userProfile = {
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       success: true,
       buyBox,
       userProfile: {
-        name: profile?.name || user.email,
+        name: profile?.company || user.email,
         experienceLevel: userProfile.experienceLevel,
         riskTolerance: userProfile.riskTolerance
       }

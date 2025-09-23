@@ -42,7 +42,7 @@ export default function Dashboard() {
     };
 
     initializeAuth();
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
   // Refetch listings when pagination changes
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div className="text-3xl font-bold text-gold mb-2">
-                {formatCurrency(listings.reduce((sum, listing) => sum + (listing.asking_price || 0), 0))}
+                {formatCurrency(listings.reduce((sum, listing) => sum + (listing.price || 0), 0))}
               </div>
               <div className="text-sm text-silver/70">Combined asking price</div>
             </div>
@@ -212,7 +212,7 @@ export default function Dashboard() {
               </div>
               <div className="text-3xl font-bold text-gold mb-2">
                 {listings.length > 0
-                  ? formatCurrency(listings.reduce((sum, listing) => sum + (listing.annual_revenue || 0), 0) / listings.length)
+                  ? formatCurrency(listings.reduce((sum, listing) => sum + (listing.revenue || 0), 0) / listings.length)
                   : '$0'
                 }
               </div>
@@ -282,13 +282,13 @@ export default function Dashboard() {
                       <div>
                         <div className="text-xs text-silver/70 mb-1">Annual Revenue</div>
                         <div className="text-sm font-semibold text-gold">
-                          {formatCurrency(listing.annual_revenue)}
+                          {formatCurrency(listing.revenue)}
                         </div>
                       </div>
                       <div>
                         <div className="text-xs text-silver/70 mb-1">Asking Price</div>
                         <div className="text-sm font-semibold text-gold">
-                          {formatCurrency(listing.asking_price)}
+                          {formatCurrency(listing.price)}
                         </div>
                       </div>
                     </div>

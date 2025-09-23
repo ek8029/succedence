@@ -281,7 +281,7 @@ function ProfilePageContent() {
                   <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
                     <span className={`status-badge ${
                       user.plan === 'enterprise' ? 'status-main' :
-                      user.plan === 'pro' ? 'status-approved' : 'status-starter'
+                      user.plan === 'professional' ? 'status-approved' : 'status-starter'
                     }`}>
                       {user.plan.toUpperCase()}
                     </span>

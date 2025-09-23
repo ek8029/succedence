@@ -71,7 +71,7 @@ export default function PublicLandingPage() {
             <div id="demo-section" className="mb-24 sm:mb-32">
               <div className="text-center mb-16">
                 <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">
-                  See What's Inside Succedence
+                  See What&apos;s Inside Succedence
                 </h2>
                 <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed">
                   Get a preview of the premium business opportunities and AI tools waiting for you
@@ -183,7 +183,7 @@ export default function PublicLandingPage() {
                   Trusted by Serious Buyers
                 </h2>
                 <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed">
-                  Join hundreds of successful entrepreneurs who've found their next acquisition through Succedence
+                  Join hundreds of successful entrepreneurs who&apos;ve found their next acquisition through Succedence
                 </p>
               </div>
 
@@ -199,7 +199,7 @@ export default function PublicLandingPage() {
                     </div>
                   </div>
                   <p className="text-silver/80 leading-relaxed">
-                    "Found and closed a $3.2M SaaS acquisition in 6 weeks. The AI analysis saved me months of manual research."
+                    &quot;Found and closed a $3.2M SaaS acquisition in 6 weeks. The AI analysis saved me months of manual research.&quot;
                   </p>
                 </div>
 
@@ -214,7 +214,7 @@ export default function PublicLandingPage() {
                     </div>
                   </div>
                   <p className="text-silver/80 leading-relaxed">
-                    "The buyer compatibility scoring is incredible. No more wasting time on deals that don't fit my criteria."
+                    &quot;The buyer compatibility scoring is incredible. No more wasting time on deals that don&apos;t fit my criteria.&quot;
                   </p>
                 </div>
 
@@ -229,7 +229,7 @@ export default function PublicLandingPage() {
                     </div>
                   </div>
                   <p className="text-silver/80 leading-relaxed">
-                    "Best platform for sourcing quality deals. The verification process ensures I'm talking to serious sellers."
+                    &quot;Best platform for sourcing quality deals. The verification process ensures I&apos;m talking to serious sellers.&quot;
                   </p>
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function PublicLandingPage() {
                     Ready to Find Your Next Acquisition?
                   </h2>
                   <p className="font-sans text-xl text-platinum/80 mb-8 leading-relaxed">
-                    Join the platform that's changing how serious buyers discover and acquire premium businesses.
+                    Join the platform that&apos;s changing how serious buyers discover and acquire premium businesses.
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">

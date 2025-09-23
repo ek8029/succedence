@@ -31,7 +31,7 @@ export default function SubscriptionUpgrade({
 
   // Use user's plan if not provided
   const userPlan = currentPlan || (user?.plan as PlanType) || 'free';
-  const upgradePlans = requiredFeature ? getUpgradeSuggestions(userPlan, requiredFeature) : ['starter', 'professional', 'enterprise'];
+  const upgradePlans = requiredFeature ? getUpgradeSuggestions(userPlan, requiredFeature) : (['starter', 'professional', 'enterprise'] as PlanType[]);
   const currentPlanDetails = getPlanDetails(userPlan);
 
   const isBlocked = userPlan === 'free';
