@@ -219,10 +219,7 @@ export default function NewListingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('=== HANDLE SUBMIT CALLED ===');
-    console.log('Form data:', formData);
     const saved = await saveDraft();
-    console.log('Draft save result:', saved);
     if (saved && listingId) {
       router.push(`/listings/confirmation?id=${listingId}&status=draft`);
     }
@@ -719,7 +716,6 @@ export default function NewListingPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    onClick={() => console.log('Save Draft button clicked!')}
                     className="btn-secondary btn-sm hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Saving...' : 'Save Draft'}
