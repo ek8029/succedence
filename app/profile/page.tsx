@@ -50,13 +50,13 @@ function ProfilePageContent() {
       const { count: listingsCount } = await supabase
         .from('listings')
         .select('*', { count: 'exact', head: true })
-        .eq('ownerUserId', user.id);
+        .eq('owner_user_id', user.id);
 
       // Get user's messages count
       const { count: messagesCount } = await supabase
         .from('messages')
         .select('*', { count: 'exact', head: true })
-        .eq('fromUser', user.id);
+        .eq('from_user', user.id);
 
       // Calculate profile completeness
       const profileFields = [

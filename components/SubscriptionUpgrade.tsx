@@ -235,11 +235,18 @@ export function SubscriptionGate({
     );
   }
 
+  // Admin users bypass all restrictions
+  if (isAdminUser(user.role)) {
+    return <>{children}</>;
+  }
+
   const userPlan = user.plan as PlanType;
-  const hasAccess = userPlan === 'beta' ||
-                   userPlan === 'professional' ||
-                   userPlan === 'enterprise' ||
-                   (requiredPlan === 'starter' && userPlan === 'starter');
+  const planHierarchy: PlanType[] = ['free', 'starter', 'professional', 'enterprise'];
+  const userPlanIndex = planHierarchy.indexOf(userPlan);
+  const requiredPlanIndex = planHierarchy.indexOf(requiredPlan);
+
+  // Check if user plan meets or exceeds required plan
+  const hasAccess = userPlan === 'beta' || userPlanIndex >= requiredPlanIndex;
 
   if (!hasAccess) {
     return fallback || (
