@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDueDiligenceChecklist, isAIEnabled } from '@/lib/ai/openai';
 import { createClient } from '@/lib/supabase/server';
+import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 import type { Listing } from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
@@ -15,16 +16,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Authenticate user
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Authenticate user and get role
+    const authUser = await getUserWithRole();
 
-    if (authError || !user) {
+    if (!authUser) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
+
+    // Check if user has access (admin users bypass all restrictions)
+    if (!hasFeatureAccess(authUser.plan, authUser.role)) {
+      return NextResponse.json(
+        { error: 'Subscription required for AI features' },
+        { status: 403 }
+      );
+    }
+
+    const supabase = createClient();
 
     const body = await request.json();
     const { listingId } = body;

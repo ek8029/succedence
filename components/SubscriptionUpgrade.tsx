@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { PlanType, SUBSCRIPTION_PLANS } from '@/lib/types';
-import { formatPrice, getPlanDetails, getUpgradeSuggestions } from '@/lib/subscription';
+import { formatPrice, getPlanDetails, getUpgradeSuggestions, isAdminUser } from '@/lib/subscription';
 
 interface SubscriptionUpgradeProps {
   currentPlan?: PlanType;
@@ -34,8 +34,15 @@ export default function SubscriptionUpgrade({
   const upgradePlans = requiredFeature ? getUpgradeSuggestions(userPlan, requiredFeature) : (['starter', 'professional', 'enterprise'] as PlanType[]);
   const currentPlanDetails = getPlanDetails(userPlan);
 
-  const isBlocked = userPlan === 'free';
+  // Admin users bypass all paywalls
+  const isAdmin = isAdminUser(user?.role);
+  const isBlocked = !isAdmin && userPlan === 'free';
   const isBeta = userPlan === 'beta';
+
+  // Don't show upgrade prompts to admin users
+  if (isAdmin) {
+    return null;
+  }
 
   const getDefaultMessage = () => {
     if (isBlocked) {

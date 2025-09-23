@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSmartBuyBox, isAIEnabled } from '@/lib/ai/openai';
 import { createClient } from '@/lib/supabase/server';
+import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 import type { Preferences, Profile } from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
@@ -15,28 +16,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Authenticate user
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Authenticate user and get role
+    const authUser = await getUserWithRole();
 
-    if (authError || !user) {
+    if (!authUser) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    // Check if user has access (admin users bypass all restrictions)
+    if (!hasFeatureAccess(authUser.plan, authUser.role)) {
+      return NextResponse.json(
+        { error: 'Subscription required for AI features' },
+        { status: 403 }
+      );
+    }
+
+    const supabase = createClient();
+
     // Get user preferences and profile
     const { data: preferences, error: preferencesError } = await supabase
       .from('preferences')
       .select('*')
-      .eq('userId', user.id)
+      .eq('userId', authUser.id)
       .single() as { data: Preferences | null; error: any };
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('userId', user.id)
+      .eq('userId', authUser.id)
       .single() as { data: Profile | null; error: any };
 
     // Build user profile for AI analysis
@@ -58,7 +68,7 @@ export async function POST(request: NextRequest) {
     // const { error: insertError } = await supabase
     //   .from('ai_analyses')
     //   .upsert({
-    //     userId: user.id,
+    //     userId: authUser.id,
     //     analysisType: 'smart_buybox',
     //     analysisData: {
     //       ...buyBox,
@@ -76,7 +86,7 @@ export async function POST(request: NextRequest) {
       success: true,
       buyBox,
       userProfile: {
-        name: profile?.company || user.email,
+        name: profile?.company || authUser.email,
         experienceLevel: userProfile.experienceLevel,
         riskTolerance: userProfile.riskTolerance
       }

@@ -3,8 +3,12 @@ import { PlanType, SUBSCRIPTION_PLANS, PlanFeatures } from './types'
 // Check if user has access to specific AI features
 export function hasAIFeatureAccess(
   userPlan: PlanType,
-  feature: keyof PlanFeatures['aiFeatures']
+  feature: keyof PlanFeatures['aiFeatures'],
+  userRole?: string
 ): boolean {
+  // Admin users have access to everything
+  if (userRole === 'admin') return true
+
   const plan = SUBSCRIPTION_PLANS[userPlan]
   if (!plan) return false
 
@@ -19,8 +23,12 @@ export function hasAIFeatureAccess(
 // Check if user has remaining AI analyses for the month
 export function hasRemainingAnalyses(
   userPlan: PlanType,
-  usedThisMonth: number = 0
+  usedThisMonth: number = 0,
+  userRole?: string
 ): boolean {
+  // Admin users have unlimited access
+  if (userRole === 'admin') return true
+
   const plan = SUBSCRIPTION_PLANS[userPlan]
   if (!plan) return false
 
@@ -65,6 +73,20 @@ export function getUpgradeSuggestions(
   return planTypes
     .slice(currentPlanIndex + 1)
     .filter(planType => hasAIFeatureAccess(planType, requiredFeature))
+}
+
+// Check if user is admin and should bypass all paywalls
+export function isAdminUser(userRole?: string): boolean {
+  return userRole === 'admin'
+}
+
+// Check if user has access to any feature (admin bypass)
+export function hasFeatureAccess(userPlan: PlanType, userRole?: string): boolean {
+  // Admin users bypass all restrictions
+  if (isAdminUser(userRole)) return true
+
+  // Non-free users have basic access
+  return userPlan !== 'free'
 }
 
 // Format price for display
