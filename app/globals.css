@@ -1709,11 +1709,44 @@ a[href] {
 
 /* Improved Button Spacing */
 .btn-group {
-  @apply flex flex-col sm:flex-row gap-4 justify-center items-center;
+  @apply flex flex-col sm:flex-row gap-4 justify-center items-center mt-8;
 }
 
 .btn-group-lg {
-  @apply flex flex-col sm:flex-row gap-6 justify-center items-center;
+  @apply flex flex-col sm:flex-row gap-6 justify-center items-center mt-12;
+}
+
+/* Button spacing from text bodies */
+.btn, .btn-primary, .btn-secondary, .btn-success,
+button[class*="btn"], a[class*="btn"] {
+  margin-top: 1.5rem;
+}
+
+/* Button containers and wrappers */
+.button-container,
+.form-actions,
+.action-buttons {
+  @apply mt-8 pt-6 border-t border-neutral-700;
+}
+
+/* Specific button spacing contexts */
+p + .btn-group,
+p + .btn,
+p + button,
+div + .btn-group,
+div + .btn,
+div + button {
+  @apply mt-6;
+}
+
+/* Larger spacing after headers */
+h1 + .btn-group,
+h2 + .btn-group,
+h3 + .btn-group,
+h1 + .btn,
+h2 + .btn,
+h3 + .btn {
+  @apply mt-8;
 }
 
 /* Enhanced Navigation Spacing */

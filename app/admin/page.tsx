@@ -367,7 +367,7 @@ function AdminPageContent() {
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container-professional pb-16">
+      <div className="container-professional page-content-large">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 mt-24">
