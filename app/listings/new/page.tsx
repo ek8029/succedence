@@ -65,11 +65,11 @@ export default function NewListingPage() {
     try {
       const requestData = {
         ...formData,
-        revenue: formData.revenue ? parseInt(formData.revenue, 10) : 0,
-        ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) || null : null,
-        owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) || null : null,
-        employees: formData.employees ? parseInt(formData.employees, 10) || null : null,
-        price: formData.price ? parseInt(formData.price, 10) || null : null,
+        revenue: formData.revenue ? parseInt(formData.revenue, 10) : undefined,
+        ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) : undefined,
+        owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) : undefined,
+        employees: formData.employees ? parseInt(formData.employees, 10) : undefined,
+        price: formData.price ? parseInt(formData.price, 10) : undefined,
       };
 
       let response;
@@ -202,7 +202,7 @@ export default function NewListingPage() {
   // Auto-save functionality
   const debouncedSave = useCallback(() => {
     const debounced = debounce(() => {
-      if (listingId && Object.values(formData).some(value => value.trim() !== '')) {
+      if (listingId && Object.values(formData).some(value => value && value.toString().trim() !== '')) {
         saveDraft(true);
       }
     }, 3000);
@@ -343,7 +343,7 @@ export default function NewListingPage() {
               <p className="text-2xl text-neutral-400 leading-relaxed mb-12">
                 Present your business opportunity to our network of qualified investors and acquirers.
               </p>
-              <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+              <Link href="/" className="btn-secondary btn-sm hover-lift">
                 ← Return Home
               </Link>
             </div>
@@ -353,8 +353,8 @@ export default function NewListingPage() {
         {/* Form */}
         <ScrollAnimation direction="up" delay={50}>
           <div className="max-w-4xl mx-auto">
-            <div className="glass p-16">
-              <form onSubmit={handleSubmit} className="space-y-12">
+            <div className="glass p-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
               {/* Business Overview */}
               <div className="space-y-8">
                 <h2 className="text-2xl text-white font-medium border-b border-neutral-600 pb-4">
@@ -372,7 +372,7 @@ export default function NewListingPage() {
                       name="title"
                       value={formData.title}
                       onChange={handleInputChange}
-                      className={`form-control-large w-full ${
+                      className={`form-control w-full ${
                         errors.title ? 'border-red-500' : ''
                       }`}
                       placeholder="Enter business name"
@@ -392,7 +392,7 @@ export default function NewListingPage() {
                       name="industry"
                       value={formData.industry}
                       onChange={handleInputChange}
-                      className={`form-control-large w-full ${
+                      className={`form-control w-full ${
                         errors.industry ? 'border-red-500' : ''
                       }`}
                       required
@@ -442,7 +442,7 @@ export default function NewListingPage() {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={6}
-                    className={`form-control-large w-full ${
+                    className={`form-control w-full ${
                       errors.description ? 'border-red-500' : ''
                     }`}
                     placeholder="Provide a comprehensive description of your business, including products/services, market position, competitive advantages, and growth opportunities..."
@@ -464,7 +464,7 @@ export default function NewListingPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={`form-control-large w-full ${
+                      className={`form-control w-full ${
                         errors.city ? 'border-red-500' : ''
                       }`}
                       placeholder="City"
@@ -485,7 +485,7 @@ export default function NewListingPage() {
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      className={`form-control-large w-full ${
+                      className={`form-control w-full ${
                         errors.state ? 'border-red-500' : ''
                       }`}
                       placeholder="State"
@@ -506,7 +506,7 @@ export default function NewListingPage() {
                       name="employees"
                       value={formData.employees}
                       onChange={handleInputChange}
-                      className="form-control-large w-full"
+                      className="form-control w-full"
                       placeholder="Number of employees"
                       min="0"
                     />
@@ -607,7 +607,7 @@ export default function NewListingPage() {
                       name="revenue"
                       value={formatNumberWithCommas(formData.revenue)}
                       onChange={handleFinancialInputChange}
-                      className={`form-control-large w-full text-financial no-spinners ${
+                      className={`form-control w-full text-financial no-spinners ${
                         errors.revenue ? 'border-red-500' : ''
                       }`}
                       placeholder="e.g., 500,000"
@@ -628,7 +628,7 @@ export default function NewListingPage() {
                       name="ebitda"
                       value={formatNumberWithCommas(formData.ebitda)}
                       onChange={handleFinancialInputChange}
-                      className="form-control-large w-full text-financial no-spinners"
+                      className="form-control w-full text-financial no-spinners"
                       placeholder="e.g., 100,000"
                     />
                   </div>
@@ -645,7 +645,7 @@ export default function NewListingPage() {
                       name="owner_hours"
                       value={formData.owner_hours}
                       onChange={handleInputChange}
-                      className="form-control-large w-full"
+                      className="form-control w-full"
                       placeholder="Hours per week"
                       min="0"
                       max="168"
@@ -661,7 +661,7 @@ export default function NewListingPage() {
                       name="metric_type"
                       value={formData.metric_type}
                       onChange={handleInputChange}
-                      className="form-control-large w-full"
+                      className="form-control w-full"
                       required
                     >
                       <option value="annual">Annual</option>
@@ -681,7 +681,7 @@ export default function NewListingPage() {
                     name="price"
                     value={formatNumberWithCommas(formData.price)}
                     onChange={handleFinancialInputChange}
-                    className="form-control-large w-full text-financial no-spinners"
+                    className="form-control w-full text-financial no-spinners"
                     placeholder="e.g., 2,000,000 (leave blank for AI valuation)"
                   />
                   <p className="text-neutral-400 text-sm">
@@ -697,7 +697,7 @@ export default function NewListingPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="btn-secondary btn-lg focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-secondary btn-sm hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Saving...' : 'Save Draft'}
                   </button>
@@ -707,7 +707,7 @@ export default function NewListingPage() {
                       type="button"
                       onClick={requestPublish}
                       disabled={submitting}
-                      className="btn-primary btn-lg focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-primary btn-sm hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {submitting ? 'Submitting...' : 'Submit for Review'}
                     </button>
@@ -729,8 +729,8 @@ export default function NewListingPage() {
           </div>
 
           {/* AI Features Notice */}
-          <div className="mt-16 mb-16 glass p-12 border border-neutral-600">
-            <div className="text-center mb-8">
+          <div className="mt-12 mb-12 glass p-8 border border-neutral-600">
+            <div className="text-center mb-6">
               <h3 className="text-2xl text-white font-medium mb-4">Intelligent Processing</h3>
             </div>
             <div className="grid md:grid-cols-2 gap-8 text-neutral-400">
