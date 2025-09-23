@@ -437,8 +437,8 @@ function AdminPageContent() {
         {/* Industries */}
         <ScrollAnimation direction="up" delay={100}>
           <div className="max-w-6xl mx-auto mb-16">
-          <div className="glass p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.6s'}}>
-            <h2 className="text-2xl text-white font-medium mb-10">Industry Distribution</h2>
+          <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.6s'}}>
+            <h2 className="text-2xl text-white font-medium mb-6">Industry Distribution</h2>
             <div className="flex flex-wrap gap-4">
               {stats.industries.map(industry => (
                 <span key={industry} className="status-badge status-pending">
@@ -453,8 +453,8 @@ function AdminPageContent() {
         {/* Admin Management */}
         <ScrollAnimation direction="up" delay={125}>
           <div className="max-w-6xl mx-auto mb-16">
-          <div className="glass p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
-            <div className="flex justify-between items-center mb-10">
+          <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
+            <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl text-white font-medium">User Management</h2>
               <div className="flex gap-4">
                 <button
@@ -618,23 +618,23 @@ function AdminPageContent() {
               <table className="data-table w-full min-w-[800px]">
                 <thead>
                   <tr>
-                    <th className="text-left py-6 px-8">User</th>
-                    <th className="text-left py-6 px-8">Role</th>
-                    <th className="text-left py-6 px-8">Plan</th>
-                    <th className="text-left py-6 px-8">Created</th>
-                    <th className="text-left py-6 px-8">Actions</th>
+                    <th className="text-left py-4 px-6">User</th>
+                    <th className="text-left py-4 px-6">Role</th>
+                    <th className="text-left py-4 px-6">Plan</th>
+                    <th className="text-left py-4 px-6">Created</th>
+                    <th className="text-left py-4 px-6">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {getUsersForCurrentPage().map((user) => (
                     <tr key={user.id}>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <div>
                           <div className="text-white font-semibold text-lg">{user.name}</div>
                           <div className="text-neutral-400 text-sm">{user.email}</div>
                         </div>
                       </td>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <span className={`status-badge ${
                           user.role === 'admin' ? 'status-approved' :
                           user.role === 'seller' ? 'status-pending' : 'status-info'
@@ -642,7 +642,7 @@ function AdminPageContent() {
                           {user.role}
                         </span>
                       </td>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <span className={`status-badge ${
                           user.plan === 'free' ? 'bg-red-600/20 text-red-200 border-red-400/30' :
                           user.plan === 'beta' ? 'bg-blue-600/20 text-blue-200 border-blue-400/30' :
@@ -654,10 +654,10 @@ function AdminPageContent() {
                           {user.plan || 'free'}
                         </span>
                       </td>
-                      <td className="py-6 px-8 text-neutral-400">
+                      <td className="py-4 px-6 text-neutral-400">
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <div className="flex gap-2">
                           {user.plan === 'beta' && (
                             <button
@@ -709,42 +709,42 @@ function AdminPageContent() {
         {/* Listing Management */}
         <ScrollAnimation direction="up" delay={150}>
           <div className="max-w-full mx-auto px-4">
-          <div className="glass p-8 lg:p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.7s'}}>
-            <h2 className="text-2xl text-white font-medium mb-10">Listing Management</h2>
+          <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.7s'}}>
+            <h2 className="text-2xl text-white font-medium mb-8">Listing Management</h2>
             <div className="overflow-x-auto">
               <table className="data-table w-full min-w-[1200px]">
                 <thead>
                   <tr>
-                    <th className="text-left py-6 px-8">Business</th>
-                    <th className="text-left py-6 px-8">Industry</th>
-                    <th className="text-left py-6 px-8">Revenue</th>
-                    <th className="text-left py-6 px-8">Status</th>
-                    <th className="text-left py-6 px-8">Actions</th>
+                    <th className="text-left py-4 px-6">Business</th>
+                    <th className="text-left py-4 px-6">Industry</th>
+                    <th className="text-left py-4 px-6">Revenue</th>
+                    <th className="text-left py-4 px-6">Status</th>
+                    <th className="text-left py-4 px-6">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {getListingsForCurrentPage().map((listing) => (
                     <tr key={listing.id}>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <div>
                           <div className="text-white font-semibold text-lg">{listing.title}</div>
                           <div className="text-neutral-400 text-sm">{listing.source}</div>
                         </div>
                       </td>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <span className="status-badge status-pending">
                           {listing.industry}
                         </span>
                       </td>
-                      <td className="py-6 px-8 text-white font-bold text-financial text-lg">
+                      <td className="py-4 px-6 text-white font-bold text-financial text-lg">
                         {formatCurrency(listing.revenue)}
                       </td>
-                      <td className="py-6 px-8">
+                      <td className="py-4 px-6">
                         <span className={`status-badge ${listing.status === 'active' ? 'status-approved' : 'status-pending'}`}>
                           {listing.status}
                         </span>
                       </td>
-                      <td className="py-6 px-8 min-w-[300px]">
+                      <td className="py-4 px-6 min-w-[300px]">
                         <div className="flex flex-wrap gap-2">
                           {listing.status !== 'active' && (
                             <button

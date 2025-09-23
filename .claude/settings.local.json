@@ -49,7 +49,12 @@
       "Bash(start http://localhost:3003/auth)",
       "Bash(start http://localhost:3004/auth)",
       "Bash(start http://localhost:3005)",
-      "Bash(start http://localhost:3005/auth)"
+      "Bash(start http://localhost:3005/auth)",
+      "Bash(del test-ai.js)",
+      "Bash(start http://localhost:3000/profile)",
+      "Bash(start http://localhost:3000/listings/new)",
+      "Bash(start http://localhost:3000/admin)",
+      "Bash(start http://localhost:3000/auth)"
     ],
     "deny": [],
     "ask": []
