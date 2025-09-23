@@ -15,7 +15,9 @@ const getOpenAIClient = () => {
 
 // Check if AI features are enabled
 export const isAIEnabled = () => {
-  return process.env.AI_FEATURES_ENABLED === 'true' && !!process.env.OPENAI_API_KEY;
+  const aiEnabled = process.env.AI_FEATURES_ENABLED;
+  const isEnabled = aiEnabled === 'true' || aiEnabled === 'TRUE' || aiEnabled === '1';
+  return isEnabled && !!process.env.OPENAI_API_KEY;
 };
 
 // Types for AI responses
