@@ -144,15 +144,13 @@ export async function POST(request: NextRequest) {
     // Use draft schema since all new listings start as drafts
     const validatedData = ListingDraftInput.parse(body)
 
-    // Use service client for write operations (bypasses RLS)
-    const serviceSupabase = createServiceClient()
-
-    // Create the listing
-    const { data: listing, error: createError } = await (serviceSupabase
+    // Try using the regular client instead of service client
+    // This will use RLS but should work with the policies we set up
+    const { data: listing, error: createError } = await (supabase
       .from('listings') as any)
       .insert({
         owner_user_id: user.id,
-        source: validatedData.source,
+        source: validatedData.source || 'manual',
         title: validatedData.title,
         description: validatedData.description,
         industry: validatedData.industry,
@@ -173,8 +171,17 @@ export async function POST(request: NextRequest) {
 
     if (createError) {
       console.error('Error creating listing:', createError)
+      console.error('Error details:', {
+        message: createError.message,
+        details: createError.details,
+        hint: createError.hint,
+        code: createError.code
+      })
       return NextResponse.json(
-        { error: 'Failed to create listing' },
+        {
+          error: 'Failed to create listing',
+          details: createError.message
+        },
         { status: 500 }
       )
     }
