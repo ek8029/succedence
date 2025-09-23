@@ -5,12 +5,12 @@ import EmailCopyButton from '@/components/EmailCopyButton';
 
 export default function ConnectCTA() {
   return (
-    <section className="relative w-full border-t border-gold/30">
-      {/* Subtle background treatment */}
+    <section className="relative w-full border-t border-gold/30 bg-gradient-to-b from-[#0f141a] via-[#0f141a] to-[#0f141a]">
+      {/* Full width background treatment */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0f141a] via-[#0f141a] to-[#0f141a] pointer-events-none" aria-hidden />
 
-      <div className="relative container mx-auto max-w-5xl px-6 lg:px-8 py-16 lg:py-20 not-prose">
-        <div className="text-center">
+      <div className="relative w-full max-w-none px-6 lg:px-8 py-16 lg:py-20 not-prose">
+        <div className="text-center max-w-5xl mx-auto">
           <h2 className="text-center text-3xl md:text-4xl font-semibold tracking-tight text-warm-white mb-6">
             Connect with Succedence
           </h2>

@@ -26,7 +26,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
 
   // Check if user has access to market intelligence feature
   const userPlan = (user?.plan as PlanType) || 'free';
-  const hasAccess = hasAIFeatureAccess(userPlan, 'marketIntelligence');
+  const hasAccess = hasAIFeatureAccess(userPlan, 'marketIntelligence', user?.role);
 
   const handleGenerateIntelligence = async () => {
     if (!formData.industry.trim()) {

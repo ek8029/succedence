@@ -22,7 +22,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
 
   // Check if user has access to due diligence feature
   const userPlan = (user?.plan as PlanType) || 'free';
-  const hasAccess = hasAIFeatureAccess(userPlan, 'dueDiligence');
+  const hasAccess = hasAIFeatureAccess(userPlan, 'dueDiligence', user?.role);
 
   const handleGenerateChecklist = async () => {
     setIsLoading(true);

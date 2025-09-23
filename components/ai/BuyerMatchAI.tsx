@@ -20,7 +20,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
 
   // Check if user has access to buyer matching feature
   const userPlan = (user?.plan as PlanType) || 'free';
-  const hasAccess = hasAIFeatureAccess(userPlan, 'buyerMatching');
+  const hasAccess = hasAIFeatureAccess(userPlan, 'buyerMatching', user?.role);
 
   const handleAnalyzeMatch = async () => {
     setIsLoading(true);

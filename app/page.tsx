@@ -266,13 +266,13 @@ export default function PublicLandingPage() {
             </div>
           </ScrollAnimation>
 
-          {/* Connect with Succedence Section */}
-          <ScrollAnimation direction="up" delay={200}>
-            <ConnectCTA />
-          </ScrollAnimation>
-
         </div>
       </div>
+
+      {/* Connect with Succedence Section - Full Width */}
+      <ScrollAnimation direction="up" delay={200}>
+        <ConnectCTA />
+      </ScrollAnimation>
     </div>
   );
 }

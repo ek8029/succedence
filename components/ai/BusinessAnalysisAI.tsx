@@ -20,7 +20,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
 
   // Check if user has access to business analysis feature
   const userPlan = (user?.plan as PlanType) || 'free';
-  const hasAccess = hasAIFeatureAccess(userPlan, 'businessAnalysis');
+  const hasAccess = hasAIFeatureAccess(userPlan, 'businessAnalysis', user?.role);
 
   const handleAnalyzeClick = async () => {
     setIsLoading(true);
