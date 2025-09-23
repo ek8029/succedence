@@ -61,7 +61,6 @@ export default function PublicLandingPage() {
                   </button>
                 </div>
 
-                <p className="text-sm text-silver/70 mt-4">Professional platform</p>
               </div>
             </div>
           </ScrollAnimation>
@@ -147,7 +146,7 @@ export default function PublicLandingPage() {
                     </svg>
                   </div>
                   <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">AI Business Analysis</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Get comprehensive AI-powered analysis including scoring, strengths, weaknesses, risks, and growth opportunities for every listing.</p>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Get comprehensive AI-powered analysis including scoring, strengths, weaknesses, and growth opportunities for every listing.</p>
                 </div>
 
                 <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
@@ -169,7 +168,7 @@ export default function PublicLandingPage() {
                     </svg>
                   </div>
                   <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Due Diligence Assistant</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Generate comprehensive, industry-specific due diligence checklists with progress tracking and export capabilities.</p>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Generate comprehensive due diligence checklists with progress tracking and export capabilities for your deals.</p>
                 </div>
               </div>
             </div>
@@ -199,7 +198,7 @@ export default function PublicLandingPage() {
                     </div>
                   </div>
                   <p className="text-silver/80 leading-relaxed">
-                    &quot;Found and closed a $3.2M SaaS acquisition in 6 weeks. The AI analysis saved me months of manual research.&quot;
+                    &quot;Found and closed a $3.2M SaaS acquisition in 6 weeks. The AI analysis saved months of research.&quot;
                   </p>
                 </div>
 
@@ -229,7 +228,7 @@ export default function PublicLandingPage() {
                     </div>
                   </div>
                   <p className="text-silver/80 leading-relaxed">
-                    &quot;Best platform for sourcing quality deals. The verification process ensures I&apos;m talking to serious sellers.&quot;
+                    &quot;Best platform for sourcing quality deals. The verification process ensures I only see serious sellers.&quot;
                   </p>
                 </div>
               </div>
