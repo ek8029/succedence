@@ -692,29 +692,29 @@ export default function NewListingPage() {
 
 
               {/* Submit */}
-              <div className="pt-8 border-t border-neutral-600">
-                <div className="text-center space-y-8">
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="form-actions">
+                <div className="btn-group">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-secondary btn-lg focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Saving...' : 'Save Draft'}
+                  </button>
+
+                  {listingId && isDraft && (
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={requestPublish}
                       disabled={submitting}
-                      className="btn-secondary px-12 py-4 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-primary btn-lg focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {submitting ? 'Saving...' : 'Save Draft'}
+                      {submitting ? 'Submitting...' : 'Submit for Review'}
                     </button>
+                  )}
+                </div>
 
-                    {listingId && isDraft && (
-                      <button
-                        type="button"
-                        onClick={requestPublish}
-                        disabled={submitting}
-                        className="btn-primary px-12 py-4 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {submitting ? 'Submitting...' : 'Submit for Review'}
-                      </button>
-                    )}
-                  </div>
-
+                <div className="text-center mt-6">
                   <p className="text-neutral-400 text-sm max-w-2xl mx-auto">
                     {isDraft ? (
                       'Save as draft to add media and make changes, then submit for admin review when ready.'

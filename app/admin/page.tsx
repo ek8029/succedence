@@ -357,7 +357,7 @@ function AdminPageContent() {
         <div className="text-center">
           <h1 className="text-2xl text-white font-medium mb-4">Dashboard Unavailable</h1>
           <p className="text-neutral-400 mb-8">Failed to load dashboard data</p>
-          <Link href="/" className="btn-primary px-8 py-3 font-medium hover-lift">
+          <Link href="/" className="btn-primary btn-lg font-medium hover-lift">
             Return Home
           </Link>
         </div>
@@ -373,7 +373,7 @@ function AdminPageContent() {
           <div className="text-center mb-20 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">Administration Dashboard</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Platform analytics and business listing management</p>
-            <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+            <Link href="/" className="glass btn-lg font-medium text-white hover-lift transition-all border border-neutral-600">
               ← Return Home
             </Link>
           </div>

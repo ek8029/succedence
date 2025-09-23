@@ -137,9 +137,7 @@ function ProfilePageContent() {
     if (!user) return;
 
     try {
-      const supabase = createClient();
-
-      // Update user basic info in users table
+      // Prepare update data
       const updateData: any = {
         name: basicFormData.name,
         email: basicFormData.email,
@@ -151,20 +149,26 @@ function ProfilePageContent() {
         updateData.plan = basicFormData.plan;
       }
 
-      const { error } = await (supabase
-        .from('users') as any)
-        .update(updateData)
-        .eq('id', user.id);
+      const response = await fetch('/api/user/update-basic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
 
-      if (error) {
-        showNotification('Failed to update basic information', 'error');
-      } else {
+      const result = await response.json();
+
+      if (response.ok) {
         setEditingBasic(false);
         showNotification('Basic information updated successfully!', 'success');
         // The auth context will automatically refresh the user data
         window.location.reload();
+      } else {
+        showNotification(result.error || 'Failed to update basic information', 'error');
       }
     } catch (error) {
+      console.error('Error updating basic info:', error);
       showNotification('An error occurred while updating', 'error');
     }
   };
@@ -185,7 +189,7 @@ function ProfilePageContent() {
       <div className="min-h-screen bg-brand-darker flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl text-white font-medium mb-4">Authentication Required</h1>
-          <Link href="/auth" className="btn-primary px-8 py-3 font-medium hover-lift">
+          <Link href="/auth" className="btn-primary btn-lg font-medium hover-lift">
             Sign In
           </Link>
         </div>
@@ -331,7 +335,7 @@ function ProfilePageContent() {
                   <div className="flex justify-center space-x-4 pt-4">
                     <button
                       onClick={handleUpdateBasicInfo}
-                      className="btn-success px-6 py-3 font-medium hover-lift"
+                      className="btn-success font-medium hover-lift"
                     >
                       Save Changes
                     </button>
@@ -432,7 +436,7 @@ function ProfilePageContent() {
                   <div className="flex justify-center space-x-4 pt-4">
                     <button
                       onClick={handleUpdateProfile}
-                      className="btn-success px-6 py-3 font-medium hover-lift"
+                      className="btn-success font-medium hover-lift"
                     >
                       Save Profile
                     </button>

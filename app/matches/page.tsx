@@ -39,7 +39,7 @@ export default function MatchesPage() {
             </p>
             <Link
               href="/auth"
-              className="btn-primary px-8 py-3 font-semibold text-sm focus-ring hover-lift"
+              className="btn-primary btn-lg font-semibold focus-ring hover-lift"
             >
               Sign In
             </Link>

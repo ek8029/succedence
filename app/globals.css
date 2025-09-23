@@ -116,9 +116,9 @@ button.btn-primary,
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
   overflow: hidden;
-  padding: 1rem 2rem;
-  font-size: 1rem !important;
-  line-height: 1.5 !important;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -144,9 +144,9 @@ button.btn-secondary,
   text-transform: none !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
-  padding: 1rem 2rem;
-  font-size: 1rem !important;
-  line-height: 1.5 !important;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -163,8 +163,13 @@ button.btn-secondary,
 }
 
 .btn-lg {
-  padding: 1.25rem 2.5rem;
-  font-size: 1.125rem;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
 }
 
 button.btn-success,
@@ -179,9 +184,9 @@ button.btn-success,
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
   overflow: hidden;
-  padding: 1rem 2rem;
-  font-size: 1rem !important;
-  line-height: 1.5 !important;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1709,17 +1714,19 @@ a[href] {
 
 /* Improved Button Spacing */
 .btn-group {
-  @apply flex flex-col sm:flex-row gap-4 justify-center items-center mt-8;
+  @apply flex flex-col sm:flex-row gap-3 justify-center items-center mt-6;
 }
 
 .btn-group-lg {
-  @apply flex flex-col sm:flex-row gap-6 justify-center items-center mt-12;
+  @apply flex flex-col sm:flex-row gap-4 justify-center items-center mt-8;
 }
 
-/* Button spacing from text bodies */
-.btn, .btn-primary, .btn-secondary, .btn-success,
-button[class*="btn"], a[class*="btn"] {
-  margin-top: 1.5rem;
+/* Button spacing from text bodies - only when not in containers */
+.btn:not(.btn-group *):not(.form-actions *):not(.button-container *),
+.btn-primary:not(.btn-group *):not(.form-actions *):not(.button-container *),
+.btn-secondary:not(.btn-group *):not(.form-actions *):not(.button-container *),
+.btn-success:not(.btn-group *):not(.form-actions *):not(.button-container *) {
+  margin-top: 1rem;
 }
 
 /* Button containers and wrappers */
