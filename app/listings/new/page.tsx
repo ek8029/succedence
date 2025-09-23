@@ -62,6 +62,10 @@ export default function NewListingPage() {
     }
     setErrors({});
 
+    console.log('=== SAVING DRAFT ===');
+    console.log('Form data before processing:', formData);
+    console.log('Is auto save:', isAutoSave);
+
     try {
       const requestData = {
         ...formData,
@@ -71,6 +75,8 @@ export default function NewListingPage() {
         employees: formData.employees ? parseInt(formData.employees, 10) : undefined,
         price: formData.price ? parseInt(formData.price, 10) : undefined,
       };
+
+      console.log('Request data after processing:', requestData);
 
       let response;
 
@@ -94,10 +100,16 @@ export default function NewListingPage() {
         });
       }
 
+      console.log('API Response status:', response.status);
+      console.log('API Response ok:', response.ok);
+
       if (response.ok) {
         const result = await response.json();
+        console.log('API Response data:', result);
+
         if (!listingId) {
           setListingId(result.listing.id);
+          console.log('Set listing ID:', result.listing.id);
         }
 
         // Upload media if any
@@ -109,15 +121,21 @@ export default function NewListingPage() {
         if (!isAutoSave) {
           showNotification('✓ Draft saved successfully', 'success');
         }
+        console.log('Draft saved successfully!');
         return true;
       } else {
         const error = await response.json();
+        console.error('API Error response:', error);
         if (!isAutoSave) {
           showNotification(`✗ ${error.error || 'Failed to save draft'}`, 'error');
         }
         return false;
       }
     } catch (error) {
+      console.error('=== DRAFT SAVE ERROR ===');
+      console.error('Error type:', error instanceof z.ZodError ? 'ZodError' : typeof error);
+      console.error('Error details:', error);
+
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         (error as any).errors.forEach((err: any) => {
@@ -125,13 +143,14 @@ export default function NewListingPage() {
             fieldErrors[err.path[0] as string] = err.message;
           }
         });
+        console.error('Validation errors:', fieldErrors);
         setErrors(fieldErrors);
         if (!isAutoSave) {
           showNotification('Please fix the errors below', 'error');
         }
         return false;
       } else {
-        console.error('Error saving draft:', error);
+        console.error('Network/other error saving draft:', error);
         if (!isAutoSave) {
           showNotification('Network error - please try again', 'error');
         }
@@ -376,7 +395,6 @@ export default function NewListingPage() {
                         errors.title ? 'border-red-500' : ''
                       }`}
                       placeholder="Enter business name"
-                      required
                     />
                     {errors.title && (
                       <p className="text-red-400 text-sm">{errors.title}</p>
@@ -395,7 +413,6 @@ export default function NewListingPage() {
                       className={`form-control w-full ${
                         errors.industry ? 'border-red-500' : ''
                       }`}
-                      required
                     >
                       <option value="">Select Industry</option>
                       <option value="HVAC Services">HVAC Services</option>
@@ -446,8 +463,7 @@ export default function NewListingPage() {
                       errors.description ? 'border-red-500' : ''
                     }`}
                     placeholder="Provide a comprehensive description of your business, including products/services, market position, competitive advantages, and growth opportunities..."
-                    required
-                  />
+                                      />
                   {errors.description && (
                     <p className="text-red-400 text-sm">{errors.description}</p>
                   )}
@@ -468,8 +484,7 @@ export default function NewListingPage() {
                         errors.city ? 'border-red-500' : ''
                       }`}
                       placeholder="City"
-                      required
-                    />
+                                          />
                     {errors.city && (
                       <p className="text-red-400 text-sm">{errors.city}</p>
                     )}
@@ -489,8 +504,7 @@ export default function NewListingPage() {
                         errors.state ? 'border-red-500' : ''
                       }`}
                       placeholder="State"
-                      required
-                    />
+                                          />
                     {errors.state && (
                       <p className="text-red-400 text-sm">{errors.state}</p>
                     )}
@@ -611,8 +625,7 @@ export default function NewListingPage() {
                         errors.revenue ? 'border-red-500' : ''
                       }`}
                       placeholder="e.g., 500,000"
-                      required
-                    />
+                                          />
                     {errors.revenue && (
                       <p className="text-red-400 text-sm">{errors.revenue}</p>
                     )}
@@ -662,8 +675,7 @@ export default function NewListingPage() {
                       value={formData.metric_type}
                       onChange={handleInputChange}
                       className="form-control w-full"
-                      required
-                    >
+                                          >
                       <option value="annual">Annual</option>
                       <option value="monthly">Monthly</option>
                       <option value="quarterly">Quarterly</option>

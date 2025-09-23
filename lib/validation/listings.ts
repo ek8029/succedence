@@ -90,25 +90,40 @@ export const ListingCreateInput = z.object({
 
 // Schema for creating/updating drafts (all fields optional except source)
 export const ListingDraftInput = z.object({
-  title: z.string()
-    .max(200, 'Title must be less than 200 characters')
-    .optional(),
+  title: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : val,
+    z.string()
+      .max(200, 'Title must be less than 200 characters')
+      .optional()
+  ),
 
-  description: z.string()
-    .max(5000, 'Description must be less than 5000 characters')
-    .optional(),
+  description: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : val,
+    z.string()
+      .max(5000, 'Description must be less than 5000 characters')
+      .optional()
+  ),
 
-  industry: z.string()
-    .max(100, 'Industry must be less than 100 characters')
-    .optional(),
+  industry: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : val,
+    z.string()
+      .max(100, 'Industry must be less than 100 characters')
+      .optional()
+  ),
 
-  city: z.string()
-    .max(100, 'City must be less than 100 characters')
-    .optional(),
+  city: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : val,
+    z.string()
+      .max(100, 'City must be less than 100 characters')
+      .optional()
+  ),
 
-  state: z.string()
-    .max(100, 'State must be less than 100 characters')
-    .optional(),
+  state: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : val,
+    z.string()
+      .max(100, 'State must be less than 100 characters')
+      .optional()
+  ),
 
   revenue: z.preprocess(
     (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
