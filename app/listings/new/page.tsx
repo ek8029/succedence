@@ -67,8 +67,15 @@ export default function NewListingPage() {
     console.log('Is auto save:', isAutoSave);
 
     try {
+      // Process form data, converting empty strings to undefined for all fields
       const requestData = {
-        ...formData,
+        title: formData.title || undefined,
+        description: formData.description || undefined,
+        industry: formData.industry || undefined,
+        city: formData.city || undefined,
+        state: formData.state || undefined,
+        metric_type: formData.metric_type || undefined,
+        source: formData.source || 'manual',
         revenue: formData.revenue ? parseInt(formData.revenue, 10) : undefined,
         ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) : undefined,
         owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) : undefined,
@@ -383,7 +390,7 @@ export default function NewListingPage() {
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label htmlFor="title" className="block text-lg text-neutral-300 font-medium">
-                      Business Name *
+                      Business Name
                     </label>
                     <input
                       type="text"
@@ -403,7 +410,7 @@ export default function NewListingPage() {
 
                   <div className="space-y-4">
                     <label htmlFor="industry" className="block text-lg text-neutral-300 font-medium">
-                      Industry *
+                      Industry
                     </label>
                     <select
                       id="industry"
@@ -451,7 +458,7 @@ export default function NewListingPage() {
 
                 <div className="space-y-4">
                   <label htmlFor="description" className="block text-lg text-neutral-300 font-medium">
-                    Business Description *
+                    Business Description
                   </label>
                   <textarea
                     id="description"
@@ -472,7 +479,7 @@ export default function NewListingPage() {
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="space-y-4">
                     <label htmlFor="city" className="block text-lg text-neutral-300 font-medium">
-                      City *
+                      City
                     </label>
                     <input
                       type="text"
@@ -492,7 +499,7 @@ export default function NewListingPage() {
 
                   <div className="space-y-4">
                     <label htmlFor="state" className="block text-lg text-neutral-300 font-medium">
-                      State *
+                      State
                     </label>
                     <input
                       type="text"
@@ -613,7 +620,7 @@ export default function NewListingPage() {
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label htmlFor="revenue" className="block text-lg text-neutral-300 font-medium">
-                      Annual Revenue (USD) *
+                      Annual Revenue (USD)
                     </label>
                     <input
                       type="text"
@@ -667,7 +674,7 @@ export default function NewListingPage() {
 
                   <div className="space-y-4">
                     <label htmlFor="metric_type" className="block text-lg text-neutral-300 font-medium">
-                      Financial Metric Type *
+                      Financial Metric Type
                     </label>
                     <select
                       id="metric_type"
