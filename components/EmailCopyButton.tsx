@@ -10,7 +10,7 @@ interface EmailCopyButtonProps {
 }
 
 export default function EmailCopyButton({
-  email = 'succedence@gmail.com',
+  email = 'founder@succedence.com',
   className = '',
   buttonText,
   showEmail = true
@@ -90,7 +90,7 @@ export default function EmailCopyButton({
 }
 
 // Hook for programmatic email copying
-export function useEmailCopy(email: string = 'succedence@gmail.com') {
+export function useEmailCopy(email: string = 'founder@succedence.com') {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 

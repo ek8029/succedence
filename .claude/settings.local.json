@@ -44,7 +44,9 @@
       "mcp__ide__getDiagnostics",
       "Bash(npx drizzle-kit:*)",
       "Bash(dir:*)",
-      "Bash(wmic process where:*)"
+      "Bash(wmic process where:*)",
+      "Bash(start http://localhost:3003)",
+      "Bash(start http://localhost:3003/auth)"
     ],
     "deny": [],
     "ask": []

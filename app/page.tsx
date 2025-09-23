@@ -307,7 +307,7 @@ export default function PublicLandingPage() {
 
                 {/* Email */}
                 <EmailCopyButton
-                  email="succedence@gmail.com"
+                  email="founder@succedence.com"
                   showEmail={true}
                 />
               </div>
