@@ -39,7 +39,12 @@
       "Bash(npm audit:*)",
       "Bash(start http://localhost:3004/listings/new)",
       "Bash(start http://localhost:3004/profile)",
-      "Bash(start http://localhost:3005/profile)"
+      "Bash(start http://localhost:3005/profile)",
+      "Bash(start http://localhost:3004)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(dir:*)",
+      "Bash(wmic process where:*)"
     ],
     "deny": [],
     "ask": []

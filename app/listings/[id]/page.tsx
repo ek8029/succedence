@@ -7,6 +7,10 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import BusinessAnalysisAI from '@/components/ai/BusinessAnalysisAI';
+import BuyerMatchAI from '@/components/ai/BuyerMatchAI';
+import DueDiligenceAI from '@/components/ai/DueDiligenceAI';
+import MarketIntelligenceAI from '@/components/ai/MarketIntelligenceAI';
 
 
 interface Message {
@@ -204,8 +208,10 @@ export default function ListingDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-primary-gradient relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
+        <div className="absolute inset-0 bg-noise opacity-10"></div>
+        <div className="relative z-10 text-center">
           <div className="w-16 h-16 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <div className="text-xl text-white font-medium">Loading business details...</div>
         </div>
@@ -215,8 +221,10 @@ export default function ListingDetailPage() {
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-brand-darker flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-primary-gradient relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
+        <div className="absolute inset-0 bg-noise opacity-10"></div>
+        <div className="relative z-10 text-center">
           <h1 className="text-2xl text-white font-medium mb-4">Listing Not Found</h1>
           <Link href="/browse" className="btn-primary px-8 py-3 font-medium hover-lift">
             Return to Browse
@@ -227,8 +235,12 @@ export default function ListingDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-darker">
-      <div className="container-professional pb-16 page-content">
+    <div className="min-h-screen bg-primary-gradient relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
+      <div className="absolute inset-0 bg-noise opacity-10"></div>
+
+      <div className="relative z-10">
+        <div className="container-professional pb-16 page-content">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="mb-16 text-center">
@@ -335,6 +347,64 @@ export default function ListingDetailPage() {
                 </div>
               </div>
             </AccordionSection>
+
+            {/* AI Insights Section */}
+            {user && (
+              <AccordionSection id="ai-insights" title="AI-Powered Analysis & Insights">
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl text-warm-white font-serif mb-4">
+                      Get AI-Powered Acquisition Intelligence
+                    </h3>
+                    <p className="text-silver/80 leading-relaxed max-w-3xl mx-auto">
+                      Leverage advanced AI to analyze this business opportunity, assess compatibility with your investment criteria,
+                      generate due diligence checklists, and understand market conditions.
+                    </p>
+                  </div>
+
+                  {/* Business Analysis */}
+                  <div className="mb-8">
+                    <BusinessAnalysisAI
+                      listingId={listing.id}
+                      listingTitle={listing.title}
+                    />
+                  </div>
+
+                  {/* Buyer Match Analysis */}
+                  <div className="mb-8">
+                    <BuyerMatchAI
+                      listingId={listing.id}
+                      listingTitle={listing.title}
+                    />
+                  </div>
+
+                  {/* Due Diligence Assistant */}
+                  <div className="mb-8">
+                    <DueDiligenceAI
+                      listingId={listing.id}
+                      listingTitle={listing.title}
+                      industry={listing.industry}
+                    />
+                  </div>
+
+                  {/* Market Intelligence */}
+                  <div className="mb-8">
+                    <MarketIntelligenceAI
+                      industry={listing.industry}
+                      geography={`${listing.city}, ${listing.state}`}
+                      dealSize={listing.price}
+                    />
+                  </div>
+
+                  <div className="text-center p-6 bg-navy/20 rounded-luxury border border-gold/10">
+                    <p className="text-silver/70 text-sm leading-relaxed">
+                      <strong className="text-gold">AI Disclaimer:</strong> These AI-generated insights are for informational purposes only and should not replace professional due diligence,
+                      financial analysis, or legal advice. Always conduct thorough research and consult with qualified professionals before making investment decisions.
+                    </p>
+                  </div>
+                </div>
+              </AccordionSection>
+            )}
 
             {/* Deal Completion Section for Owner */}
             {user && isOwner && (
@@ -501,6 +571,7 @@ export default function ListingDetailPage() {
 
           </div>
         </ScrollAnimation>
+        </div>
       </div>
       <Footer />
     </div>

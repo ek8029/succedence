@@ -1,4 +1,5 @@
-import type { User as DrizzleUser, Profile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog } from '../db/schema'
+import type { User as DrizzleUser, Profile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses } from '../db/schema'
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 
 // Database types from Drizzle
 export type {
@@ -14,9 +15,12 @@ export type {
   AuditLog
 } from '../db/schema'
 
+// AI Analysis type from table
+export type AIAnalysis = InferSelectModel<typeof aiAnalyses>
+
 // Enum types
 export type UserRole = 'buyer' | 'seller' | 'admin'
-export type PlanType = 'free' | 'pro' | 'enterprise'
+export type PlanType = 'free' | 'beta' | 'starter' | 'professional' | 'enterprise'
 export type UserStatus = 'active' | 'inactive' | 'banned'
 export type ListingStatus = 'draft' | 'active' | 'rejected' | 'archived'
 export type KycStatus = 'pending' | 'approved' | 'rejected' | 'not_started'
@@ -78,6 +82,11 @@ export interface Database {
         Row: AuditLog
         Insert: Omit<AuditLog, 'id' | 'createdAt'>
         Update: Partial<Omit<AuditLog, 'id' | 'createdAt'>>
+      }
+      ai_analyses: {
+        Row: AIAnalysis
+        Insert: Omit<AIAnalysis, 'id' | 'createdAt' | 'updatedAt'>
+        Update: Partial<Omit<AIAnalysis, 'id' | 'createdAt' | 'updatedAt'>>
       }
     }
     Views: {
@@ -239,4 +248,125 @@ export interface MatchReasons {
 export interface MatchWithDetails extends Match {
   listing: ListingWithDetails
   reasons: MatchReasons
+}
+
+// Subscription plan configuration
+export interface PlanFeatures {
+  name: string
+  price: number
+  description: string
+  features: string[]
+  aiFeatures: {
+    businessAnalysis: boolean
+    buyerMatching: boolean
+    dueDiligence: boolean
+    marketIntelligence: boolean
+    maxAnalysesPerMonth: number
+  }
+  limitations?: string[]
+}
+
+export const SUBSCRIPTION_PLANS: Record<PlanType, PlanFeatures> = {
+  free: {
+    name: 'No Access',
+    price: 0,
+    description: 'Subscription required for platform access',
+    features: [
+      'Account created'
+    ],
+    aiFeatures: {
+      businessAnalysis: false,
+      buyerMatching: false,
+      dueDiligence: false,
+      marketIntelligence: false,
+      maxAnalysesPerMonth: 0
+    },
+    limitations: [
+      'No access to platform features',
+      'No browsing capabilities',
+      'Subscription required to continue'
+    ]
+  },
+  beta: {
+    name: 'Beta Access',
+    price: 0,
+    description: 'Complimentary access for beta participants',
+    features: [
+      'Full platform access',
+      'All Professional features',
+      'Beta feedback priority',
+      'Early feature access'
+    ],
+    aiFeatures: {
+      businessAnalysis: true,
+      buyerMatching: true,
+      dueDiligence: true,
+      marketIntelligence: true,
+      maxAnalysesPerMonth: 50
+    },
+    limitations: [
+      'Beta access expires after 30 days',
+      'Admin can revoke access'
+    ]
+  },
+  starter: {
+    name: 'Starter',
+    price: 19.99,
+    description: 'Essential tools for serious buyers',
+    features: [
+      'All Free features',
+      'Advanced search filters',
+      'Basic AI insights',
+      'Priority support'
+    ],
+    aiFeatures: {
+      businessAnalysis: true,
+      buyerMatching: false,
+      dueDiligence: false,
+      marketIntelligence: false,
+      maxAnalysesPerMonth: 5
+    },
+    limitations: [
+      'Limited to 5 AI analyses per month',
+      'Basic AI features only'
+    ]
+  },
+  professional: {
+    name: 'Professional',
+    price: 49.99,
+    description: 'Full acquisition intelligence suite',
+    features: [
+      'All Starter features',
+      'Complete AI analysis suite',
+      'Due diligence assistant',
+      'Market intelligence',
+      'Export capabilities'
+    ],
+    aiFeatures: {
+      businessAnalysis: true,
+      buyerMatching: true,
+      dueDiligence: true,
+      marketIntelligence: true,
+      maxAnalysesPerMonth: 50
+    }
+  },
+  enterprise: {
+    name: 'Enterprise',
+    price: 99.99,
+    description: 'Unlimited access for power users',
+    features: [
+      'All Professional features',
+      'Unlimited AI analyses',
+      'Priority processing',
+      'Custom integrations',
+      'Dedicated support'
+    ],
+    aiFeatures: {
+      businessAnalysis: true,
+      buyerMatching: true,
+      dueDiligence: true,
+      marketIntelligence: true,
+      maxAnalysesPerMonth: -1 // -1 means unlimited
+    }
+  }
 }

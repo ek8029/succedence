@@ -13,7 +13,7 @@ import { relations } from 'drizzle-orm';
 
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['buyer', 'seller', 'admin']);
-export const planTypeEnum = pgEnum('plan_type', ['free', 'pro', 'enterprise']);
+export const planTypeEnum = pgEnum('plan_type', ['free', 'starter', 'professional', 'enterprise']);
 export const userStatusEnum = pgEnum('user_status', ['active', 'inactive', 'banned']);
 export const listingStatusEnum = pgEnum('listing_status', ['draft', 'active', 'rejected', 'archived']);
 
@@ -153,6 +153,20 @@ export const auditLogs = pgTable('audit_logs', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+// AI analyses table
+export const aiAnalyses = pgTable('ai_analyses', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  listingId: uuid('listing_id').references(() => listings.id),
+  analysisType: text('analysis_type').notNull(), // 'business_analysis', 'buyer_match', 'due_diligence', 'market_intelligence', 'smart_buybox'
+  analysisData: jsonb('analysis_data').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userListingTypeIdx: index('ai_analyses_user_listing_type_idx').on(table.userId, table.listingId, table.analysisType),
+  createdAtIdx: index('ai_analyses_created_at_idx').on(table.createdAt),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles),
@@ -165,6 +179,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   receivedMessages: many(messages, { relationName: 'receivedMessages' }),
   ndas: many(ndas),
   auditLogs: many(auditLogs),
+  aiAnalyses: many(aiAnalyses),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -190,6 +205,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   matches: many(matches),
   messages: many(messages),
   ndas: many(ndas),
+  aiAnalyses: many(aiAnalyses),
 }));
 
 export const listingMediaRelations = relations(listingMedia, ({ one }) => ({
@@ -259,6 +275,17 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   }),
 }));
 
+export const aiAnalysesRelations = relations(aiAnalyses, ({ one }) => ({
+  user: one(users, {
+    fields: [aiAnalyses.userId],
+    references: [users.id],
+  }),
+  listing: one(listings, {
+    fields: [aiAnalyses.listingId],
+    references: [listings.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -282,3 +309,5 @@ export type NDA = typeof ndas.$inferSelect;
 export type NewNDA = typeof ndas.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
+export type AIAnalysis = typeof aiAnalyses.$inferSelect;
+export type NewAIAnalysis = typeof aiAnalyses.$inferInsert;

@@ -1,0 +1,82 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { generateMarketIntelligence, isAIEnabled } from '@/lib/ai/openai';
+import { createClient } from '@/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check if AI features are enabled
+    if (!isAIEnabled()) {
+      return NextResponse.json(
+        { error: 'AI features are not enabled' },
+        { status: 503 }
+      );
+    }
+
+    // Authenticate user
+    const supabase = createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { industry, geography, dealSize } = body;
+
+    if (!industry) {
+      return NextResponse.json(
+        { error: 'Industry is required' },
+        { status: 400 }
+      );
+    }
+
+    // Generate market intelligence
+    const intelligence = await generateMarketIntelligence(industry, geography, dealSize);
+
+    // TODO: Store the analysis for caching (temporarily disabled due to type issues)
+    // const { error: insertError } = await supabase
+    //   .from('ai_analyses')
+    //   .insert({
+    //     userId: user.id,
+    //     analysisType: 'market_intelligence',
+    //     analysisData: {
+    //       ...intelligence,
+    //       industry,
+    //       geography,
+    //       dealSize
+    //     },
+    //     createdAt: new Date().toISOString(),
+    //     updatedAt: new Date().toISOString()
+    //   });
+
+    // if (insertError) {
+    //   console.error('Error storing market intelligence:', insertError);
+    // }
+
+    return NextResponse.json({
+      success: true,
+      intelligence,
+      parameters: {
+        industry,
+        geography,
+        dealSize
+      }
+    });
+
+  } catch (error) {
+    console.error('Error generating market intelligence:', error);
+
+    return NextResponse.json(
+      {
+        error: 'Failed to generate market intelligence',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}

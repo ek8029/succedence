@@ -4,13 +4,19 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Protected routes that require authentication
-  const protectedRoutes = ['/profile', '/preferences', '/listings/new', '/admin']
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/auth', '/signin', '/signin-test', '/success', '/subscribe', '/terms']
 
-  // Check if the current path is protected
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  // Check if the current path is public (no auth needed)
+  const isPublicRoute = publicRoutes.some(route => {
+    if (route === '/') {
+      return pathname === '/'
+    }
+    return pathname === route || pathname.startsWith(route + '/')
+  })
 
-  if (!isProtectedRoute) {
+  // Skip middleware for API routes, static files, and public routes
+  if (pathname.startsWith('/api') || pathname.startsWith('/_next') || isPublicRoute) {
     return NextResponse.next()
   }
 
@@ -45,24 +51,48 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // For admin routes, check if user is admin
-  if (pathname.startsWith('/admin')) {
-    try {
-      // Get user data from database to check role
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', session.user.id)
-        .single()
+  // Get user data from database to check role and plan
+  try {
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role, plan')
+      .eq('id', session.user.id)
+      .single()
 
-      if (userError || (userData as any)?.role !== 'admin') {
-        // Redirect non-admin users to home
-        return NextResponse.redirect(new URL('/', request.url))
-      }
-    } catch (error) {
-      console.error('Error checking user role:', error)
-      return NextResponse.redirect(new URL('/', request.url))
+    if (userError) {
+      console.error('Error fetching user data:', userError)
+      return NextResponse.redirect(new URL('/auth', request.url))
     }
+
+    const userRole = (userData as any)?.role
+    const userPlan = (userData as any)?.plan
+
+    // Admin users bypass all restrictions
+    if (userRole === 'admin') {
+      return NextResponse.next()
+    }
+
+    // For admin routes, check if user is admin
+    if (pathname.startsWith('/admin')) {
+      // Redirect non-admin users to app
+      return NextResponse.redirect(new URL('/app', request.url))
+    }
+
+    // SaaS Paywall: All protected routes require paid subscription
+    // Users must have a PAID plan to access the application (no free tier)
+    if (!userPlan || userPlan === null || userPlan === 'free') {
+      // Redirect users without subscription or with expired free plan to subscribe page
+      const redirectUrl = new URL('/subscribe', request.url)
+      redirectUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Allow access to browse and listings pages for paid subscribers
+    // (Remove the redirect to /app - let users access /browse and /listings directly)
+
+  } catch (error) {
+    console.error('Error in middleware:', error)
+    return NextResponse.redirect(new URL('/auth', request.url))
   }
 
   return NextResponse.next()

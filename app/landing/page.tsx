@@ -1,17 +1,107 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
-import EmailCopyButton from '@/components/EmailCopyButton';
 
 export default function PublicLandingPage() {
+  const [waitlistData, setWaitlistData] = useState({
+    email: '',
+    name: '',
+    role: 'BUYER' as 'BUYER' | 'SELLER' | 'BROKER',
+    company: '',
+    dealSize: '',
+    interests: [] as string[]
+  });
+  const [isSubmittingWaitlist, setIsSubmittingWaitlist] = useState(false);
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+
+  const handleWaitlistInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setWaitlistData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleInterestToggle = (interest: string) => {
+    setWaitlistData(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
+    }));
+  };
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistData.email || !waitlistData.name) return;
+
+    setIsSubmittingWaitlist(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const notification = document.createElement('div');
+      notification.className = 'notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up';
+      notification.style.backgroundColor = 'var(--accent)';
+      notification.style.color = '#000';
+      notification.innerHTML = '🎉 You&apos;re on the waitlist! Check your email for early access.';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 5000);
+
+      setWaitlistSubmitted(true);
+
+      setTimeout(() => {
+        setWaitlistData({
+          email: '',
+          name: '',
+          role: 'BUYER',
+          company: '',
+          dealSize: '',
+          interests: []
+        });
+      }, 3000);
+    } catch (error) {
+      const notification = document.createElement('div');
+      notification.className = 'notification fixed top-4 right-4 z-50 bg-red-600 text-white px-6 py-4 slide-up';
+      notification.innerHTML = '✗ Something went wrong. Please try again.';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 4000);
+    } finally {
+      setIsSubmittingWaitlist(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-primary-gradient relative overflow-hidden pb-0 mb-0">
       <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
       <div className="relative z-10">
+        {/* Simple Navigation */}
+        <nav className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 max-w-7xl">
+          <div className="flex justify-between items-center">
+            <div className="font-serif text-2xl font-bold text-warm-white tracking-refined">
+              Succedence
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/auth"
+                className="text-silver hover:text-warm-white transition-colors font-medium"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/auth"
+                className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        </nav>
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-16 pb-0 max-w-7xl">
 
           {/* Hero Section */}
@@ -177,8 +267,8 @@ export default function PublicLandingPage() {
 
           {/* Social Proof */}
           <ScrollAnimation direction="up" delay={100}>
-            <div className="mb-32 sm:mb-40">
-              <div className="text-center mb-20">
+            <div className="mb-24 sm:mb-32">
+              <div className="text-center mb-16">
                 <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">
                   Trusted by Serious Buyers
                 </h2>
@@ -256,60 +346,18 @@ export default function PublicLandingPage() {
                     >
                       Get Started
                     </Link>
+                    <button
+                      onClick={() => document.getElementById('waitlist-form')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="inline-flex items-center px-10 py-5 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-lg"
+                    >
+                      Join Waitlist
+                    </button>
                   </div>
 
                   <div className="text-sm text-silver/70 space-y-1">
                     <p>✓ Professional AI tools • ✓ Cancel anytime</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </ScrollAnimation>
-
-          {/* Connect with Succedence Section */}
-          <ScrollAnimation direction="up" delay={200}>
-            <div className="mb-20">
-              <div className="text-center mb-16">
-                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">
-                  Connect with Succedence
-                </h2>
-                <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed">
-                  Follow our journey and stay updated on the latest business acquisition opportunities and platform developments.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mb-12">
-                {/* LinkedIn */}
-                <a
-                  href="https://linkedin.com/company/succedence"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                  </svg>
-                  LinkedIn Company Page
-                </a>
-
-                {/* Twitter/X */}
-                <a
-                  href="https://x.com/SuccedenceSMB"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                  Follow @SuccedenceSMB
-                </a>
-
-                {/* Email */}
-                <EmailCopyButton
-                  email="succedence@gmail.com"
-                  showEmail={true}
-                />
               </div>
             </div>
           </ScrollAnimation>

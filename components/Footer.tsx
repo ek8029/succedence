@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
+import EmailCopyButton from '@/components/EmailCopyButton';
 
 export default function Footer() {
   return (
-    <footer className="mt-16 py-16 w-full bg-brand-darker border-t-2 border-gold/30">
-      <div className="max-w-6xl mx-auto px-4">
+    <footer className="mt-16 py-16 bg-brand-darker border-t-2 border-gold/30">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h3 className="text-2xl md:text-3xl font-semibold text-warm-white mb-8 tracking-refined">Connect with Succedence</h3>
           <p className="text-lg text-platinum/80 mb-12 max-w-2xl mx-auto leading-relaxed">
@@ -40,42 +41,18 @@ export default function Footer() {
             </a>
 
             {/* Email */}
-            <div className="relative">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  const email = 'succedence@gmail.com';
-
-                  navigator.clipboard.writeText(email).then(() => {
-                    // Show green notification above email
-                    const notification = document.getElementById('email-success-footer');
-                    if (notification) {
-                      notification.classList.remove('hidden');
-                      setTimeout(() => {
-                        notification.classList.add('hidden');
-                      }, 2000);
-                    }
-                  }).catch(() => {
-                    // Fallback notification if clipboard fails
-                    alert('Email address: ' + email);
-                  });
-                }}
-                className="flex items-center gap-3 px-6 py-3 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 hover:border-gold rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                succedence@gmail.com
-              </button>
-
-              {/* Success notification */}
-              <div id="email-success-footer" className="hidden absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-2 rounded-md text-sm font-medium shadow-lg z-60">
-                ✓ Email copied!
-              </div>
-            </div>
+            <EmailCopyButton
+              email="succedence@gmail.com"
+              showEmail={true}
+            />
           </div>
 
           <div className="text-sm text-neutral-400 border-t border-gold/10 pt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+              <a href="/terms" className="text-gold hover:text-warm-white transition-colors">Terms of Service</a>
+              <span className="hidden sm:inline text-neutral-600">•</span>
+              <span className="text-gold">AI Disclaimer: Not Financial Advice</span>
+            </div>
             <p>&copy; 2025 Succedence. All rights reserved. Built for discerning business professionals.</p>
           </div>
         </div>

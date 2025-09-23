@@ -22,6 +22,7 @@ interface User {
   name: string;
   email: string;
   role: string;
+  plan: string;
   created_at: string;
 }
 
@@ -31,15 +32,142 @@ function AdminPageContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+  const [showBetaManagement, setShowBetaManagement] = useState(false);
   const [newAdminData, setNewAdminData] = useState({
     name: '',
     email: '',
     password: ''
   });
+  const [betaUserEmail, setBetaUserEmail] = useState('');
+
+  // Pagination states
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersPageSize, setUsersPageSize] = useState(15);
+  const [listingsPage, setListingsPage] = useState(1);
+  const [listingsPageSize, setListingsPageSize] = useState(15);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Pagination calculations
+  const getUsersForCurrentPage = () => {
+    const startIndex = (usersPage - 1) * usersPageSize;
+    const endIndex = startIndex + usersPageSize;
+    return users.slice(startIndex, endIndex);
+  };
+
+  const getListingsForCurrentPage = () => {
+    const startIndex = (listingsPage - 1) * listingsPageSize;
+    const endIndex = startIndex + listingsPageSize;
+    return listings.slice(startIndex, endIndex);
+  };
+
+  const getUsersTotalPages = () => Math.ceil(users.length / usersPageSize);
+  const getListingsTotalPages = () => Math.ceil(listings.length / listingsPageSize);
+
+  const handleUsersPageSizeChange = (newSize: number) => {
+    setUsersPageSize(newSize);
+    setUsersPage(1); // Reset to first page when changing page size
+  };
+
+  const handleListingsPageSizeChange = (newSize: number) => {
+    setListingsPageSize(newSize);
+    setListingsPage(1); // Reset to first page when changing page size
+  };
+
+  // Pagination component
+  const PaginationControls = ({
+    currentPage,
+    totalPages,
+    pageSize,
+    totalItems,
+    onPageChange,
+    onPageSizeChange,
+    itemName
+  }: {
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalItems: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: number) => void;
+    itemName: string;
+  }) => {
+    const startItem = (currentPage - 1) * pageSize + 1;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+
+    return (
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 p-4 bg-charcoal/30 rounded-lg border border-silver/20">
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-silver/80">
+            Showing {startItem}-{endItem} of {totalItems} {itemName}
+          </span>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-silver/80">Show:</label>
+            <select
+              value={pageSize}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              className="bg-charcoal border border-silver/30 text-white text-sm rounded px-2 py-1"
+            >
+              <option value={15}>15</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 text-sm bg-charcoal border border-silver/30 text-white rounded hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let pageNumber;
+              if (totalPages <= 5) {
+                pageNumber = i + 1;
+              } else {
+                if (currentPage <= 3) {
+                  pageNumber = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNumber = totalPages - 4 + i;
+                } else {
+                  pageNumber = currentPage - 2 + i;
+                }
+              }
+
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => onPageChange(pageNumber)}
+                  className={`px-3 py-1 text-sm rounded ${
+                    currentPage === pageNumber
+                      ? 'bg-gold text-midnight font-medium'
+                      : 'bg-charcoal border border-silver/30 text-white hover:bg-charcoal-light'
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 text-sm bg-charcoal border border-silver/30 text-white rounded hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -139,6 +267,66 @@ function AdminPageContent() {
     } catch (error) {
       console.error('Error deleting user:', error);
       alert('Failed to delete user');
+    }
+  };
+
+  const handleGrantBetaAccess = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!betaUserEmail) {
+      alert('Please enter a user email');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/grant-beta', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: betaUserEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Beta access granted successfully!');
+        setBetaUserEmail('');
+        fetchDashboardData(); // Refresh data
+      } else {
+        alert(data.error || 'Failed to grant beta access');
+      }
+    } catch (error) {
+      console.error('Error granting beta access:', error);
+      alert('Failed to grant beta access');
+    }
+  };
+
+  const handleRevokeBetaAccess = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to revoke beta access for "${userName}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/revoke-beta', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Beta access revoked successfully!');
+        fetchDashboardData(); // Refresh data
+      } else {
+        alert(data.error || 'Failed to revoke beta access');
+      }
+    } catch (error) {
+      console.error('Error revoking beta access:', error);
+      alert('Failed to revoke beta access');
     }
   };
 
@@ -268,12 +456,20 @@ function AdminPageContent() {
           <div className="glass p-16 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
             <div className="flex justify-between items-center mb-10">
               <h2 className="text-2xl text-white font-medium">User Management</h2>
-              <button
-                onClick={() => setShowCreateAdmin(true)}
-                className="btn-primary px-6 py-3 font-medium hover-lift"
-              >
-                Create New Admin
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowBetaManagement(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium rounded-luxury hover-lift transition-all duration-300"
+                >
+                  Manage Beta Access
+                </button>
+                <button
+                  onClick={() => setShowCreateAdmin(true)}
+                  className="btn-primary px-6 py-3 font-medium hover-lift"
+                >
+                  Create New Admin
+                </button>
+              </div>
             </div>
 
             {/* Create Admin Modal */}
@@ -339,6 +535,84 @@ function AdminPageContent() {
               </div>
             )}
 
+            {/* Beta Management Modal */}
+            {showBetaManagement && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="glass p-8 border border-blue-400/30 rounded-luxury max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                  <h3 className="text-xl text-white font-medium mb-6">Beta Access Management</h3>
+
+                  {/* Grant Beta Access */}
+                  <div className="mb-8">
+                    <h4 className="text-lg text-blue-200 font-medium mb-4">Grant Beta Access</h4>
+                    <form onSubmit={handleGrantBetaAccess} className="space-y-4">
+                      <div>
+                        <label className="form-label">User Email</label>
+                        <input
+                          type="email"
+                          value={betaUserEmail}
+                          onChange={(e) => setBetaUserEmail(e.target.value)}
+                          className="form-control w-full"
+                          placeholder="Enter user email address"
+                          required
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium rounded-luxury transition-all duration-300"
+                      >
+                        Grant Beta Access
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Current Beta Users */}
+                  <div className="mb-6">
+                    <h4 className="text-lg text-blue-200 font-medium mb-4">Current Beta Users</h4>
+                    <div className="max-h-60 overflow-y-auto">
+                      {users.filter(user => user.plan === 'beta').length > 0 ? (
+                        <div className="space-y-2">
+                          {users.filter(user => user.plan === 'beta').map((user) => (
+                            <div key={user.id} className="flex items-center justify-between p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg">
+                              <div>
+                                <div className="text-white font-medium">{user.name}</div>
+                                <div className="text-blue-200 text-sm">{user.email}</div>
+                                <div className="text-blue-300 text-xs">
+                                  Beta since: {new Date(user.created_at).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => handleRevokeBetaAccess(user.id, user.name)}
+                                className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 transition-all duration-300"
+                              >
+                                Revoke
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-silver/70">
+                          No beta users currently active
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4 border-t border-blue-400/20">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowBetaManagement(false);
+                        setBetaUserEmail('');
+                      }}
+                      className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1 rounded-luxury transition-all duration-300"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Users Table */}
             <div className="overflow-x-auto">
               <table className="data-table w-full min-w-[800px]">
@@ -346,12 +620,13 @@ function AdminPageContent() {
                   <tr>
                     <th className="text-left py-6 px-8">User</th>
                     <th className="text-left py-6 px-8">Role</th>
+                    <th className="text-left py-6 px-8">Plan</th>
                     <th className="text-left py-6 px-8">Created</th>
                     <th className="text-left py-6 px-8">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
+                  {getUsersForCurrentPage().map((user) => (
                     <tr key={user.id}>
                       <td className="py-6 px-8">
                         <div>
@@ -367,22 +642,66 @@ function AdminPageContent() {
                           {user.role}
                         </span>
                       </td>
+                      <td className="py-6 px-8">
+                        <span className={`status-badge ${
+                          user.plan === 'free' ? 'bg-red-600/20 text-red-200 border-red-400/30' :
+                          user.plan === 'beta' ? 'bg-blue-600/20 text-blue-200 border-blue-400/30' :
+                          user.plan === 'starter' ? 'bg-yellow-600/20 text-yellow-200 border-yellow-400/30' :
+                          user.plan === 'professional' ? 'bg-green-600/20 text-green-200 border-green-400/30' :
+                          user.plan === 'enterprise' ? 'bg-purple-600/20 text-purple-200 border-purple-400/30' :
+                          'status-pending'
+                        }`}>
+                          {user.plan || 'free'}
+                        </span>
+                      </td>
                       <td className="py-6 px-8 text-neutral-400">
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-6 px-8">
-                        <button
-                          onClick={() => handleDeleteUser(user.id, user.name)}
-                          className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700"
-                        >
-                          Delete
-                        </button>
+                        <div className="flex gap-2">
+                          {user.plan === 'beta' && (
+                            <button
+                              onClick={() => handleRevokeBetaAccess(user.id, user.name)}
+                              className="px-2 py-1 text-xs font-medium bg-blue-600 text-white border border-blue-600 rounded hover:bg-blue-700 transition-all duration-300"
+                            >
+                              Revoke Beta
+                            </button>
+                          )}
+                          {user.plan === 'free' && (
+                            <button
+                              onClick={() => {
+                                setBetaUserEmail(user.email);
+                                setShowBetaManagement(true);
+                              }}
+                              className="px-2 py-1 text-xs font-medium bg-blue-600 text-white border border-blue-600 rounded hover:bg-blue-700 transition-all duration-300"
+                            >
+                              Grant Beta
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteUser(user.id, user.name)}
+                            className="px-2 py-1 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 transition-all duration-300"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
+            {/* Users Pagination */}
+            <PaginationControls
+              currentPage={usersPage}
+              totalPages={getUsersTotalPages()}
+              pageSize={usersPageSize}
+              totalItems={users.length}
+              onPageChange={setUsersPage}
+              onPageSizeChange={handleUsersPageSizeChange}
+              itemName="users"
+            />
           </div>
           </div>
         </ScrollAnimation>
@@ -404,7 +723,7 @@ function AdminPageContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {listings.map((listing) => (
+                  {getListingsForCurrentPage().map((listing) => (
                     <tr key={listing.id}>
                       <td className="py-6 px-8">
                         <div>
@@ -458,6 +777,17 @@ function AdminPageContent() {
                 </tbody>
               </table>
             </div>
+
+            {/* Listings Pagination */}
+            <PaginationControls
+              currentPage={listingsPage}
+              totalPages={getListingsTotalPages()}
+              pageSize={listingsPageSize}
+              totalItems={listings.length}
+              onPageChange={setListingsPage}
+              onPageSizeChange={handleListingsPageSizeChange}
+              itemName="listings"
+            />
           </div>
           </div>
         </ScrollAnimation>

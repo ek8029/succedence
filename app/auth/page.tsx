@@ -32,7 +32,7 @@ export default function AuthPage() {
   useEffect(() => {
     if (user) {
       console.log('User authenticated, redirecting...', user)
-      router.push('/');
+      router.push('/app');
     }
   }, [user, router]);
 
@@ -124,7 +124,7 @@ export default function AuthPage() {
 
         // Give the auth context time to update the user state
         setTimeout(() => {
-          router.push('/');
+          router.push('/app');
         }, 1500);
       }
     } catch (error) {
@@ -158,8 +158,12 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-darker flex flex-col items-center justify-start px-4 pt-20 pb-20">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-primary-gradient relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
+      <div className="absolute inset-0 bg-noise opacity-10"></div>
+
+      <div className="relative z-10 flex flex-col items-center justify-start px-4 pt-16 pb-20">
+        <div className="w-full max-w-2xl">
         <ScrollAnimation direction="fade">
           <div className="glass p-8 border border-gold/30 rounded-luxury tier-premium">
           <div className="text-center mb-8">
@@ -456,6 +460,7 @@ export default function AuthPage() {
           </div>
           </div>
         </ScrollAnimation>
+        </div>
       </div>
       <Footer />
     </div>
