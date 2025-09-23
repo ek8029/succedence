@@ -5,9 +5,9 @@ import { getSignedMediaUrls, extractStoragePath } from '@/lib/storage/listingMed
 
 // Helper to check if user is admin
 async function isAdmin(userId: string): Promise<boolean> {
-  // Check if user has admin role
-  const serviceSupabase = createServiceClient()
-  const { data: user, error } = await serviceSupabase
+  // Check if user has admin role using regular client
+  const supabase = createClient()
+  const { data: user, error } = await supabase
     .from('users')
     .select('role')
     .eq('id', userId)
@@ -22,9 +22,9 @@ async function isAdmin(userId: string): Promise<boolean> {
 
 // Helper to check if user owns the listing
 async function checkListingOwnership(listingId: string, userId: string): Promise<{ isOwner: boolean; listing?: any }> {
-  const serviceSupabase = createServiceClient()
+  const supabase = createClient()
 
-  const { data: listing, error } = await serviceSupabase
+  const { data: listing, error } = await supabase
     .from('listings')
     .select('owner_user_id, status')
     .eq('id', listingId)
@@ -69,9 +69,8 @@ export async function GET(
       )
     }
 
-    // Fetch full listing with media
-    const serviceSupabase = createServiceClient()
-    const { data: listing, error: listingError } = await serviceSupabase
+    // Fetch full listing with media using regular client
+    const { data: listing, error: listingError } = await supabase
       .from('listings')
       .select(`
         *,
@@ -81,12 +80,6 @@ export async function GET(
           url,
           kind,
           created_at
-        ),
-        users!listings_owner_user_id_fkey (
-          id,
-          email,
-          first_name,
-          last_name
         )
       `)
       .eq('id', id)

@@ -68,20 +68,20 @@ export default function NewListingPage() {
     console.log('Is auto save:', isAutoSave);
 
     try {
-      // Process form data, converting empty strings to undefined for all fields
+      // Process form data, converting empty strings to null for draft saving
       const requestData = {
-        title: formData.title || undefined,
-        description: formData.description || undefined,
-        industry: formData.industry || undefined,
-        city: formData.city || undefined,
-        state: formData.state || undefined,
-        metric_type: formData.metric_type || undefined,
-        source: formData.source || 'manual',
-        revenue: formData.revenue ? parseInt(formData.revenue, 10) : undefined,
-        ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) : undefined,
-        owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) : undefined,
-        employees: formData.employees ? parseInt(formData.employees, 10) : undefined,
-        price: formData.price ? parseInt(formData.price, 10) : undefined,
+        title: formData.title?.trim() || null,
+        description: formData.description?.trim() || null,
+        industry: formData.industry?.trim() || null,
+        city: formData.city?.trim() || null,
+        state: formData.state?.trim() || null,
+        metric_type: formData.metric_type?.trim() || null,
+        source: 'manual',
+        revenue: formData.revenue ? parseInt(formData.revenue, 10) : null,
+        ebitda: formData.ebitda ? parseInt(formData.ebitda, 10) : null,
+        owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) : null,
+        employees: formData.employees ? parseInt(formData.employees, 10) : null,
+        price: formData.price ? parseInt(formData.price, 10) : null,
       };
 
       console.log('Request data after processing:', requestData);

@@ -88,96 +88,31 @@ export const ListingCreateInput = z.object({
     .default('user_submission')
 })
 
-// Schema for creating/updating drafts (all fields optional except source)
+// Schema for creating/updating drafts (all fields optional - ultra permissive)
 export const ListingDraftInput = z.object({
-  title: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : val,
-    z.string()
-      .max(200, 'Title must be less than 200 characters')
-      .optional()
-  ),
+  title: z.string().max(200, 'Title must be less than 200 characters').optional().nullable(),
 
-  description: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : val,
-    z.string()
-      .max(5000, 'Description must be less than 5000 characters')
-      .optional()
-  ),
+  description: z.string().max(5000, 'Description must be less than 5000 characters').optional().nullable(),
 
-  industry: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : val,
-    z.string()
-      .max(100, 'Industry must be less than 100 characters')
-      .optional()
-  ),
+  industry: z.string().max(100, 'Industry must be less than 100 characters').optional().nullable(),
 
-  city: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : val,
-    z.string()
-      .max(100, 'City must be less than 100 characters')
-      .optional()
-  ),
+  city: z.string().max(100, 'City must be less than 100 characters').optional().nullable(),
 
-  state: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : val,
-    z.string()
-      .max(100, 'State must be less than 100 characters')
-      .optional()
-  ),
+  state: z.string().max(100, 'State must be less than 100 characters').optional().nullable(),
 
-  revenue: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
-    z.number()
-      .int('Revenue must be a whole number')
-      .min(0, 'Revenue must be positive')
-      .max(1000000000, 'Revenue must be less than $1B')
-      .optional()
-  ),
+  revenue: z.number().int().min(0).max(1000000000).optional().nullable(),
 
-  ebitda: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
-    z.number()
-      .int('EBITDA must be a whole number')
-      .min(-100000000, 'EBITDA must be greater than -$100M')
-      .max(1000000000, 'EBITDA must be less than $1B')
-      .optional()
-  ),
+  ebitda: z.number().int().min(-100000000).max(1000000000).optional().nullable(),
 
-  metric_type: z.string()
-    .max(50, 'Metric type must be less than 50 characters')
-    .optional()
-    .nullable(),
+  metric_type: z.string().max(50).optional().nullable(),
 
-  owner_hours: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
-    z.number()
-      .int('Owner hours must be a whole number')
-      .min(0, 'Owner hours must be positive')
-      .max(168, 'Owner hours cannot exceed 168 hours per week')
-      .optional()
-  ),
+  owner_hours: z.number().int().min(0).max(168).optional().nullable(),
 
-  employees: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
-    z.number()
-      .int('Employee count must be a whole number')
-      .min(0, 'Employee count must be positive')
-      .max(100000, 'Employee count must be less than 100,000')
-      .optional()
-  ),
+  employees: z.number().int().min(0).max(100000).optional().nullable(),
 
-  price: z.preprocess(
-    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
-    z.number()
-      .int('Price must be a whole number')
-      .min(0, 'Price must be positive')
-      .max(10000000000, 'Price must be less than $10B')
-      .optional()
-  ),
+  price: z.number().int().min(0).max(10000000000).optional().nullable(),
 
-  source: z.string()
-    .max(100, 'Source must be less than 100 characters')
-    .default('user_submission')
+  source: z.string().max(100).default('manual').optional()
 })
 
 // Schema for updating an existing listing
