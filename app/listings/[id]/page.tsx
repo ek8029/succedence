@@ -573,6 +573,10 @@ export default function ListingDetailPage() {
         </ScrollAnimation>
         </div>
       </div>
+
+      {/* Additional spacing before footer */}
+      <div className="mb-16"></div>
+
       <Footer />
     </div>
   );

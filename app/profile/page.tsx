@@ -99,8 +99,11 @@ function ProfilePageContent() {
       });
 
       fetchUserStats();
+    } else if (!isLoading) {
+      // If not loading from auth but no userProfile, stop local loading
+      setLoading(false);
     }
-  }, [userProfile, fetchUserStats]);
+  }, [userProfile, fetchUserStats, isLoading]);
 
   const handleUpdateProfile = async () => {
     if (!user) return;
