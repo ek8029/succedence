@@ -51,33 +51,37 @@ export default function MatchesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-midnight to-charcoal">
-      <div className="container-professional py-8">
+      <div className="container-professional page-content-large">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">My Matches</h1>
-          <p className="text-neutral-400">
+        <div className="page-header">
+          <h1 className="text-3xl font-bold text-white mb-4">My Matches</h1>
+          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
             Discover businesses that align with your investment preferences and acquisition criteria.
           </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-8 flex flex-wrap gap-4">
-          <Link
-            href="/preferences"
-            className="btn-secondary px-6 py-2 text-sm font-medium focus-ring hover-lift"
-          >
-            Update Preferences
-          </Link>
-          <Link
-            href="/browse"
-            className="text-gold hover:text-gold-light font-medium text-sm transition-colors flex items-center gap-2"
-          >
-            Browse All Opportunities →
-          </Link>
+        <div className="content-section">
+          <div className="btn-group">
+            <Link
+              href="/preferences"
+              className="btn-secondary px-6 py-3 text-sm font-medium focus-ring hover-lift"
+            >
+              Update Preferences
+            </Link>
+            <Link
+              href="/browse"
+              className="text-gold hover:text-gold-light font-medium text-sm transition-colors flex items-center gap-2"
+            >
+              Browse All Opportunities →
+            </Link>
+          </div>
         </div>
 
         {/* Matches Component */}
-        <MyMatches />
+        <div className="content-section">
+          <MyMatches />
+        </div>
       </div>
     </div>
   )
