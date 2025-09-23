@@ -33,6 +33,7 @@ export default function NewListingPage() {
   const [isDraft, setIsDraft] = useState(true);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const uploadMedia = useCallback(async (listingIdParam: string) => {
     for (const file of uploadedImages) {
@@ -208,13 +209,8 @@ export default function NewListingPage() {
   };
 
   const showNotification = (message: string, type: 'success' | 'error') => {
-    const notification = document.createElement('div');
-    notification.className = `notification fixed top-4 right-4 z-50 text-white px-6 py-4 slide-up ${
-      type === 'success' ? 'bg-green-600' : 'bg-red-600'
-    }`;
-    notification.innerHTML = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 4000);
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 4000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -709,6 +705,28 @@ export default function NewListingPage() {
                 </div>
               </div>
 
+
+              {/* Notification */}
+              {notification && (
+                <div className={`mb-6 p-4 rounded-lg border ${
+                  notification.type === 'success'
+                    ? 'bg-green-600/20 border-green-500/30 text-green-300'
+                    : 'bg-red-600/20 border-red-500/30 text-red-300'
+                }`}>
+                  <div className="flex items-center space-x-2">
+                    {notification.type === 'success' ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
+                    <span className="font-medium">{notification.message}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Submit */}
               <div className="form-actions">
