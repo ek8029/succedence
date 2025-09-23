@@ -97,8 +97,8 @@ function ProfilePageContent() {
       setBasicFormData({
         name: user.name || '',
         email: user.email || '',
-        role: user.role || '',
-        plan: user.plan || '',
+        role: user.role || 'user',
+        plan: user.plan || 'free',
       });
 
       fetchUserStats();
@@ -107,8 +107,8 @@ function ProfilePageContent() {
       setBasicFormData({
         name: user.name || '',
         email: user.email || '',
-        role: user.role || '',
-        plan: user.plan || '',
+        role: user.role || 'user',
+        plan: user.plan || 'free',
       });
       setLoading(false);
     }
@@ -140,20 +140,42 @@ function ProfilePageContent() {
   };
 
   const handleUpdateBasicInfo = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found');
+      showNotification('User not found', 'error');
+      return;
+    }
+
+    console.log('Updating basic info with data:', basicFormData);
 
     try {
+      // Validate required fields
+      if (!basicFormData.name?.trim()) {
+        showNotification('Name is required', 'error');
+        return;
+      }
+      if (!basicFormData.email?.trim()) {
+        showNotification('Email is required', 'error');
+        return;
+      }
+
       // Prepare update data
       const updateData: any = {
-        name: basicFormData.name,
-        email: basicFormData.email,
+        name: basicFormData.name.trim(),
+        email: basicFormData.email.trim(),
       };
 
       // Only add role and plan if user is admin
       if (user.role === 'admin') {
-        updateData.role = basicFormData.role;
-        updateData.plan = basicFormData.plan;
+        if (basicFormData.role) {
+          updateData.role = basicFormData.role;
+        }
+        if (basicFormData.plan) {
+          updateData.plan = basicFormData.plan;
+        }
       }
+
+      console.log('Sending update data:', updateData);
 
       const response = await fetch('/api/user/update-basic', {
         method: 'POST',
@@ -164,6 +186,7 @@ function ProfilePageContent() {
       });
 
       const result = await response.json();
+      console.log('API response:', result);
 
       if (response.ok) {
         setEditingBasic(false);
@@ -171,6 +194,7 @@ function ProfilePageContent() {
         // The auth context will automatically refresh the user data
         window.location.reload();
       } else {
+        console.error('API error:', result);
         showNotification(result.error || 'Failed to update basic information', 'error');
       }
     } catch (error) {
@@ -340,7 +364,12 @@ function ProfilePageContent() {
                 {editingBasic && (
                   <div className="flex justify-center space-x-4 pt-4">
                     <button
-                      onClick={handleUpdateBasicInfo}
+                      type="button"
+                      onClick={(e) => {
+                        console.log('Save Changes button clicked!');
+                        e.preventDefault();
+                        handleUpdateBasicInfo();
+                      }}
                       className="btn-success btn-sm hover-lift"
                     >
                       Save Changes
