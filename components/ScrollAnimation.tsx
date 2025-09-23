@@ -82,10 +82,11 @@ export default function ScrollAnimation({
 
       if (isAboveFold) {
         // For elements above the fold (instant load pages), add small delay
-        setTimeout(setupAnimation, 10);
+        const timeoutId = setTimeout(setupAnimation, 10);
+        return () => clearTimeout(timeoutId);
       } else {
         // For elements below the fold, setup immediately
-        setupAnimation();
+        return setupAnimation();
       }
     }, [delay, direction]);
 
