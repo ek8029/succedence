@@ -88,6 +88,83 @@ export const ListingCreateInput = z.object({
     .default('user_submission')
 })
 
+// Schema for creating/updating drafts (all fields optional except source)
+export const ListingDraftInput = z.object({
+  title: z.string()
+    .max(200, 'Title must be less than 200 characters')
+    .optional(),
+
+  description: z.string()
+    .max(5000, 'Description must be less than 5000 characters')
+    .optional(),
+
+  industry: z.string()
+    .max(100, 'Industry must be less than 100 characters')
+    .optional(),
+
+  city: z.string()
+    .max(100, 'City must be less than 100 characters')
+    .optional(),
+
+  state: z.string()
+    .max(100, 'State must be less than 100 characters')
+    .optional(),
+
+  revenue: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
+    z.number()
+      .int('Revenue must be a whole number')
+      .min(0, 'Revenue must be positive')
+      .max(1000000000, 'Revenue must be less than $1B')
+      .optional()
+  ),
+
+  ebitda: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
+    z.number()
+      .int('EBITDA must be a whole number')
+      .min(-100000000, 'EBITDA must be greater than -$100M')
+      .max(1000000000, 'EBITDA must be less than $1B')
+      .optional()
+  ),
+
+  metric_type: z.string()
+    .max(50, 'Metric type must be less than 50 characters')
+    .optional()
+    .nullable(),
+
+  owner_hours: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
+    z.number()
+      .int('Owner hours must be a whole number')
+      .min(0, 'Owner hours must be positive')
+      .max(168, 'Owner hours cannot exceed 168 hours per week')
+      .optional()
+  ),
+
+  employees: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
+    z.number()
+      .int('Employee count must be a whole number')
+      .min(0, 'Employee count must be positive')
+      .max(100000, 'Employee count must be less than 100,000')
+      .optional()
+  ),
+
+  price: z.preprocess(
+    (val) => val === '' || val === null || val === undefined ? undefined : Number(val),
+    z.number()
+      .int('Price must be a whole number')
+      .min(0, 'Price must be positive')
+      .max(10000000000, 'Price must be less than $10B')
+      .optional()
+  ),
+
+  source: z.string()
+    .max(100, 'Source must be less than 100 characters')
+    .default('user_submission')
+})
+
 // Schema for updating an existing listing
 export const ListingUpdateInput = z.object({
   ...baseListingSchema
@@ -183,5 +260,6 @@ export const BrowseFiltersInput = z.object({
 
 // Type exports for use in components
 export type ListingCreateInputType = z.infer<typeof ListingCreateInput>
+export type ListingDraftInputType = z.infer<typeof ListingDraftInput>
 export type ListingUpdateInputType = z.infer<typeof ListingUpdateInput>
 export type BrowseFiltersInputType = z.infer<typeof BrowseFiltersInput>

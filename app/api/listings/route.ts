@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { ListingCreateInput } from '@/lib/validation/listings'
+import { ListingCreateInput, ListingDraftInput } from '@/lib/validation/listings'
 
 export async function GET(request: NextRequest) {
   try {
@@ -141,7 +141,8 @@ export async function POST(request: NextRequest) {
 
     // Parse and validate request body
     const body = await request.json()
-    const validatedData = ListingCreateInput.parse(body)
+    // Use draft schema since all new listings start as drafts
+    const validatedData = ListingDraftInput.parse(body)
 
     // Use service client for write operations (bypasses RLS)
     const serviceSupabase = createServiceClient()

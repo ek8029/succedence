@@ -97,6 +97,10 @@ export default function Navbar() {
                   My Preferences
                 </Link>
 
+                <Link href="/matches" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  My Matches
+                </Link>
+
                 {user.role === 'admin' && (
                   <Link href="/admin" className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                     Admin Dashboard

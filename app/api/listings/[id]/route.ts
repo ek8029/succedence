@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { ListingUpdateInput, ListingRequestPublishInput, ListingWithMedia } from '@/lib/validation/listings'
+import { ListingUpdateInput, ListingDraftInput, ListingRequestPublishInput, ListingWithMedia } from '@/lib/validation/listings'
 import { getSignedMediaUrls, extractStoragePath } from '@/lib/storage/listingMedia'
 
 // Helper to check if user is admin
@@ -200,22 +200,25 @@ export async function PATCH(
     if (body.action === 'update_draft') {
       const { action, ...updateData } = body;
 
+      // Validate draft data (allows partial data)
+      const validatedData = ListingDraftInput.parse(updateData);
+
       // Update listing with new data
       const serviceSupabase = createServiceClient()
       const { data: updatedListing, error: updateError } = await (serviceSupabase
         .from('listings') as any)
         .update({
-          title: updateData.title,
-          description: updateData.description,
-          industry: updateData.industry,
-          city: updateData.city,
-          state: updateData.state,
-          revenue: updateData.revenue,
-          ebitda: updateData.ebitda,
-          metric_type: updateData.metric_type,
-          owner_hours: updateData.owner_hours,
-          employees: updateData.employees,
-          price: updateData.price,
+          title: validatedData.title,
+          description: validatedData.description,
+          industry: validatedData.industry,
+          city: validatedData.city,
+          state: validatedData.state,
+          revenue: validatedData.revenue,
+          ebitda: validatedData.ebitda,
+          metric_type: validatedData.metric_type,
+          owner_hours: validatedData.owner_hours,
+          employees: validatedData.employees,
+          price: validatedData.price,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)

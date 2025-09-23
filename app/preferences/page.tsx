@@ -232,7 +232,7 @@ function PreferencesPageContent() {
 
   return (
     <div className="min-h-screen bg-brand-darker">
-      <div className="container mx-auto px-8 pb-20 max-w-6xl page-content-large">
+      <div className="container mx-auto px-8 max-w-6xl page-content-large">
         <ScrollAnimation direction="fade">
           <div className="text-center mb-16 mt-24">
             <h1 className="text-heading text-white font-medium mb-6">
@@ -565,11 +565,12 @@ function PreferencesPageContent() {
           </div>
           </div>
         </ScrollAnimation>
+
+        {/* Add bottom spacing to form content */}
+        <div className="pb-20"></div>
       </div>
 
-      {/* Additional spacing before footer */}
-      <div className="mb-16"></div>
-
+      {/* Footer should extend to bottom of page */}
       <Footer />
     </div>
   );

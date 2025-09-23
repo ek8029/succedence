@@ -9,7 +9,6 @@ import { createClient } from '@/lib/supabase/client';
 import type { ProfileFormData, UserRole } from '@/lib/types';
 import { showNotification } from '@/components/Notification';
 import Footer from '@/components/Footer';
-import MyMatches from '@/components/MyMatches';
 import MyDrafts from '@/components/MyDrafts';
 
 interface UserStats {
@@ -38,6 +37,8 @@ function ProfilePageContent() {
   const [basicFormData, setBasicFormData] = useState({
     name: '',
     email: '',
+    role: '',
+    plan: '',
   });
 
   const fetchUserStats = useCallback(async () => {
@@ -96,6 +97,8 @@ function ProfilePageContent() {
       setBasicFormData({
         name: userProfile.name || '',
         email: userProfile.email || '',
+        role: userProfile.role || '',
+        plan: userProfile.plan || '',
       });
 
       fetchUserStats();
@@ -137,12 +140,20 @@ function ProfilePageContent() {
       const supabase = createClient();
 
       // Update user basic info in users table
+      const updateData: any = {
+        name: basicFormData.name,
+        email: basicFormData.email,
+      };
+
+      // Only add role and plan if user is admin
+      if (user.role === 'admin') {
+        updateData.role = basicFormData.role;
+        updateData.plan = basicFormData.plan;
+      }
+
       const { error } = await (supabase
         .from('users') as any)
-        .update({
-          name: basicFormData.name,
-          email: basicFormData.email,
-        })
+        .update(updateData)
         .eq('id', user.id);
 
       if (error) {
@@ -269,26 +280,51 @@ function ProfilePageContent() {
 
                 <div>
                   <label className="block text-neutral-300 font-medium mb-2">Role</label>
-                  <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
-                    <span className={`status-badge ${
-                      user.role === 'admin' ? 'status-main' :
-                      user.role === 'seller' ? 'status-approved' : 'status-starter'
-                    }`}>
-                      {user.role.toUpperCase()}
-                    </span>
-                  </div>
+                  {editingBasic && user?.role === 'admin' ? (
+                    <select
+                      value={basicFormData.role || userProfile?.role || 'user'}
+                      onChange={(e) => setBasicFormData({ ...basicFormData, role: e.target.value })}
+                      className="form-control w-full py-3 px-4"
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  ) : (
+                    <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
+                      <span className={`status-badge ${
+                        user.role === 'admin' ? 'status-main' :
+                        user.role === 'seller' ? 'status-approved' : 'status-starter'
+                      }`}>
+                        {user.role.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-neutral-300 font-medium mb-2">Plan</label>
-                  <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
-                    <span className={`status-badge ${
-                      user.plan === 'enterprise' ? 'status-main' :
-                      user.plan === 'professional' ? 'status-approved' : 'status-starter'
-                    }`}>
-                      {user.plan.toUpperCase()}
-                    </span>
-                  </div>
+                  {editingBasic && user?.role === 'admin' ? (
+                    <select
+                      value={basicFormData.plan || userProfile?.plan || 'free'}
+                      onChange={(e) => setBasicFormData({ ...basicFormData, plan: e.target.value })}
+                      className="form-control w-full py-3 px-4"
+                    >
+                      <option value="free">Free</option>
+                      <option value="starter">Starter</option>
+                      <option value="professional">Professional</option>
+                      <option value="enterprise">Enterprise</option>
+                      <option value="beta">Beta</option>
+                    </select>
+                  ) : (
+                    <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
+                      <span className={`status-badge ${
+                        user.plan === 'enterprise' ? 'status-main' :
+                        user.plan === 'professional' ? 'status-approved' : 'status-starter'
+                      }`}>
+                        {user.plan.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {editingBasic && (
@@ -305,7 +341,6 @@ function ProfilePageContent() {
             </div>
 
             {/* My Matches */}
-            <MyMatches />
 
             {/* My Drafts */}
             <MyDrafts />

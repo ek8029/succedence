@@ -1226,10 +1226,10 @@ a, .link, .nav-link {
 
 select.form-control {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.75rem center;
+  background-position: right 1.25rem center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
+  padding-right: 3rem;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -1271,6 +1271,17 @@ textarea.form-control {
   font-weight: 400;
   font-family: 'Source Serif Pro', Georgia, serif;
   line-height: 1.4;
+}
+
+select.form-control-large {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 3.5rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 textarea.form-control-large {
