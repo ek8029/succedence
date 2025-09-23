@@ -23,7 +23,10 @@ export default function NewListingPage() {
     owner_hours: '',
     employees: '',
     price: '',
-    source: 'manual' as const
+    source: 'manual' as const,
+    contact_phone: '',
+    contact_email: '',
+    contact_other: ''
   });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,6 +85,9 @@ export default function NewListingPage() {
         owner_hours: formData.owner_hours ? parseInt(formData.owner_hours, 10) : null,
         employees: formData.employees ? parseInt(formData.employees, 10) : null,
         price: formData.price ? parseInt(formData.price, 10) : null,
+        contact_phone: formData.contact_phone?.trim() || null,
+        contact_email: formData.contact_email?.trim() || null,
+        contact_other: formData.contact_other?.trim() || null,
       };
 
       console.log('Request data after processing:', requestData);
@@ -173,7 +179,37 @@ export default function NewListingPage() {
     }
   }, [formData, listingId, uploadedImages, uploadMedia]);
 
+  const validateRequiredFields = () => {
+    const missingFields = [];
+
+    if (!formData.title?.trim()) missingFields.push('Business Title');
+    if (!formData.description?.trim()) missingFields.push('Business Description');
+    if (!formData.industry?.trim()) missingFields.push('Industry');
+    if (!formData.city?.trim()) missingFields.push('City');
+    if (!formData.state?.trim()) missingFields.push('State');
+    if (!formData.revenue?.trim()) missingFields.push('Annual Revenue');
+    if (!formData.ebitda?.trim()) missingFields.push('EBITDA');
+    if (!formData.owner_hours?.trim()) missingFields.push('Owner Hours');
+    if (!formData.employees?.trim()) missingFields.push('Number of Employees');
+    if (!formData.price?.trim()) missingFields.push('Asking Price');
+
+    // Contact info - at least one method required
+    const hasContactInfo = formData.contact_phone?.trim() ||
+                          formData.contact_email?.trim() ||
+                          formData.contact_other?.trim();
+    if (!hasContactInfo) missingFields.push('Contact Information (phone, email, or other)');
+
+    return missingFields;
+  };
+
   const requestPublish = async () => {
+    // Validate required fields before submission
+    const missingFields = validateRequiredFields();
+    if (missingFields.length > 0) {
+      showNotification(`✗ Please complete all required fields: ${missingFields.join(', ')}`, 'error');
+      return;
+    }
+
     if (!listingId) {
       const saved = await saveDraft();
       if (!saved) return;
@@ -418,32 +454,61 @@ export default function NewListingPage() {
                       }`}
                     >
                       <option value="">Select Industry</option>
-                      <option value="HVAC Services">HVAC Services</option>
-                      <option value="Plumbing Services">Plumbing Services</option>
-                      <option value="Electrical Services">Electrical Services</option>
-                      <option value="Roofing & Siding">Roofing & Siding</option>
-                      <option value="Landscaping & Lawn Care">Landscaping & Lawn Care</option>
-                      <option value="Pest Control">Pest Control</option>
-                      <option value="Cleaning Services">Cleaning Services</option>
-                      <option value="Auto Repair & Service">Auto Repair & Service</option>
-                      <option value="Construction & Contracting">Construction & Contracting</option>
-                      <option value="Property Management">Property Management</option>
-                      <option value="Retail (Local/Traditional)">Retail (Local/Traditional)</option>
-                      <option value="Food & Beverage">Food & Beverage (Restaurants/Bars)</option>
-                      <option value="Manufacturing">Manufacturing (Small-Scale)</option>
-                      <option value="Transportation & Logistics">Transportation & Logistics</option>
-                      <option value="Professional Services">Professional Services</option>
-                      <option value="Medical & Dental Practices">Medical & Dental Practices</option>
-                      <option value="Accounting & Tax Services">Accounting & Tax Services</option>
-                      <option value="Insurance Services">Insurance Services</option>
-                      <option value="Real Estate Services">Real Estate Services</option>
-                      <option value="Beauty & Personal Care">Beauty & Personal Care</option>
-                      <option value="Dry Cleaning & Laundry">Dry Cleaning & Laundry</option>
-                      <option value="Pet Services">Pet Services</option>
-                      <option value="Home Security Services">Home Security Services</option>
-                      <option value="Appliance Repair">Appliance Repair</option>
-                      <option value="Carpet & Flooring">Carpet & Flooring</option>
-                      <option value="Funeral Services">Funeral Services</option>
+
+                      <optgroup label="Technology & Software">
+                        <option value="SaaS (Software as a Service)">SaaS (Software as a Service)</option>
+                        <option value="Technology Services">Technology Services</option>
+                        <option value="E-commerce">E-commerce</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
+                        <option value="Software Development">Software Development</option>
+                        <option value="FinTech">FinTech</option>
+                        <option value="HealthTech">HealthTech</option>
+                        <option value="EdTech">EdTech</option>
+                      </optgroup>
+
+                      <optgroup label="Professional Services">
+                        <option value="Professional Services">Professional Services</option>
+                        <option value="Medical & Dental Practices">Medical & Dental Practices</option>
+                        <option value="Accounting & Tax Services">Accounting & Tax Services</option>
+                        <option value="Insurance Services">Insurance Services</option>
+                        <option value="Real Estate Services">Real Estate Services</option>
+                        <option value="Legal Services">Legal Services</option>
+                      </optgroup>
+
+                      <optgroup label="Home & Local Services">
+                        <option value="HVAC Services">HVAC Services</option>
+                        <option value="Plumbing Services">Plumbing Services</option>
+                        <option value="Electrical Services">Electrical Services</option>
+                        <option value="Roofing & Siding">Roofing & Siding</option>
+                        <option value="Landscaping & Lawn Care">Landscaping & Lawn Care</option>
+                        <option value="Pest Control">Pest Control</option>
+                        <option value="Cleaning Services">Cleaning Services</option>
+                        <option value="Auto Repair & Service">Auto Repair & Service</option>
+                        <option value="Construction & Contracting">Construction & Contracting</option>
+                        <option value="Property Management">Property Management</option>
+                        <option value="Home Security Services">Home Security Services</option>
+                        <option value="Appliance Repair">Appliance Repair</option>
+                        <option value="Carpet & Flooring">Carpet & Flooring</option>
+                      </optgroup>
+
+                      <optgroup label="Retail & Consumer">
+                        <option value="Retail (Local/Traditional)">Retail (Local/Traditional)</option>
+                        <option value="Food & Beverage">Food & Beverage</option>
+                        <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+                        <option value="Dry Cleaning & Laundry">Dry Cleaning & Laundry</option>
+                        <option value="Pet Services">Pet Services</option>
+                        <option value="Fitness & Wellness">Fitness & Wellness</option>
+                      </optgroup>
+
+                      <optgroup label="Business & Industrial">
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Transportation & Logistics">Transportation & Logistics</option>
+                        <option value="Healthcare Services">Healthcare Services</option>
+                        <option value="Education & Training">Education & Training</option>
+                        <option value="Media & Entertainment">Media & Entertainment</option>
+                        <option value="Funeral Services">Funeral Services</option>
+                      </optgroup>
+
                       <option value="Other">Other</option>
                     </select>
                     {errors.industry && (
@@ -705,6 +770,67 @@ export default function NewListingPage() {
                 </div>
               </div>
 
+              {/* Contact Information Section */}
+              <div className="space-y-8">
+                <div className="border-t border-neutral-600 pt-8">
+                  <h3 className="text-2xl text-white font-medium mb-6 flex items-center">
+                    <svg className="w-6 h-6 text-gold mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Contact Information
+                  </h3>
+                  <p className="text-neutral-400 mb-8">
+                    Provide your contact details so interested buyers can reach you. These fields are optional for drafts.
+                  </p>
+
+                  <div className="grid md:grid-cols-1 gap-6">
+                    <div className="space-y-4">
+                      <label htmlFor="contact_phone" className="block text-lg text-neutral-300 font-medium">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="contact_phone"
+                        name="contact_phone"
+                        value={formData.contact_phone}
+                        onChange={handleInputChange}
+                        className="form-control w-full"
+                        placeholder="e.g., (555) 123-4567"
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <label htmlFor="contact_email" className="block text-lg text-neutral-300 font-medium">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="contact_email"
+                        name="contact_email"
+                        value={formData.contact_email}
+                        onChange={handleInputChange}
+                        className="form-control w-full"
+                        placeholder="e.g., john@example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <label htmlFor="contact_other" className="block text-lg text-neutral-300 font-medium">
+                        Other Contact Information
+                      </label>
+                      <textarea
+                        id="contact_other"
+                        name="contact_other"
+                        value={formData.contact_other}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="form-control w-full"
+                        placeholder="e.g., LinkedIn profile, website, preferred contact method, etc."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Notification */}
               {notification && (

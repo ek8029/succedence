@@ -318,8 +318,8 @@ export default function SuccessPage() {
               Real results from sophisticated investors and business owners who achieved their goals through Succedence
             </p>
             <div className="mt-12">
-              <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border-2 border-brand-darker hover:border-gold rounded-lg shadow-sm">
-                Return to Home
+              <Link href="/" className="inline-flex items-center px-4 py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors">
+                ← Return to Home
               </Link>
             </div>
           </div>
@@ -366,7 +366,7 @@ export default function SuccessPage() {
                   setSelectedIndustry('all');
                   setSelectedDealType('all');
                 }}
-                className="w-full glass px-6 py-3 hover-lift transition-all font-medium text-white border border-gold"
+                className="w-full px-3 py-2 text-sm font-medium text-neutral-400 hover:text-white border border-neutral-600 rounded transition-colors"
               >
                 Clear Filters
               </button>

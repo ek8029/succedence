@@ -405,15 +405,61 @@ function EditListingContent() {
                       required
                     >
                       <option value="">Select Industry</option>
-                      <option value="SaaS">Software as a Service</option>
-                      <option value="E-commerce">E-commerce & Retail</option>
-                      <option value="Manufacturing">Manufacturing</option>
-                      <option value="Healthcare">Healthcare & Medical</option>
-                      <option value="Technology">Technology & IT</option>
-                      <option value="Financial Services">Financial Services</option>
-                      <option value="Real Estate">Real Estate</option>
-                      <option value="Food & Beverage">Food & Beverage</option>
-                      <option value="Professional Services">Professional Services</option>
+
+                      <optgroup label="Technology & Software">
+                        <option value="SaaS (Software as a Service)">SaaS (Software as a Service)</option>
+                        <option value="Technology Services">Technology Services</option>
+                        <option value="E-commerce">E-commerce</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
+                        <option value="Software Development">Software Development</option>
+                        <option value="FinTech">FinTech</option>
+                        <option value="HealthTech">HealthTech</option>
+                        <option value="EdTech">EdTech</option>
+                      </optgroup>
+
+                      <optgroup label="Professional Services">
+                        <option value="Professional Services">Professional Services</option>
+                        <option value="Medical & Dental Practices">Medical & Dental Practices</option>
+                        <option value="Accounting & Tax Services">Accounting & Tax Services</option>
+                        <option value="Insurance Services">Insurance Services</option>
+                        <option value="Real Estate Services">Real Estate Services</option>
+                        <option value="Legal Services">Legal Services</option>
+                      </optgroup>
+
+                      <optgroup label="Home & Local Services">
+                        <option value="HVAC Services">HVAC Services</option>
+                        <option value="Plumbing Services">Plumbing Services</option>
+                        <option value="Electrical Services">Electrical Services</option>
+                        <option value="Roofing & Siding">Roofing & Siding</option>
+                        <option value="Landscaping & Lawn Care">Landscaping & Lawn Care</option>
+                        <option value="Pest Control">Pest Control</option>
+                        <option value="Cleaning Services">Cleaning Services</option>
+                        <option value="Auto Repair & Service">Auto Repair & Service</option>
+                        <option value="Construction & Contracting">Construction & Contracting</option>
+                        <option value="Property Management">Property Management</option>
+                        <option value="Home Security Services">Home Security Services</option>
+                        <option value="Appliance Repair">Appliance Repair</option>
+                        <option value="Carpet & Flooring">Carpet & Flooring</option>
+                      </optgroup>
+
+                      <optgroup label="Retail & Consumer">
+                        <option value="Retail (Local/Traditional)">Retail (Local/Traditional)</option>
+                        <option value="Food & Beverage">Food & Beverage</option>
+                        <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+                        <option value="Dry Cleaning & Laundry">Dry Cleaning & Laundry</option>
+                        <option value="Pet Services">Pet Services</option>
+                        <option value="Fitness & Wellness">Fitness & Wellness</option>
+                      </optgroup>
+
+                      <optgroup label="Business & Industrial">
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Transportation & Logistics">Transportation & Logistics</option>
+                        <option value="Healthcare Services">Healthcare Services</option>
+                        <option value="Education & Training">Education & Training</option>
+                        <option value="Media & Entertainment">Media & Entertainment</option>
+                        <option value="Funeral Services">Funeral Services</option>
+                      </optgroup>
+
                       <option value="Other">Other</option>
                     </select>
                     {errors.industry && (

@@ -38,8 +38,7 @@ export async function POST(request: NextRequest) {
     // Prepare update data
     const updateData: any = {
       name: validatedData.name,
-      email: validatedData.email,
-      updated_at: new Date().toISOString()
+      email: validatedData.email
     };
 
     // Only allow admin users to update role and plan

@@ -77,7 +77,23 @@ const baseListingSchema = {
       .min(0, 'Price must be positive')
       .max(10000000000, 'Price must be less than $10B')
       .optional()
-  )
+  ),
+
+  contact_phone: z.string()
+    .max(50, 'Phone number must be less than 50 characters')
+    .optional()
+    .nullable(),
+
+  contact_email: z.string()
+    .max(255, 'Email must be less than 255 characters')
+    .email('Please enter a valid email address')
+    .optional()
+    .nullable(),
+
+  contact_other: z.string()
+    .max(500, 'Other contact info must be less than 500 characters')
+    .optional()
+    .nullable()
 }
 
 // Schema for creating a new listing
@@ -111,6 +127,12 @@ export const ListingDraftInput = z.object({
   employees: z.number().int().min(0).max(100000).optional().nullable(),
 
   price: z.number().int().min(0).max(10000000000).optional().nullable(),
+
+  contact_phone: z.string().max(50).optional().nullable(),
+
+  contact_email: z.string().max(255).optional().nullable(),
+
+  contact_other: z.string().max(500).optional().nullable(),
 
   source: z.string().max(100).default('manual').optional()
 })
@@ -166,6 +188,9 @@ export type ListingWithMedia = {
   owner_hours?: number
   employees?: number
   price?: number
+  contact_phone?: string
+  contact_email?: string
+  contact_other?: string
   status: 'draft' | 'active' | 'rejected' | 'archived'
   created_at: string
   updated_at: string

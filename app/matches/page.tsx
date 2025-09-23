@@ -9,7 +9,7 @@ export default function MatchesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-midnight to-charcoal">
+      <div className="min-h-screen bg-midnight">
         <div className="container-professional py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-neutral-700 rounded mb-4 w-64"></div>
@@ -30,7 +30,7 @@ export default function MatchesPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-midnight to-charcoal">
+      <div className="min-h-screen bg-midnight">
         <div className="container-professional py-16">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white mb-4">Access Required</h1>
@@ -50,7 +50,7 @@ export default function MatchesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-midnight to-charcoal">
+    <div className="min-h-screen bg-midnight">
       <div className="container-professional page-content-large">
         {/* Page Header */}
         <div className="page-header">

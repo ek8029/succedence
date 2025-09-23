@@ -56,7 +56,13 @@
       "Bash(start http://localhost:3000/admin)",
       "Bash(start http://localhost:3000/auth)",
       "Bash(start http://localhost:3004/browse)",
-      "Bash(start http://localhost:3004/admin)"
+      "Bash(start http://localhost:3004/admin)",
+      "Bash(start http://localhost:3005/listings/new)",
+      "Bash(start http://localhost:3005/browse)",
+      "Bash(start http://localhost:3000)",
+      "Bash(tasklist:*)",
+      "Bash(start http://localhost:3007)",
+      "Bash(start http://localhost:3008)"
     ],
     "deny": [],
     "ask": []

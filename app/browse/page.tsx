@@ -285,6 +285,9 @@ export default function BrowsePage() {
 
         </ScrollAnimation>
 
+        {/* Add proper spacing before listings */}
+        <div className="mb-12"></div>
+
         {/* Subscription Gate for Free Users - Always Visible */}
         <SubscriptionGate requiredPlan="starter" requiredFeature="Browse business opportunities">
           {/* Listings Grid */}

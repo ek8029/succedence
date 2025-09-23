@@ -212,6 +212,9 @@ export async function PATCH(
           owner_hours: validatedData.owner_hours,
           employees: validatedData.employees,
           price: validatedData.price,
+          contact_phone: validatedData.contact_phone,
+          contact_email: validatedData.contact_email,
+          contact_other: validatedData.contact_other,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)

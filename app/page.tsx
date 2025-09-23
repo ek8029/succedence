@@ -138,7 +138,7 @@ export default function PublicLandingPage() {
 
               {/* AI Features Preview */}
               <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden h-80 flex flex-col">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
                   <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
                     <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,10 +146,10 @@ export default function PublicLandingPage() {
                     </svg>
                   </div>
                   <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">AI Business Analysis</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Get comprehensive AI-powered analysis including scoring, strengths, weaknesses, and growth opportunities for every listing.</p>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm flex-grow">Get comprehensive AI-powered analysis including scoring, strengths, weaknesses, and growth opportunities for every listing.</p>
                 </div>
 
-                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden h-80 flex flex-col">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
                   <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
                     <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,10 +157,10 @@ export default function PublicLandingPage() {
                     </svg>
                   </div>
                   <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Buyer Compatibility</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed text-sm">AI calculates compatibility scores between your investment criteria and business opportunities with detailed reasoning.</p>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm flex-grow">AI calculates compatibility scores between your investment criteria and business opportunities with detailed reasoning.</p>
                 </div>
 
-                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-2 relative overflow-hidden h-80 flex flex-col">
                   <div className="absolute top-0 left-0 w-full h-1 bg-accent-gradient"></div>
                   <div className="w-12 h-12 rounded-full bg-slate/50 border-2 border-gold/30 flex items-center justify-center mb-6">
                     <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@ export default function PublicLandingPage() {
                     </svg>
                   </div>
                   <h3 className="font-serif text-xl font-semibold text-warm-white mb-4 tracking-refined">Due Diligence Assistant</h3>
-                  <p className="font-sans text-silver/80 leading-relaxed text-sm">Generate comprehensive due diligence checklists with progress tracking and export capabilities for your deals.</p>
+                  <p className="font-sans text-silver/80 leading-relaxed text-sm flex-grow">Generate comprehensive due diligence checklists with progress tracking and export capabilities for your deals.</p>
                 </div>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function PublicLandingPage() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <div className="glass p-8 rounded-luxury-lg border border-gold/20">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 h-52 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mr-4">
                       <span className="text-midnight font-bold">M.K.</span>
@@ -197,12 +197,12 @@ export default function PublicLandingPage() {
                       <div className="text-sm text-silver/70">Private Equity Partner</div>
                     </div>
                   </div>
-                  <p className="text-silver/80 leading-relaxed">
+                  <p className="text-silver/80 leading-relaxed flex-grow">
                     &quot;Found and closed a $3.2M SaaS acquisition in 6 weeks. The AI analysis saved months of research.&quot;
                   </p>
                 </div>
 
-                <div className="glass p-8 rounded-luxury-lg border border-gold/20">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 h-52 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mr-4">
                       <span className="text-midnight font-bold">S.T.</span>
@@ -212,12 +212,12 @@ export default function PublicLandingPage() {
                       <div className="text-sm text-silver/70">Serial Entrepreneur</div>
                     </div>
                   </div>
-                  <p className="text-silver/80 leading-relaxed">
+                  <p className="text-silver/80 leading-relaxed flex-grow">
                     &quot;The buyer compatibility scoring is incredible. No more wasting time on deals that don&apos;t fit my criteria.&quot;
                   </p>
                 </div>
 
-                <div className="glass p-8 rounded-luxury-lg border border-gold/20">
+                <div className="glass p-8 rounded-luxury-lg border border-gold/20 h-52 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-accent-gradient rounded-full flex items-center justify-center mr-4">
                       <span className="text-midnight font-bold">R.C.</span>
@@ -227,7 +227,7 @@ export default function PublicLandingPage() {
                       <div className="text-sm text-silver/70">Investment Banker</div>
                     </div>
                   </div>
-                  <p className="text-silver/80 leading-relaxed">
+                  <p className="text-silver/80 leading-relaxed flex-grow">
                     &quot;Best platform for sourcing quality deals. The verification process ensures I only see serious sellers.&quot;
                   </p>
                 </div>

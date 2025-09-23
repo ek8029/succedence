@@ -69,8 +69,7 @@ export async function PUT(request: NextRequest) {
       phone: profileData.phone,
       company: profileData.company,
       headline: profileData.headline,
-      location: profileData.location,
-      updated_at: new Date().toISOString()
+      location: profileData.location
     }
 
     if (profileData.avatarUrl) {

@@ -244,8 +244,8 @@ export default function ListingDetailPage() {
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="mb-16 text-center">
-            <Link href="/browse" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600 inline-block mb-12">
-              ← Browse Opportunities
+            <Link href="/browse" className="inline-flex items-center px-4 py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors mb-12">
+              ← Back to Browse Opportunities
             </Link>
           </div>
         </ScrollAnimation>
@@ -286,6 +286,12 @@ export default function ListingDetailPage() {
                       {formatCurrency(listing.price)}
                     </div>
                     <div className="text-neutral-400">Valuation Range</div>
+                  </div>
+                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
+                    <div className="text-lg text-white font-bold mb-2">
+                      {listing.city}, {listing.state}
+                    </div>
+                    <div className="text-neutral-400">Location</div>
                   </div>
                 </div>
               </div>
@@ -341,6 +347,52 @@ export default function ListingDetailPage() {
                       <div className="text-neutral-400 font-medium mb-2">Valuation Range</div>
                       <div className="text-white font-bold text-financial text-2xl">
                         {formatCurrency(listing.price)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AccordionSection>
+
+            {/* Owner/Broker Contact Information */}
+            <AccordionSection id="contact" title="Owner/Broker Contact Information">
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-gold/5 to-accent-gold/5 border border-gold/30 rounded-lg p-6">
+                  <h3 className="text-xl text-white font-medium mb-4 flex items-center">
+                    <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Listing Contact
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-neutral-400 font-medium mb-2">Source/Broker</div>
+                        <div className="text-white font-semibold text-lg">{listing.source}</div>
+                      </div>
+                      <div>
+                        <div className="text-neutral-400 font-medium mb-2">Location</div>
+                        <div className="text-white font-medium">{listing.city}, {listing.state}</div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-neutral-400 font-medium mb-2">Phone</div>
+                        <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                          {listing.contactPhone || 'Contact broker for details'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-neutral-400 font-medium mb-2">Email</div>
+                        <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                          {listing.contactEmail || 'Contact broker for details'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-neutral-400 font-medium mb-2">Other Contact</div>
+                        <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                          {listing.contactOther || 'Contact broker for details'}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -121,46 +121,44 @@ function AdminPageContent() {
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 text-sm bg-charcoal border border-silver/30 text-white rounded hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-3 py-2 text-sm bg-charcoal border border-silver/30 text-white rounded hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed transition-all h-8"
           >
             Previous
           </button>
 
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let pageNumber;
-              if (totalPages <= 5) {
+          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+            let pageNumber;
+            if (totalPages <= 5) {
+              pageNumber = i + 1;
+            } else {
+              if (currentPage <= 3) {
                 pageNumber = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNumber = totalPages - 4 + i;
               } else {
-                if (currentPage <= 3) {
-                  pageNumber = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNumber = totalPages - 4 + i;
-                } else {
-                  pageNumber = currentPage - 2 + i;
-                }
+                pageNumber = currentPage - 2 + i;
               }
+            }
 
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => onPageChange(pageNumber)}
-                  className={`px-3 py-1 text-sm rounded ${
-                    currentPage === pageNumber
-                      ? 'bg-gold text-midnight font-medium'
-                      : 'bg-charcoal border border-silver/30 text-white hover:bg-charcoal-light'
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
-          </div>
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => onPageChange(pageNumber)}
+                className={`inline-flex items-center px-3 py-2 text-sm rounded transition-all h-8 ${
+                  currentPage === pageNumber
+                    ? 'bg-gold text-midnight font-medium'
+                    : 'bg-charcoal border border-silver/30 text-white hover:bg-charcoal-light'
+                }`}
+              >
+                {pageNumber}
+              </button>
+            );
+          })}
 
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 text-sm bg-charcoal border border-silver/30 text-white rounded hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-3 py-2 text-sm bg-charcoal border border-silver/30 text-white rounded hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed transition-all h-8"
           >
             Next
           </button>
@@ -373,7 +371,7 @@ function AdminPageContent() {
           <div className="text-center mb-20 mt-32">
             <h1 className="text-heading text-white font-medium mb-6">Administration Dashboard</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Platform analytics and business listing management</p>
-            <Link href="/" className="glass btn-lg font-medium text-white hover-lift transition-all border border-neutral-600">
+            <Link href="/" className="inline-flex items-center px-4 py-2 text-sm font-medium text-white glass border border-neutral-600 hover-lift transition-all">
               ← Return Home
             </Link>
           </div>
@@ -456,16 +454,16 @@ function AdminPageContent() {
           <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl text-white font-medium">User Management</h2>
-              <div className="flex gap-4">
+              <div className="flex gap-4 items-center">
                 <button
                   onClick={() => setShowBetaManagement(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium rounded-luxury hover-lift transition-all duration-300"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"
                 >
                   Manage Beta Access
                 </button>
                 <button
                   onClick={() => setShowCreateAdmin(true)}
-                  className="btn-primary px-6 py-3 font-medium hover-lift"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
                 >
                   Create New Admin
                 </button>
@@ -658,11 +656,11 @@ function AdminPageContent() {
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
                           {user.plan === 'beta' && (
                             <button
                               onClick={() => handleRevokeBetaAccess(user.id, user.name)}
-                              className="px-2 py-1 text-xs font-medium bg-blue-600 text-white border border-blue-600 rounded hover:bg-blue-700 transition-all duration-300"
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all whitespace-nowrap h-8"
                             >
                               Revoke Beta
                             </button>
@@ -673,14 +671,14 @@ function AdminPageContent() {
                                 setBetaUserEmail(user.email);
                                 setShowBetaManagement(true);
                               }}
-                              className="px-2 py-1 text-xs font-medium bg-blue-600 text-white border border-blue-600 rounded hover:bg-blue-700 transition-all duration-300"
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all whitespace-nowrap h-8"
                             >
                               Grant Beta
                             </button>
                           )}
                           <button
                             onClick={() => handleDeleteUser(user.id, user.name)}
-                            className="px-2 py-1 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 transition-all duration-300"
+                            className="inline-flex items-center px-3 py-2 text-xs font-medium bg-red-600 hover:bg-red-700 text-white border border-red-600 rounded transition-all whitespace-nowrap h-8"
                           >
                             Delete
                           </button>
@@ -745,11 +743,11 @@ function AdminPageContent() {
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-2 items-center">
                           {listing.status !== 'active' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'active')}
-                              className="px-3 py-1.5 text-xs font-medium btn-success whitespace-nowrap"
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium bg-green-600 hover:bg-green-700 text-white border border-green-600 rounded transition-all whitespace-nowrap h-8"
                             >
                               Activate
                             </button>
@@ -757,7 +755,7 @@ function AdminPageContent() {
                           {listing.status !== 'rejected' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'rejected')}
-                              className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 whitespace-nowrap"
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium bg-red-600 hover:bg-red-700 text-white border border-red-600 rounded transition-all whitespace-nowrap h-8"
                             >
                               Reject
                             </button>
@@ -765,7 +763,7 @@ function AdminPageContent() {
                           {listing.status !== 'archived' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'archived')}
-                              className="px-3 py-1.5 text-xs font-medium glass border border-neutral-600 text-neutral-300 hover:text-white whitespace-nowrap"
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium bg-neutral-600 hover:bg-neutral-700 text-white border border-neutral-600 rounded transition-all whitespace-nowrap h-8"
                             >
                               Archive
                             </button>

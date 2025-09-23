@@ -197,21 +197,21 @@ export default function MyMatches() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {matches.map((match) => (
             <div
               key={match.id}
-              className="border border-gold/20 rounded-luxury p-4 hover:border-gold/40 transition-colors"
+              className="border border-gold/20 rounded-luxury p-6 hover:border-gold/40 transition-colors bg-neutral-900/20"
             >
-              <div className="flex justify-between items-start mb-3">
+              <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <Link
                     href={`/listings/${match.listing.id}`}
-                    className="text-white font-medium hover:text-gold transition-colors line-clamp-1"
+                    className="text-white font-medium hover:text-gold transition-colors line-clamp-1 text-lg"
                   >
                     {match.listing.title}
                   </Link>
-                  <div className="text-sm text-neutral-400 mt-1">
+                  <div className="text-sm text-neutral-400 mt-2">
                     {match.listing.industry} • {match.listing.city}, {match.listing.state}
                   </div>
                 </div>
@@ -228,23 +228,23 @@ export default function MyMatches() {
               </div>
 
               {/* Score explanation */}
-              <div className="mb-3 p-2 bg-neutral-900/30 rounded text-xs text-neutral-400">
+              <div className="mb-4 p-3 bg-neutral-900/30 rounded text-sm text-neutral-400">
                 <span className="italic">{getScoreDescription(match.score)}</span>
               </div>
 
               {/* Enhanced reasons display */}
-              <div className="mb-3">
-                <div className="text-xs text-neutral-500 mb-2 font-medium">Why this matches your criteria:</div>
-                <div className="space-y-1">
+              <div className="mb-4">
+                <div className="text-sm text-neutral-500 mb-3 font-medium">Why this matches your criteria:</div>
+                <div className="space-y-2">
                   {match.reasons.slice(0, expandedMatch === match.id ? match.reasons.length : 3).map((reason, index) => (
                     <div
                       key={index}
-                      className="text-xs p-2 bg-neutral-800/50 border border-neutral-700 rounded flex items-start gap-2"
+                      className="text-sm p-3 bg-neutral-800/50 border border-neutral-700 rounded flex items-start gap-2"
                     >
                       <span className="text-green-400 flex-shrink-0 mt-0.5">✓</span>
                       <div>
                         <div className="text-neutral-300 font-medium">{reason}</div>
-                        <div className="text-neutral-500 mt-0.5">{enhanceReasonExplanation(reason)}</div>
+                        <div className="text-neutral-500 mt-1 text-xs">{enhanceReasonExplanation(reason)}</div>
                       </div>
                     </div>
                   ))}
@@ -253,7 +253,7 @@ export default function MyMatches() {
                 {match.reasons.length > 3 && (
                   <button
                     onClick={() => setExpandedMatch(expandedMatch === match.id ? null : match.id)}
-                    className="text-xs text-gold hover:text-gold-light mt-2 font-medium"
+                    className="text-sm text-gold hover:text-gold-light mt-3 font-medium"
                   >
                     {expandedMatch === match.id
                       ? '↑ Show less'
@@ -263,7 +263,7 @@ export default function MyMatches() {
                 )}
               </div>
 
-              <div className="flex justify-between items-center text-sm border-t border-neutral-700 pt-3">
+              <div className="flex justify-between items-center text-sm border-t border-neutral-700 pt-4 mt-2">
                 <div className="text-neutral-400">
                   {match.listing.revenue && (
                     <span>Revenue: {formatCurrency(match.listing.revenue)}</span>

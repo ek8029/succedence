@@ -59,14 +59,27 @@ function PreferencesPageContent() {
   }, [user, initialLoad]);
 
   const industryOptions = [
+    // Technology & Software
+    'SaaS (Software as a Service)', 'Technology Services', 'E-commerce', 'Digital Marketing',
+    'Software Development', 'FinTech', 'HealthTech', 'EdTech',
+
+    // Professional Services
+    'Professional Services', 'Medical & Dental Practices', 'Accounting & Tax Services',
+    'Insurance Services', 'Real Estate Services', 'Legal Services',
+
+    // Home & Local Services
     'HVAC Services', 'Plumbing Services', 'Electrical Services', 'Roofing & Siding',
     'Landscaping & Lawn Care', 'Pest Control', 'Cleaning Services', 'Auto Repair & Service',
-    'Construction & Contracting', 'Property Management', 'Retail (Local/Traditional)',
-    'Food & Beverage (Restaurants/Bars)', 'Manufacturing (Small-Scale)', 'Transportation & Logistics',
-    'Professional Services', 'Medical & Dental Practices', 'Accounting & Tax Services',
-    'Insurance Services', 'Real Estate Services', 'Beauty & Personal Care',
-    'Dry Cleaning & Laundry', 'Pet Services', 'Home Security Services',
-    'Appliance Repair', 'Carpet & Flooring', 'Funeral Services'
+    'Construction & Contracting', 'Property Management', 'Home Security Services',
+    'Appliance Repair', 'Carpet & Flooring',
+
+    // Retail & Consumer
+    'Retail (Local/Traditional)', 'Food & Beverage', 'Beauty & Personal Care',
+    'Dry Cleaning & Laundry', 'Pet Services', 'Fitness & Wellness',
+
+    // Business & Industrial
+    'Manufacturing', 'Transportation & Logistics', 'Healthcare Services',
+    'Education & Training', 'Media & Entertainment', 'Funeral Services'
   ];
 
   const stateOptions = [
@@ -246,12 +259,12 @@ function PreferencesPageContent() {
         </ScrollAnimation>
 
         <ScrollAnimation direction="up" delay={50}>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           {/* Tab Navigation */}
           <div className="lg:col-span-1">
-            <div className="glass p-6 border border-gold/30 rounded-luxury sticky top-8">
+            <div className="glass p-6 border border-gold/30 rounded-luxury min-h-[600px] flex flex-col">
               <h3 className="text-lg font-semibold text-white mb-6">Preferences</h3>
-              <div className="space-y-2">
+              <div className="space-y-2 flex-grow">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -272,7 +285,7 @@ function PreferencesPageContent() {
           {/* Content Area */}
           <div className="lg:col-span-3">
             <form onSubmit={handleSubmit}>
-              <div className="glass p-8 mb-8 border border-gold/30 rounded-luxury">
+              <div className="glass p-8 mb-8 border border-gold/30 rounded-luxury min-h-[600px]">
                 {/* Financial Preferences */}
                 {activeTab === 'financial' && (
                   <div className="space-y-8">

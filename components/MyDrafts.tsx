@@ -6,7 +6,18 @@ import Link from 'next/link';
 interface DraftListing {
   id: string;
   title: string;
+  description: string;
   industry: string;
+  city: string;
+  state: string;
+  revenue: number;
+  ebitda: number;
+  owner_hours: number;
+  employees: number;
+  price: number;
+  contact_phone: string;
+  contact_email: string;
+  contact_other: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -71,6 +82,35 @@ export default function MyDrafts() {
     setTimeout(() => notification.remove(), 4000);
   };
 
+  const getMissingFields = (draft: DraftListing) => {
+    const missingFields = [];
+
+    if (!draft.title?.trim()) missingFields.push('Business Title');
+    if (!draft.description?.trim()) missingFields.push('Business Description');
+    if (!draft.industry?.trim()) missingFields.push('Industry');
+    if (!draft.city?.trim()) missingFields.push('City');
+    if (!draft.state?.trim()) missingFields.push('State');
+    if (!draft.revenue) missingFields.push('Annual Revenue');
+    if (!draft.ebitda) missingFields.push('EBITDA');
+    if (!draft.owner_hours) missingFields.push('Owner Hours');
+    if (!draft.employees) missingFields.push('Number of Employees');
+    if (!draft.price) missingFields.push('Asking Price');
+
+    // Contact info - at least one method required
+    const hasContactInfo = draft.contact_phone?.trim() ||
+                          draft.contact_email?.trim() ||
+                          draft.contact_other?.trim();
+    if (!hasContactInfo) missingFields.push('Contact Information');
+
+    return missingFields;
+  };
+
+  const getCompletionPercentage = (draft: DraftListing) => {
+    const totalFields = 11; // 10 main fields + 1 contact requirement
+    const missingFields = getMissingFields(draft);
+    return Math.round(((totalFields - missingFields.length) / totalFields) * 100);
+  };
+
   if (loading) {
     return (
       <div className="glass p-8 border border-gold/30 rounded-luxury">
@@ -127,55 +167,100 @@ export default function MyDrafts() {
         </div>
       ) : (
         <div className="space-y-4">
-          {drafts.map((draft) => (
-            <div
-              key={draft.id}
-              className="border border-neutral-700 rounded-lg p-4 hover:border-gold/40 transition-colors"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1">
-                  <h4 className="text-white font-medium mb-1">
-                    {draft.title || 'Untitled Draft'}
-                  </h4>
-                  <div className="text-sm text-neutral-400">
-                    {draft.industry && (
-                      <span className="inline-block bg-neutral-800 px-2 py-1 rounded text-xs mr-2">
-                        {draft.industry}
+          {drafts.map((draft) => {
+            const missingFields = getMissingFields(draft);
+            const completionPercentage = getCompletionPercentage(draft);
+            const isComplete = missingFields.length === 0;
+
+            return (
+              <div
+                key={draft.id}
+                className="border border-neutral-700 rounded-lg p-4 hover:border-gold/40 transition-colors"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h4 className="text-white font-medium mb-1">
+                      {draft.title || 'Untitled Draft'}
+                    </h4>
+                    <div className="text-sm text-neutral-400 mb-2">
+                      {draft.industry && (
+                        <span className="inline-block bg-neutral-800 px-2 py-1 rounded text-xs mr-2">
+                          {draft.industry}
+                        </span>
+                      )}
+                      <span className="status-badge status-pending">
+                        {draft.status}
                       </span>
+                    </div>
+
+                    {/* Completion Progress */}
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-neutral-400">
+                          Completion: {completionPercentage}%
+                        </span>
+                        {isComplete && (
+                          <span className="text-xs text-green-400 font-medium">
+                            ✓ Ready for Review
+                          </span>
+                        )}
+                      </div>
+                      <div className="w-full bg-neutral-700 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            isComplete ? 'bg-green-500' : 'bg-gold'
+                          }`}
+                          style={{ width: `${completionPercentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Missing Fields Checklist */}
+                    {missingFields.length > 0 && (
+                      <div className="bg-neutral-800/50 rounded-lg p-3 mb-3">
+                        <div className="text-xs text-neutral-300 font-medium mb-2">
+                          Missing Information ({missingFields.length} items):
+                        </div>
+                        <div className="grid grid-cols-2 gap-1 text-xs">
+                          {missingFields.map((field, index) => (
+                            <div key={index} className="text-orange-400 flex items-center">
+                              <span className="w-1 h-1 bg-orange-400 rounded-full mr-2"></span>
+                              {field}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                    <span className="status-badge status-pending">
-                      {draft.status}
-                    </span>
                   </div>
                 </div>
-              </div>
 
-              <div className="text-xs text-neutral-500 mb-4">
-                Created: {new Date(draft.created_at).toLocaleDateString()}
-                {draft.updated_at !== draft.created_at && (
-                  <> • Last saved: {new Date(draft.updated_at).toLocaleDateString()}</>
-                )}
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="space-x-3">
-                  <Link
-                    href={`/listings/${draft.id}/edit`}
-                    className="text-gold hover:text-gold-light font-medium transition-colors text-sm"
-                  >
-                    Continue Editing →
-                  </Link>
+                <div className="text-xs text-neutral-500 mb-4">
+                  Created: {new Date(draft.created_at).toLocaleDateString()}
+                  {draft.updated_at !== draft.created_at && (
+                    <> • Last saved: {new Date(draft.updated_at).toLocaleDateString()}</>
+                  )}
                 </div>
 
-                <button
-                  onClick={() => deleteDraft(draft.id)}
-                  className="text-red-400 hover:text-red-300 font-medium transition-colors text-sm"
-                >
-                  Delete
-                </button>
+                <div className="flex justify-between items-center">
+                  <div className="space-x-3">
+                    <Link
+                      href={`/listings/${draft.id}/edit`}
+                      className="text-gold hover:text-gold-light font-medium transition-colors text-sm"
+                    >
+                      Continue Editing →
+                    </Link>
+                  </div>
+
+                  <button
+                    onClick={() => deleteDraft(draft.id)}
+                    className="text-red-400 hover:text-red-300 font-medium transition-colors text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {drafts.length > 0 && (
             <div className="text-center pt-4">
