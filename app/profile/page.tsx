@@ -533,10 +533,10 @@ function ProfilePageContent() {
                 )}
               </div>
 
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center mt-6">
                 <button
                   onClick={() => signOut()}
-                  className="btn-secondary hover-lift"
+                  className="btn-secondary hover-lift px-6 py-2 text-sm"
                 >
                   Sign Out
                 </button>

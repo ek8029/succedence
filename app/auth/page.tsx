@@ -410,7 +410,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || isLoading}
-                className="btn-primary w-full py-5 text-lg font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed block"
+                className="btn-primary w-full py-3 text-base font-medium focus-ring hover-lift disabled:opacity-50 disabled:cursor-not-allowed block"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', cursor: 'pointer' }}
               >
                 {(isSubmitting || isLoading) ? (

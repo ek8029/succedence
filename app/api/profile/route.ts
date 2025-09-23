@@ -9,7 +9,7 @@ const profileUpdateSchema = z.object({
   company: z.string().optional(),
   headline: z.string().optional(),
   location: z.string().optional(),
-  avatar_url: z.string().url().optional()
+  avatarUrl: z.string().url().optional()
 })
 
 export async function GET(request: NextRequest) {
@@ -63,14 +63,24 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const profileData = profileUpdateSchema.parse(body)
 
+    // Map avatarUrl to avatar_url for database
+    const dbData: any = {
+      user_id: user.id,
+      phone: profileData.phone,
+      company: profileData.company,
+      headline: profileData.headline,
+      location: profileData.location,
+      updated_at: new Date().toISOString()
+    }
+
+    if (profileData.avatarUrl) {
+      dbData.avatar_url = profileData.avatarUrl
+    }
+
     // Upsert profile
     const { data, error } = await (supabase
       .from('profiles') as any)
-      .upsert({
-        user_id: user.id,
-        ...profileData,
-        updated_at: new Date().toISOString()
-      })
+      .upsert(dbData)
       .select()
       .single()
 

@@ -177,7 +177,7 @@ export default function BrowsePage() {
         <div className="mb-12">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-warm-white">
-              {listings.length} Opportunities Found
+              {user ? `${listings.length} Opportunities Found` : `${listings.length} Potential Opportunities`}
             </h2>
           </div>
         </div>
@@ -283,23 +283,26 @@ export default function BrowsePage() {
             </div>
           </div>
 
-          {/* Subscription Gate for Free Users */}
-          <SubscriptionGate requiredPlan="starter" requiredFeature="Browse business opportunities">
-            {/* Listings Grid */}
-            {listings.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="text-6xl mb-6 text-gold">
-                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-semibold text-warm-white mb-4">No listings found</h3>
-                <p className="text-platinum/80">Try adjusting your search criteria or check back later for new opportunities.</p>
+        </ScrollAnimation>
+
+        {/* Subscription Gate for Free Users - Always Visible */}
+        <SubscriptionGate requiredPlan="starter" requiredFeature="Browse business opportunities">
+          {/* Listings Grid */}
+          {listings.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-6 text-gold">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
-            ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-              {listings.map((listing) => (
-                <div key={listing.id} className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300">
+              <h3 className="text-2xl font-semibold text-warm-white mb-4">No listings found</h3>
+              <p className="text-platinum/80">Try adjusting your search criteria or check back later for new opportunities.</p>
+            </div>
+          ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+            {listings.map((listing, index) => (
+              <ScrollAnimation key={listing.id} direction="up" delay={index * 50} className="h-full">
+                <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300">
                   {/* Header Section */}
                   <div className="mb-6">
                     {/* Location - Prominent */}
@@ -380,18 +383,19 @@ export default function BrowsePage() {
                   <div className="pt-4 border-t border-white/10">
                     <Link
                       href={`/listings/${listing.id}`}
-                      className="btn-secondary w-full py-3 text-center hover-lift"
+                      className="btn-secondary w-full py-2 text-center hover-lift text-sm"
                       style={{ fontFamily: "'Crimson Text', Georgia, serif", fontWeight: 400 }}
                     >
                       View Details
                     </Link>
                   </div>
                 </div>
-              ))}
-            </div>
-            )}
-          </SubscriptionGate>
-        </ScrollAnimation>
+              </ScrollAnimation>
+            ))}
+          </div>
+          )}
+        </SubscriptionGate>
+
         </div>
       </div>
 
