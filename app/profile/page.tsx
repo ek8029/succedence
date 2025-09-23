@@ -84,7 +84,7 @@ function ProfilePageContent() {
   }, [user, userProfile]);
 
   useEffect(() => {
-    if (userProfile) {
+    if (user && userProfile) {
       // Set form data from current profile
       setFormData({
         phone: userProfile.profile?.phone || '',
@@ -95,18 +95,24 @@ function ProfilePageContent() {
       });
 
       setBasicFormData({
-        name: userProfile.name || '',
-        email: userProfile.email || '',
-        role: userProfile.role || '',
-        plan: userProfile.plan || '',
+        name: user.name || '',
+        email: user.email || '',
+        role: user.role || '',
+        plan: user.plan || '',
       });
 
       fetchUserStats();
-    } else if (!isLoading) {
-      // If not loading from auth but no userProfile, stop local loading
+    } else if (!isLoading && user) {
+      // If user exists but no userProfile, initialize with user data
+      setBasicFormData({
+        name: user.name || '',
+        email: user.email || '',
+        role: user.role || '',
+        plan: user.plan || '',
+      });
       setLoading(false);
     }
-  }, [userProfile, fetchUserStats, isLoading]);
+  }, [user, userProfile, fetchUserStats, isLoading]);
 
   const handleUpdateProfile = async () => {
     if (!user) return;
@@ -206,7 +212,7 @@ function ProfilePageContent() {
             <h1 className="text-heading text-white font-medium mb-4">User Profile</h1>
             <p className="text-xl text-neutral-400">Manage your account and view activity</p>
             <div className="mt-8">
-              <Link href="/" className="glass px-8 py-3 font-medium text-white hover-lift transition-all border border-neutral-600">
+              <Link href="/" className="btn-secondary btn-sm hover-lift">
                 ← Return Home
               </Link>
             </div>
@@ -236,18 +242,18 @@ function ProfilePageContent() {
             )}
 
             {/* Basic Information */}
-            <div className="glass p-16 border border-gold/30 rounded-luxury">
-              <div className="flex items-center justify-between mb-10">
+            <div className="glass p-8 border border-gold/30 rounded-lg">
+              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl text-white font-medium">Basic Information</h2>
                 <button
                   onClick={() => setEditingBasic(!editingBasic)}
-                  className="glass px-6 py-2 text-white border border-neutral-600 hover-lift"
+                  className="btn-secondary btn-sm hover-lift"
                 >
                   {editingBasic ? 'Cancel' : 'Edit'}
                 </button>
               </div>
 
-              <div className="max-w-2xl mx-auto space-y-6">
+              <div className="max-w-2xl space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-neutral-300 font-medium mb-2">Name</label>
@@ -260,7 +266,7 @@ function ProfilePageContent() {
                       />
                     ) : (
                       <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600 text-white">
-                        {userProfile?.name}
+                        {user?.name || 'Not set'}
                       </div>
                     )}
                   </div>
@@ -276,7 +282,7 @@ function ProfilePageContent() {
                       />
                     ) : (
                       <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600 text-white">
-                        {userProfile?.email}
+                        {user?.email || 'Not set'}
                       </div>
                     )}
                   </div>
@@ -286,7 +292,7 @@ function ProfilePageContent() {
                   <label className="block text-neutral-300 font-medium mb-2">Role</label>
                   {editingBasic && user?.role === 'admin' ? (
                     <select
-                      value={basicFormData.role || userProfile?.role || 'user'}
+                      value={basicFormData.role || user?.role || 'user'}
                       onChange={(e) => setBasicFormData({ ...basicFormData, role: e.target.value })}
                       className="form-control w-full py-3 px-4"
                     >
@@ -296,10 +302,10 @@ function ProfilePageContent() {
                   ) : (
                     <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
                       <span className={`status-badge ${
-                        user.role === 'admin' ? 'status-main' :
-                        user.role === 'seller' ? 'status-approved' : 'status-starter'
+                        user?.role === 'admin' ? 'status-main' :
+                        user?.role === 'seller' ? 'status-approved' : 'status-starter'
                       }`}>
-                        {user.role.toUpperCase()}
+                        {(user?.role || 'user').toUpperCase()}
                       </span>
                     </div>
                   )}
@@ -309,7 +315,7 @@ function ProfilePageContent() {
                   <label className="block text-neutral-300 font-medium mb-2">Plan</label>
                   {editingBasic && user?.role === 'admin' ? (
                     <select
-                      value={basicFormData.plan || userProfile?.plan || 'free'}
+                      value={basicFormData.plan || user?.plan || 'free'}
                       onChange={(e) => setBasicFormData({ ...basicFormData, plan: e.target.value })}
                       className="form-control w-full py-3 px-4"
                     >
@@ -322,10 +328,10 @@ function ProfilePageContent() {
                   ) : (
                     <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">
                       <span className={`status-badge ${
-                        user.plan === 'enterprise' ? 'status-main' :
-                        user.plan === 'professional' ? 'status-approved' : 'status-starter'
+                        user?.plan === 'enterprise' ? 'status-main' :
+                        user?.plan === 'professional' ? 'status-approved' : 'status-starter'
                       }`}>
-                        {user.plan.toUpperCase()}
+                        {(user?.plan || 'free').toUpperCase()}
                       </span>
                     </div>
                   )}
@@ -335,7 +341,7 @@ function ProfilePageContent() {
                   <div className="flex justify-center space-x-4 pt-4">
                     <button
                       onClick={handleUpdateBasicInfo}
-                      className="btn-success font-medium hover-lift"
+                      className="btn-success btn-sm hover-lift"
                     >
                       Save Changes
                     </button>
@@ -350,18 +356,18 @@ function ProfilePageContent() {
             <MyDrafts />
 
             {/* Profile Details */}
-            <div className="glass p-16 border border-gold/30 rounded-luxury">
-              <div className="flex items-center justify-between mb-10">
+            <div className="glass p-8 border border-gold/30 rounded-lg">
+              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl text-white font-medium">Profile Details</h2>
                 <button
                   onClick={() => setEditMode(!editMode)}
-                  className="glass px-6 py-2 text-white border border-neutral-600 hover-lift"
+                  className="btn-secondary btn-sm hover-lift"
                 >
                   {editMode ? 'Cancel' : 'Edit'}
                 </button>
               </div>
 
-              <div className="max-w-2xl mx-auto space-y-6">
+              <div className="max-w-2xl space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-neutral-300 font-medium mb-2">Phone</label>
@@ -436,7 +442,7 @@ function ProfilePageContent() {
                   <div className="flex justify-center space-x-4 pt-4">
                     <button
                       onClick={handleUpdateProfile}
-                      className="btn-success font-medium hover-lift"
+                      className="btn-success btn-sm hover-lift"
                     >
                       Save Profile
                     </button>
@@ -447,8 +453,8 @@ function ProfilePageContent() {
 
             {/* Activity Statistics */}
             {stats && (
-              <div className="glass p-16 border border-gold/30 rounded-luxury">
-                <h2 className="text-2xl text-white font-medium mb-10 text-center">Activity Overview</h2>
+              <div className="glass p-8 border border-gold/30 rounded-lg">
+                <h2 className="text-2xl text-white font-medium mb-6 text-center">Activity Overview</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                   <div className="metric-card p-8 text-center">
@@ -470,8 +476,8 @@ function ProfilePageContent() {
             )}
 
             {/* Quick Actions */}
-            <div className="glass p-16 border border-gold/30 rounded-luxury">
-              <h2 className="text-2xl text-white font-medium mb-10 text-center">Quick Actions</h2>
+            <div className="glass p-8 border border-gold/30 rounded-lg">
+              <h2 className="text-2xl text-white font-medium mb-6 text-center">Quick Actions</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 <Link href="/preferences" className="metric-card p-6 hover-lift block">
@@ -498,10 +504,10 @@ function ProfilePageContent() {
                 )}
               </div>
 
-              <div className="flex justify-center mt-10">
+              <div className="flex justify-center mt-8">
                 <button
                   onClick={() => signOut()}
-                  className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600"
+                  className="btn-secondary hover-lift"
                 >
                   Sign Out
                 </button>
