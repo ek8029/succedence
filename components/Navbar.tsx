@@ -111,16 +111,16 @@ export default function Navbar() {
 
             <div className="flex items-center space-x-6">
               {user ? (
-                <div className="flex items-center space-x-4 h-12">
-                  <Link href="/profile" className="text-right hover-lift transition-all flex flex-col justify-center h-full">
+                <div className="flex items-center space-x-4">
+                  <Link href="/profile" className="text-right hover-lift transition-all flex flex-col justify-center min-h-[48px]">
                     <div className="text-sm text-white font-semibold hover:text-neutral-300" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>{user.name}</div>
                     <div className="text-xs text-neutral-400 capitalize font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif', letterSpacing: '0.05em'}}>{user.role.toLowerCase()}</div>
                   </Link>
-                  <div className="w-px h-8 bg-neutral-600"></div>
+                  <div className="w-px h-8 bg-neutral-600 self-center"></div>
                   <button
                     onClick={() => signOut()}
                     disabled={isLoading}
-                    className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-full"
+                    className="text-sm text-neutral-400 hover:text-white transition-colors duration-200 font-medium px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[48px]"
                     style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                   >
                     {isLoading ? (

@@ -299,7 +299,7 @@ export default function BrowsePage() {
               <p className="text-platinum/80">Try adjusting your search criteria or check back later for new opportunities.</p>
             </div>
           ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-12">
             {listings.map((listing, index) => (
               <ScrollAnimation key={listing.id} direction="up" delay={index * 50} className="h-full">
                 <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300">

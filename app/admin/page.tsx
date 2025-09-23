@@ -708,44 +708,44 @@ function AdminPageContent() {
 
         {/* Listing Management */}
         <ScrollAnimation direction="up" delay={150}>
-          <div className="max-w-full mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4">
           <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.7s'}}>
             <h2 className="text-2xl text-white font-medium mb-8">Listing Management</h2>
             <div className="overflow-x-auto">
-              <table className="data-table w-full min-w-[1200px]">
+              <table className="data-table w-full">
                 <thead>
                   <tr>
-                    <th className="text-left py-4 px-6">Business</th>
-                    <th className="text-left py-4 px-6">Industry</th>
-                    <th className="text-left py-4 px-6">Revenue</th>
-                    <th className="text-left py-4 px-6">Status</th>
-                    <th className="text-left py-4 px-6">Actions</th>
+                    <th className="text-left py-4 px-4 min-w-[200px]">Business</th>
+                    <th className="text-left py-4 px-4 min-w-[120px]">Industry</th>
+                    <th className="text-left py-4 px-4 min-w-[100px]">Revenue</th>
+                    <th className="text-left py-4 px-4 min-w-[80px]">Status</th>
+                    <th className="text-left py-4 px-4 min-w-[200px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {getListingsForCurrentPage().map((listing) => (
                     <tr key={listing.id}>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-4">
                         <div>
-                          <div className="text-white font-semibold text-lg">{listing.title}</div>
-                          <div className="text-neutral-400 text-sm">{listing.source}</div>
+                          <div className="text-white font-semibold text-base">{listing.title}</div>
+                          <div className="text-neutral-400 text-xs">{listing.source}</div>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <span className="status-badge status-pending">
+                      <td className="py-4 px-4">
+                        <span className="status-badge status-pending text-xs">
                           {listing.industry}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-white font-bold text-financial text-lg">
+                      <td className="py-4 px-4 text-white font-bold text-financial text-base">
                         {formatCurrency(listing.revenue)}
                       </td>
-                      <td className="py-4 px-6">
-                        <span className={`status-badge ${listing.status === 'active' ? 'status-approved' : 'status-pending'}`}>
+                      <td className="py-4 px-4">
+                        <span className={`status-badge text-xs ${listing.status === 'active' ? 'status-approved' : 'status-pending'}`}>
                           {listing.status}
                         </span>
                       </td>
-                      <td className="py-4 px-6 min-w-[300px]">
-                        <div className="flex flex-wrap gap-2">
+                      <td className="py-4 px-4">
+                        <div className="flex flex-wrap gap-1">
                           {listing.status !== 'active' && (
                             <button
                               onClick={() => handleStatusUpdate(listing.id, 'active')}
