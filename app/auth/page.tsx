@@ -162,7 +162,7 @@ export default function AuthPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
-      <div className="relative z-10 flex flex-col items-center justify-start px-4 pt-16 pb-20">
+      <div className="relative z-10 flex flex-col items-center justify-start px-4 pt-24 pb-20">
         <div className="w-full max-w-2xl">
         <ScrollAnimation direction="fade">
           <div className="bg-charcoal/80 backdrop-blur-sm p-8 border border-gold/50 rounded-luxury tier-premium">

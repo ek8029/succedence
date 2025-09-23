@@ -102,7 +102,7 @@ export default function PublicLandingPage() {
           </div>
         </nav>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-16 pb-0 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24 pb-0 max-w-7xl">
 
           {/* Hero Section */}
           <ScrollAnimation direction="fade">
@@ -136,7 +136,7 @@ export default function PublicLandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <Link
                     href="/auth"
-                    className="group inline-flex items-center justify-center px-8 py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-lg w-full sm:w-auto max-w-sm"
+                    className="group inline-flex items-center justify-center px-6 py-3 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-base w-auto"
                   >
                     Get Started
                     <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@ export default function PublicLandingPage() {
                   </Link>
                   <button
                     onClick={() => document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-lg w-full sm:w-auto max-w-sm"
+                    className="inline-flex items-center justify-center px-6 py-3 bg-transparent border-2 border-silver text-silver hover:bg-silver hover:text-midnight font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-base w-auto"
                   >
                     See Demo
                   </button>

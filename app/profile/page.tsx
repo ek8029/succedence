@@ -232,7 +232,7 @@ function ProfilePageContent() {
       <div className="container-professional pb-16 page-content-large">
         {/* Header */}
         <ScrollAnimation direction="fade">
-          <div className="text-center mb-16 mt-24">
+          <div className="text-center mb-16 mt-32">
             <h1 className="text-heading text-white font-medium mb-4">User Profile</h1>
             <p className="text-xl text-neutral-400">Manage your account and view activity</p>
             <div className="mt-8">

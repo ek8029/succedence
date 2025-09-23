@@ -142,8 +142,8 @@ export default function BrowsePage() {
             </div>
             <h1 className="font-serif text-4xl md:text-5xl font-semibold text-warm-white mb-8">Browse Opportunities</h1>
             <p className="font-sans text-xl text-platinum/90">Discover exceptional businesses ready for acquisition</p>
-            <div className="mt-12">
-              <Link href="/" className="btn-secondary inline-flex items-center px-8 py-4" style={{ fontFamily: "'Crimson Text', Georgia, serif", fontWeight: 400 }}>
+            <div className="mt-16">
+              <Link href="/" className="btn-secondary inline-flex items-center px-6 py-3" style={{ fontFamily: "'Crimson Text', Georgia, serif", fontWeight: 400 }}>
                 ← Return to Home
               </Link>
             </div>
@@ -185,7 +185,7 @@ export default function BrowsePage() {
         <ScrollAnimation direction="up" delay={50}>
 
           {/* Dynamic AI Features Highlight */}
-          <div className="glass p-8 mb-16 rounded-lg border-2 border-gold/30 bg-gradient-to-r from-gold/5 to-accent-gold/5">
+          <div className="glass p-8 mb-20 rounded-lg border-2 border-gold/30 bg-gradient-to-r from-gold/5 to-accent-gold/5">
             <div className="text-center mb-8">
               <h3 className="text-xl font-semibold text-gold mb-2">AI-Powered Acquisition Intelligence</h3>
               <p className="text-silver/80 text-sm">

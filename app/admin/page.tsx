@@ -370,7 +370,7 @@ function AdminPageContent() {
       <div className="container-professional page-content-large">
         {/* Header */}
         <ScrollAnimation direction="fade">
-          <div className="text-center mb-20 mt-24">
+          <div className="text-center mb-20 mt-32">
             <h1 className="text-heading text-white font-medium mb-6">Administration Dashboard</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Platform analytics and business listing management</p>
             <Link href="/" className="glass btn-lg font-medium text-white hover-lift transition-all border border-neutral-600">

@@ -55,7 +55,8 @@
       "Bash(start http://localhost:3000/listings/new)",
       "Bash(start http://localhost:3000/admin)",
       "Bash(start http://localhost:3000/auth)",
-      "Bash(start http://localhost:3004/browse)"
+      "Bash(start http://localhost:3004/browse)",
+      "Bash(start http://localhost:3004/admin)"
     ],
     "deny": [],
     "ask": []
