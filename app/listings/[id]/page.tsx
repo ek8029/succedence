@@ -90,7 +90,7 @@ export default function ListingDetailPage() {
       console.error('Error fetching listing data:', error);
       setLoading(false);
     }
-  }, [listingId, router]);
+  }, [listingId, router, user]);
 
   useEffect(() => {
     fetchListingData();

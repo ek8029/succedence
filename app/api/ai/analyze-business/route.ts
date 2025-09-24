@@ -69,13 +69,13 @@ export async function POST(request: NextRequest) {
       .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Within last 24 hours
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single to avoid never type
 
     let analysis;
 
-    if (existingAnalysis && existingAnalysis.analysis_data) {
+    if (existingAnalysis && (existingAnalysis as any).analysis_data) {
       // Use cached analysis
-      analysis = existingAnalysis.analysis_data;
+      analysis = (existingAnalysis as any).analysis_data;
     } else {
       // Generate new AI analysis
       analysis = await analyzeBusinessForAcquisition(listing);
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       success: true,
       analysis,
       cached: !!existingAnalysis,
-      analysisDate: existingAnalysis ? existingAnalysis.created_at : new Date().toISOString(),
+      analysisDate: existingAnalysis ? (existingAnalysis as any).created_at : new Date().toISOString(),
       listingTitle: (listing as any).title
     });
 
