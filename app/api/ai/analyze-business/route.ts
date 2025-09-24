@@ -10,7 +10,14 @@ export async function POST(request: NextRequest) {
     // Check if AI features are enabled
     if (!isAIEnabled()) {
       return NextResponse.json(
-        { error: 'AI features are not enabled' },
+        {
+          error: 'AI features are not enabled',
+          debug: {
+            AI_FEATURES_ENABLED: process.env.AI_FEATURES_ENABLED,
+            OPENAI_API_KEY_EXISTS: !!process.env.OPENAI_API_KEY,
+            OPENAI_API_KEY_LENGTH: process.env.OPENAI_API_KEY?.length
+          }
+        },
         { status: 503 }
       );
     }
