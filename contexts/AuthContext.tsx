@@ -478,7 +478,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data?.user && data?.session) {
-        console.log('Sign-in successful - updating user state immediately')
+        console.log('Sign-in successful - setting up user immediately')
 
         // Configure session persistence
         if (rememberMe === false) {
@@ -490,23 +490,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           sessionStorage.setItem('session-persist', 'true')
         }
 
-        // Pass session user to avoid redundant getSession call
-        try {
-          await fetchUserProfile(data.user.id, data.user)
-        } catch (fetchError) {
-          console.log('Profile fetch failed during sign-in, but continuing...')
-          setIsLoading(false)
+        // IMMEDIATE USER SETUP - No complex database queries blocking the UI
+        const quickUser: AuthUser = {
+          id: data.user.id,
+          email: data.user.email || email,
+          name: data.user.user_metadata?.name || data.user.user_metadata?.full_name || 'User',
+          role: data.user.email === 'evank8029@gmail.com' ? 'admin' : 'buyer',
+          plan: data.user.email === 'evank8029@gmail.com' ? 'enterprise' : 'free',
+          status: 'active'
         }
+
+        console.log('Setting quick user for immediate access:', quickUser)
+        setUser(quickUser)
+        setSession(data.session)
+
+        // Fetch detailed profile in background without blocking
+        setTimeout(() => {
+          fetchUserProfile(data.user.id, data.user).catch(error => {
+            console.log('Background profile fetch failed (non-critical):', error)
+          })
+        }, 100)
 
         return {}
       } else {
         console.warn('Sign-in succeeded but no user/session returned')
-        setIsLoading(false)
         return { error: 'Sign-in succeeded but no session was created' }
       }
     } catch (error: any) {
       console.error('Sign-in exception:', error)
-      setIsLoading(false)
       return { error: error.message }
     }
   }
