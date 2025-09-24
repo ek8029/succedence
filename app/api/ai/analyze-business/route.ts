@@ -59,42 +59,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if we have a recent analysis cached
-    const { data: existingAnalysis } = await supabase
-      .from('ai_analyses')
-      .select('*')
-      .eq('user_id', authUser.id)
-      .eq('listing_id', listingId)
-      .eq('analysis_type', 'business_analysis')
-      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Within last 24 hours
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(); // Use maybeSingle instead of single to avoid never type
-
+    // TODO: Re-enable AI caching after running 004_ai_analyses_table.sql migration
+    // For now, always generate fresh analysis since ai_analyses table doesn't exist yet
     let analysis;
+    let existingAnalysis = null; // No caching until table exists
 
-    if (existingAnalysis && (existingAnalysis as any).analysis_data) {
-      // Use cached analysis
-      analysis = (existingAnalysis as any).analysis_data;
-    } else {
-      // Generate new AI analysis
-      analysis = await analyzeBusinessForAcquisition(listing);
+    // Generate AI analysis (always fresh until caching is enabled)
+    analysis = await analyzeBusinessForAcquisition(listing);
 
-      // Store analysis for caching
-      const { error: insertError } = await supabase
-        .from('ai_analyses')
-        .insert({
-          user_id: authUser.id,
-          listing_id: listingId,
-          analysis_type: 'business_analysis',
-          analysis_data: analysis,
-        });
+    // TODO: Store analysis for caching after running migration
+    // const { error: insertError } = await supabase
+    //   .from('ai_analyses')
+    //   .insert({
+    //     user_id: authUser.id,
+    //     listing_id: listingId,
+    //     analysis_type: 'business_analysis',
+    //     analysis_data: analysis,
+    //   });
 
-      if (insertError) {
-        console.error('Error storing AI analysis:', insertError);
-        // Continue anyway - don't fail the request
-      }
-    }
+    // if (insertError) {
+    //   console.error('Error storing AI analysis:', insertError);
+    //   // Continue anyway - don't fail the request
+    // }
 
     return NextResponse.json({
       success: true,

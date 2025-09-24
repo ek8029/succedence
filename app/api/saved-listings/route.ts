@@ -53,19 +53,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get AI analysis counts for each listing
-    const listingIds = savedListings?.map(sl => sl.listing_id) || [];
-    const { data: aiAnalysesCounts } = await supabase
-      .from('ai_analyses')
-      .select('listing_id, analysis_type')
-      .eq('user_id', authUser.id)
-      .in('listing_id', listingIds);
-
-    // Enhance saved listings with AI analysis info
+    // TODO: Re-enable AI analysis counts after running 004_ai_analyses_table.sql migration
+    // For now, return saved listings without AI analysis info
     const enhancedSavedListings = savedListings?.map(savedListing => ({
-      ...savedListing,
-      ai_analysis_count: aiAnalysesCounts?.filter(a => a.listing_id === savedListing.listing_id).length || 0,
-      analysis_types: aiAnalysesCounts?.filter(a => a.listing_id === savedListing.listing_id).map(a => a.analysis_type) || []
+      ...(savedListing as any),
+      ai_analysis_count: 0,
+      analysis_types: []
     }));
 
     // Get total count for pagination
@@ -142,7 +135,7 @@ export async function POST(request: NextRequest) {
         user_id: authUser.id,
         listing_id: listingId,
         notes: notes || null,
-      })
+      } as any)
       .select()
       .single();
 

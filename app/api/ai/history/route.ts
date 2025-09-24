@@ -16,92 +16,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const analysisType = searchParams.get('analysisType'); // Filter by specific analysis type
-    const offset = (page - 1) * limit;
-
-    let query = supabase
-      .from('ai_analyses')
-      .select(`
-        *,
-        listings!inner (
-          id,
-          title,
-          industry,
-          city,
-          state,
-          price,
-          revenue,
-          status
-        )
-      `)
-      .eq('user_id', authUser.id)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    // Filter by analysis type if specified
-    if (analysisType) {
-      query = query.eq('analysis_type', analysisType);
-    }
-
-    const { data: aiHistory, error } = await query;
-
-    if (error) {
-      console.error('Error fetching AI history:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch AI analysis history' },
-        { status: 500 }
-      );
-    }
-
-    // Get total count for pagination
-    let countQuery = supabase
-      .from('ai_analyses')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', authUser.id);
-
-    if (analysisType) {
-      countQuery = countQuery.eq('analysis_type', analysisType);
-    }
-
-    const { count, error: countError } = await countQuery;
-
-    if (countError) {
-      console.error('Error counting AI history:', countError);
-    }
-
-    // Group by listing for summary view
-    const listingSummary = aiHistory?.reduce((acc: any, analysis: any) => {
-      const listingId = analysis.listing_id;
-      if (!acc[listingId]) {
-        acc[listingId] = {
-          listing: analysis.listings,
-          analysisTypes: [],
-          totalAnalyses: 0,
-          lastAnalysisAt: analysis.created_at
-        };
-      }
-      acc[listingId].analysisTypes.push(analysis.analysis_type);
-      acc[listingId].totalAnalyses++;
-      if (new Date(analysis.created_at) > new Date(acc[listingId].lastAnalysisAt)) {
-        acc[listingId].lastAnalysisAt = analysis.created_at;
-      }
-      return acc;
-    }, {});
-
+    // TODO: Re-enable after running 004_ai_analyses_table.sql migration
+    // For now, return empty data since ai_analyses table doesn't exist yet
     return NextResponse.json({
       success: true,
-      aiHistory: aiHistory || [],
-      listingSummary: Object.values(listingSummary || {}),
+      aiHistory: [],
+      listingSummary: [],
       pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit)
-      }
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0
+      },
+      message: 'AI analysis history will be available after database migration'
     });
 
   } catch (error) {
