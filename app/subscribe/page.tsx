@@ -72,10 +72,10 @@ export default function SubscribePage() {
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
       <div className="relative z-10">
-        <div className="container mx-auto px-4 sm:px-8 pt-24 pb-16 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-8 pt-32 pb-16 max-w-7xl">
         {/* Current Plan Status Banner */}
         {user && (
-          <div className="mb-12">
+          <div className="mb-16">
             <div className={`glass p-6 rounded-luxury border-2 max-w-4xl mx-auto ${
               user.plan === 'free'
                 ? 'border-red-400/40 bg-red-900/20'
@@ -91,7 +91,7 @@ export default function SubscribePage() {
                   user.plan === 'free' ? 'text-red-200' :
                   user.plan === 'beta' ? 'text-blue-200' : 'text-green-200'
                 }`}>
-                  {user.plan === 'free' && 'Subscription required to access platform features'}
+                  {user.plan === 'free' && 'Subscription is required to access Succedence'}
                   {user.plan === 'beta' && 'You have complimentary beta access. Consider upgrading for continued access after beta period.'}
                   {user.plan !== 'free' && user.plan !== 'beta' && 'You can upgrade or manage your subscription below.'}
                 </p>
@@ -276,9 +276,9 @@ export default function SubscribePage() {
         </div>
 
         {/* Footer Info */}
-        <div className="text-center">
+        <div className="text-center mb-20">
           <div className="glass p-6 rounded-luxury border border-gold/20 max-w-4xl mx-auto">
-            <h3 className="text-xl font-semibold text-warm-white mb-4">
+            <h3 className="text-lg font-semibold text-warm-white mb-4">
               All Plans Include
             </h3>
             <div className="grid md:grid-cols-2 gap-6 text-sm text-silver/80 justify-center">
