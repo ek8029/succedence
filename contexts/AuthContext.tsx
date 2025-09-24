@@ -100,8 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check if this should be a non-persistent session
         const sessionPersist = sessionStorage.getItem('session-persist')
         if (sessionPersist === 'false') {
-          console.log('Non-persistent session detected, clearing stored session on browser refresh')
-          await supabase.auth.signOut()
+          console.log('Non-persistent session detected, ignoring stored session on browser refresh')
+          // Clear session storage flag since it's served its purpose
+          sessionStorage.removeItem('session-persist')
           setIsLoading(false)
           return
         }
