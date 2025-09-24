@@ -87,7 +87,7 @@ export default function Dashboard() {
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 max-w-7xl">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-warm-white mb-2 tracking-refined">
@@ -173,50 +173,56 @@ export default function Dashboard() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+            <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-serif text-lg font-semibold text-warm-white">
                   Available Listings
                 </h3>
-                <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h.01M7 3h.01" />
                 </svg>
               </div>
-              <div className="text-3xl font-bold text-gold mb-2">{totalListings}</div>
-              <div className="text-sm text-silver/70">Total opportunities</div>
+              <div className="flex-grow flex flex-col justify-between">
+                <div className="text-3xl font-bold text-gold mb-2">{totalListings}</div>
+                <div className="text-sm text-silver/70">Total opportunities</div>
+              </div>
             </div>
 
-            <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+            <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-serif text-lg font-semibold text-warm-white">
                   Total Value
                 </h3>
-                <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                 </svg>
               </div>
-              <div className="text-3xl font-bold text-gold mb-2">
-                {formatCurrency(listings.reduce((sum, listing) => sum + (listing.price || 0), 0))}
+              <div className="flex-grow flex flex-col justify-between">
+                <div className="text-3xl font-bold text-gold mb-2">
+                  {formatCurrency(listings.reduce((sum, listing) => sum + (listing.price || 0), 0))}
+                </div>
+                <div className="text-sm text-silver/70">Combined asking price</div>
               </div>
-              <div className="text-sm text-silver/70">Combined asking price</div>
             </div>
 
-            <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+            <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-serif text-lg font-semibold text-warm-white">
                   Average Revenue
                 </h3>
-                <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <div className="text-3xl font-bold text-gold mb-2">
-                {listings.length > 0
-                  ? formatCurrency(listings.reduce((sum, listing) => sum + (listing.revenue || 0), 0) / listings.length)
-                  : '$0'
-                }
+              <div className="flex-grow flex flex-col justify-between">
+                <div className="text-3xl font-bold text-gold mb-2">
+                  {listings.length > 0
+                    ? formatCurrency(listings.reduce((sum, listing) => sum + (listing.revenue || 0), 0) / listings.length)
+                    : '$0'
+                  }
+                </div>
+                <div className="text-sm text-silver/70">Across all listings</div>
               </div>
-              <div className="text-sm text-silver/70">Across all listings</div>
             </div>
           </div>
 
@@ -390,45 +396,53 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Link
                 href="/browse"
-                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group"
+                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
               >
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors">
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
                   <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Browse Opportunities</h3>
-                <p className="text-silver/80 text-sm">Discover new business acquisition opportunities</p>
+                <div className="flex-grow flex flex-col">
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Browse Opportunities</h3>
+                  <p className="text-silver/80 text-sm flex-grow">Discover new business acquisition opportunities</p>
+                </div>
               </Link>
 
-              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75">
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4">
+              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
                   <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">AI Analysis</h3>
-                <p className="text-silver/80 text-sm">Get AI-powered business analysis (Coming Soon)</p>
+                <div className="flex-grow flex flex-col">
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">AI Analysis</h3>
+                  <p className="text-silver/80 text-sm flex-grow">Get AI-powered business analysis (Coming Soon)</p>
+                </div>
               </div>
 
-              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75">
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4">
+              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
                   <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Saved Searches</h3>
-                <p className="text-silver/80 text-sm">Manage your saved search criteria (Coming Soon)</p>
+                <div className="flex-grow flex flex-col">
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Saved Searches</h3>
+                  <p className="text-silver/80 text-sm flex-grow">Manage your saved search criteria (Coming Soon)</p>
+                </div>
               </div>
 
-              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75">
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4">
+              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
                   <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Due Diligence</h3>
-                <p className="text-silver/80 text-sm">Track your due diligence progress (Coming Soon)</p>
+                <div className="flex-grow flex flex-col">
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Due Diligence</h3>
+                  <p className="text-silver/80 text-sm flex-grow">Track your due diligence progress (Coming Soon)</p>
+                </div>
               </div>
             </div>
           </div>

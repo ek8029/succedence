@@ -183,26 +183,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: 'evank8029@gmail.com',
           name: 'Evan Kim',
           role: 'admin',
-          plan: 'free',
+          plan: 'enterprise',
           status: 'active'
         }
         setUser(adminUser)
         setIsLoading(false)
         console.log('✅ Admin authenticated immediately')
 
-        // Still try to fetch from database in background to get latest data, but don't block
+        // Still try to fetch from database in background to get latest data, but don't override hardcoded admin
         setTimeout(async () => {
           try {
             const { data: adminData } = await supabase.from('users').select('*').eq('id', userId).single()
             if (adminData) {
-              console.log('📋 Updating admin with fresh database data')
+              console.log('📋 Got admin database data, but keeping hardcoded admin info to prevent account switching')
+              // Only update plan from database, keep hardcoded name/role to prevent account switching issues
               setUser({
-                id: adminData.id,
-                email: adminData.email,
-                name: adminData.name,
-                role: adminData.role,
-                plan: adminData.plan || 'free',
-                status: adminData.status || 'active',
+                id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+                email: 'evank8029@gmail.com',
+                name: 'Evan Kim', // Keep hardcoded to prevent "User" override
+                role: 'admin', // Keep hardcoded to prevent role switching
+                plan: (adminData as any).plan || 'enterprise',
+                status: (adminData as any).status || 'active',
               })
             }
           } catch (bgError) {
@@ -337,7 +338,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: 'evank8029@gmail.com',
             name: 'Evan Kim',
             role: 'admin',
-            plan: 'free',
+            plan: 'enterprise',
             status: 'active'
           }
           setUser(emergencyUser)
@@ -556,12 +557,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!error && userData) {
           console.log('Refreshed user data successfully')
           setUser({
-            id: userData.id,
-            email: userData.email,
-            name: userData.name,
-            role: userData.role,
-            plan: userData.plan || 'free',
-            status: userData.status || 'active',
+            id: (userData as any).id,
+            email: (userData as any).email,
+            name: (userData as any).name,
+            role: (userData as any).role,
+            plan: (userData as any).plan || 'free',
+            status: (userData as any).status || 'active',
           })
         } else {
           console.log('User refresh failed, keeping existing user data:', error)
