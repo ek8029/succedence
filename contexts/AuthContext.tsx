@@ -113,12 +113,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         if (session?.user) {
           if (event === 'SIGNED_IN') {
-            console.log('🚪 User signed in - force refreshing profile for account switch')
-            // CRITICAL: Always clear existing user data first to prevent permission persistence
-            setUser(null)
-            setUserProfile(null)
-            // Force fresh fetch regardless of existing data (account switch handling)
-            await fetchUserProfile(session.user.id)
+            console.log('🚪 User signed in - setting up user immediately')
+            // Don't clear user state if we already have a user with the same ID
+            if (user && user.id === session.user.id) {
+              console.log('User already set with same ID, keeping existing state')
+              return
+            }
+
+            // Set up user immediately to prevent auth delays
+            const quickUser: AuthUser = {
+              id: session.user.id,
+              email: session.user.email || '',
+              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
+              role: session.user.email === 'evank8029@gmail.com' ? 'admin' : 'buyer',
+              plan: session.user.email === 'evank8029@gmail.com' ? 'enterprise' : 'free',
+              status: 'active'
+            }
+            setUser(quickUser)
+
+            // Fetch detailed profile in background
+            setTimeout(() => {
+              fetchUserProfile(session.user.id, session.user).catch(error => {
+                console.log('Background profile fetch failed (non-critical):', error)
+              })
+            }, 100)
           } else if (event === 'TOKEN_REFRESHED' && !user) {
             // Only fetch if we don't already have user data
             fetchUserProfile(session.user.id).catch((error) => {

@@ -118,15 +118,13 @@ export default function AuthPage() {
           return;
         }
 
-        // Sign in successful - force a redirect after a short delay to ensure auth state is updated
+        // Sign in successful - redirect immediately
         console.log('Sign in successful - redirecting to home')
         setMessage('Login successful! Redirecting...');
         setMessageType('confirmation');
 
-        // Give the auth context time to update the user state
-        setTimeout(() => {
-          router.push('/app');
-        }, 1500);
+        // Redirect immediately since auth state is set synchronously
+        router.push('/app');
       }
     } catch (error) {
       setMessage('Authentication failed. Please try again.');
