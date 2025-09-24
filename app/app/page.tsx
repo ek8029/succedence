@@ -87,11 +87,11 @@ export default function Dashboard() {
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-32 max-w-7xl">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-warm-white mb-2 tracking-refined">
-                Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
+                Welcome back{authUser?.name ? `, ${authUser.name}` : user?.email ? `, ${user.email.split('@')[0]}` : ''}
               </h1>
               <p className="text-silver/80 text-lg">
                 Your business acquisition dashboard

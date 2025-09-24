@@ -75,7 +75,7 @@ export default function SubscribePage() {
         <div className="container mx-auto px-4 sm:px-8 pt-32 pb-16 max-w-7xl">
         {/* Current Plan Status Banner */}
         {user && (
-          <div className="mb-16">
+          <div className="mt-8 mb-16">
             <div className={`glass p-6 rounded-luxury border-2 max-w-4xl mx-auto ${
               user.plan === 'free'
                 ? 'border-red-400/40 bg-red-900/20'

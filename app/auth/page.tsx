@@ -106,7 +106,8 @@ export default function AuthPage() {
         console.log('Attempting sign in...')
         const { error } = await signInWithEmail(
           formData.email.trim(),
-          formData.password
+          formData.password,
+          formData.rememberMe
         );
 
         console.log('Sign in result:', { error })

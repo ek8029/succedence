@@ -14,7 +14,7 @@ interface AuthContextType {
   isLoading: boolean
   signUp: (email: string, password: string, userData: { name: string; role: string }) => Promise<{ error?: string }>
   signIn: (userData?: any) => Promise<void>
-  signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>
+  signInWithEmail: (email: string, password: string, rememberMe?: boolean) => Promise<{ error?: string }>
   signOut: () => Promise<void>
   updateProfile: (profileData: any) => Promise<{ error?: string }>
   resetAuthState: () => void
@@ -96,6 +96,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth...')
+
+        // Check if this should be a non-persistent session
+        const sessionPersist = sessionStorage.getItem('session-persist')
+        if (sessionPersist === 'false') {
+          console.log('Non-persistent session detected, clearing stored session on browser refresh')
+          await supabase.auth.signOut()
+          setIsLoading(false)
+          return
+        }
 
         // Simple session check without timeout race condition
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -510,15 +519,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signInWithEmail = async (email: string, password: string) => {
+  const signInWithEmail = async (email: string, password: string, rememberMe?: boolean) => {
     try {
-      console.log('Starting sign-in process for:', email)
+      console.log('Starting sign-in process for:', email, 'rememberMe:', rememberMe)
 
       // Call Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
+
+      // If sign-in successful and rememberMe is false, configure session storage
+      if (data?.session && rememberMe === false) {
+        console.log('Configuring non-persistent session (expires on browser close)')
+        // Store a flag in sessionStorage to indicate this should be a temporary session
+        sessionStorage.setItem('session-persist', 'false')
+        // Remove from localStorage to prevent persistence
+        localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`)
+      } else if (data?.session && rememberMe !== false) {
+        console.log('Configuring persistent session (30 days)')
+        sessionStorage.setItem('session-persist', 'true')
+      }
 
       console.log('Sign-in response:', { data: !!data, error, session: !!data?.session, user: !!data?.user })
 
@@ -557,6 +578,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setUserProfile(null)
       setSession(null)
+
+      // Clear session persistence flags
+      sessionStorage.removeItem('session-persist')
 
       await fetch('/api/auth/signout', { method: 'POST' })
       await supabase.auth.signOut()
