@@ -56,38 +56,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return 'buyer'
   }
 
-  // Ultra-aggressive fallback timeout to prevent permanent loading state
-  useEffect(() => {
-    const fallbackTimer = setTimeout(() => {
-      console.warn('Auth initialization taking too long, forcing loading to false')
-      if (isLoading) {
-        setIsLoading(false)
-        // If we still don't have a user but have a session, create emergency user
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user && !user) {
-            console.log('Creating emergency user from session after timeout')
-            setUser({
-              id: session.user.id,
-              email: session.user.email || 'user@example.com',
-              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
-              role: extractRoleFromSession(session.user),
-              plan: 'free',
-              status: 'active'
-            })
-          }
-        })
-      }
-    }, 8000) // Reduced to 8 second fallback
-
-    return () => clearTimeout(fallbackTimer)
-  }, [])
-
-  // Clear fallback timer when loading completes
-  useEffect(() => {
-    if (!isLoading) {
-      // Loading completed successfully, no need for fallback
-    }
-  }, [isLoading])
 
   useEffect(() => {
     let isMounted = true
