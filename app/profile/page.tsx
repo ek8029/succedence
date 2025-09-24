@@ -356,6 +356,8 @@ function ProfilePageContent() {
                       className="form-control w-full py-3 px-4"
                     >
                       <option value="free">Free</option>
+                      <option value="starter">Starter</option>
+                      <option value="professional">Professional</option>
                       <option value="enterprise">Enterprise</option>
                     </select>
                   ) : (

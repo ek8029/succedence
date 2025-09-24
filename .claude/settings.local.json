@@ -70,7 +70,9 @@
       "Bash(start http://localhost:3010/profile)",
       "Bash(start http://localhost:3010)",
       "Bash(start http://localhost:3010/preferences)",
-      "Bash(start http://localhost:3011)"
+      "Bash(start http://localhost:3011)",
+      "Bash(start http://localhost:3011/profile)",
+      "Bash(start http://localhost:3011/auth)"
     ],
     "deny": [],
     "ask": []

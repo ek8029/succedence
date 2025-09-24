@@ -175,7 +175,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession()
       const sessionUser = sessionData?.session?.user
 
-      // For all users (including admin), fetch from database to get latest data
+      // IMMEDIATE ADMIN AUTHENTICATION for known admin account
+      if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+        console.log('🔒 ADMIN ACCOUNT - Setting up admin user immediately')
+        const adminUser: AuthUser = {
+          id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+          email: 'evank8029@gmail.com',
+          name: 'Evan Kim',
+          role: 'admin',
+          plan: 'free',
+          status: 'active'
+        }
+        setUser(adminUser)
+        setIsLoading(false)
+        console.log('✅ Admin authenticated immediately')
+
+        // Still try to fetch from database in background to get latest data, but don't block
+        setTimeout(async () => {
+          try {
+            const { data: adminData } = await supabase.from('users').select('*').eq('id', userId).single()
+            if (adminData) {
+              console.log('📋 Updating admin with fresh database data')
+              setUser({
+                id: adminData.id,
+                email: adminData.email,
+                name: adminData.name,
+                role: adminData.role,
+                plan: adminData.plan || 'free',
+                status: adminData.status || 'active',
+              })
+            }
+          } catch (bgError) {
+            console.log('Background admin data fetch failed (non-critical):', bgError)
+          }
+        }, 100)
+        return
+      }
+
+      // For all other users, fetch from database
       console.log('📋 Fetching user from database...')
 
       // Faster timeout for database operations to prevent hanging
@@ -508,9 +545,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshUser = async () => {
     if (user?.id) {
       console.log('Refreshing user data...')
-      // Clear current user data to force refresh
-      setUser(null)
-      await fetchUserProfile(user.id)
+      // Don't clear user state - just update with fresh data
+      try {
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (!error && userData) {
+          console.log('Refreshed user data successfully')
+          setUser({
+            id: userData.id,
+            email: userData.email,
+            name: userData.name,
+            role: userData.role,
+            plan: userData.plan || 'free',
+            status: userData.status || 'active',
+          })
+        } else {
+          console.log('User refresh failed, keeping existing user data:', error)
+        }
+      } catch (error) {
+        console.log('User refresh exception, keeping existing user:', error)
+      }
     }
   }
 
