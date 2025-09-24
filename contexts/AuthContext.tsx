@@ -136,9 +136,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         if (session?.user) {
           if (event === 'SIGNED_IN') {
-            console.log('User signed in, setting up profile...')
-            // For immediate authentication, set user quickly and fetch profile in background
-            fetchUserProfile(session.user.id)
+            console.log('🚪 User signed in - force refreshing profile for account switch')
+            // CRITICAL: Always clear existing user data first to prevent permission persistence
+            setUser(null)
+            setUserProfile(null)
+            // Force fresh fetch regardless of existing data (account switch handling)
+            await fetchUserProfile(session.user.id)
           } else if (event === 'TOKEN_REFRESHED' && !user) {
             // Only fetch if we don't already have user data
             fetchUserProfile(session.user.id).catch((error) => {
@@ -146,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
           }
         } else {
+          console.log('🚪 No session - clearing user state')
           setUser(null)
           setUserProfile(null)
           setIsLoading(false)
@@ -171,10 +175,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Fetching user profile for:', userId)
 
       // Check if we already have a valid user with the same ID to avoid unnecessary refetches
+      // BUT always refresh if we're switching accounts (different email)
       if (user && user.id === userId) {
-        console.log('User already exists with same ID, skipping fetch')
-        setIsLoading(false)
-        return
+        // Get current session to check if we're switching accounts
+        const { data: sessionData } = await supabase.auth.getSession()
+        const currentSessionEmail = sessionData?.session?.user?.email
+
+        if (currentSessionEmail === user.email) {
+          console.log('User already exists with same ID and email, skipping fetch')
+          setIsLoading(false)
+          return
+        } else {
+          console.log('🔄 Account switch detected - forcing user data refresh despite same ID')
+          // Continue with fresh fetch to get new account's data
+        }
       }
 
       // Get current session for admin account detection
@@ -537,6 +551,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setIsLoading(true)
+
+      // CRITICAL: Immediately clear user state to prevent permission persistence
+      console.log('🚪 Signing out - immediately clearing user state')
+      setUser(null)
+      setUserProfile(null)
+      setSession(null)
+
       await fetch('/api/auth/signout', { method: 'POST' })
       await supabase.auth.signOut()
       showNotification('Successfully signed out', 'success')
