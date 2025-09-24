@@ -79,7 +79,8 @@
       "Bash(start http://localhost:3001)",
       "Bash(start:*)",
       "Bash(del test-ai-listing.js test-ai-analysis.js test-ai-direct.js)",
-      "Bash(del debug-user.js fix-user-plan.js check-plan-types.js upgrade-account.js)"
+      "Bash(del debug-user.js fix-user-plan.js check-plan-types.js upgrade-account.js)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
