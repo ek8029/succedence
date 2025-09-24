@@ -465,7 +465,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, password: string, rememberMe?: boolean) => {
     try {
       console.log('Starting sign-in process for:', email, 'rememberMe:', rememberMe)
-      setIsLoading(true)
 
       // Call Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -475,7 +474,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Sign-in error:', error)
-        setIsLoading(false)
         return { error: error.message }
       }
 
