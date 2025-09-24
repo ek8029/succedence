@@ -19,15 +19,26 @@ export async function POST(request: NextRequest) {
     // Use service client to bypass RLS for user creation
     const supabase = createServiceClient()
 
-    // Check if user already exists
+    // Check if user already exists by EMAIL (not userId)
     const { data: existingUser } = await (supabase
       .from('users') as any)
-      .select('id')
-      .eq('id', userId)
+      .select('*')
+      .eq('email', email)
       .single()
 
     if (existingUser) {
-      return NextResponse.json({ message: 'User already exists' })
+      // User exists - update their auth ID if it's different
+      if (existingUser.id !== userId) {
+        await (supabase
+          .from('users') as any)
+          .update({ id: userId })
+          .eq('email', email)
+      }
+      return NextResponse.json({
+        message: 'User already exists',
+        preservedRole: existingUser.role,
+        preservedPlan: existingUser.plan
+      })
     }
 
     const userRole = (role as any) || 'buyer'
