@@ -18,6 +18,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   updateProfile: (profileData: any) => Promise<{ error?: string }>
   resetAuthState: () => void
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -59,27 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session?.user && !user) {
             console.log('Creating emergency user from session after timeout')
-            // BULLETPROOF ADMIN ACCOUNT HANDLING
-            if (session.user.email === 'evank8029@gmail.com' || session.user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-              console.log('🔒 TIMEOUT ADMIN EMERGENCY - Using hardcoded admin data')
-              setUser({
-                id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-                email: 'evank8029@gmail.com',
-                name: 'Evan Kim',
-                role: 'admin',
-                plan: 'free',
-                status: 'active'
-              })
-            } else {
-              setUser({
-                id: session.user.id,
-                email: session.user.email || 'user@example.com',
-                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
-                role: extractRoleFromSession(session.user),
-                plan: 'free',
-                status: 'active'
-              })
-            }
+            setUser({
+              id: session.user.id,
+              email: session.user.email || 'user@example.com',
+              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
+              role: extractRoleFromSession(session.user),
+              plan: 'free',
+              status: 'active'
+            })
           }
         })
       }
@@ -187,25 +175,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession()
       const sessionUser = sessionData?.session?.user
 
-      // BULLETPROOF ADMIN ACCOUNT HANDLING - Instant authentication for admin
-      if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-        console.log('🔒 ADMIN ACCOUNT DETECTED - Instant authentication')
-        const adminUser: AuthUser = {
-          id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-          email: 'evank8029@gmail.com',
-          name: 'Evan Kim',
-          role: 'admin',
-          plan: 'free',
-          status: 'active'
-        }
-        setUser(adminUser)
-        setIsLoading(false)
-        console.log('✅ Admin authenticated instantly, redirecting...')
-        return
-      }
-
-      // For non-admin users, proceed with normal database queries
-      console.log('📋 Regular user - fetching from database...')
+      // For all users (including admin), fetch from database to get latest data
+      console.log('📋 Fetching user from database...')
 
       // Faster timeout for database operations to prevent hanging
       const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
@@ -534,6 +505,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null)
   }
 
+  const refreshUser = async () => {
+    if (user?.id) {
+      console.log('Refreshing user data...')
+      // Clear current user data to force refresh
+      setUser(null)
+      await fetchUserProfile(user.id)
+    }
+  }
+
   const value = {
     user,
     session,
@@ -545,6 +525,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     updateProfile,
     resetAuthState,
+    refreshUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

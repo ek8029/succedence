@@ -18,7 +18,7 @@ interface UserStats {
 }
 
 function ProfilePageContent() {
-  const { user, userProfile, updateProfile, signOut, isLoading } = useAuth();
+  const { user, userProfile, updateProfile, signOut, isLoading, refreshUser } = useAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -97,7 +97,7 @@ function ProfilePageContent() {
       setBasicFormData({
         name: user.name || '',
         email: user.email || '',
-        role: user.role || 'user',
+        role: user.role || 'buyer',
         plan: user.plan || 'free',
       });
 
@@ -107,7 +107,7 @@ function ProfilePageContent() {
       setBasicFormData({
         name: user.name || '',
         email: user.email || '',
-        role: user.role || 'user',
+        role: user.role || 'buyer',
         plan: user.plan || 'free',
       });
       setLoading(false);
@@ -130,9 +130,9 @@ function ProfilePageContent() {
         showNotification(data.error || 'Failed to update profile', 'error');
       } else {
         setEditMode(false);
-        showNotification('Profile updated successfully!', 'success');
+        showNotification('Profile details updated successfully!', 'success');
         // Refresh user profile
-        window.location.reload();
+        await refreshUser();
       }
     } catch (error) {
       showNotification('Failed to update profile', 'error');
@@ -190,12 +190,23 @@ function ProfilePageContent() {
 
       if (response.ok) {
         setEditingBasic(false);
-        showNotification('Basic information updated successfully!', 'success');
-        // The auth context will automatically refresh the user data
-        window.location.reload();
+        if (result.requiresEmailVerification) {
+          showNotification(
+            result.message || 'Basic information updated! Please check your email to verify your new email address.',
+            'success'
+          );
+        } else {
+          showNotification(result.message || 'Basic information updated successfully!', 'success');
+        }
+        // Refresh the user data from the database
+        await refreshUser();
       } else {
         console.error('API error:', result);
-        showNotification(result.error || 'Failed to update basic information', 'error');
+        if (result.error && result.error.includes('invalid input value for enum')) {
+          showNotification('Invalid plan type selected. Please choose from available options.', 'error');
+        } else {
+          showNotification(result.error || 'Failed to update basic information', 'error');
+        }
       }
     } catch (error) {
       console.error('Error updating basic info:', error);
@@ -316,11 +327,12 @@ function ProfilePageContent() {
                   <label className="block text-neutral-300 font-medium mb-2">Role</label>
                   {editingBasic && user?.role === 'admin' ? (
                     <select
-                      value={basicFormData.role || user?.role || 'user'}
+                      value={basicFormData.role || user?.role || 'buyer'}
                       onChange={(e) => setBasicFormData({ ...basicFormData, role: e.target.value })}
                       className="form-control w-full py-3 px-4"
                     >
-                      <option value="user">User</option>
+                      <option value="buyer">Buyer</option>
+                      <option value="seller">Seller</option>
                       <option value="admin">Admin</option>
                     </select>
                   ) : (
@@ -329,7 +341,7 @@ function ProfilePageContent() {
                         user?.role === 'admin' ? 'status-main' :
                         user?.role === 'seller' ? 'status-approved' : 'status-starter'
                       }`}>
-                        {(user?.role || 'user').toUpperCase()}
+                        {(user?.role || 'buyer').toUpperCase()}
                       </span>
                     </div>
                   )}
@@ -344,10 +356,7 @@ function ProfilePageContent() {
                       className="form-control w-full py-3 px-4"
                     >
                       <option value="free">Free</option>
-                      <option value="starter">Starter</option>
-                      <option value="professional">Professional</option>
                       <option value="enterprise">Enterprise</option>
-                      <option value="beta">Beta</option>
                     </select>
                   ) : (
                     <div className="py-3 px-4 bg-neutral-900/50 border border-neutral-600">

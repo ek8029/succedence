@@ -62,7 +62,15 @@
       "Bash(start http://localhost:3000)",
       "Bash(tasklist:*)",
       "Bash(start http://localhost:3007)",
-      "Bash(start http://localhost:3008)"
+      "Bash(start http://localhost:3008)",
+      "Bash(start http://localhost:3008/profile)",
+      "Bash(netstat:*)",
+      "Bash(start http://localhost:3009)",
+      "Bash(start http://localhost:3009/profile)",
+      "Bash(start http://localhost:3010/profile)",
+      "Bash(start http://localhost:3010)",
+      "Bash(start http://localhost:3010/preferences)",
+      "Bash(start http://localhost:3011)"
     ],
     "deny": [],
     "ask": []

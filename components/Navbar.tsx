@@ -59,7 +59,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/auth"
-                  className="text-xs bg-gold/20 border border-gold/40 text-gold hover:bg-gold hover:text-midnight px-3 py-1.5 font-semibold rounded transition-all duration-200"
+                  className="text-xs text-gold hover:text-white transition-colors duration-200 font-medium whitespace-nowrap"
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >
                   Sign In
@@ -135,7 +135,8 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/auth"
-                  className="btn-primary px-8 py-3 font-semibold text-sm focus-ring hover-lift"
+                  className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap"
+                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >
                   Sign In
                 </Link>
