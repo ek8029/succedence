@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<AuthUser | null>(null)
   const [userProfile, setUserProfile] = useState<UserWithProfile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -117,10 +117,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         if (session?.user) {
           console.log('Found existing session, fetching profile...')
-          await fetchUserProfile(session.user.id)
+          await fetchUserProfile(session.user.id, session.user)
         } else {
-          console.log('No existing session, setting loading to false')
-          setIsLoading(false)
+          console.log('No existing session, no loading needed')
         }
       } catch (error) {
         console.error('Error getting initial session:', error)
@@ -180,30 +179,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase])
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId: string, sessionUser?: any) => {
     try {
       console.log('Fetching user profile for:', userId)
 
       // Check if we already have a valid user with the same ID to avoid unnecessary refetches
-      // BUT always refresh if we're switching accounts (different email)
       if (user && user.id === userId) {
-        // Get current session to check if we're switching accounts
-        const { data: sessionData } = await supabase.auth.getSession()
-        const currentSessionEmail = sessionData?.session?.user?.email
-
-        if (currentSessionEmail === user.email) {
-          console.log('User already exists with same ID and email, skipping fetch')
-          setIsLoading(false)
-          return
-        } else {
-          console.log('🔄 Account switch detected - forcing user data refresh despite same ID')
-          // Continue with fresh fetch to get new account's data
-        }
+        console.log('User already exists with same ID, skipping fetch')
+        setIsLoading(false)
+        return
       }
 
-      // Get current session for admin account detection
-      const { data: sessionData } = await supabase.auth.getSession()
-      const sessionUser = sessionData?.session?.user
+      // Use passed sessionUser or get session if not provided (only once)
+      if (!sessionUser) {
+        const { data: sessionData } = await supabase.auth.getSession()
+        sessionUser = sessionData?.session?.user
+      }
 
       // IMMEDIATE ADMIN AUTHENTICATION for known admin account
       if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
@@ -243,30 +234,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // For all other users, fetch from database
+      // For all other users, fetch from database with 1 second timeout
       console.log('📋 Fetching user from database...')
-
-      // Faster timeout for database operations to prevent hanging
-      const withTimeout = <T extends any>(promise: Promise<T>, timeoutMs: number = 3000): Promise<T> => {
-        return new Promise((resolve, reject) => {
-          const timer = setTimeout(() => {
-            console.log(`Database operation timed out after ${timeoutMs}ms`)
-            reject(new Error(`Database timeout after ${timeoutMs}ms`))
-          }, timeoutMs)
-
-          promise
-            .then((result) => {
-              clearTimeout(timer)
-              resolve(result)
-            })
-            .catch((error) => {
-              clearTimeout(timer)
-              reject(error)
-            })
-        })
-      }
-
-      // Try to fetch user data with improved timeout and retry logic
       let userData = null
       let userError = null
 
@@ -277,13 +246,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', userId)
           .single()
 
-        const result = await withTimeout(userFetchPromise as unknown as Promise<any>, 3000)
+        // Simple 1-second timeout
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Database timeout')), 1000)
+        )
+
+        const result = await Promise.race([userFetchPromise, timeoutPromise]) as any
         userData = result.data
         userError = result.error
 
         console.log('User data fetch completed:', { userData: !!userData, userError })
       } catch (fetchError) {
-        console.error('User fetch failed with timeout or error:', fetchError)
+        console.error('User fetch failed:', fetchError)
         userError = fetchError
       }
 
@@ -364,8 +338,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           console.log('Starting background profile fetch...')
           const [profileResult, preferencesResult] = await Promise.allSettled([
-            withTimeout(supabase.from('profiles').select('*').eq('user_id', userId).single() as unknown as Promise<any>, 2000),
-            withTimeout(supabase.from('preferences').select('*').eq('user_id', userId).single() as unknown as Promise<any>, 2000)
+            supabase.from('profiles').select('*').eq('user_id', userId).single(),
+            supabase.from('preferences').select('*').eq('user_id', userId).single()
           ])
 
           const profileData = profileResult.status === 'fulfilled' ? profileResult.value?.data : null
@@ -523,6 +497,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, password: string, rememberMe?: boolean) => {
     try {
       console.log('Starting sign-in process for:', email, 'rememberMe:', rememberMe)
+      setIsLoading(true)
 
       // Call Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -530,42 +505,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       })
 
-      // If sign-in successful and rememberMe is false, configure session storage
-      if (data?.session && rememberMe === false) {
-        console.log('Configuring non-persistent session (expires on browser close)')
-        // Store a flag in sessionStorage to indicate this should be a temporary session
-        sessionStorage.setItem('session-persist', 'false')
-        // Remove from localStorage to prevent persistence
-        localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`)
-      } else if (data?.session && rememberMe !== false) {
-        console.log('Configuring persistent session (30 days)')
-        sessionStorage.setItem('session-persist', 'true')
-      }
-
-      console.log('Sign-in response:', { data: !!data, error, session: !!data?.session, user: !!data?.user })
-
       if (error) {
         console.error('Sign-in error:', error)
+        setIsLoading(false)
         return { error: error.message }
       }
 
       if (data?.user && data?.session) {
         console.log('Sign-in successful - updating user state immediately')
 
-        // Immediately fetch and set user profile to prevent delays
+        // Configure session persistence
+        if (rememberMe === false) {
+          console.log('Configuring non-persistent session (expires on browser close)')
+          sessionStorage.setItem('session-persist', 'false')
+          localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`)
+        } else {
+          console.log('Configuring persistent session (30 days)')
+          sessionStorage.setItem('session-persist', 'true')
+        }
+
+        // Pass session user to avoid redundant getSession call
         try {
-          await fetchUserProfile(data.user.id)
+          await fetchUserProfile(data.user.id, data.user)
         } catch (fetchError) {
           console.log('Profile fetch failed during sign-in, but continuing...')
+          setIsLoading(false)
         }
 
         return {}
       } else {
         console.warn('Sign-in succeeded but no user/session returned')
+        setIsLoading(false)
         return { error: 'Sign-in succeeded but no session was created' }
       }
     } catch (error: any) {
       console.error('Sign-in exception:', error)
+      setIsLoading(false)
       return { error: error.message }
     }
   }
