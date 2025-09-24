@@ -7,7 +7,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
-import BusinessAnalysisAI from '@/components/ai/BusinessAnalysisAI';
+import BusinessAnalysisAI from '@/components/ai/EnhancedBusinessAnalysisAI';
 import BuyerMatchAI from '@/components/ai/BuyerMatchAI';
 import DueDiligenceAI from '@/components/ai/DueDiligenceAI';
 import MarketIntelligenceAI from '@/components/ai/MarketIntelligenceAI';
@@ -49,6 +49,8 @@ export default function ListingDetailPage() {
   });
   const [completingDeal, setCompletingDeal] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState<string | null>('overview');
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingListing, setSavingListing] = useState(false);
 
   const listingId = params.id as string;
 
@@ -72,6 +74,16 @@ export default function ListingDetailPage() {
       const messagesResponse = await fetch(`/api/messages?listingId=${listingId}`);
       const listingMessages: Message[] = await messagesResponse.json();
       setMessages(listingMessages);
+
+      // Check if listing is saved (only for authenticated users)
+      if (user) {
+        const savedResponse = await fetch('/api/saved-listings');
+        const savedData = await savedResponse.json();
+        if (savedData.success) {
+          const isListingSaved = savedData.savedListings.some((sl: any) => sl.listing_id === listingId);
+          setIsSaved(isListingSaved);
+        }
+      }
 
       setLoading(false);
     } catch (error) {
@@ -169,6 +181,49 @@ export default function ListingDetailPage() {
 
   const isOwner = user && listing && user.id === listing.ownerUserId;
   const canMessage = user && (user.role === 'buyer' || isOwner);
+
+  const handleSaveListing = async () => {
+    if (!user || !listing) return;
+
+    setSavingListing(true);
+    try {
+      if (isSaved) {
+        // Remove from saved listings
+        const response = await fetch(`/api/saved-listings?listingId=${listing.id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          setIsSaved(false);
+        } else {
+          alert('Failed to remove from saved listings');
+        }
+      } else {
+        // Add to saved listings
+        const response = await fetch('/api/saved-listings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            listingId: listing.id,
+            notes: '',
+          }),
+        });
+
+        if (response.ok) {
+          setIsSaved(true);
+        } else {
+          alert('Failed to save listing');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving/removing listing:', error);
+      alert('An error occurred');
+    } finally {
+      setSavingListing(false);
+    }
+  };
 
   const toggleAccordion = (section: string) => {
     setActiveAccordion(activeAccordion === section ? null : section);
@@ -298,6 +353,28 @@ export default function ListingDetailPage() {
 
               {/* Primary CTAs */}
               <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+                {user && (
+                  <button
+                    onClick={handleSaveListing}
+                    disabled={savingListing}
+                    className={`px-8 py-4 text-lg font-medium hover-lift border-2 transition-all duration-300 ${
+                      isSaved
+                        ? 'bg-gold text-midnight border-gold hover:bg-gold/90'
+                        : 'glass text-white border-gold/30 hover:border-gold hover:bg-gold/10'
+                    } disabled:opacity-50`}
+                  >
+                    {savingListing ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <span>Saving...</span>
+                      </div>
+                    ) : isSaved ? (
+                      '⭐ Saved'
+                    ) : (
+                      '⭐ Save Listing'
+                    )}
+                  </button>
+                )}
                 {user && canMessage && (
                   <button
                     onClick={() => toggleAccordion('messages')}

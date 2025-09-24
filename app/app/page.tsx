@@ -87,7 +87,7 @@ export default function Dashboard() {
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 max-w-7xl">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-warm-white mb-2 tracking-refined">

@@ -170,6 +170,20 @@ export const aiAnalyses = pgTable('ai_analyses', {
   createdAtIdx: index('ai_analyses_created_at_idx').on(table.createdAt),
 }));
 
+// Saved listings table
+export const savedListings = pgTable('saved_listings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  listingId: uuid('listing_id').references(() => listings.id).notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index('saved_listings_user_id_idx').on(table.userId),
+  createdAtIdx: index('saved_listings_created_at_idx').on(table.createdAt),
+  uniqueUserListing: index('saved_listings_user_listing_unique').on(table.userId, table.listingId),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles),
@@ -183,6 +197,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   ndas: many(ndas),
   auditLogs: many(auditLogs),
   aiAnalyses: many(aiAnalyses),
+  savedListings: many(savedListings),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -209,6 +224,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   messages: many(messages),
   ndas: many(ndas),
   aiAnalyses: many(aiAnalyses),
+  savedByUsers: many(savedListings),
 }));
 
 export const listingMediaRelations = relations(listingMedia, ({ one }) => ({
@@ -289,6 +305,17 @@ export const aiAnalysesRelations = relations(aiAnalyses, ({ one }) => ({
   }),
 }));
 
+export const savedListingsRelations = relations(savedListings, ({ one }) => ({
+  user: one(users, {
+    fields: [savedListings.userId],
+    references: [users.id],
+  }),
+  listing: one(listings, {
+    fields: [savedListings.listingId],
+    references: [listings.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -314,3 +341,5 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
 export type AIAnalysis = typeof aiAnalyses.$inferSelect;
 export type NewAIAnalysis = typeof aiAnalyses.$inferInsert;
+export type SavedListing = typeof savedListings.$inferSelect;
+export type NewSavedListing = typeof savedListings.$inferInsert;

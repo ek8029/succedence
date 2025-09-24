@@ -41,6 +41,9 @@ export default function Navbar() {
             <div className="flex justify-center space-x-3">
               {user ? (
                 <>
+                  <Link href="/saved-listings" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                    Saved
+                  </Link>
                   <Link href="/preferences" className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                     Preferences
                   </Link>
@@ -91,6 +94,14 @@ export default function Navbar() {
               <div className="flex items-center space-x-6">
                 <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   List Business
+                </Link>
+
+                <Link href="/saved-listings" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  Saved Listings
+                </Link>
+
+                <Link href="/ai-analysis-history" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  AI History
                 </Link>
 
                 <Link href="/preferences" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>

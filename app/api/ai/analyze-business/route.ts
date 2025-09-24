@@ -59,29 +59,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate AI analysis
-    const analysis = await analyzeBusinessForAcquisition(listing);
+    // Check if we have a recent analysis cached
+    const { data: existingAnalysis } = await supabase
+      .from('ai_analyses')
+      .select('*')
+      .eq('user_id', authUser.id)
+      .eq('listing_id', listingId)
+      .eq('analysis_type', 'business_analysis')
+      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Within last 24 hours
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    // TODO: Store analysis for caching (temporarily disabled due to type issues)
-    // const { error: insertError } = await supabase
-    //   .from('ai_analyses')
-    //   .upsert({
-    //     listingId: listingId,
-    //     userId: authUser.id,
-    //     analysisType: 'business_analysis',
-    //     analysisData: analysis,
-    //     createdAt: new Date().toISOString(),
-    //     updatedAt: new Date().toISOString()
-    //   });
+    let analysis;
 
-    // if (insertError) {
-    //   console.error('Error storing AI analysis:', insertError);
-    //   // Continue anyway - don't fail the request
-    // }
+    if (existingAnalysis && existingAnalysis.analysis_data) {
+      // Use cached analysis
+      analysis = existingAnalysis.analysis_data;
+    } else {
+      // Generate new AI analysis
+      analysis = await analyzeBusinessForAcquisition(listing);
+
+      // Store analysis for caching
+      const { error: insertError } = await supabase
+        .from('ai_analyses')
+        .insert({
+          user_id: authUser.id,
+          listing_id: listingId,
+          analysis_type: 'business_analysis',
+          analysis_data: analysis,
+        });
+
+      if (insertError) {
+        console.error('Error storing AI analysis:', insertError);
+        // Continue anyway - don't fail the request
+      }
+    }
 
     return NextResponse.json({
       success: true,
       analysis,
+      cached: !!existingAnalysis,
+      analysisDate: existingAnalysis ? existingAnalysis.created_at : new Date().toISOString(),
       listingTitle: (listing as any).title
     });
 

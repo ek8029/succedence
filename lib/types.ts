@@ -1,4 +1,4 @@
-import type { User as DrizzleUser, Profile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses } from '../db/schema'
+import type { User as DrizzleUser, Profile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses, SavedListing } from '../db/schema'
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 
 // Database types from Drizzle
@@ -12,7 +12,8 @@ export type {
   Alert,
   BillingEvent,
   Message,
-  AuditLog
+  AuditLog,
+  SavedListing
 } from '../db/schema'
 
 // AI Analysis type from table
@@ -87,6 +88,11 @@ export interface Database {
         Row: AIAnalysis
         Insert: Omit<AIAnalysis, 'id' | 'createdAt' | 'updatedAt'>
         Update: Partial<Omit<AIAnalysis, 'id' | 'createdAt' | 'updatedAt'>>
+      }
+      saved_listings: {
+        Row: SavedListing
+        Insert: Omit<SavedListing, 'id' | 'createdAt' | 'updatedAt'>
+        Update: Partial<Omit<SavedListing, 'id' | 'createdAt' | 'updatedAt'>>
       }
     }
     Views: {

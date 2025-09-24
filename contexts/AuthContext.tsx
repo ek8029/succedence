@@ -33,6 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Helper function to extract role from session metadata
   const extractRoleFromSession = (sessionUser: any): 'buyer' | 'seller' | 'admin' => {
+    // HARDCODED ADMIN PROTECTION - Never allow admin account to be anything but admin
+    if (sessionUser?.email === 'evank8029@gmail.com' || sessionUser?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+      console.log('🔒 HARDCODED ADMIN DETECTION - Forcing admin role for:', sessionUser?.email)
+      return 'admin'
+    }
+
     // Check various places where role might be stored in session metadata
     const role = sessionUser?.user_metadata?.role ||
                  sessionUser?.app_metadata?.role ||
@@ -262,7 +268,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Creating fallback user due to fetch failure and no existing user')
         console.error('User fetch failed:', userError)
 
-        // Create sensible fallback for non-admin users
+        // NEVER CREATE FALLBACK FOR ADMIN ACCOUNT - admin should always be hardcoded
+        if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+          console.log('🚫 BLOCKED FALLBACK - Admin account must use hardcoded data, not fallback')
+          const hardcodedAdmin: AuthUser = {
+            id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+            email: 'evank8029@gmail.com',
+            name: 'Evan Kim',
+            role: 'admin',
+            plan: 'enterprise',
+            status: 'active'
+          }
+          setUser(hardcodedAdmin)
+          setIsLoading(false)
+          return
+        }
+
+        // Create sensible fallback for non-admin users only
         const fallbackUser: AuthUser = {
           id: userId,
           email: sessionUser?.email || 'user@example.com',
@@ -283,19 +305,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // Set user data immediately
-      const authUser: AuthUser = {
-        id: userData.id,
-        email: userData.email,
-        name: userData.name,
-        role: userData.role,
-        plan: userData.plan || 'free',
-        status: userData.status || 'active',
-      }
+      // FINAL ADMIN CHECK - Even if we got database data, use hardcoded for admin
+      if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+        console.log('🔐 FINAL ADMIN CHECK - Using hardcoded admin data even with database response')
+        const finalAdminUser: AuthUser = {
+          id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
+          email: 'evank8029@gmail.com',
+          name: 'Evan Kim', // Always hardcoded
+          role: 'admin', // Always hardcoded
+          plan: userData.plan || 'enterprise', // Use database plan if available
+          status: userData.status || 'active',
+        }
+        console.log('✅ Final admin user set:', finalAdminUser)
+        setUser(finalAdminUser)
+        setIsLoading(false)
+      } else {
+        // Set user data immediately for non-admin users
+        const authUser: AuthUser = {
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          role: userData.role,
+          plan: userData.plan || 'free',
+          status: userData.status || 'active',
+        }
 
-      console.log('Setting authenticated user:', authUser)
-      setUser(authUser)
-      setIsLoading(false) // Critical: Set loading false immediately after user is set
+        console.log('Setting authenticated user:', authUser)
+        setUser(authUser)
+        setIsLoading(false) // Critical: Set loading false immediately after user is set
+      }
 
       // Fetch additional profile data in background (completely non-blocking)
       setTimeout(async () => {

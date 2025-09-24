@@ -73,7 +73,12 @@
       "Bash(start http://localhost:3011)",
       "Bash(start http://localhost:3011/profile)",
       "Bash(start http://localhost:3011/auth)",
-      "Bash(del fix-admin.js fix-admin-direct.js)"
+      "Bash(del fix-admin.js fix-admin-direct.js)",
+      "Bash(start http://localhost:3001/auth)",
+      "Bash(start http://localhost:3001/app)",
+      "Bash(start http://localhost:3001)",
+      "Bash(start:*)",
+      "Bash(del test-ai-listing.js test-ai-analysis.js test-ai-direct.js)"
     ],
     "deny": [],
     "ask": []
