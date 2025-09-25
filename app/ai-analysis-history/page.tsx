@@ -104,20 +104,8 @@ export default function AIAnalysisHistoryPage() {
   };
 
   const getAnalysisTypeIcon = (type: string) => {
-    switch (type) {
-      case 'business_analysis':
-        return '📊';
-      case 'buyer_match':
-        return '🎯';
-      case 'due_diligence':
-        return '📋';
-      case 'market_intelligence':
-        return '📈';
-      case 'smart_buybox':
-        return '🧠';
-      default:
-        return '🤖';
-    }
+    // No emojis - clean text-only approach
+    return '';
   };
 
   const getAnalysisTypeName = (type: string) => {
@@ -172,8 +160,8 @@ export default function AIAnalysisHistoryPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
-      <div className="relative z-10">
-        <div className="container-professional pb-16 page-content">
+      <div className="relative z-10 min-h-screen flex flex-col">
+        <div className="container-professional pb-16 page-content flex-grow">
           {/* Header */}
           <ScrollAnimation direction="fade">
             <div className="text-center mb-16">
@@ -194,7 +182,7 @@ export default function AIAnalysisHistoryPage() {
                   <label className="text-white font-medium">View:</label>
                   <button
                     onClick={() => setViewMode('summary')}
-                    className={`px-4 py-2 rounded transition-colors ${
+                    className={`px-3 py-1 text-sm rounded transition-colors ${
                       viewMode === 'summary'
                         ? 'bg-gold text-midnight font-medium'
                         : 'glass text-white hover:bg-neutral-700/50'
@@ -204,7 +192,7 @@ export default function AIAnalysisHistoryPage() {
                   </button>
                   <button
                     onClick={() => setViewMode('detailed')}
-                    className={`px-4 py-2 rounded transition-colors ${
+                    className={`px-3 py-1 text-sm rounded transition-colors ${
                       viewMode === 'detailed'
                         ? 'bg-gold text-midnight font-medium'
                         : 'glass text-white hover:bg-neutral-700/50'
@@ -219,7 +207,7 @@ export default function AIAnalysisHistoryPage() {
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="glass px-3 py-2 text-white bg-transparent border border-gold/20 rounded"
+                    className="glass px-3 py-1 text-sm text-white bg-transparent border border-gold/20 rounded"
                   >
                     <option value="" className="bg-charcoal">All Types</option>
                     <option value="business_analysis" className="bg-charcoal">Business Analysis</option>
@@ -286,7 +274,7 @@ export default function AIAnalysisHistoryPage() {
                               key={typeIndex}
                               className="text-xs bg-gold/10 text-gold px-3 py-1 rounded border border-gold/20"
                             >
-                              {getAnalysisTypeIcon(type)} {getAnalysisTypeName(type)}
+                              {getAnalysisTypeName(type)}
                             </span>
                           ))}
                         </div>
@@ -300,7 +288,6 @@ export default function AIAnalysisHistoryPage() {
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className="text-2xl">{getAnalysisTypeIcon(analysis.analysis_type)}</span>
                             <span className="text-lg text-white font-medium">
                               {getAnalysisTypeName(analysis.analysis_type)}
                             </span>
@@ -327,13 +314,13 @@ export default function AIAnalysisHistoryPage() {
                         <div className="flex items-center gap-2 ml-4">
                           <button
                             onClick={() => setSelectedAnalysis(analysis)}
-                            className="glass px-4 py-2 text-sm text-white hover:bg-neutral-700/50 transition-colors rounded border border-gold/20"
+                            className="glass px-3 py-1 text-xs text-white hover:bg-neutral-700/50 transition-colors rounded border border-gold/20"
                           >
-                            View Full Analysis
+                            View Analysis
                           </button>
                           <Link
                             href={`/listings/${analysis.listing_id}`}
-                            className="glass px-4 py-2 text-sm text-white hover:bg-neutral-700/50 transition-colors rounded border border-gold/20"
+                            className="glass px-3 py-1 text-xs text-white hover:bg-neutral-700/50 transition-colors rounded border border-gold/20"
                           >
                             View Listing
                           </Link>
@@ -349,17 +336,17 @@ export default function AIAnalysisHistoryPage() {
                     <button
                       onClick={() => fetchAIHistory(page - 1, filterType)}
                       disabled={page <= 1}
-                      className="glass px-4 py-2 text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
+                      className="glass px-3 py-1 text-sm text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
                     >
                       Previous
                     </button>
-                    <span className="text-white">
+                    <span className="text-white text-sm">
                       Page {page} of {totalPages}
                     </span>
                     <button
                       onClick={() => fetchAIHistory(page + 1, filterType)}
                       disabled={page >= totalPages}
-                      className="glass px-4 py-2 text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
+                      className="glass px-3 py-1 text-sm text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
                     >
                       Next
                     </button>
@@ -378,7 +365,7 @@ export default function AIAnalysisHistoryPage() {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl text-white font-medium mb-2">
-                  {getAnalysisTypeIcon(selectedAnalysis.analysis_type)} {getAnalysisTypeName(selectedAnalysis.analysis_type)}
+                  {getAnalysisTypeName(selectedAnalysis.analysis_type)}
                 </h2>
                 <p className="text-neutral-400">
                   {selectedAnalysis.listings.title} • {formatDate(selectedAnalysis.created_at)}
@@ -410,7 +397,9 @@ export default function AIAnalysisHistoryPage() {
         </div>
       )}
 
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
