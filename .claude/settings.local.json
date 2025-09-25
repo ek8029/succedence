@@ -88,7 +88,8 @@
       "Bash(del /q .nextcachewebpack*)",
       "Bash(npx next build:*)",
       "Bash(dos2unix:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
