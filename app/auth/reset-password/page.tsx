@@ -149,7 +149,7 @@ function ResetPasswordContent() {
                   Reset Your Password
                 </h1>
                 <p className="text-xl text-neutral-400 leading-relaxed max-w-xl mx-auto">
-                  Enter your new password below. Make sure it's secure and something you'll remember.
+                  Enter your new password below. Make sure it&apos;s secure and something you&apos;ll remember.
                 </p>
               </div>
 
