@@ -25,6 +25,32 @@ export default function SubscribePage() {
     }
   }, [user, router]);
 
+  // Reset loading state when user navigates back from Stripe
+  React.useEffect(() => {
+    const handleFocus = () => {
+      // Reset loading state when window regains focus (user came back from Stripe)
+      setIsLoading(false);
+    };
+
+    const handleVisibilityChange = () => {
+      // Reset loading state when tab becomes visible again
+      if (document.visibilityState === 'visible') {
+        setIsLoading(false);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Also reset on component mount in case user navigated back
+    setIsLoading(false);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const handlePlanSelection = async (planType: PlanType) => {
     if (planType === 'free') {
       // No longer allow free plan selection - show upgrade message
@@ -51,6 +77,11 @@ export default function SubscribePage() {
         const data = await response.json();
 
         if (response.ok && data.success) {
+          // Set a timeout to reset loading state if user doesn't complete checkout
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 30000); // Reset after 30 seconds as a fallback
+
           // Redirect to Stripe checkout
           window.location.href = data.checkoutUrl;
         } else {
