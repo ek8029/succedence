@@ -63,21 +63,21 @@ export async function POST(request: NextRequest) {
     // Generate due diligence checklist
     const checklist = await generateDueDiligenceChecklist(listing);
 
-    // TODO: Store the analysis (temporarily disabled due to type issues)
-    // const { error: insertError } = await supabase
-    //   .from('ai_analyses')
-    //   .upsert({
-    //     listingId: listingId,
-    //     userId: user.id,
-    //     analysisType: 'due_diligence',
-    //     analysisData: checklist,
-    //     createdAt: new Date().toISOString(),
-    //     updatedAt: new Date().toISOString()
-    //   });
+    // Store the analysis in the database
+    const { error: insertError } = await supabase
+      .from('ai_analyses')
+      .upsert({
+        listing_id: listingId,
+        user_id: authUser.id,
+        analysis_type: 'due_diligence',
+        analysis_data: checklist,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as any);
 
-    // if (insertError) {
-    //   console.error('Error storing due diligence analysis:', insertError);
-    // }
+    if (insertError) {
+      console.error('Error storing due diligence analysis:', insertError);
+    }
 
     return NextResponse.json({
       success: true,

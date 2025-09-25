@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { industry, geography, dealSize } = body;
+    const { industry, geography, dealSize, listingId } = body;
 
     if (!industry) {
       return NextResponse.json(
@@ -46,25 +46,29 @@ export async function POST(request: NextRequest) {
     // Generate market intelligence
     const intelligence = await generateMarketIntelligence(industry, geography, dealSize);
 
-    // TODO: Store the analysis for caching (temporarily disabled due to type issues)
-    // const { error: insertError } = await supabase
-    //   .from('ai_analyses')
-    //   .insert({
-    //     userId: authUser.id,
-    //     analysisType: 'market_intelligence',
-    //     analysisData: {
-    //       ...intelligence,
-    //       industry,
-    //       geography,
-    //       dealSize
-    //     },
-    //     createdAt: new Date().toISOString(),
-    //     updatedAt: new Date().toISOString()
-    //   });
+    // Store the analysis in the database
+    const supabase = createClient();
+    const { error: insertError } = await supabase
+      .from('ai_analyses')
+      .upsert({
+        user_id: authUser.id,
+        listing_id: listingId || null,
+        analysis_type: 'market_intelligence',
+        analysis_data: {
+          ...intelligence,
+          parameters: {
+            industry,
+            geography,
+            dealSize
+          }
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as any);
 
-    // if (insertError) {
-    //   console.error('Error storing market intelligence:', insertError);
-    // }
+    if (insertError) {
+      console.error('Error storing market intelligence:', insertError);
+    }
 
     return NextResponse.json({
       success: true,

@@ -12,9 +12,10 @@ interface MarketIntelligenceAIProps {
   industry?: string;
   geography?: string;
   dealSize?: number;
+  listingId?: string;
 }
 
-export default function MarketIntelligenceAI({ industry, geography, dealSize }: MarketIntelligenceAIProps) {
+export default function MarketIntelligenceAI({ industry, geography, dealSize, listingId }: MarketIntelligenceAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const [intelligence, setIntelligence] = useState<MarketIntelligence | null>(null);
@@ -37,7 +38,12 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
     if (!user || hasCheckedForExisting || !formData.industry.trim()) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=market_intelligence&limit=10&page=1`);
+      let url = `/api/ai/history?analysisType=market_intelligence&limit=10&page=1`;
+      if (listingId) {
+        url += `&listingId=${listingId}`;
+      }
+
+      const response = await fetch(url);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
@@ -46,7 +52,8 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
           const analysisParams = item.analysis_data?.parameters || {};
           return analysisParams.industry?.toLowerCase() === formData.industry.toLowerCase() &&
                  (!formData.geography || analysisParams.geography?.toLowerCase() === formData.geography.toLowerCase()) &&
-                 (!formData.dealSize || analysisParams.dealSize === formData.dealSize);
+                 (!formData.dealSize || analysisParams.dealSize === formData.dealSize) &&
+                 (!listingId || item.listing_id === listingId);
         });
 
         if (existingAnalysis && existingAnalysis.analysis_data) {
@@ -60,7 +67,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
     } finally {
       setHasCheckedForExisting(true);
     }
-  }, [user, hasCheckedForExisting, formData.industry, formData.geography, formData.dealSize]);
+  }, [user, hasCheckedForExisting, formData.industry, formData.geography, formData.dealSize, listingId]);
 
   // Handle tab visibility to prevent analysis interruption
   useEffect(() => {
@@ -149,6 +156,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
           industry: formData.industry,
           geography: formData.geography || undefined,
           dealSize: formData.dealSize || undefined,
+          listingId: listingId || undefined,
         }),
       });
 

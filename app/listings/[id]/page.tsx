@@ -524,6 +524,7 @@ export default function ListingDetailPage() {
                         industry={listing.industry}
                         geography={`${listing.city}, ${listing.state}`}
                         dealSize={listing.price}
+                        listingId={listing.id}
                       />
                     </div>
 
