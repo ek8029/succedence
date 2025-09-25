@@ -10,8 +10,9 @@ import Footer from '@/components/Footer';
 
 export default function AuthPage() {
   const router = useRouter();
-  const { user, isLoading, signUp, signInWithEmail, resetAuthState } = useAuth();
+  const { user, isLoading, signUp, signInWithEmail, resetAuthState, resetPassword } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,6 +47,45 @@ export default function AuthPage() {
     };
   }, [resetAuthState, user, isSubmitting]);
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (isSubmitting) return;
+
+    if (!formData.email.trim()) {
+      setMessage('Please enter your email address');
+      setMessageType('error');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await resetPassword(formData.email.trim());
+
+      if (error) {
+        setMessage(error);
+        setMessageType('error');
+      } else {
+        setMessage('Password reset email sent! Check your inbox and follow the instructions to reset your password.');
+        setMessageType('confirmation');
+        // Clear the form and return to sign in mode after successful request
+        setTimeout(() => {
+          setIsForgotPassword(false);
+          setFormData(prev => ({ ...prev, email: '', password: '' }));
+          setMessage('');
+        }, 5000);
+      }
+    } catch (error) {
+      setMessage('Failed to send reset email. Please try again.');
+      setMessageType('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(''); // Clear previous errors
@@ -53,7 +93,12 @@ export default function AuthPage() {
 
     if (isSubmitting) return; // Prevent double submission
 
-    if (!formData.email.trim() || !formData.password.trim()) {
+    // Handle forgot password case
+    if (isForgotPassword) {
+      return handleForgotPassword(e);
+    }
+
+    if (!formData.email.trim() || (!isForgotPassword && !formData.password.trim())) {
       setMessage('Please enter your email and password');
       setMessageType('error');
       return;
@@ -172,11 +217,13 @@ export default function AuthPage() {
               </svg>
             </div>
             <h1 className="text-heading text-white font-medium mb-4">
-              {isSignUp ? 'Join Succedence' : 'Welcome Back'}
+              {isSignUp ? 'Join Succedence' : isForgotPassword ? 'Reset Your Password' : 'Welcome Back'}
             </h1>
             <p className="text-xl text-neutral-400 leading-relaxed max-w-xl mx-auto">
               {isSignUp ?
                 'Create your account to access our exclusive platform for sophisticated business transactions.' :
+                isForgotPassword ?
+                'Enter your email address and we\'ll send you a link to reset your password.' :
                 'Sign in to access your Succedence dashboard and opportunities.'
               }
             </p>
@@ -256,22 +303,23 @@ export default function AuthPage() {
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <label htmlFor="password" className="form-label">
-                  Password *
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="form-control w-full py-4 px-6 pr-12 text-lg"
-                    placeholder={isSignUp ? "Create a password (min 6 characters)" : "Enter your password"}
-                    required
-                    aria-describedby={isSignUp ? "password-help password-strength" : "password-help"}
-                  />
+              {!isForgotPassword && (
+                <div className="space-y-4">
+                  <label htmlFor="password" className="form-label">
+                    Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="form-control w-full py-4 px-6 pr-12 text-lg"
+                      placeholder={isSignUp ? "Create a password (min 6 characters)" : "Enter your password"}
+                      required
+                      aria-describedby={isSignUp ? "password-help password-strength" : "password-help"}
+                    />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -316,7 +364,8 @@ export default function AuthPage() {
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
 
               {isSignUp && (
                 <div className="space-y-4">
@@ -415,18 +464,40 @@ export default function AuthPage() {
                 {isSubmitting ? (
                   <div className="flex items-center justify-center space-x-3">
                     <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isSignUp ? 'Creating Account...' : 'Signing In...'}</span>
+                    <span>{isSignUp ? 'Creating Account...' : isForgotPassword ? 'Sending Reset Email...' : 'Signing In...'}</span>
                   </div>
                 ) : (
-                  isSignUp ? 'Create Account' : 'Sign In'
+                  isSignUp ? 'Create Account' : isForgotPassword ? 'Send Reset Email' : 'Sign In'
                 )}
               </button>
 
-              <div className="text-center">
+              <div className="text-center space-y-4">
+                {!isSignUp && !isForgotPassword && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setIsSubmitting(false);
+                      setError('');
+                      setMessage('');
+                      setFormData(prev => ({ ...prev, password: '' }));
+                    }}
+                    className="text-gold hover:text-gold/80 transition-colors duration-200 font-medium text-base"
+                  >
+                    Forgot your password?
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={() => {
-                    setIsSignUp(!isSignUp);
+                    if (isForgotPassword) {
+                      // Return to sign in from forgot password
+                      setIsForgotPassword(false);
+                    } else {
+                      // Toggle between sign up and sign in
+                      setIsSignUp(!isSignUp);
+                    }
                     setIsSubmitting(false);
                     setError(''); // Clear errors
                     setMessage(''); // Clear messages
@@ -443,7 +514,9 @@ export default function AuthPage() {
                   }}
                   className="text-neutral-400 hover:text-white transition-colors duration-200 font-medium text-lg"
                 >
-                  {isSignUp ?
+                  {isForgotPassword ?
+                    'Back to Sign In' :
+                    isSignUp ?
                     'Already have an account? Sign in' :
                     "Don't have an account? Create one"
                   }
