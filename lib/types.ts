@@ -317,7 +317,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, PlanFeatures> = {
   },
   starter: {
     name: 'Starter',
-    price: 19.99,
+    price: 49.99,
     description: 'Essential tools for serious buyers',
     features: [
       'All Free features',
@@ -339,7 +339,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, PlanFeatures> = {
   },
   professional: {
     name: 'Professional',
-    price: 49.99,
+    price: 99.99,
     description: 'Full acquisition intelligence suite',
     features: [
       'All Starter features',
@@ -358,7 +358,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, PlanFeatures> = {
   },
   enterprise: {
     name: 'Enterprise',
-    price: 99.99,
+    price: 249.99,
     description: 'Unlimited access for power users',
     features: [
       'All Professional features',
