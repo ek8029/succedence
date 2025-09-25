@@ -18,15 +18,48 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
       return null;
     }
 
-    // Get user details including role and plan
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('role, plan')
-      .eq('id', user.id)
-      .single();
+    // HARDCODED ADMIN BYPASS - Skip database check for admin account
+    if (user.email === 'evank8029@gmail.com' || user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+      console.log('🔒 HARDCODED ADMIN BYPASS - Returning admin user without DB check');
+      return {
+        id: user.id,
+        role: 'admin',
+        plan: 'enterprise',
+        email: user.email || ''
+      };
+    }
+
+    // Try to get user details from database, fallback to session metadata
+    let userData = null;
+    let userError = null;
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('role, plan')
+        .eq('id', user.id)
+        .single();
+      userData = data;
+      userError = error;
+    } catch (e) {
+      userError = e;
+      console.log('Database query failed, using fallback user data:', e);
+    }
 
     if (userError || !userData) {
-      return null;
+      // Fallback: Use session metadata or default values
+      console.log('Using fallback user data due to DB error:', userError?.message);
+
+      // Extract role from user metadata if available
+      const metadataRole = user.user_metadata?.role || user.app_metadata?.role;
+      const role = metadataRole && ['admin', 'buyer', 'seller'].includes(metadataRole) ? metadataRole : 'buyer';
+
+      return {
+        id: user.id,
+        role: role,
+        plan: 'free', // Default to free plan for fallback users
+        email: user.email || ''
+      };
     }
 
     return {
