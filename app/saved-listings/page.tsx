@@ -150,7 +150,7 @@ export default function SavedListingsPage() {
               <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
                 Your bookmarked business opportunities and AI analysis history
               </p>
-              <div className="flex justify-center gap-4 mt-8">
+              <div className="flex justify-center items-center gap-4 mt-8">
                 <Link
                   href="/browse"
                   className="glass px-4 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"

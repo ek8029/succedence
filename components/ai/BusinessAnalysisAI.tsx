@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { BusinessAnalysis } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
@@ -17,14 +17,109 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   const [analysis, setAnalysis] = useState<BusinessAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
+  const analysisInProgressRef = useRef(false);
 
   // Check if user has access to business analysis feature
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'businessAnalysis', user?.role);
 
+  // Fetch existing analysis on component mount
+  const fetchExistingAnalysis = useCallback(async () => {
+    if (!user || hasCheckedForExisting) return;
+
+    try {
+      const response = await fetch(`/api/ai/history?analysisType=business_analysis&limit=1&page=1`);
+      const data = await response.json();
+
+      if (data.success && data.aiHistory && data.aiHistory.length > 0) {
+        const existingAnalysis = data.aiHistory.find((item: any) => item.listing_id === listingId);
+        if (existingAnalysis && existingAnalysis.analysis_data) {
+          setAnalysis(existingAnalysis.analysis_data);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching existing business analysis:', err);
+    } finally {
+      setHasCheckedForExisting(true);
+    }
+  }, [user, hasCheckedForExisting, listingId]);
+
+  // Handle tab visibility to prevent analysis interruption
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && analysisInProgressRef.current) {
+        // Tab is hidden during analysis - store current state
+        const analysisState = {
+          listingId,
+          isLoading,
+          error,
+          timestamp: Date.now()
+        };
+        sessionStorage.setItem(`business_analysis_${listingId}`, JSON.stringify(analysisState));
+      } else if (!document.hidden) {
+        // Tab is visible again - check for stored state
+        const storedState = sessionStorage.getItem(`business_analysis_${listingId}`);
+        if (storedState) {
+          const state = JSON.parse(storedState);
+          const timeDiff = Date.now() - state.timestamp;
+
+          // If analysis was in progress less than 5 minutes ago, resume it
+          if (state.isLoading && timeDiff < 300000) {
+            setIsLoading(true);
+            setError(null);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [listingId, isLoading, error]);
+
+  // Check for existing analysis and restore state on mount
+  useEffect(() => {
+    if (user) {
+      // Check for stored session state first
+      const storedState = sessionStorage.getItem(`business_analysis_${listingId}`);
+      if (storedState) {
+        const state = JSON.parse(storedState);
+        const timeDiff = Date.now() - state.timestamp;
+
+        // If analysis was in progress recently, resume it
+        if (state.isLoading && timeDiff < 300000) {
+          setIsLoading(true);
+          setError(null);
+        }
+      }
+
+      // Fetch existing analysis if not already loaded
+      if (!analysis && !hasCheckedForExisting) {
+        fetchExistingAnalysis();
+      }
+    }
+  }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
+
+  // Clean up session storage when analysis completes
+  useEffect(() => {
+    if (!isLoading && analysis) {
+      sessionStorage.removeItem(`business_analysis_${listingId}`);
+    }
+  }, [isLoading, analysis, listingId]);
+
   const handleAnalyzeClick = async () => {
     setIsLoading(true);
     setError(null);
+    analysisInProgressRef.current = true;
+
+    // Store analysis state
+    const analysisState = {
+      listingId,
+      isLoading: true,
+      error: null,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem(`business_analysis_${listingId}`, JSON.stringify(analysisState));
 
     try {
       const response = await fetch('/api/ai/analyze-business', {
@@ -42,10 +137,14 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
       }
 
       setAnalysis(data.analysis);
+
+      // Clear session storage on successful completion
+      sessionStorage.removeItem(`business_analysis_${listingId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze business');
     } finally {
       setIsLoading(false);
+      analysisInProgressRef.current = false;
     }
   };
 

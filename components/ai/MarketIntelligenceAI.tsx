@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MarketIntelligence } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
@@ -18,6 +18,8 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
   const [intelligence, setIntelligence] = useState<MarketIntelligence | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
+  const analysisInProgressRef = useRef(false);
   const [formData, setFormData] = useState({
     industry: industry || '',
     geography: geography || '',
@@ -28,6 +30,45 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'marketIntelligence', user?.role);
 
+  // Handle tab visibility to prevent analysis interruption
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && analysisInProgressRef.current) {
+        // Tab is hidden during analysis - store current state
+        const analysisState = {
+          formData,
+          isLoading,
+          error,
+          timestamp: Date.now()
+        };
+        sessionStorage.setItem(`market_intelligence_${formData.industry}`, JSON.stringify(analysisState));
+      } else if (!document.hidden) {
+        // Tab is visible again - check for stored state
+        const storedState = sessionStorage.getItem(`market_intelligence_${formData.industry}`);
+        if (storedState) {
+          const state = JSON.parse(storedState);
+          const timeDiff = Date.now() - state.timestamp;
+
+          // If analysis was in progress less than 5 minutes ago, resume it
+          if (state.isLoading && timeDiff < 300000) {
+            setIsLoading(true);
+            setError(null);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [formData.industry, isLoading, error, formData]);
+
+  // Clean up session storage when analysis completes
+  useEffect(() => {
+    if (!isLoading && intelligence) {
+      sessionStorage.removeItem(`market_intelligence_${formData.industry}`);
+    }
+  }, [isLoading, intelligence, formData.industry]);
+
   const handleGenerateIntelligence = async () => {
     if (!formData.industry.trim()) {
       setError('Industry is required');
@@ -36,6 +77,16 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
 
     setIsLoading(true);
     setError(null);
+    analysisInProgressRef.current = true;
+
+    // Store analysis state
+    const analysisState = {
+      formData,
+      isLoading: true,
+      error: null,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem(`market_intelligence_${formData.industry}`, JSON.stringify(analysisState));
 
     try {
       const response = await fetch('/api/ai/market-intelligence', {
@@ -57,10 +108,14 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
       }
 
       setIntelligence(data.intelligence);
+
+      // Clear session storage on successful completion
+      sessionStorage.removeItem(`market_intelligence_${formData.industry}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate market intelligence');
     } finally {
       setIsLoading(false);
+      analysisInProgressRef.current = false;
     }
   };
 
@@ -244,7 +299,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
               <ul className="space-y-2">
                 {intelligence.opportunities.map((opportunity, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
-                    <span className="text-green-400 mr-2">✓</span>
+                    <span className="text-green-400 mr-2">•</span>
                     {opportunity}
                   </li>
                 ))}
@@ -262,7 +317,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
               <ul className="space-y-2">
                 {intelligence.risks.map((risk, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
-                    <span className="text-red-400 mr-2">⚠</span>
+                    <span className="text-red-400 mr-2">•</span>
                     {risk}
                   </li>
                 ))}

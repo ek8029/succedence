@@ -230,14 +230,14 @@ export default function AIAnalysisHistoryPage() {
               </div>
             ) : (viewMode === 'summary' ? listingSummary : aiHistory).length === 0 ? (
               <div className="text-center py-16">
-                <div className="text-6xl mb-6">🤖</div>
+                <div className="text-2xl text-white font-medium mb-6">No Analysis Available</div>
                 <h2 className="text-2xl text-white font-medium mb-4">No AI Analyses Yet</h2>
                 <p className="text-neutral-400 mb-8 max-w-md mx-auto">
                   Start exploring business opportunities and generate AI insights to see your history here.
                 </p>
                 <Link
                   href="/browse"
-                  className="btn-primary px-8 py-3 font-medium hover-lift"
+                  className="glass px-4 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"
                 >
                   Browse Listings
                 </Link>

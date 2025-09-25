@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { BuyerMatchScore } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
@@ -17,14 +17,109 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   const [matchScore, setMatchScore] = useState<BuyerMatchScore | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
+  const analysisInProgressRef = useRef(false);
 
   // Check if user has access to buyer matching feature
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'buyerMatching', user?.role);
 
+  // Fetch existing analysis on component mount
+  const fetchExistingAnalysis = useCallback(async () => {
+    if (!user || hasCheckedForExisting) return;
+
+    try {
+      const response = await fetch(`/api/ai/history?analysisType=buyer_match&limit=1&page=1`);
+      const data = await response.json();
+
+      if (data.success && data.aiHistory && data.aiHistory.length > 0) {
+        const existingAnalysis = data.aiHistory.find((item: any) => item.listing_id === listingId);
+        if (existingAnalysis && existingAnalysis.analysis_data) {
+          setMatchScore(existingAnalysis.analysis_data);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching existing buyer match analysis:', err);
+    } finally {
+      setHasCheckedForExisting(true);
+    }
+  }, [user, hasCheckedForExisting, listingId]);
+
+  // Handle tab visibility to prevent analysis interruption
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && analysisInProgressRef.current) {
+        // Tab is hidden during analysis - store current state
+        const analysisState = {
+          listingId,
+          isLoading,
+          error,
+          timestamp: Date.now()
+        };
+        sessionStorage.setItem(`buyer_match_${listingId}`, JSON.stringify(analysisState));
+      } else if (!document.hidden) {
+        // Tab is visible again - check for stored state
+        const storedState = sessionStorage.getItem(`buyer_match_${listingId}`);
+        if (storedState) {
+          const state = JSON.parse(storedState);
+          const timeDiff = Date.now() - state.timestamp;
+
+          // If analysis was in progress less than 5 minutes ago, resume it
+          if (state.isLoading && timeDiff < 300000) {
+            setIsLoading(true);
+            setError(null);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [listingId, isLoading, error]);
+
+  // Check for existing analysis and restore state on mount
+  useEffect(() => {
+    if (user) {
+      // Check for stored session state first
+      const storedState = sessionStorage.getItem(`buyer_match_${listingId}`);
+      if (storedState) {
+        const state = JSON.parse(storedState);
+        const timeDiff = Date.now() - state.timestamp;
+
+        // If analysis was in progress recently, resume it
+        if (state.isLoading && timeDiff < 300000) {
+          setIsLoading(true);
+          setError(null);
+        }
+      }
+
+      // Fetch existing analysis if not already loaded
+      if (!matchScore && !hasCheckedForExisting) {
+        fetchExistingAnalysis();
+      }
+    }
+  }, [user, listingId, matchScore, hasCheckedForExisting, fetchExistingAnalysis]);
+
+  // Clean up session storage when analysis completes
+  useEffect(() => {
+    if (!isLoading && matchScore) {
+      sessionStorage.removeItem(`buyer_match_${listingId}`);
+    }
+  }, [isLoading, matchScore, listingId]);
+
   const handleAnalyzeMatch = async () => {
     setIsLoading(true);
     setError(null);
+    analysisInProgressRef.current = true;
+
+    // Store analysis state
+    const analysisState = {
+      listingId,
+      isLoading: true,
+      error: null,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem(`buyer_match_${listingId}`, JSON.stringify(analysisState));
 
     try {
       const response = await fetch('/api/ai/buyer-match', {
@@ -42,10 +137,14 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
       }
 
       setMatchScore(data.matchScore);
+
+      // Clear session storage on successful completion
+      sessionStorage.removeItem(`buyer_match_${listingId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to calculate buyer match');
     } finally {
       setIsLoading(false);
+      analysisInProgressRef.current = false;
     }
   };
 
@@ -140,7 +239,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
               <ul className="space-y-2">
                 {matchScore.compatibilityFactors.map((factor, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
-                    <span className="text-green-400 mr-2">✓</span>
+                    <span className="text-green-400 mr-2">•</span>
                     {factor}
                   </li>
                 ))}
@@ -158,7 +257,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
               <ul className="space-y-2">
                 {matchScore.concerns.map((concern, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
-                    <span className="text-yellow-400 mr-2">⚠</span>
+                    <span className="text-yellow-400 mr-2">•</span>
                     {concern}
                   </li>
                 ))}
