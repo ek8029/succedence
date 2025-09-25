@@ -138,19 +138,16 @@ export default function SubscribePage() {
                 )}
 
                 <div className="p-6 md:p-8">
-                  <div className="grid md:grid-cols-5 gap-8 items-start">
+                  <div className="grid md:grid-cols-6 gap-6 items-start">
                     {/* Plan Info */}
-                    <div className="md:col-span-1 min-w-0">
+                    <div className="md:col-span-2 min-w-0">
                       <h3 className="text-2xl font-serif font-semibold text-warm-white mb-3">
                         {plan.name}
                       </h3>
                       <div className="mb-3">
-                        <div className="text-3xl font-bold text-gold">
+                        <span className="text-3xl font-bold text-gold">
                           {formatPrice(plan.price)}
-                        </div>
-                        {plan.price > 0 && (
-                          <div className="text-silver/70 text-xs">/month</div>
-                        )}
+                        </span>
                       </div>
                       <p className="text-silver/80 text-sm leading-relaxed mb-8">
                         {plan.description}
@@ -180,7 +177,7 @@ export default function SubscribePage() {
                     </div>
 
                     {/* Features */}
-                    <div className="md:col-span-1 min-w-0">
+                    <div className="md:col-span-1 min-w-0 ml-4">
                       <h4 className="text-sm font-semibold text-warm-white mb-4 uppercase tracking-wider">
                         Features
                       </h4>
@@ -197,7 +194,7 @@ export default function SubscribePage() {
                     </div>
 
                     {/* AI Features */}
-                    <div className="md:col-span-1 min-w-0">
+                    <div className="md:col-span-2 min-w-0 ml-4">
                       <h4 className="text-sm font-semibold text-warm-white mb-4 uppercase tracking-wider">
                         AI Analysis
                       </h4>
@@ -241,7 +238,7 @@ export default function SubscribePage() {
                     </div>
 
                     {/* Limitations */}
-                    <div className="md:col-span-1 min-w-0">
+                    <div className="md:col-span-1 min-w-0 ml-4">
                       {plan.limitations ? (
                         <>
                           <h4 className="text-sm font-semibold text-silver/70 mb-4 uppercase tracking-wider">
