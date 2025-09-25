@@ -81,7 +81,13 @@
       "Bash(del test-ai-listing.js test-ai-analysis.js test-ai-direct.js)",
       "Bash(del debug-user.js fix-user-plan.js check-plan-types.js upgrade-account.js)",
       "Bash(npm uninstall:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(set NEXT_PUBLIC_SUPABASE_URL=https://gizyuepvykxkgzjgenvw.supabase.co)",
+      "Bash(set SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdpenl1ZXB2eWt4a2d6amdlbnZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODMzMjY3NywiZXhwIjoyMDczOTA4Njc3fQ.l39oBZW8S0AErwRMFIMouvyEUucdOsc7YnXwtb1BtMg)",
+      "Bash(del create-test-listings.js)",
+      "Bash(del /q .nextcachewebpack*)",
+      "Bash(npx next build:*)",
+      "Bash(dos2unix:*)"
     ],
     "deny": [],
     "ask": []

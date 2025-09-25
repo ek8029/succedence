@@ -5,6 +5,7 @@ import { BusinessAnalysis } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
 interface BusinessAnalysisAIProps {
@@ -39,6 +40,7 @@ function TruncatedText({ text, maxWords }: { text: string; maxWords: number }) {
 
 export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: BusinessAnalysisAIProps) {
   const { user } = useAuth();
+  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const [analysis, setAnalysis] = useState<BusinessAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +129,7 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
         fetchExistingAnalysis();
       }
     }
-  }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
+  }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis, analysisCompletedTrigger, refreshTrigger]);
 
   // Clean up session storage when analysis completes
   useEffect(() => {
@@ -171,6 +173,9 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
 
       // Clear session storage on successful completion
       sessionStorage.removeItem(`ai_analysis_${listingId}`);
+
+      // Notify other components that analysis completed
+      triggerAnalysisRefetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze business');
     } finally {

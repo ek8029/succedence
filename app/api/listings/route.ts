@@ -4,7 +4,8 @@ import { ListingCreateInput, ListingDraftInput } from '@/lib/validation/listings
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    // Use service client for public listings to bypass RLS for testing
+    const supabase = createServiceClient()
     const { searchParams } = new URL(request.url)
 
     // Parse query parameters

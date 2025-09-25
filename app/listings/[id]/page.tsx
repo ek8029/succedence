@@ -7,7 +7,8 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
-import BusinessAnalysisAI from '@/components/ai/EnhancedBusinessAnalysisAI';
+import { AIAnalysisProvider } from '@/contexts/AIAnalysisContext';
+import EnhancedBusinessAnalysisAI from '@/components/ai/EnhancedBusinessAnalysisAI';
 import BuyerMatchAI from '@/components/ai/BuyerMatchAI';
 import DueDiligenceAI from '@/components/ai/DueDiligenceAI';
 import MarketIntelligenceAI from '@/components/ai/MarketIntelligenceAI';
@@ -480,58 +481,60 @@ export default function ListingDetailPage() {
             {/* AI Insights Section */}
             {user && (
               <AccordionSection id="ai-insights" title="AI-Powered Analysis & Insights">
-                <div className="space-y-6">
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl text-warm-white font-serif mb-4">
-                      Get AI-Powered Acquisition Intelligence
-                    </h3>
-                    <p className="text-silver/80 leading-relaxed max-w-3xl mx-auto">
-                      Leverage advanced AI to analyze this business opportunity, assess compatibility with your investment criteria,
-                      generate due diligence checklists, and understand market conditions.
-                    </p>
-                  </div>
+                <AIAnalysisProvider>
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl text-warm-white font-serif mb-4">
+                        Get AI-Powered Acquisition Intelligence
+                      </h3>
+                      <p className="text-silver/80 leading-relaxed max-w-3xl mx-auto">
+                        Leverage advanced AI to analyze this business opportunity, assess compatibility with your investment criteria,
+                        generate due diligence checklists, and understand market conditions.
+                      </p>
+                    </div>
 
-                  {/* Business Analysis */}
-                  <div className="mb-8">
-                    <BusinessAnalysisAI
-                      listingId={listing.id}
-                      listingTitle={listing.title}
-                    />
-                  </div>
+                    {/* Business Analysis */}
+                    <div className="mb-8">
+                      <EnhancedBusinessAnalysisAI
+                        listingId={listing.id}
+                        listingTitle={listing.title}
+                      />
+                    </div>
 
-                  {/* Buyer Match Analysis */}
-                  <div className="mb-8">
-                    <BuyerMatchAI
-                      listingId={listing.id}
-                      listingTitle={listing.title}
-                    />
-                  </div>
+                    {/* Buyer Match Analysis */}
+                    <div className="mb-8">
+                      <BuyerMatchAI
+                        listingId={listing.id}
+                        listingTitle={listing.title}
+                      />
+                    </div>
 
-                  {/* Due Diligence Assistant */}
-                  <div className="mb-8">
-                    <DueDiligenceAI
-                      listingId={listing.id}
-                      listingTitle={listing.title}
-                      industry={listing.industry}
-                    />
-                  </div>
+                    {/* Due Diligence Assistant */}
+                    <div className="mb-8">
+                      <DueDiligenceAI
+                        listingId={listing.id}
+                        listingTitle={listing.title}
+                        industry={listing.industry}
+                      />
+                    </div>
 
-                  {/* Market Intelligence */}
-                  <div className="mb-8">
-                    <MarketIntelligenceAI
-                      industry={listing.industry}
-                      geography={`${listing.city}, ${listing.state}`}
-                      dealSize={listing.price}
-                    />
-                  </div>
+                    {/* Market Intelligence */}
+                    <div className="mb-8">
+                      <MarketIntelligenceAI
+                        industry={listing.industry}
+                        geography={`${listing.city}, ${listing.state}`}
+                        dealSize={listing.price}
+                      />
+                    </div>
 
-                  <div className="text-center p-6 bg-navy/20 rounded-luxury border border-gold/10">
-                    <p className="text-silver/70 text-sm leading-relaxed">
-                      <strong className="text-gold">AI Disclaimer:</strong> These AI-generated insights are for informational purposes only and should not replace professional due diligence,
-                      financial analysis, or legal advice. Always conduct thorough research and consult with qualified professionals before making investment decisions.
-                    </p>
+                    <div className="text-center p-6 bg-navy/20 rounded-luxury border border-gold/10">
+                      <p className="text-silver/70 text-sm leading-relaxed">
+                        <strong className="text-gold">AI Disclaimer:</strong> These AI-generated insights are for informational purposes only and should not replace professional due diligence,
+                        financial analysis, or legal advice. Always conduct thorough research and consult with qualified professionals before making investment decisions.
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </AIAnalysisProvider>
               </AccordionSection>
             )}
 

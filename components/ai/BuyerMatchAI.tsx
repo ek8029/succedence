@@ -5,6 +5,7 @@ import { BuyerMatchScore } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
 interface BuyerMatchAIProps {
@@ -14,6 +15,7 @@ interface BuyerMatchAIProps {
 
 export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIProps) {
   const { user } = useAuth();
+  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const [matchScore, setMatchScore] = useState<BuyerMatchScore | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +102,17 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     }
   }, [user, listingId, matchScore, hasCheckedForExisting, fetchExistingAnalysis]);
 
+  // Listen to analysis completion triggers from other components
+  useEffect(() => {
+    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0)) {
+      // Reset and refetch when other analyses complete
+      setHasCheckedForExisting(false);
+      if (!matchScore) {
+        fetchExistingAnalysis();
+      }
+    }
+  }, [user, analysisCompletedTrigger, refreshTrigger, matchScore, fetchExistingAnalysis]);
+
   // Clean up session storage when analysis completes
   useEffect(() => {
     if (!isLoading && matchScore) {
@@ -137,6 +150,9 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
       }
 
       setMatchScore(data.matchScore);
+
+      // Notify other components that analysis completed
+      triggerAnalysisRefetch();
 
       // Clear session storage on successful completion
       sessionStorage.removeItem(`buyer_match_${listingId}`);

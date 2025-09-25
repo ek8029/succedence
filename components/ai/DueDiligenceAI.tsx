@@ -5,6 +5,7 @@ import { DueDiligenceChecklist } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
 interface DueDiligenceAIProps {
@@ -15,6 +16,7 @@ interface DueDiligenceAIProps {
 
 export default function DueDiligenceAI({ listingId, listingTitle, industry }: DueDiligenceAIProps) {
   const { user } = useAuth();
+  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const [checklist, setChecklist] = useState<DueDiligenceChecklist | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +104,17 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     }
   }, [user, listingId, checklist, hasCheckedForExisting, fetchExistingAnalysis]);
 
+  // Listen to analysis completion triggers from other components
+  useEffect(() => {
+    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0)) {
+      // Reset and refetch when other analyses complete
+      setHasCheckedForExisting(false);
+      if (!checklist) {
+        fetchExistingAnalysis();
+      }
+    }
+  }, [user, analysisCompletedTrigger, refreshTrigger, checklist, fetchExistingAnalysis]);
+
   // Clean up session storage when analysis completes
   useEffect(() => {
     if (!isLoading && checklist) {
@@ -139,6 +152,9 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
       }
 
       setChecklist(data.checklist);
+
+      // Notify other components that analysis completed
+      triggerAnalysisRefetch();
 
       // Clear session storage on successful completion
       sessionStorage.removeItem(`due_diligence_${listingId}`);

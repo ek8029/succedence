@@ -150,16 +150,16 @@ export default function SavedListingsPage() {
               <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
                 Your bookmarked business opportunities and AI analysis history
               </p>
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mt-8">
                 <Link
                   href="/browse"
-                  className="glass px-6 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20 whitespace-nowrap"
+                  className="bg-neutral-800/40 backdrop-blur-sm border border-gold/20 rounded-luxury px-4 py-2.5 text-sm text-white text-center font-medium hover:bg-neutral-700/50 transition-all duration-200 whitespace-nowrap min-h-[40px] flex items-center justify-center"
                 >
                   Browse More Listings
                 </Link>
                 <Link
                   href="/ai-analysis-history"
-                  className="glass px-6 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20 whitespace-nowrap"
+                  className="bg-neutral-800/40 backdrop-blur-sm border border-gold/20 rounded-luxury px-4 py-2.5 text-sm text-white text-center font-medium hover:bg-neutral-700/50 transition-all duration-200 whitespace-nowrap min-h-[40px] flex items-center justify-center"
                 >
                   View AI History
                 </Link>
@@ -175,14 +175,14 @@ export default function SavedListingsPage() {
                 <div className="text-xl text-white font-medium">Loading saved listings...</div>
               </div>
             ) : savedListings.length === 0 ? (
-              <div className="text-center py-16">
-                <h2 className="text-2xl text-white font-medium mb-6">No Saved Listings Yet</h2>
-                <p className="text-neutral-400 mb-12 max-w-md mx-auto leading-relaxed">
+              <div className="text-center py-12">
+                <h2 className="text-2xl text-white font-medium mb-4">No Saved Listings Yet</h2>
+                <p className="text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
                   Start exploring business opportunities and save the ones that interest you.
                 </p>
                 <Link
                   href="/browse"
-                  className="inline-block glass px-6 py-3 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"
+                  className="bg-neutral-800/40 backdrop-blur-sm border border-gold/20 rounded-luxury px-6 py-2.5 text-sm text-white text-center font-medium hover:bg-neutral-700/50 transition-all duration-200 whitespace-nowrap min-h-[40px] flex items-center justify-center mx-auto"
                 >
                   Browse Listings
                 </Link>

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MarketIntelligence } from '@/lib/ai/openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
 interface MarketIntelligenceAIProps {
@@ -15,6 +16,7 @@ interface MarketIntelligenceAIProps {
 
 export default function MarketIntelligenceAI({ industry, geography, dealSize }: MarketIntelligenceAIProps) {
   const { user } = useAuth();
+  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const [intelligence, setIntelligence] = useState<MarketIntelligence | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +31,36 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
   // Check if user has access to market intelligence feature
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'marketIntelligence', user?.role);
+
+  // Fetch existing analysis on component mount
+  const fetchExistingAnalysis = useCallback(async () => {
+    if (!user || hasCheckedForExisting || !formData.industry.trim()) return;
+
+    try {
+      const response = await fetch(`/api/ai/history?analysisType=market_intelligence&limit=10&page=1`);
+      const data = await response.json();
+
+      if (data.success && data.aiHistory && data.aiHistory.length > 0) {
+        // Find existing analysis that matches current parameters
+        const existingAnalysis = data.aiHistory.find((item: any) => {
+          const analysisParams = item.analysis_data?.parameters || {};
+          return analysisParams.industry?.toLowerCase() === formData.industry.toLowerCase() &&
+                 (!formData.geography || analysisParams.geography?.toLowerCase() === formData.geography.toLowerCase()) &&
+                 (!formData.dealSize || analysisParams.dealSize === formData.dealSize);
+        });
+
+        if (existingAnalysis && existingAnalysis.analysis_data) {
+          // Extract the intelligence data (skip parameters)
+          const { parameters, ...intelligenceData } = existingAnalysis.analysis_data;
+          setIntelligence(intelligenceData);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching existing market intelligence analysis:', err);
+    } finally {
+      setHasCheckedForExisting(true);
+    }
+  }, [user, hasCheckedForExisting, formData.industry, formData.geography, formData.dealSize]);
 
   // Handle tab visibility to prevent analysis interruption
   useEffect(() => {
@@ -61,6 +93,25 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [formData.industry, isLoading, error, formData]);
+
+  // Check for existing analysis when form data changes
+  useEffect(() => {
+    if (user && formData.industry.trim() && !intelligence) {
+      setHasCheckedForExisting(false);
+      fetchExistingAnalysis();
+    }
+  }, [user, formData.industry, formData.geography, formData.dealSize, intelligence, fetchExistingAnalysis]);
+
+  // Listen to analysis completion triggers from other components
+  useEffect(() => {
+    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0) && formData.industry.trim()) {
+      // Reset and refetch when other analyses complete
+      setHasCheckedForExisting(false);
+      if (!intelligence) {
+        fetchExistingAnalysis();
+      }
+    }
+  }, [user, analysisCompletedTrigger, refreshTrigger, formData.industry, intelligence, fetchExistingAnalysis]);
 
   // Clean up session storage when analysis completes
   useEffect(() => {
@@ -108,6 +159,9 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize }: 
       }
 
       setIntelligence(data.intelligence);
+
+      // Notify other components that analysis completed
+      triggerAnalysisRefetch();
 
       // Clear session storage on successful completion
       sessionStorage.removeItem(`market_intelligence_${formData.industry}`);
