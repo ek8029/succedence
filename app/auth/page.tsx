@@ -338,9 +338,25 @@ export default function AuthPage() {
                     )}
                   </button>
                 </div>
-                <p id="password-help" className="text-sm text-neutral-400">
-                  {isSignUp ? "Minimum 6 characters. Use uppercase, numbers for stronger security." : "Enter your account password"}
-                </p>
+                <div id="password-help" className="text-sm">
+                  {isSignUp ? (
+                    <p className="text-neutral-400">Minimum 6 characters. Use uppercase, numbers for stronger security.</p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotPassword(true);
+                        setIsSubmitting(false);
+                        setError('');
+                        setMessage('');
+                        setFormData(prev => ({ ...prev, password: '' }));
+                      }}
+                      className="text-gold hover:text-gold/80 transition-colors duration-200 font-medium"
+                    >
+                      Forgot your password?
+                    </button>
+                  )}
+                </div>
                 {isSignUp && passwordStrength && (
                   <div id="password-strength" className="space-y-2">
                     <div className="flex items-center space-x-2">
@@ -471,23 +487,7 @@ export default function AuthPage() {
                 )}
               </button>
 
-              <div className="text-center space-y-4">
-                {!isSignUp && !isForgotPassword && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsForgotPassword(true);
-                      setIsSubmitting(false);
-                      setError('');
-                      setMessage('');
-                      setFormData(prev => ({ ...prev, password: '' }));
-                    }}
-                    className="text-gold hover:text-gold/80 transition-colors duration-200 font-medium text-base"
-                  >
-                    Forgot your password?
-                  </button>
-                )}
-
+              <div className="text-center">
                 <button
                   type="button"
                   onClick={() => {
