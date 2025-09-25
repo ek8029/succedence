@@ -94,8 +94,56 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Calculate match score (always fresh for now - caching disabled until table is created)
-    const matchScore = await calculateBuyerBusinessMatch(listing, buyerPreferences);
+    // Check for existing buyer match analysis first (caching enabled)
+    let matchScore;
+    let existingAnalysis = null;
+
+    try {
+      const serviceSupabase = createServiceClient();
+      const { data: cached, error: cacheError } = await serviceSupabase
+        .from('ai_analyses')
+        .select('*')
+        .eq('user_id', authUser.id)
+        .eq('listing_id', listingId)
+        .eq('analysis_type', 'buyer_match')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!cacheError && cached) {
+        existingAnalysis = cached;
+        matchScore = (cached as any).analysis_data;
+        console.log('Using cached buyer match from', (cached as any).created_at);
+      }
+    } catch (error) {
+      console.log('No cached buyer match found, generating fresh analysis');
+    }
+
+    // Generate fresh analysis if no cached version exists
+    if (!existingAnalysis) {
+      matchScore = await calculateBuyerBusinessMatch(listing, buyerPreferences);
+
+      // Save buyer match to database
+      try {
+        const serviceSupabase = createServiceClient();
+        const { error: insertError } = await serviceSupabase
+          .from('ai_analyses')
+          .insert([{
+            user_id: authUser.id,
+            listing_id: listingId,
+            analysis_type: 'buyer_match',
+            analysis_data: matchScore,
+          }]);
+
+        if (!insertError) {
+          console.log('✅ Buyer match saved to database');
+        } else {
+          console.error('Failed to save buyer match:', insertError);
+        }
+      } catch (error) {
+        console.error('Error saving buyer match:', error);
+      }
+    }
 
     return NextResponse.json({
       success: true,

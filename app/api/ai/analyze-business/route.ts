@@ -66,9 +66,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Always generate fresh analysis (caching disabled until table is created)
-    const analysis = await analyzeBusinessForAcquisition(listing);
-    const existingAnalysis = null; // Caching disabled
+    // Check for existing analysis first (caching enabled)
+    let analysis;
+    let existingAnalysis = null;
+
+    try {
+      const serviceSupabase = createServiceClient();
+      const { data: cached, error: cacheError } = await serviceSupabase
+        .from('ai_analyses')
+        .select('*')
+        .eq('user_id', authUser.id)
+        .eq('listing_id', listingId)
+        .eq('analysis_type', 'business_analysis')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!cacheError && cached) {
+        existingAnalysis = cached;
+        analysis = (cached as any).analysis_data;
+        console.log('Using cached business analysis from', (cached as any).created_at);
+      }
+    } catch (error) {
+      console.log('No cached analysis found or table does not exist, generating fresh analysis');
+    }
+
+    // Generate fresh analysis if no cached version exists
+    if (!existingAnalysis) {
+      analysis = await analyzeBusinessForAcquisition(listing);
+
+      // Save analysis to database
+      try {
+        const serviceSupabase = createServiceClient();
+        const { error: insertError } = await serviceSupabase
+          .from('ai_analyses')
+          .insert([{
+            user_id: authUser.id,
+            listing_id: listingId,
+            analysis_type: 'business_analysis',
+            analysis_data: analysis,
+          }]);
+
+        if (!insertError) {
+          console.log('✅ Business analysis saved to database');
+        } else {
+          console.error('Failed to save business analysis:', insertError);
+        }
+      } catch (error) {
+        console.error('Error saving business analysis:', error);
+      }
+    }
 
     return NextResponse.json({
       success: true,
