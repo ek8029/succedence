@@ -46,16 +46,16 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
   const [error, setError] = useState<string | null>(null);
   const [isCachedResult, setIsCachedResult] = useState(false);
   const [analysisDate, setAnalysisDate] = useState<string | null>(null);
-  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
+  const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
   const analysisInProgressRef = useRef(false);
 
   // Check if user has access to business analysis feature
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'businessAnalysis', user?.role);
 
-  // Fetch existing analysis on component mount
+  // Fetch existing analysis
   const fetchExistingAnalysis = useCallback(async () => {
-    if (!user || hasCheckedForExisting) return;
+    if (!user || !listingId) return;
 
     try {
       const response = await fetch(`/api/ai/history?analysisType=business_analysis&listingId=${listingId}&limit=1&page=1`);
@@ -67,14 +67,18 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
           setAnalysis(existingAnalysis.analysis_data);
           setIsCachedResult(true);
           setAnalysisDate(existingAnalysis.created_at);
+          setHasFetchedOnce(true);
+          return true; // Indicates we found existing analysis
         }
       }
+      setHasFetchedOnce(true);
+      return false; // No existing analysis found
     } catch (err) {
       console.error('Error fetching existing analysis:', err);
-    } finally {
-      setHasCheckedForExisting(true);
+      setHasFetchedOnce(true);
+      return false;
     }
-  }, [user, hasCheckedForExisting, listingId]);
+  }, [user, listingId]);
 
   // Handle tab visibility to prevent analysis interruption
   useEffect(() => {
@@ -112,10 +116,18 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [listingId, isLoading, error]);
 
-  // Check for existing analysis and restore state on mount
+  // Always fetch existing analysis on mount or when user/listingId changes
   useEffect(() => {
-    if (user) {
-      // Check for stored session state first
+    if (user && listingId && !analysis && !isLoading) {
+      // Reset the fetch flag when listingId changes
+      setHasFetchedOnce(false);
+      fetchExistingAnalysis();
+    }
+  }, [user, listingId]); // Intentionally limited deps to trigger on mount and ID change
+
+  // Check for stored session state for interrupted analysis
+  useEffect(() => {
+    if (user && !analysis) {
       const storedState = sessionStorage.getItem(`ai_analysis_${listingId}`);
       if (storedState) {
         const state = JSON.parse(storedState);
@@ -125,26 +137,21 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
         if (state.isLoading && timeDiff < 300000) {
           setIsLoading(true);
           setError(null);
+          analysisInProgressRef.current = true;
         }
       }
-
-      // Fetch existing analysis if not already loaded
-      if (!analysis && !hasCheckedForExisting) {
-        fetchExistingAnalysis();
-      }
     }
-  }, [user, listingId]);
+  }, [user, listingId, analysis]);
 
   // Listen to analysis completion triggers from other components
   useEffect(() => {
     if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0)) {
-      // Reset and refetch when other analyses complete
-      setHasCheckedForExisting(false);
-      if (!analysis) {
+      // Refetch when other analyses complete
+      if (!analysis && !isLoading) {
         fetchExistingAnalysis();
       }
     }
-  }, [user, analysisCompletedTrigger, refreshTrigger, analysis, fetchExistingAnalysis]);
+  }, [user, analysisCompletedTrigger, refreshTrigger, analysis, isLoading, fetchExistingAnalysis]);
 
   // Clean up session storage when analysis completes
   useEffect(() => {
