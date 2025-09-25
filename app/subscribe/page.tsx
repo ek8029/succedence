@@ -35,30 +35,30 @@ export default function SubscribePage() {
       alert('Beta access is invite-only. Please contact support or select a paid plan.');
       return;
     } else {
-      // For paid plans, redirect to payment processing (Stripe, etc.)
+      // For paid plans, create Stripe checkout session
       setSelectedPlan(planType);
       setIsLoading(true);
 
       try {
-        // Here you would integrate with Stripe or your payment processor
-        // For now, we'll simulate the upgrade
-        const response = await fetch('/api/user/update-plan', {
+        const response = await fetch('/api/stripe/create-checkout-session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ plan: planType }),
+          body: JSON.stringify({ planType }),
         });
 
-        if (response.ok) {
-          router.push('/browse');
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Redirect to Stripe checkout
+          window.location.href = data.checkoutUrl;
         } else {
-          throw new Error('Failed to process payment');
+          throw new Error(data.error || 'Failed to create checkout session');
         }
       } catch (error) {
-        console.error('Error processing payment:', error);
+        console.error('Error creating checkout session:', error);
         alert('Payment processing failed. Please try again.');
-      } finally {
         setIsLoading(false);
       }
     }
