@@ -47,13 +47,12 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
-        // Find existing analysis that matches current parameters
+        // Since API now filters by listingId, search through results for parameter match
         const existingAnalysis = data.aiHistory.find((item: any) => {
           const analysisParams = item.analysis_data?.parameters || {};
           return analysisParams.industry?.toLowerCase() === formData.industry.toLowerCase() &&
                  (!formData.geography || analysisParams.geography?.toLowerCase() === formData.geography.toLowerCase()) &&
-                 (!formData.dealSize || analysisParams.dealSize === formData.dealSize) &&
-                 (!listingId || item.listing_id === listingId);
+                 (!formData.dealSize || analysisParams.dealSize === formData.dealSize);
         });
 
         if (existingAnalysis && existingAnalysis.analysis_data) {

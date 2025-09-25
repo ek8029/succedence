@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
     const analysisType = url.searchParams.get('analysisType') || '';
+    const listingId = url.searchParams.get('listingId') || '';
     const offset = (page - 1) * limit;
 
     const serviceSupabase = createServiceClient();
@@ -47,6 +48,10 @@ export async function GET(request: NextRequest) {
         historyQuery = historyQuery.eq('analysis_type', analysisType);
       }
 
+      if (listingId) {
+        historyQuery = historyQuery.eq('listing_id', listingId);
+      }
+
       // Get paginated AI history
       const { data: aiHistory, error: historyError } = await historyQuery
         .order('created_at', { ascending: false })
@@ -65,6 +70,10 @@ export async function GET(request: NextRequest) {
 
       if (analysisType) {
         countQuery = countQuery.eq('analysis_type', analysisType);
+      }
+
+      if (listingId) {
+        countQuery = countQuery.eq('listing_id', listingId);
       }
 
       const { count, error: countError } = await countQuery;

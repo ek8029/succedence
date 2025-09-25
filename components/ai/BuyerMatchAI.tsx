@@ -35,7 +35,8 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
-        const existingAnalysis = data.aiHistory.find((item: any) => item.listing_id === listingId);
+        // Since API now filters by listingId, take the first (and only) result
+        const existingAnalysis = data.aiHistory[0];
         if (existingAnalysis && existingAnalysis.analysis_data) {
           setMatchScore(existingAnalysis.analysis_data);
         }
