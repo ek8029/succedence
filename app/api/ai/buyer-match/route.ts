@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateBuyerBusinessMatch, isAIEnabled } from '@/lib/ai/openai';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 import type { Preferences, Listing } from '@/db/schema';
 
@@ -60,49 +60,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user preferences
+    // Get user preferences (optional - create defaults if missing)
     const { data: preferences, error: preferencesError } = await supabase
       .from('preferences')
       .select('*')
-      .eq('userId', authUser.id)
+      .eq('user_id', authUser.id)
       .single() as { data: Preferences | null; error: any };
 
-    // Handle case where no preferences exist
+    // Create default preferences if none exist or if fetch failed
+    let buyerPreferences;
     if (preferencesError || !preferences) {
-      return NextResponse.json(
-        { error: 'User preferences not found. Please set up your investment preferences first.' },
-        { status: 400 }
-      );
+      console.log('No user preferences found, using defaults for buyer matching');
+      // Use default broad preferences that work for any buyer
+      buyerPreferences = {
+        industries: [], // Empty means all industries acceptable
+        dealSizeMin: 0,
+        dealSizeMax: 10000000, // $10M default max
+        geographicPreferences: [], // Empty means all states acceptable
+        riskTolerance: 'medium' as const,
+        experienceLevel: 'experienced' as const,
+        keywords: []
+      };
+    } else {
+      // Use actual preferences with fallbacks
+      buyerPreferences = {
+        industries: preferences.industries || [],
+        dealSizeMin: preferences.minRevenue || 0,
+        dealSizeMax: preferences.priceMax || 10000000,
+        geographicPreferences: preferences.states || [],
+        riskTolerance: 'medium' as const,
+        experienceLevel: 'experienced' as const,
+        keywords: preferences.keywords || []
+      };
     }
 
-    // Build buyer preferences object
-    const buyerPreferences = {
-      industries: preferences.industries || [],
-      dealSizeMin: preferences.minRevenue || undefined,
-      dealSizeMax: preferences.priceMax || undefined,
-      geographicPreferences: preferences.states || [],
-      riskTolerance: 'medium' as const,
-      experienceLevel: 'experienced' as const
-    };
-
-    // Calculate match score
+    // Calculate match score (always fresh for now - caching disabled until table is created)
     const matchScore = await calculateBuyerBusinessMatch(listing, buyerPreferences);
-
-    // TODO: Store the match analysis (temporarily disabled due to type issues)
-    // const { error: insertError } = await supabase
-    //   .from('ai_analyses')
-    //   .upsert({
-    //     listingId: listingId,
-    //     userId: authUser.id,
-    //     analysisType: 'buyer_match',
-    //     analysisData: matchScore,
-    //     createdAt: new Date().toISOString(),
-    //     updatedAt: new Date().toISOString()
-    //   });
-
-    // if (insertError) {
-    //   console.error('Error storing match analysis:', insertError);
-    // }
 
     return NextResponse.json({
       success: true,
