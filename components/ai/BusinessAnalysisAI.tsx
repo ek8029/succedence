@@ -48,7 +48,10 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   // Handle tab visibility to prevent analysis interruption
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && analysisInProgressRef.current) {
+      // Only handle visibility change if analysis is actually in progress
+      if (!analysisInProgressRef.current) return;
+
+      if (document.hidden) {
         // Tab is hidden during analysis - store current state
         const analysisState = {
           listingId,
@@ -68,6 +71,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
           if (state.isLoading && timeDiff < 300000) {
             setIsLoading(true);
             setError(null);
+            analysisInProgressRef.current = true;
           }
         }
       }
