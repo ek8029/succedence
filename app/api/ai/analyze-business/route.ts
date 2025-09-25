@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const serviceSupabase = createServiceClient();
-      const { data: cached, error: cacheError } = await serviceSupabase
+      const { data: cached, error: cacheError } = await (serviceSupabase as any)
         .from('ai_analyses')
         .select('*')
         .eq('user_id', authUser.id)
@@ -98,14 +98,14 @@ export async function POST(request: NextRequest) {
       // Save analysis to database
       try {
         const serviceSupabase = createServiceClient();
-        const { error: insertError } = await serviceSupabase
+        const { error: insertError } = await (serviceSupabase as any)
           .from('ai_analyses')
-          .insert([{
+          .insert({
             user_id: authUser.id,
             listing_id: listingId,
             analysis_type: 'business_analysis',
             analysis_data: analysis,
-          }]);
+          });
 
         if (!insertError) {
           console.log('✅ Business analysis saved to database');
