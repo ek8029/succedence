@@ -98,20 +98,8 @@ export default function SavedListingsPage() {
   };
 
   const getAnalysisTypeIcon = (type: string) => {
-    switch (type) {
-      case 'business_analysis':
-        return '📊';
-      case 'buyer_match':
-        return '🎯';
-      case 'due_diligence':
-        return '📋';
-      case 'market_intelligence':
-        return '📈';
-      case 'smart_buybox':
-        return '🧠';
-      default:
-        return '🤖';
-    }
+    // No emojis - clean text-only approach
+    return '';
   };
 
   const getAnalysisTypeName = (type: string) => {
@@ -151,8 +139,8 @@ export default function SavedListingsPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
-      <div className="relative z-10">
-        <div className="container-professional pb-16 page-content">
+      <div className="relative z-10 min-h-screen flex flex-col">
+        <div className="container-professional pb-16 page-content flex-grow">
           {/* Header */}
           <ScrollAnimation direction="fade">
             <div className="text-center mb-16">
@@ -165,13 +153,13 @@ export default function SavedListingsPage() {
               <div className="flex justify-center gap-4 mt-8">
                 <Link
                   href="/browse"
-                  className="glass px-6 py-3 text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"
+                  className="glass px-4 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"
                 >
                   Browse More Listings
                 </Link>
                 <Link
                   href="/ai-analysis-history"
-                  className="btn-primary px-6 py-3 font-medium hover-lift"
+                  className="glass px-4 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"
                 >
                   View AI History
                 </Link>
@@ -188,14 +176,13 @@ export default function SavedListingsPage() {
               </div>
             ) : savedListings.length === 0 ? (
               <div className="text-center py-16">
-                <div className="text-6xl mb-6">📑</div>
                 <h2 className="text-2xl text-white font-medium mb-4">No Saved Listings Yet</h2>
                 <p className="text-neutral-400 mb-8 max-w-md mx-auto">
                   Start exploring business opportunities and save the ones that interest you.
                 </p>
                 <Link
                   href="/browse"
-                  className="btn-primary px-8 py-3 font-medium hover-lift"
+                  className="glass px-4 py-2 text-sm text-white hover:bg-neutral-800/30 transition-colors rounded-luxury border border-gold/20"
                 >
                   Browse Listings
                 </Link>
@@ -247,7 +234,7 @@ export default function SavedListingsPage() {
                           {savedListing.ai_analysis_count > 0 && (
                             <div className="bg-navy/30 rounded-lg p-3 mb-4">
                               <div className="text-sm text-gold font-medium mb-2">
-                                🤖 AI Analysis Available ({savedListing.ai_analysis_count} analyses)
+                                AI Analysis Available ({savedListing.ai_analysis_count} analyses)
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {savedListing.analysis_types.map((type, index) => (
@@ -255,7 +242,7 @@ export default function SavedListingsPage() {
                                     key={index}
                                     className="text-xs bg-gold/10 text-gold px-2 py-1 rounded border border-gold/20"
                                   >
-                                    {getAnalysisTypeIcon(type)} {getAnalysisTypeName(type)}
+                                    {getAnalysisTypeName(type)}
                                   </span>
                                 ))}
                               </div>
@@ -278,13 +265,13 @@ export default function SavedListingsPage() {
                         <div className="flex items-center gap-2 ml-4">
                           <Link
                             href={`/listings/${listing.id}`}
-                            className="glass px-4 py-2 text-sm text-white hover:bg-neutral-700/50 transition-colors rounded border border-gold/20"
+                            className="glass px-3 py-1 text-xs text-white hover:bg-neutral-700/50 transition-colors rounded border border-gold/20"
                           >
                             View Details
                           </Link>
                           <button
                             onClick={() => removeSavedListing(listing.id)}
-                            className="glass px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 transition-colors rounded border border-red-400/20"
+                            className="glass px-3 py-1 text-xs text-red-400 hover:bg-red-900/20 transition-colors rounded border border-red-400/20"
                           >
                             Remove
                           </button>
@@ -300,17 +287,17 @@ export default function SavedListingsPage() {
                     <button
                       onClick={() => fetchSavedListings(page - 1)}
                       disabled={page <= 1}
-                      className="glass px-4 py-2 text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
+                      className="glass px-3 py-1 text-sm text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
                     >
                       Previous
                     </button>
-                    <span className="text-white">
+                    <span className="text-white text-sm">
                       Page {page} of {totalPages}
                     </span>
                     <button
                       onClick={() => fetchSavedListings(page + 1)}
                       disabled={page >= totalPages}
-                      className="glass px-4 py-2 text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
+                      className="glass px-3 py-1 text-sm text-white hover:bg-neutral-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded border border-gold/20"
                     >
                       Next
                     </button>
@@ -322,7 +309,9 @@ export default function SavedListingsPage() {
         </div>
       </div>
 
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
