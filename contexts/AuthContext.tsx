@@ -496,7 +496,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data?.user && data?.session) {
-        console.log('Sign-in successful - setting up user immediately')
+        console.log('Sign-in successful - setting up user immediately for:', data.user.email)
+
+        // ACCOUNT SWITCHING PROTECTION: If switching to a different account, force a refresh
+        if (user && user.email !== data.user.email) {
+          console.log('🔄 ACCOUNT SWITCH DETECTED: Switching from', user.email, 'to', data.user.email, '- forcing page refresh')
+
+          // Set temporary flag to identify account switch
+          sessionStorage.setItem('account-switched', 'true')
+
+          // Force page refresh to completely clear any cached state
+          setTimeout(() => {
+            window.location.reload()
+          }, 100)
+          return {}
+        }
 
         // Configure session persistence
         if (rememberMe === false) {
@@ -553,10 +567,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clear session persistence flags
       sessionStorage.removeItem('session-persist')
 
+      // Clear all Supabase auth storage to prevent cross-account contamination
+      try {
+        // Clear localStorage auth tokens
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]
+        if (supabaseUrl) {
+          localStorage.removeItem(`sb-${supabaseUrl}-auth-token`)
+          sessionStorage.removeItem(`sb-${supabaseUrl}-auth-token`)
+        }
+        console.log('🧹 CLEANUP: Cleared auth storage')
+      } catch (cleanupError) {
+        console.log('Auth storage cleanup failed (non-critical):', cleanupError)
+      }
+
       await fetch('/api/auth/signout', { method: 'POST' })
       await supabase.auth.signOut()
+
+      // Force a hard refresh of the page after signout to clear any cached state
+      console.log('🔄 CLEANUP: Forcing page refresh to clear cached state')
       showNotification('Successfully signed out', 'success')
-      router.push('/')
+
+      // Use replace + reload to completely clear any cached state
+      setTimeout(() => {
+        window.location.replace('/')
+      }, 500)
+
     } catch (error) {
       console.error('Error signing out:', error)
       showNotification('Error signing out', 'error')

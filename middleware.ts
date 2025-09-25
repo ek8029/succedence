@@ -51,24 +51,38 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // HARDCODED ADMIN BYPASS - Critical for preventing account switching bugs
+  if (session.user.email === 'evank8029@gmail.com' || session.user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+    console.log('🔒 MIDDLEWARE: Admin bypass activated for:', session.user.email)
+    return NextResponse.next()
+  }
+
   // Get user data from database to check role and plan
+  let userData = null
+  let userError = null
+
   try {
-    const { data: userData, error: userError } = await supabase
+    const result = await supabase
       .from('users')
       .select('role, plan')
       .eq('id', session.user.id)
       .single()
 
+    userData = result.data
+    userError = result.error
+
     if (userError) {
       console.error('Error fetching user data:', userError)
+      // For non-admin users, if database fails, redirect to auth
       return NextResponse.redirect(new URL('/auth', request.url))
     }
 
     const userRole = (userData as any)?.role
     const userPlan = (userData as any)?.plan
 
-    // Admin users bypass all restrictions
+    // Admin users bypass all restrictions (secondary check)
     if (userRole === 'admin') {
+      console.log('🔒 MIDDLEWARE: Database admin role detected for:', session.user.email)
       return NextResponse.next()
     }
 
@@ -80,12 +94,17 @@ export async function middleware(request: NextRequest) {
 
     // SaaS Paywall: All protected routes require paid subscription
     // Users must have a PAID plan to access the application (no free tier)
+    console.log('🔍 MIDDLEWARE: Checking subscription for:', session.user.email, 'Plan:', userPlan, 'Role:', userRole)
+
     if (!userPlan || userPlan === null || userPlan === 'free') {
+      console.log('⚠️ MIDDLEWARE: User lacks paid subscription, redirecting to subscribe page')
       // Redirect users without subscription or with expired free plan to subscribe page
       const redirectUrl = new URL('/subscribe', request.url)
       redirectUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(redirectUrl)
     }
+
+    console.log('✅ MIDDLEWARE: User has valid subscription, allowing access to:', pathname)
 
     // Allow access to browse and listings pages for paid subscribers
     // (Remove the redirect to /app - let users access /browse and /listings directly)
