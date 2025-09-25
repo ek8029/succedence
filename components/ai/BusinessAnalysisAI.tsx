@@ -29,7 +29,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     if (!user || hasCheckedForExisting) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=business_analysis&limit=1&page=1`);
+      const response = await fetch(`/api/ai/history?analysisType=business_analysis&listingId=${listingId}&limit=1&page=1`);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {

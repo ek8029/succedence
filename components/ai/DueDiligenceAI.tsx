@@ -33,7 +33,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     if (!user || hasCheckedForExisting) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=due_diligence&limit=1&page=1`);
+      const response = await fetch(`/api/ai/history?analysisType=due_diligence&listingId=${listingId}&limit=1&page=1`);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {

@@ -58,7 +58,7 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
     if (!user || hasCheckedForExisting) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=business_analysis&limit=1&page=1`);
+      const response = await fetch(`/api/ai/history?analysisType=business_analysis&listingId=${listingId}&limit=1&page=1`);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
@@ -133,7 +133,18 @@ export default function EnhancedBusinessAnalysisAI({ listingId, listingTitle }: 
         fetchExistingAnalysis();
       }
     }
-  }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis, analysisCompletedTrigger, refreshTrigger]);
+  }, [user, listingId]);
+
+  // Listen to analysis completion triggers from other components
+  useEffect(() => {
+    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0)) {
+      // Reset and refetch when other analyses complete
+      setHasCheckedForExisting(false);
+      if (!analysis) {
+        fetchExistingAnalysis();
+      }
+    }
+  }, [user, analysisCompletedTrigger, refreshTrigger, analysis, fetchExistingAnalysis]);
 
   // Clean up session storage when analysis completes
   useEffect(() => {

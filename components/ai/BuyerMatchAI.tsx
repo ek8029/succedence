@@ -31,7 +31,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     if (!user || hasCheckedForExisting) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=buyer_match&limit=1&page=1`);
+      const response = await fetch(`/api/ai/history?analysisType=buyer_match&listingId=${listingId}&limit=1&page=1`);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
