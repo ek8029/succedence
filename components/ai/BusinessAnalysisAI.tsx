@@ -154,7 +154,8 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     return recommendation ? recommendation.replace('_', ' ').toUpperCase() : 'ANALYZING';
   };
 
-  const getConfidenceColor = (confidence: SuperConfidenceScore) => {
+  const getConfidenceColor = (confidence: SuperConfidenceScore | undefined | null) => {
+    if (!confidence || typeof confidence.score !== 'number') return 'text-gray-400';
     if (confidence.score >= 80) return 'text-green-400';
     if (confidence.score >= 60) return 'text-yellow-400';
     return 'text-orange-400';
@@ -221,9 +222,11 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                 {analysis.overallScore}/100
               </div>
               <div className="text-sm text-silver/80">Overall Score</div>
-              <div className={`text-xs mt-1 ${getConfidenceColor(analysis.overallScoreConfidence)}`}>
-                {analysis.overallScoreConfidence.score}% confident • {analysis.overallScoreConfidence.reasoning}
-              </div>
+              {analysis.overallScoreConfidence && (
+                <div className={`text-xs mt-1 ${getConfidenceColor(analysis.overallScoreConfidence)}`}>
+                  {analysis.overallScoreConfidence.score}% confident • {analysis.overallScoreConfidence.reasoning}
+                </div>
+              )}
             </div>
             <div className={`px-4 py-2 rounded-luxury border-2 font-semibold text-sm ${getRecommendationColor(analysis.recommendation)}`}>
               {formatRecommendation(analysis.recommendation)}
@@ -310,8 +313,8 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h5 className="font-medium text-blue-300 mb-2">Market Size & Growth</h5>
-                  <p className="text-sm text-silver/90 mb-1">{analysis.marketDynamics.marketSize.insight}</p>
-                  <p className="text-sm text-silver/90">{analysis.marketDynamics.growthProjections.insight}</p>
+                  <p className="text-sm text-silver/90 mb-1">{analysis.marketDynamics?.marketSize?.insight || 'Market size analysis not available'}</p>
+                  <p className="text-sm text-silver/90">{analysis.marketDynamics?.growthProjections?.insight || 'Growth projections not available'}</p>
                 </div>
                 <div>
                   <h5 className="font-medium text-blue-300 mb-2">Industry Trends</h5>
@@ -340,13 +343,13 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h5 className="font-medium text-purple-300 mb-2">Revenue & Profitability</h5>
-                  <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections.revenueGrowth.insight}</p>
-                  <p className="text-sm text-silver/90">{analysis.financialProjections.profitabilityTrends.insight}</p>
+                  <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections?.revenueGrowth?.insight || 'Revenue growth analysis not available'}</p>
+                  <p className="text-sm text-silver/90">{analysis.financialProjections?.profitabilityTrends?.insight || 'Profitability trends not available'}</p>
                 </div>
                 <div>
                   <h5 className="font-medium text-purple-300 mb-2">Cash Flow & Valuation</h5>
-                  <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections.cashFlowAnalysis.insight}</p>
-                  <p className="text-sm text-silver/90">{analysis.financialProjections.valuationMultiples.insight}</p>
+                  <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections?.cashFlowAnalysis?.insight || 'Cash flow analysis not available'}</p>
+                  <p className="text-sm text-silver/90">{analysis.financialProjections?.valuationMultiples?.insight || 'Valuation multiples not available'}</p>
                 </div>
               </div>
             </div>
@@ -364,9 +367,9 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h5 className="font-medium text-indigo-300 mb-2">Buyer Alignment</h5>
-                  <p className="text-sm text-silver/90 mb-3">{analysis.strategicFit.buyerAlignment.insight}</p>
+                  <p className="text-sm text-silver/90 mb-3">{analysis.strategicFit?.buyerAlignment?.insight || 'Buyer alignment analysis not available'}</p>
                   <h5 className="font-medium text-indigo-300 mb-2">Cultural Fit</h5>
-                  <p className="text-sm text-silver/90">{analysis.strategicFit.culturalFit.insight}</p>
+                  <p className="text-sm text-silver/90">{analysis.strategicFit?.culturalFit?.insight || 'Cultural fit analysis not available'}</p>
                 </div>
                 <div>
                   <h5 className="font-medium text-indigo-300 mb-2">Synergies</h5>
@@ -379,7 +382,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                     ))}
                   </ul>
                   <h5 className="font-medium text-indigo-300 mb-2">Integration Complexity</h5>
-                  <p className="text-sm text-silver/90">{analysis.strategicFit.integrationComplexity.insight}</p>
+                  <p className="text-sm text-silver/90">{analysis.strategicFit?.integrationComplexity?.insight || 'Integration complexity analysis not available'}</p>
                 </div>
               </div>
             </div>

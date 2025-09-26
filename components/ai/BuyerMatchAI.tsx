@@ -181,7 +181,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   };
 
   const getConfidenceColor = (confidence?: SuperConfidenceScore) => {
-    if (!confidence) return 'text-gray-400';
+    if (!confidence || typeof confidence.score !== 'number') return 'text-gray-400';
     if (confidence.score >= 80) return 'text-green-400';
     if (confidence.score >= 60) return 'text-yellow-400';
     return 'text-orange-400';
