@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeBusinessEnhanced, isAIEnabled, FollowUpQuery, generateFollowUpAnalysis } from '@/lib/ai/enhanced-openai';
+import { analyzeBusinessSuperEnhanced, isAIEnabled, generateFollowUpAnalysis } from '@/lib/ai/super-enhanced-openai';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 
@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
         ...analysisOptions
       };
 
-      analysis = await analyzeBusinessEnhanced(listing, enhancedOptions);
+      analysis = await analyzeBusinessSuperEnhanced(listing);
 
       // Add analysis options to the saved data for cache matching
       analysis.analysisOptions = enhancedOptions;

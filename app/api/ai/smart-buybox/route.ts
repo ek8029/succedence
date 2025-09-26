@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateSmartBuyBox, isAIEnabled } from '@/lib/ai/openai';
+import { isAIEnabled } from '@/lib/ai/super-enhanced-openai';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 import type { Preferences, Profile } from '@/db/schema';
@@ -62,7 +62,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Generate smart buy-box
-    const buyBox = await generateSmartBuyBox(userProfile);
+    // TODO: Implement SuperEnhanced smart buybox generation
+    const buyBox = { error: 'Smart buybox functionality not yet implemented with SuperEnhanced AI' };
 
     // TODO: Store the analysis (temporarily disabled due to type issues)
     // const { error: insertError } = await supabase

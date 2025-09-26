@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAIEnabled } from '@/lib/ai/openai';
+import { isAIEnabled } from '@/lib/ai/super-enhanced-openai';
 
 export const dynamic = 'force-dynamic';
 

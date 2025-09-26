@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAIEnabled } from '@/lib/ai/openai';
+import { isAIEnabled } from '@/lib/ai/super-enhanced-openai';
 import { getUserWithRole } from '@/lib/auth/permissions';
 import { createClient } from '@/lib/supabase/server';
 
