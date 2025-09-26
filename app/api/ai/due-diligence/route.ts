@@ -19,15 +19,30 @@ export async function POST(request: NextRequest) {
     // Authenticate user and get role
     const authUser = await getUserWithRole();
 
-    if (!authUser) {
+    // Allow bypass in development mode
+    if (!authUser && process.env.DEV_BYPASS_AUTH !== 'true') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    // Check if user has access (admin users bypass all restrictions)
-    if (!hasFeatureAccess(authUser.plan, authUser.role)) {
+    // Create effective user for processing (real user or dev bypass)
+    const effectiveUser = authUser || (process.env.DEV_BYPASS_AUTH === 'true' ? {
+      id: 'dev-user-' + Date.now(),
+      role: 'admin',
+      plan: 'enterprise'
+    } : null);
+
+    if (!effectiveUser) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Check if user has access (admin users and dev bypass have full access)
+    if (!hasFeatureAccess(effectiveUser.plan, effectiveUser.role)) {
       return NextResponse.json(
         { error: 'Subscription required for AI features' },
         { status: 403 }
@@ -35,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use service client for development bypass or when user exists
-    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || authUser?.role === 'admin';
+    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || effectiveUser?.role === 'admin';
     const supabase = useServiceClient ? createServiceClient() : createClient();
 
     const body = await request.json();
@@ -73,7 +88,7 @@ export async function POST(request: NextRequest) {
         const { data: originalAnalysisData, error: analysisError } = await (serviceSupabase as any)
           .from('ai_analyses')
           .select('*')
-          .eq('user_id', authUser.id)
+          .eq('user_id', effectiveUser.id)
           .eq('listing_id', listingId)
           .eq('analysis_type', 'due_diligence')
           .order('created_at', { ascending: false })
@@ -115,7 +130,7 @@ export async function POST(request: NextRequest) {
         const { data: cached, error: cacheError } = await (serviceSupabase as any)
           .from('ai_analyses')
           .select('*')
-          .eq('user_id', authUser.id)
+          .eq('user_id', effectiveUser.id)
           .eq('listing_id', listingId)
           .eq('analysis_type', 'due_diligence')
           .order('created_at', { ascending: false })
@@ -143,7 +158,7 @@ export async function POST(request: NextRequest) {
       .from('ai_analyses')
       .upsert({
         listing_id: listingId,
-        user_id: authUser.id,
+        user_id: effectiveUser.id,
         analysis_type: 'due_diligence',
         analysis_data: checklist,
         created_at: new Date().toISOString(),

@@ -290,14 +290,20 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                   <div key={index} className={`p-3 rounded-luxury border ${risk?.severity ? getRiskSeverityColor(risk.severity) : 'border-gray-400/30'}`}>
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-medium text-sm">{risk?.factor || 'Risk factor'}</span>
-                      <span className="text-xs uppercase font-bold">{risk?.severity || 'unknown'}</span>
+                      {risk?.severity && (
+                        <span className="text-xs uppercase font-bold">{risk.severity}</span>
+                      )}
                     </div>
-                    <div className="text-xs opacity-90 mb-2">{risk?.description || 'Analyzing risk...'}</div>
-                    <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-                      <span>Likelihood: {risk?.likelihood || 0}/10</span>
-                      <span>Impact: {risk?.impact || 0}/10</span>
-                      <span>Score: {risk?.riskScore || 0}</span>
-                    </div>
+                    {risk?.description && (
+                      <div className="text-xs opacity-90 mb-2">{risk.description}</div>
+                    )}
+                    {(risk?.likelihood || risk?.impact || risk?.riskScore) && (
+                      <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                        <span>Likelihood: {risk?.likelihood || 0}/10</span>
+                        <span>Impact: {risk?.impact || 0}/10</span>
+                        <span>Score: {risk?.riskScore || 0}</span>
+                      </div>
+                    )}
                     {risk?.mitigationStrategies && risk.mitigationStrategies.length > 0 && (
                       <div className="text-xs">
                         <span className="font-medium">Mitigation:</span> {risk.mitigationStrategies[0]}
@@ -321,8 +327,12 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h5 className="font-medium text-blue-300 mb-2">Market Size & Growth</h5>
-                  <p className="text-sm text-silver/90 mb-1">{analysis.marketDynamics?.marketSize?.insight || 'Market size analysis not available'}</p>
-                  <p className="text-sm text-silver/90">{analysis.marketDynamics?.growthProjections?.insight || 'Growth projections not available'}</p>
+                  {analysis.marketDynamics?.marketSize?.insight && (
+                    <p className="text-sm text-silver/90 mb-1">{analysis.marketDynamics.marketSize.insight}</p>
+                  )}
+                  {analysis.marketDynamics?.growthProjections?.insight && (
+                    <p className="text-sm text-silver/90">{analysis.marketDynamics.growthProjections.insight}</p>
+                  )}
                 </div>
                 <div>
                   <h5 className="font-medium text-blue-300 mb-2">Industry Trends</h5>
@@ -330,7 +340,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                     {(analysis.marketDynamics?.industryTrends || []).slice(0, 3).map((trend, index) => (
                       <li key={index} className="text-sm text-silver/90 flex items-start">
                         <span className="text-blue-400 mr-2">•</span>
-                        {trend?.insight || 'Analyzing market trend...'}
+                        {trend?.insight || ''}
                       </li>
                     ))}
                   </ul>
@@ -351,13 +361,21 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h5 className="font-medium text-purple-300 mb-2">Revenue & Profitability</h5>
-                  <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections?.revenueGrowth?.insight || 'Revenue growth analysis not available'}</p>
-                  <p className="text-sm text-silver/90">{analysis.financialProjections?.profitabilityTrends?.insight || 'Profitability trends not available'}</p>
+                  {analysis.financialProjections?.revenueGrowth?.insight && (
+                    <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections.revenueGrowth.insight}</p>
+                  )}
+                  {analysis.financialProjections?.profitabilityTrends?.insight && (
+                    <p className="text-sm text-silver/90">{analysis.financialProjections.profitabilityTrends.insight}</p>
+                  )}
                 </div>
                 <div>
                   <h5 className="font-medium text-purple-300 mb-2">Cash Flow & Valuation</h5>
-                  <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections?.cashFlowAnalysis?.insight || 'Cash flow analysis not available'}</p>
-                  <p className="text-sm text-silver/90">{analysis.financialProjections?.valuationMultiples?.insight || 'Valuation multiples not available'}</p>
+                  {analysis.financialProjections?.cashFlowAnalysis?.insight && (
+                    <p className="text-sm text-silver/90 mb-2">{analysis.financialProjections.cashFlowAnalysis.insight}</p>
+                  )}
+                  {analysis.financialProjections?.valuationMultiples?.insight && (
+                    <p className="text-sm text-silver/90">{analysis.financialProjections.valuationMultiples.insight}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -375,9 +393,13 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h5 className="font-medium text-indigo-300 mb-2">Buyer Alignment</h5>
-                  <p className="text-sm text-silver/90 mb-3">{analysis.strategicFit?.buyerAlignment?.insight || 'Buyer alignment analysis not available'}</p>
+                  {analysis.strategicFit?.buyerAlignment?.insight && (
+                    <p className="text-sm text-silver/90 mb-3">{analysis.strategicFit.buyerAlignment.insight}</p>
+                  )}
                   <h5 className="font-medium text-indigo-300 mb-2">Cultural Fit</h5>
-                  <p className="text-sm text-silver/90">{analysis.strategicFit?.culturalFit?.insight || 'Cultural fit analysis not available'}</p>
+                  {analysis.strategicFit?.culturalFit?.insight && (
+                    <p className="text-sm text-silver/90">{analysis.strategicFit.culturalFit.insight}</p>
+                  )}
                 </div>
                 <div>
                   <h5 className="font-medium text-indigo-300 mb-2">Synergies</h5>
@@ -385,12 +407,14 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                     {(analysis.strategicFit?.synergies || []).slice(0, 3).map((synergy, index) => (
                       <li key={index} className="text-sm text-silver/90 flex items-start">
                         <span className="text-indigo-400 mr-2">→</span>
-                        {synergy?.insight || 'Analyzing synergy...'}
+                        {synergy?.insight || ''}
                       </li>
                     ))}
                   </ul>
                   <h5 className="font-medium text-indigo-300 mb-2">Integration Complexity</h5>
-                  <p className="text-sm text-silver/90">{analysis.strategicFit?.integrationComplexity?.insight || 'Integration complexity analysis not available'}</p>
+                  {analysis.strategicFit?.integrationComplexity?.insight && (
+                    <p className="text-sm text-silver/90">{analysis.strategicFit.integrationComplexity.insight}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -408,7 +432,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               {(analysis.nextSteps || []).map((step, index) => (
                 <li key={index} className="text-silver/90 text-sm flex items-start">
                   <span className="text-blue-400 mr-2">{index + 1}.</span>
-                  {step || 'Analyzing next step...'}
+                  {step || ''}
                 </li>
               ))}
             </ul>
@@ -427,7 +451,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                 {(analysis.redFlags || []).map((flag, index) => (
                   <li key={index} className="text-red-300 text-sm flex items-start">
                     <span className="text-red-400 mr-2">⚠</span>
-                    {flag || 'Critical issue identified...'}
+                    {flag || ''}
                   </li>
                 ))}
               </ul>

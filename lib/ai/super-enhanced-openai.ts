@@ -21,6 +21,40 @@ export const isAIEnabled = () => {
   return isEnabled && !!process.env.OPENAI_API_KEY;
 };
 
+function parseAIResponse(response: string): any {
+  try {
+    // First try direct JSON parsing
+    return JSON.parse(response);
+  } catch (error) {
+    // If that fails, try to extract JSON from markdown code blocks
+    const jsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+    if (jsonMatch && jsonMatch[1]) {
+      try {
+        return JSON.parse(jsonMatch[1]);
+      } catch (parseError) {
+        console.error('Failed to parse extracted JSON:', parseError);
+        throw new Error('Invalid JSON format in AI response');
+      }
+    }
+
+    // If no code blocks found, try to find JSON-like content
+    const startIndex = response.indexOf('{');
+    const lastIndex = response.lastIndexOf('}');
+    if (startIndex !== -1 && lastIndex !== -1 && lastIndex > startIndex) {
+      try {
+        const jsonContent = response.substring(startIndex, lastIndex + 1);
+        return JSON.parse(jsonContent);
+      } catch (parseError) {
+        console.error('Failed to parse extracted JSON content:', parseError);
+      }
+    }
+
+    console.error('Original parsing error:', error);
+    console.error('Response content:', response);
+    throw new Error('Unable to parse AI response as JSON');
+  }
+}
+
 // Super Enhanced Types - Advanced AI Analysis
 export interface SuperConfidenceScore {
   score: number; // 0-100
@@ -436,7 +470,7 @@ Respond in JSON format with this EXACT structure:
       throw new Error('No response from OpenAI');
     }
 
-    const rawAnalysis = JSON.parse(response) as any;
+    const rawAnalysis = parseAIResponse(response) as any;
 
     // Ensure all required arrays are initialized
     const analysis: SuperEnhancedBusinessAnalysis = {
@@ -599,7 +633,7 @@ Respond in JSON format with this EXACT structure:
       throw new Error('No response from OpenAI');
     }
 
-    const rawMatch = JSON.parse(response) as any;
+    const rawMatch = parseAIResponse(response) as any;
 
     console.log('🚀 BUYER MATCH DEBUG: OpenAI raw response:', JSON.stringify(rawMatch, null, 2));
 
@@ -687,7 +721,7 @@ Respond in JSON format with comprehensive due diligence structure.
       throw new Error('No response from OpenAI');
     }
 
-    const rawDueDiligence = JSON.parse(response) as any;
+    const rawDueDiligence = parseAIResponse(response) as any;
 
     // Ensure all required arrays and objects are initialized for due diligence
     const dueDiligence: SuperEnhancedDueDiligence = {
@@ -768,7 +802,7 @@ Respond in JSON format with comprehensive market intelligence structure.
       throw new Error('No response from OpenAI');
     }
 
-    const rawIntelligence = JSON.parse(response) as any;
+    const rawIntelligence = parseAIResponse(response) as any;
 
     // Ensure all required arrays are initialized for market intelligence
     const marketIntelligence: SuperEnhancedMarketIntelligence = {

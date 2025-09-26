@@ -9,8 +9,11 @@ export class PageVisibilityManager {
   private activeRequests: Set<string> = new Set();
 
   private constructor() {
-    this.setupVisibilityListener();
-    this.setupKeepAlive();
+    // Only setup listeners in browser environment
+    if (typeof window !== 'undefined') {
+      this.setupVisibilityListener();
+      this.setupKeepAlive();
+    }
   }
 
   public static getInstance(): PageVisibilityManager {
@@ -51,6 +54,8 @@ export class PageVisibilityManager {
    * Force spinner animations to continue even when tab is inactive
    */
   private forceAnimationContinuation(): void {
+    if (typeof window === 'undefined') return;
+
     // Override CSS animation-play-state
     const style = document.createElement('style');
     style.textContent = `
@@ -80,6 +85,8 @@ export class PageVisibilityManager {
    * Setup Page Visibility API listener
    */
   private setupVisibilityListener(): void {
+    if (typeof window === 'undefined') return;
+
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         console.log('Tab became hidden, maintaining active requests:', this.activeRequests.size);
@@ -122,13 +129,17 @@ export class PageVisibilityManager {
     this.keepAliveInterval = setInterval(() => {
       if (this.activeRequests.size > 0) {
         // Small operation to keep the tab active
-        performance.now();
+        if (typeof performance !== 'undefined') {
+          performance.now();
+        }
 
-        // Force animations to continue
-        const spinners = document.querySelectorAll('.animate-spin');
-        spinners.forEach(spinner => {
-          (spinner as HTMLElement).style.animationPlayState = 'running';
-        });
+        // Force animations to continue (only in browser)
+        if (typeof window !== 'undefined') {
+          const spinners = document.querySelectorAll('.animate-spin');
+          spinners.forEach(spinner => {
+            (spinner as HTMLElement).style.animationPlayState = 'running';
+          });
+        }
       }
     }, 500); // Every 500ms while requests are active
   }

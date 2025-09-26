@@ -19,15 +19,30 @@ export async function POST(request: NextRequest) {
     // Authenticate user and get role
     const authUser = await getUserWithRole();
 
-    if (!authUser) {
+    // Allow bypass in development mode
+    if (!authUser && process.env.DEV_BYPASS_AUTH !== 'true') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    // Check if user has access (admin users bypass all restrictions)
-    if (!hasFeatureAccess(authUser.plan, authUser.role)) {
+    // Create effective user for processing (real user or dev bypass)
+    const effectiveUser = authUser || (process.env.DEV_BYPASS_AUTH === 'true' ? {
+      id: 'dev-user-' + Date.now(),
+      role: 'admin',
+      plan: 'enterprise'
+    } : null);
+
+    if (!effectiveUser) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Check if user has access (admin users and dev bypass have full access)
+    if (!hasFeatureAccess(effectiveUser.plan, effectiveUser.role)) {
       return NextResponse.json(
         { error: 'Subscription required for AI features' },
         { status: 403 }
@@ -50,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use service client for development bypass or when user exists
-    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || authUser?.role === 'admin';
+    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || effectiveUser?.role === 'admin';
     const supabase = useServiceClient ? createServiceClient() : createClient();
 
     // Fetch the listing
@@ -75,7 +90,7 @@ export async function POST(request: NextRequest) {
         const { data: originalAnalysisData, error: analysisError } = await (serviceSupabase as any)
           .from('ai_analyses')
           .select('*')
-          .eq('user_id', authUser.id)
+          .eq('user_id', effectiveUser.id)
           .eq('listing_id', listingId)
           .eq('analysis_type', 'buyer_match')
           .order('created_at', { ascending: false })
@@ -95,7 +110,7 @@ export async function POST(request: NextRequest) {
         await (serviceSupabase as any)
           .from('ai_analyses')
           .insert({
-            user_id: authUser.id,
+            user_id: effectiveUser.id,
             listing_id: listingId,
             analysis_type: 'follow_up_analysis',
             analysis_data: {
@@ -125,7 +140,7 @@ export async function POST(request: NextRequest) {
     const { data: preferences, error: preferencesError } = await supabase
       .from('preferences')
       .select('*')
-      .eq('user_id', authUser.id)
+      .eq('user_id', effectiveUser.id)
       .single() as { data: Preferences | null; error: any };
 
     // Create default preferences if none exist or if fetch failed
@@ -165,7 +180,7 @@ export async function POST(request: NextRequest) {
         const { data: cached, error: cacheError } = await (serviceSupabase as any)
           .from('ai_analyses')
           .select('*')
-          .eq('user_id', authUser.id)
+          .eq('user_id', effectiveUser.id)
           .eq('listing_id', listingId)
           .eq('analysis_type', 'buyer_match')
           .order('created_at', { ascending: false })
@@ -209,7 +224,7 @@ export async function POST(request: NextRequest) {
         const { error: insertError } = await (serviceSupabase as any)
           .from('ai_analyses')
           .insert({
-            user_id: authUser.id,
+            user_id: effectiveUser.id,
             listing_id: listingId,
             analysis_type: 'buyer_match',
             analysis_data: matchScore,
@@ -230,7 +245,7 @@ export async function POST(request: NextRequest) {
         await (serviceSupabase as any)
           .from('user_analysis_behavior')
           .upsert({
-            user_id: authUser.id,
+            user_id: effectiveUser.id,
             analysis_type: 'super_enhanced_buyer_match',
             perspective_used: 'buyer_focused',
             focus_areas: ['compatibility', 'strategic_fit'],

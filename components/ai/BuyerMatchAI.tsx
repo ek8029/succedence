@@ -318,15 +318,17 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                   {(matchScore.synergies || []).slice(0, 3).map((synergy, index) => (
                     <li key={index} className="text-silver/90 text-xs flex items-start">
                       <span className="text-blue-400 mr-2">→</span>
-                      {synergy?.insight || 'Analyzing synergy...'}
+                      {synergy?.insight || ''}
                     </li>
                   ))}
                 </ul>
                 <div className="mt-3">
                   <h5 className="font-medium text-blue-300 text-sm mb-1">Growth Opportunities</h5>
-                  {(matchScore.growthOpportunities || []).slice(0, 2).map((opportunity, index) => (
-                    <p key={index} className="text-xs text-silver/80 mb-1">{opportunity?.insight || 'Analyzing growth opportunity...'}</p>
-                  ))}
+                  {(matchScore.growthOpportunities || []).slice(0, 2).map((opportunity, index) =>
+                    opportunity?.insight ? (
+                      <p key={index} className="text-xs text-silver/80 mb-1">{opportunity.insight}</p>
+                    ) : null
+                  )}
                 </div>
               </div>
             </div>
@@ -346,9 +348,13 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                   <div key={index} className={`p-3 rounded-luxury border ${risk?.severity ? getRiskSeverityColor(risk.severity) : 'border-gray-400/30'}`}>
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-medium text-xs">{risk?.factor || 'Risk factor'}</span>
-                      <span className="text-xs uppercase font-bold">{risk?.severity || 'unknown'}</span>
+                      {risk?.severity && (
+                        <span className="text-xs uppercase font-bold">{risk.severity}</span>
+                      )}
                     </div>
-                    <div className="text-xs opacity-90 mb-2">{risk?.description || 'Analyzing risk...'}</div>
+                    {risk?.description && (
+                      <div className="text-xs opacity-90 mb-2">{risk.description}</div>
+                    )}
                     <div className="text-xs">Risk Score: {risk?.riskScore || 0}</div>
                   </div>
                 ))}
