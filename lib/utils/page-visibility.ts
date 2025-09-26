@@ -54,48 +54,74 @@ export class PageVisibilityManager {
    * Force spinner animations to continue even when tab is inactive
    */
   private forceAnimationContinuation(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
-    // Override CSS animation-play-state
-    const style = document.createElement('style');
-    style.textContent = `
-      .animate-spin {
-        animation: spin 1s linear infinite !important;
-        animation-play-state: running !important;
-        will-change: transform !important;
+    try {
+      // Override CSS animation-play-state
+      const style = document.createElement('style');
+      style.textContent = `
+        .animate-spin {
+          animation: spin 1s linear infinite !important;
+          animation-play-state: running !important;
+          will-change: transform !important;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `;
+
+      // Remove existing override if present
+      const existingOverride = document.getElementById('visibility-animation-override');
+      if (existingOverride) {
+        existingOverride.remove();
       }
 
-      @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-    `;
-
-    // Remove existing override if present
-    const existingOverride = document.getElementById('visibility-animation-override');
-    if (existingOverride) {
-      existingOverride.remove();
+      style.id = 'visibility-animation-override';
+      document.head.appendChild(style);
+    } catch (error) {
+      console.error('Failed to force animation continuation:', error);
     }
-
-    style.id = 'visibility-animation-override';
-    document.head.appendChild(style);
   }
 
   /**
    * Setup Page Visibility API listener
    */
   private setupVisibilityListener(): void {
-    if (typeof window === 'undefined') return;
+    // Complete SSR protection - early return for server-side
+    if (typeof window === 'undefined') {
+      console.log('SSR detected - skipping visibility listener setup');
+      return;
+    }
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        console.log('Tab became hidden, maintaining active requests:', this.activeRequests.size);
-        // Ensure animations continue and requests aren't interrupted
-        this.preventRequestInterruption();
+    // Additional safety checks before accessing document
+    if (typeof document === 'undefined') {
+      console.log('Document not available - skipping visibility listener setup');
+      return;
+    }
+
+    try {
+      // Check if visibilitychange is supported
+      if ('visibilityState' in document && 'hidden' in document) {
+        document.addEventListener('visibilitychange', () => {
+          // Additional safety check inside the event listener
+          if (typeof document !== 'undefined') {
+            if (document.hidden) {
+              console.log('Tab became hidden, maintaining active requests:', this.activeRequests.size);
+              // Ensure animations continue and requests aren't interrupted
+              this.preventRequestInterruption();
+            } else {
+              console.log('Tab became visible, active requests:', this.activeRequests.size);
+            }
+          }
+        });
       } else {
-        console.log('Tab became visible, active requests:', this.activeRequests.size);
+        console.log('Page Visibility API not supported - skipping listener setup');
       }
-    });
+    } catch (error) {
+      console.error('Failed to setup visibility listener:', error);
+    }
   }
 
   /**
@@ -134,11 +160,15 @@ export class PageVisibilityManager {
         }
 
         // Force animations to continue (only in browser)
-        if (typeof window !== 'undefined') {
-          const spinners = document.querySelectorAll('.animate-spin');
-          spinners.forEach(spinner => {
-            (spinner as HTMLElement).style.animationPlayState = 'running';
-          });
+        if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+          try {
+            const spinners = document.querySelectorAll('.animate-spin');
+            spinners.forEach(spinner => {
+              (spinner as HTMLElement).style.animationPlayState = 'running';
+            });
+          } catch (error) {
+            console.error('Failed to force animation continuation:', error);
+          }
         }
       }
     }, 500); // Every 500ms while requests are active

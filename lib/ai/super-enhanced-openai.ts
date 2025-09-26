@@ -22,36 +22,98 @@ export const isAIEnabled = () => {
 };
 
 function parseAIResponse(response: string): any {
+  console.log('🚀 AI RAW RESPONSE PREVIEW:', response.substring(0, 300) + '...');
+
+  // Clean the response first
+  let cleanResponse = response.trim();
+
+  // Check if response starts with markdown code blocks - handle this first
+  if (cleanResponse.startsWith('```')) {
+    console.log('Response starts with markdown code blocks, extracting JSON...');
+
+    // Try to extract JSON from markdown code blocks with various patterns
+    const patterns = [
+      /```json\s*(\{[\s\S]*?\})\s*```/,
+      /```\s*(\{[\s\S]*?\})\s*```/,
+      /`{3,}\s*json\s*(\{[\s\S]*?\})\s*`{3,}/,
+      /`{3,}\s*(\{[\s\S]*?\})\s*`{3,}/
+    ];
+
+    for (const pattern of patterns) {
+      const match = response.match(pattern);
+      if (match && match[1]) {
+        try {
+          const parsedResult = JSON.parse(match[1].trim());
+          console.log('✅ Successfully parsed markdown JSON');
+          return parsedResult;
+        } catch (parseError) {
+          console.log('Pattern match failed, trying next pattern...');
+          continue;
+        }
+      }
+    }
+  }
+
+  // Try direct JSON parsing if not markdown
   try {
-    // First try direct JSON parsing
-    return JSON.parse(response);
+    const parsedResult = JSON.parse(cleanResponse);
+    console.log('✅ Successfully parsed direct JSON');
+    return parsedResult;
   } catch (error) {
-    // If that fails, try to extract JSON from markdown code blocks
-    const jsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-    if (jsonMatch && jsonMatch[1]) {
-      try {
-        return JSON.parse(jsonMatch[1]);
-      } catch (parseError) {
-        console.error('Failed to parse extracted JSON:', parseError);
-        throw new Error('Invalid JSON format in AI response');
+    console.log('Direct JSON parsing failed, trying fallback extraction...');
+
+    // Fallback: try to extract JSON from markdown code blocks even if not detected initially
+    const patterns = [
+      /```json\s*(\{[\s\S]*?\})\s*```/,
+      /```\s*(\{[\s\S]*?\})\s*```/,
+      /`{3,}\s*json\s*(\{[\s\S]*?\})\s*`{3,}/,
+      /`{3,}\s*(\{[\s\S]*?\})\s*`{3,}/
+    ];
+
+    for (const pattern of patterns) {
+      const match = response.match(pattern);
+      if (match && match[1]) {
+        try {
+          const parsedResult = JSON.parse(match[1].trim());
+          console.log('✅ Successfully parsed with fallback pattern matching');
+          return parsedResult;
+        } catch (parseError) {
+          console.log('Fallback pattern match failed, trying next pattern...');
+          continue;
+        }
       }
     }
 
-    // If no code blocks found, try to find JSON-like content
-    const startIndex = response.indexOf('{');
-    const lastIndex = response.lastIndexOf('}');
-    if (startIndex !== -1 && lastIndex !== -1 && lastIndex > startIndex) {
-      try {
-        const jsonContent = response.substring(startIndex, lastIndex + 1);
-        return JSON.parse(jsonContent);
-      } catch (parseError) {
-        console.error('Failed to parse extracted JSON content:', parseError);
+    // If markdown parsing fails, try to find JSON object boundaries with proper brace counting
+    let startIndex = response.indexOf('{');
+    let endIndex = -1;
+
+    if (startIndex !== -1) {
+      let braceCount = 0;
+      for (let i = startIndex; i < response.length; i++) {
+        if (response[i] === '{') braceCount++;
+        if (response[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          endIndex = i;
+          break;
+        }
+      }
+
+      if (endIndex !== -1) {
+        try {
+          const jsonContent = response.substring(startIndex, endIndex + 1);
+          const parsedResult = JSON.parse(jsonContent);
+          console.log('✅ Successfully parsed with boundary extraction');
+          return parsedResult;
+        } catch (parseError) {
+          console.error('Boundary extraction failed:', parseError);
+        }
       }
     }
 
-    console.error('Original parsing error:', error);
-    console.error('Response content:', response);
-    throw new Error('Unable to parse AI response as JSON');
+    console.error('❌ ALL PARSING METHODS FAILED');
+    console.error('Response sample:', response.substring(0, 500));
+    throw new Error(`Failed to parse AI response as JSON. Response preview: ${response.substring(0, 200)}...`);
   }
 }
 
