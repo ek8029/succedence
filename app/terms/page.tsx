@@ -7,7 +7,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen bg-primary-gradient">
-      <div className="container mx-auto px-8 py-16 max-w-4xl">
+      <div className="container mx-auto px-8 pt-32 pb-24 max-w-4xl">
         {/* Header */}
         <ScrollAnimation direction="fade">
           <div className="text-center mb-16">
