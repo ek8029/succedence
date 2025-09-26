@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateBuyerBusinessMatch, isAIEnabled } from '@/lib/ai/openai';
+import { analyzeBusinessEnhanced, generateFollowUpAnalysis } from '@/lib/ai/enhanced-openai';
+import { analyzeBusinessSuperEnhancedBuyerMatch } from '@/lib/ai/super-enhanced-openai';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 import type { Preferences, Listing } from '@/db/schema';
@@ -35,7 +37,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { listingId } = body;
+    const {
+      listingId,
+      analysisOptions = {},
+      followUpQuery = null,
+      forceRefresh = false
+    } = body;
 
     if (!listingId) {
       return NextResponse.json(
@@ -58,6 +65,64 @@ export async function POST(request: NextRequest) {
         { error: 'Listing not found' },
         { status: 404 }
       );
+    }
+
+    // Handle follow-up queries
+    if (followUpQuery) {
+      try {
+        // Get the original analysis
+        const serviceSupabase = createServiceClient();
+        const { data: originalAnalysisData, error: analysisError } = await (serviceSupabase as any)
+          .from('ai_analyses')
+          .select('*')
+          .eq('user_id', authUser.id)
+          .eq('listing_id', listingId)
+          .eq('analysis_type', 'buyer_match')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (analysisError || !originalAnalysisData) {
+          return NextResponse.json(
+            { error: 'Original buyer match analysis not found for follow-up' },
+            { status: 404 }
+          );
+        }
+
+        const followUpResponse = await generateFollowUpAnalysis(
+          originalAnalysisData.analysis_data,
+          followUpQuery,
+          listing
+        );
+
+        // Save follow-up to database
+        await (serviceSupabase as any)
+          .from('ai_analyses')
+          .insert({
+            user_id: authUser.id,
+            listing_id: listingId,
+            analysis_type: 'follow_up_analysis',
+            analysis_data: {
+              originalAnalysisId: originalAnalysisData.id,
+              query: followUpQuery,
+              response: followUpResponse
+            },
+          });
+
+        return NextResponse.json({
+          success: true,
+          type: 'follow_up',
+          response: followUpResponse,
+          query: followUpQuery
+        });
+
+      } catch (error) {
+        console.error('Error in buyer match follow-up analysis:', error);
+        return NextResponse.json(
+          { error: 'Failed to generate follow-up analysis' },
+          { status: 500 }
+        );
+      }
     }
 
     // Get user preferences (optional - create defaults if missing)
@@ -98,32 +163,41 @@ export async function POST(request: NextRequest) {
     let matchScore;
     let existingAnalysis = null;
 
-    try {
-      const serviceSupabase = createServiceClient();
-      const { data: cached, error: cacheError } = await (serviceSupabase as any)
-        .from('ai_analyses')
-        .select('*')
-        .eq('user_id', authUser.id)
-        .eq('listing_id', listingId)
-        .eq('analysis_type', 'buyer_match')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    if (!forceRefresh) {
+      try {
+        const serviceSupabase = createServiceClient();
+        const { data: cached, error: cacheError } = await (serviceSupabase as any)
+          .from('ai_analyses')
+          .select('*')
+          .eq('user_id', authUser.id)
+          .eq('listing_id', listingId)
+          .eq('analysis_type', 'buyer_match')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      if (!cacheError && cached) {
-        existingAnalysis = cached;
-        matchScore = (cached as any).analysis_data;
-        console.log('Using cached buyer match from', (cached as any).created_at);
+        if (!cacheError && cached) {
+          // Check if cached analysis matches current options
+          const cachedOptions = cached.analysis_data?.analysisOptions || {};
+          const optionsMatch = JSON.stringify(cachedOptions) === JSON.stringify(analysisOptions);
+
+          if (optionsMatch) {
+            existingAnalysis = cached;
+            matchScore = cached.analysis_data;
+            console.log('Using cached enhanced buyer match from', cached.created_at);
+          }
+        }
+      } catch (error) {
+        console.log('No cached enhanced buyer match found, generating fresh analysis');
       }
-    } catch (error) {
-      console.log('No cached buyer match found, generating fresh analysis');
     }
 
-    // Generate fresh analysis if no cached version exists
-    if (!existingAnalysis) {
-      matchScore = await calculateBuyerBusinessMatch(listing, buyerPreferences);
+    // Generate fresh super enhanced analysis if no cached version exists or forced refresh
+    if (!existingAnalysis || forceRefresh) {
+      // Use super enhanced buyer matching for comprehensive analysis
+      matchScore = await analyzeBusinessSuperEnhancedBuyerMatch(listing, buyerPreferences);
 
-      // Save buyer match to database
+      // Save enhanced buyer match to database
       try {
         const serviceSupabase = createServiceClient();
         const { error: insertError } = await (serviceSupabase as any)
@@ -136,20 +210,54 @@ export async function POST(request: NextRequest) {
           });
 
         if (!insertError) {
-          console.log('✅ Buyer match saved to database');
+          console.log('✅ Super Enhanced buyer match saved to database');
         } else {
-          console.error('Failed to save buyer match:', insertError);
+          console.error('Failed to save super enhanced buyer match:', insertError);
         }
       } catch (error) {
-        console.error('Error saving buyer match:', error);
+        console.error('Error saving enhanced buyer match:', error);
+      }
+
+      // Track user behavior for personalization
+      try {
+        const serviceSupabase = createServiceClient();
+        await (serviceSupabase as any)
+          .from('user_analysis_behavior')
+          .upsert({
+            user_id: authUser.id,
+            analysis_type: 'super_enhanced_buyer_match',
+            perspective_used: 'buyer_focused',
+            focus_areas: ['compatibility', 'strategic_fit'],
+            listing_industry: (listing as any).industry,
+            listing_price: (listing as any).price,
+            analysis_score: matchScore.score,
+            recommendation: matchScore.score >= 80 ? 'strong_match' : matchScore.score >= 60 ? 'good_match' : 'poor_match',
+            timestamp: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,analysis_type,timestamp'
+          });
+      } catch (error) {
+        console.log('User behavior tracking not available:', error);
       }
     }
 
     return NextResponse.json({
       success: true,
+      type: 'super_enhanced_analysis',
       matchScore,
+      cached: !!existingAnalysis,
+      analysisDate: existingAnalysis ? existingAnalysis.created_at : new Date().toISOString(),
       listingTitle: listing.title,
-      buyerPreferences
+      buyerPreferences,
+      superEnhancedFeatures: {
+        advancedCompatibilityAnalysis: true,
+        comprehensiveRiskAssessment: true,
+        synergyIdentification: true,
+        strategicFitScoring: true,
+        confidenceScoring: true,
+        followUpCapability: true,
+        aiVersion: '2.0'
+      }
     });
 
   } catch (error) {

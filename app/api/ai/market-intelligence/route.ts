@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateMarketIntelligence, isAIEnabled } from '@/lib/ai/openai';
-import { createClient } from '@/lib/supabase/server';
+import { analyzeBusinessEnhanced, generateFollowUpAnalysis } from '@/lib/ai/enhanced-openai';
+import { generateSuperEnhancedMarketIntelligence } from '@/lib/ai/super-enhanced-openai';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +36,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { industry, geography, dealSize, listingId } = body;
+    const {
+      industry,
+      geography,
+      dealSize,
+      listingId,
+      followUpQuery = null,
+      forceRefresh = false
+    } = body;
 
     if (!industry) {
       return NextResponse.json(
@@ -43,8 +52,87 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate market intelligence
-    const intelligence = await generateMarketIntelligence(industry, geography, dealSize);
+    // Handle follow-up queries
+    if (followUpQuery) {
+      try {
+        const serviceSupabase = createServiceClient();
+        const { data: originalAnalysisData, error: analysisError } = await (serviceSupabase as any)
+          .from('ai_analyses')
+          .select('*')
+          .eq('user_id', authUser.id)
+          .eq('analysis_type', 'market_intelligence')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (analysisError || !originalAnalysisData) {
+          return NextResponse.json(
+            { error: 'Original market intelligence not found for follow-up' },
+            { status: 404 }
+          );
+        }
+
+        const followUpResponse = await generateFollowUpAnalysis(
+          originalAnalysisData.analysis_data,
+          followUpQuery,
+          { title: `${industry} Market Analysis`, industry, description: `Market intelligence for ${industry}` } as any
+        );
+
+        return NextResponse.json({
+          success: true,
+          type: 'follow_up',
+          response: followUpResponse,
+          query: followUpQuery
+        });
+
+      } catch (error) {
+        console.error('Error in market intelligence follow-up:', error);
+        return NextResponse.json(
+          { error: 'Failed to generate follow-up analysis' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Check for existing analysis first (unless forced refresh)
+    let intelligence;
+    let existingAnalysis = null;
+
+    if (!forceRefresh) {
+      try {
+        const serviceSupabase = createServiceClient();
+        const { data: cached, error: cacheError } = await (serviceSupabase as any)
+          .from('ai_analyses')
+          .select('*')
+          .eq('user_id', authUser.id)
+          .eq('analysis_type', 'market_intelligence')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!cacheError && cached) {
+          const cachedParams = cached.analysis_data?.parameters || {};
+          const paramsMatch = cachedParams.industry === industry &&
+                             cachedParams.geography === geography &&
+                             cachedParams.dealSize === dealSize;
+
+          if (paramsMatch) {
+            existingAnalysis = cached;
+            const { parameters, ...intelligenceData } = cached.analysis_data;
+            intelligence = intelligenceData;
+            console.log('Using cached enhanced market intelligence from', cached.created_at);
+          }
+        }
+      } catch (error) {
+        console.log('No cached enhanced market intelligence found, generating fresh analysis');
+      }
+    }
+
+    // Generate super enhanced market intelligence if no cached version exists
+    if (!existingAnalysis || forceRefresh) {
+      // Use super enhanced market intelligence generator
+      intelligence = await generateSuperEnhancedMarketIntelligence(industry, geography, dealSize);
+    }
 
     // Store the analysis in the database
     const supabase = createClient();
@@ -72,11 +160,25 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      type: 'super_enhanced_analysis',
       intelligence,
+      cached: !!existingAnalysis,
+      analysisDate: existingAnalysis ? existingAnalysis.created_at : new Date().toISOString(),
       parameters: {
         industry,
         geography,
         dealSize
+      },
+      superEnhancedFeatures: {
+        comprehensiveMarketOverview: true,
+        competitiveLandscapeAnalysis: true,
+        economicFactorAssessment: true,
+        investmentClimateAnalysis: true,
+        strategicRecommendations: true,
+        confidenceScoring: true,
+        followUpCapability: true,
+        marketTiming: true,
+        aiVersion: '2.0'
       }
     });
 
