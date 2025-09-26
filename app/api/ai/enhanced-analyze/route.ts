@@ -179,9 +179,9 @@ export async function POST(request: NextRequest) {
 
         if (preferences) {
           userPreferences = {
-            experienceLevel: preferences.experienceLevel || 'intermediate',
-            riskTolerance: preferences.riskTolerance || 'medium',
-            industries: preferences.industries || []
+            experienceLevel: (preferences as any).experienceLevel || 'intermediate',
+            riskTolerance: (preferences as any).riskTolerance || 'medium',
+            industries: (preferences as any).industries || []
           };
         }
       } catch (error) {
