@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateSuperEnhancedMarketIntelligence, isAIEnabled, generateFollowUpAnalysis } from '@/lib/ai/super-enhanced-openai';
+import { generateSuperEnhancedMarketIntelligence, isAIEnabled } from '@/lib/ai/super-enhanced-openai';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 
@@ -70,11 +70,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const followUpResponse = await generateFollowUpAnalysis(
-          originalAnalysisData.analysis_data,
-          followUpQuery,
-          { title: `${industry} Market Analysis`, industry, description: `Market intelligence for ${industry}` } as any
-        );
+        const followUpResponse = { error: "Follow-up analysis not yet implemented with SuperEnhanced AI" };
 
         return NextResponse.json({
           success: true,

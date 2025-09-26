@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { Listing } from '@/lib/types';
-import { EnhancedBusinessAnalysis, ConfidenceScore, RiskFactor } from './enhanced-openai';
+// Consolidated SuperEnhanced types only
 
 // Lazy initialize OpenAI client
 let openai: OpenAI | null = null;
@@ -22,7 +22,7 @@ export const isAIEnabled = () => {
 };
 
 // Super Enhanced Types - Advanced AI Analysis
-export interface SuperConfidenceScore extends ConfidenceScore {
+export interface SuperConfidenceScore {
   score: number; // 0-100
   factors: {
     dataQuality: number;
@@ -416,7 +416,7 @@ Respond in JSON format with this EXACT structure:
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -579,7 +579,7 @@ Respond in JSON format with this EXACT structure:
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -667,7 +667,7 @@ Respond in JSON format with comprehensive due diligence structure.
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -748,7 +748,7 @@ Respond in JSON format with comprehensive market intelligence structure.
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",

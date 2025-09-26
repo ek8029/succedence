@@ -8,12 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
-interface EnhancedBuyerMatchScore extends BuyerMatchScore {
-  confidence?: ConfidenceScore;
-  riskMatrix?: RiskFactor[];
-  nextSteps?: string[];
-  redFlags?: string[];
-}
+type EnhancedBuyerMatchScore = SuperEnhancedBuyerMatch;
 
 interface BuyerMatchAIProps {
   listingId: string;
@@ -252,7 +247,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
             </div>
             {matchScore.confidence && matchScore.confidence.score && (
               <div className={`text-xs mt-2 ${getConfidenceColor(matchScore.confidence)}`}>
-                {matchScore.confidence.score}% confidence{matchScore.confidence.reasoning ? ` • ${matchScore.confidence.reasoning}` : ''}
+                {matchScore.confidence.score}% confidence{matchScore.confidence.methodology ? ` • ${matchScore.confidence.methodology}` : ''}
               </div>
             )}
           </div>

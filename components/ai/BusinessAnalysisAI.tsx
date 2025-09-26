@@ -222,7 +222,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               <div className="text-sm text-silver/80">Overall Score</div>
               {analysis.overallScoreConfidence && (
                 <div className={`text-xs mt-1 ${getConfidenceColor(analysis.overallScoreConfidence)}`}>
-                  {analysis.overallScoreConfidence.score}% confident • {analysis.overallScoreConfidence.reasoning}
+                  {analysis.overallScoreConfidence.score}% confident • {analysis.overallScoreConfidence.methodology}
                 </div>
               )}
             </div>

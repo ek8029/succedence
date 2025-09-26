@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { SuperEnhancedDueDiligenceChecklist } from '@/lib/ai/super-enhanced-openai';
+import { SuperEnhancedDueDiligence } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,7 +17,7 @@ interface DueDiligenceAIProps {
 export default function DueDiligenceAI({ listingId, listingTitle, industry }: DueDiligenceAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
-  const [checklist, setChecklist] = useState<SuperEnhancedDueDiligenceChecklist | null>(null);
+  const [checklist, setChecklist] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
@@ -242,8 +242,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   };
 
   const totalItems = checklist ?
-    (checklist.financial || []).length + (checklist.legal || []).length + (checklist.operational || []).length +
-    (checklist.strategic || []).length + (checklist.risks || []).length : 0;
+    (checklist.criticalItems || []).reduce((total, category) => total + (category.items || []).length, 0) : 0;
   const totalCompleted = completedItems.size;
   const overallProgress = totalItems > 0 ? (totalCompleted / totalItems) * 100 : 0;
 

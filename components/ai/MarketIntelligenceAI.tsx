@@ -266,7 +266,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
               </svg>
               Current Market Conditions
             </h4>
-            <p className="text-silver/90 leading-relaxed text-sm">{intelligence.marketConditions}</p>
+            <p className="text-silver/90 leading-relaxed text-sm">{intelligence.marketOverview?.size?.insight || 'Market overview unavailable'}</p>
           </div>
 
           {/* Key Insights Grid */}
@@ -279,7 +279,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
                 </svg>
                 Valuation Trends
               </h4>
-              <p className="text-silver/90 leading-relaxed text-sm">{intelligence.valuationTrends}</p>
+              <p className="text-silver/90 leading-relaxed text-sm">{intelligence.marketOverview?.growth?.insight || 'Valuation trends unavailable'}</p>
             </div>
 
             {/* Competitive Analysis */}
@@ -290,7 +290,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
                 </svg>
                 Competitive Landscape
               </h4>
-              <p className="text-silver/90 leading-relaxed text-sm">{intelligence.competitiveAnalysis}</p>
+              <p className="text-silver/90 leading-relaxed text-sm">{intelligence.competitive?.intensity?.insight || 'Competitive analysis unavailable'}</p>
             </div>
           </div>
 
@@ -316,10 +316,10 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
                 Market Opportunities
               </h4>
               <ul className="space-y-2">
-                {(intelligence.opportunities || []).map((opportunity, index) => (
+                {(intelligence.competitive?.opportunities || []).map((opportunity, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
                     <span className="text-green-400 mr-2">•</span>
-                    {opportunity}
+                    {typeof opportunity === 'string' ? opportunity : opportunity?.insight || 'Opportunity unavailable'}
                   </li>
                 ))}
               </ul>
@@ -334,10 +334,10 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
                 Market Risks
               </h4>
               <ul className="space-y-2">
-                {(intelligence.risks || []).map((risk, index) => (
+                {(intelligence.economic?.risks || []).map((risk, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
                     <span className="text-red-400 mr-2">•</span>
-                    {risk}
+                    {typeof risk === 'string' ? risk : risk?.factor || 'Risk unavailable'}
                   </li>
                 ))}
               </ul>
@@ -379,22 +379,22 @@ ${formData.geography ? `Geography: ${formData.geography}` : ''}
 ${formData.dealSize ? `Deal Size: ${formatCurrency(formData.dealSize)}` : ''}
 
 MARKET CONDITIONS
-${intelligence.marketConditions}
+${intelligence.marketOverview?.size?.insight || 'Market conditions unavailable'}
 
 VALUATION TRENDS
-${intelligence.valuationTrends}
+${intelligence.marketOverview?.growth?.insight || 'Valuation trends unavailable'}
 
 COMPETITIVE ANALYSIS
-${intelligence.competitiveAnalysis}
+${intelligence.competitive?.intensity?.insight || 'Competitive analysis unavailable'}
 
 TIMING INSIGHTS
 ${intelligence.timing}
 
 OPPORTUNITIES
-${(intelligence.opportunities || []).map(op => `• ${op}`).join('\n')}
+${(intelligence.competitive?.opportunities || []).map(op => `• ${op?.insight || op}`).join('\n')}
 
 RISKS
-${(intelligence.risks || []).map(risk => `• ${risk}`).join('\n')}
+${(intelligence.economic?.risks || []).map(risk => `• ${risk?.factor || risk}`).join('\n')}
 
 Generated on ${new Date().toLocaleDateString()}`;
 

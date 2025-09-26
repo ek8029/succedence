@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeBusinessSuperEnhanced, isAIEnabled, generateFollowUpAnalysis } from '@/lib/ai/super-enhanced-openai';
+import { analyzeBusinessSuperEnhanced, isAIEnabled } from '@/lib/ai/super-enhanced-openai';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 
@@ -95,11 +95,8 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const followUpResponse = await generateFollowUpAnalysis(
-          originalAnalysisData.analysis_data,
-          followUpQuery,
-          listing
-        );
+        // TODO: Implement SuperEnhanced follow-up analysis
+        const followUpResponse = { error: "Follow-up analysis not yet implemented with SuperEnhanced AI" };
 
         // Save follow-up to database
         await (serviceSupabase as any)
