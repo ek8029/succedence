@@ -50,62 +50,12 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     }
   }, [user, hasCheckedForExisting, listingId]);
 
-  // Handle tab visibility to prevent analysis interruption
+  // Removed problematic tab visibility logic that caused infinite loading
+
+  // Check for existing analysis on mount
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Only handle visibility change if analysis is actually in progress
-      if (!analysisInProgressRef.current) return;
-
-      if (document.hidden) {
-        // Tab is hidden during analysis - store current state
-        const analysisState = {
-          listingId,
-          isLoading,
-          error,
-          timestamp: Date.now()
-        };
-        sessionStorage.setItem(`due_diligence_${listingId}`, JSON.stringify(analysisState));
-      } else if (!document.hidden) {
-        // Tab is visible again - check for stored state
-        const storedState = sessionStorage.getItem(`due_diligence_${listingId}`);
-        if (storedState) {
-          const state = JSON.parse(storedState);
-          const timeDiff = Date.now() - state.timestamp;
-
-          // If analysis was in progress less than 5 minutes ago, resume it
-          if (state.isLoading && timeDiff < 300000) {
-            setIsLoading(true);
-            setError(null);
-            analysisInProgressRef.current = true;
-          }
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [listingId, isLoading, error]);
-
-  // Check for existing analysis and restore state on mount
-  useEffect(() => {
-    if (user) {
-      // Check for stored session state first
-      const storedState = sessionStorage.getItem(`due_diligence_${listingId}`);
-      if (storedState) {
-        const state = JSON.parse(storedState);
-        const timeDiff = Date.now() - state.timestamp;
-
-        // If analysis was in progress recently, resume it
-        if (state.isLoading && timeDiff < 300000) {
-          setIsLoading(true);
-          setError(null);
-        }
-      }
-
-      // Fetch existing analysis if not already loaded
-      if (!checklist && !hasCheckedForExisting) {
-        fetchExistingAnalysis();
-      }
+    if (user && !checklist && !hasCheckedForExisting) {
+      fetchExistingAnalysis();
     }
   }, [user, listingId, checklist, hasCheckedForExisting, fetchExistingAnalysis]);
 
@@ -120,26 +70,14 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     }
   }, [user, analysisCompletedTrigger, refreshTrigger, checklist, fetchExistingAnalysis]);
 
-  // Clean up session storage when analysis completes
-  useEffect(() => {
-    if (!isLoading && checklist) {
-      sessionStorage.removeItem(`due_diligence_${listingId}`);
-    }
-  }, [isLoading, checklist, listingId]);
+  // Removed session storage cleanup logic
 
   const handleGenerateChecklist = async () => {
     setIsLoading(true);
     setError(null);
     analysisInProgressRef.current = true;
 
-    // Store analysis state
-    const analysisState = {
-      listingId,
-      isLoading: true,
-      error: null,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem(`due_diligence_${listingId}`, JSON.stringify(analysisState));
+    // Analysis starting
 
     try {
       const response = await fetch('/api/ai/due-diligence', {
@@ -161,8 +99,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
       // Notify other components that analysis completed
       triggerAnalysisRefetch();
 
-      // Clear session storage on successful completion
-      sessionStorage.removeItem(`due_diligence_${listingId}`);
+      // Analysis completed successfully
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate due diligence checklist');
     } finally {

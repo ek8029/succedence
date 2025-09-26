@@ -68,41 +68,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     }
   }, [user, hasCheckedForExisting, formData.industry, formData.geography, formData.dealSize, listingId]);
 
-  // Handle tab visibility to prevent analysis interruption
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Only handle visibility change if analysis is actually in progress
-      if (!analysisInProgressRef.current) return;
-
-      if (document.hidden) {
-        // Tab is hidden during analysis - store current state
-        const analysisState = {
-          formData,
-          isLoading,
-          error,
-          timestamp: Date.now()
-        };
-        sessionStorage.setItem(`market_intelligence_${formData.industry}`, JSON.stringify(analysisState));
-      } else if (!document.hidden) {
-        // Tab is visible again - check for stored state
-        const storedState = sessionStorage.getItem(`market_intelligence_${formData.industry}`);
-        if (storedState) {
-          const state = JSON.parse(storedState);
-          const timeDiff = Date.now() - state.timestamp;
-
-          // If analysis was in progress less than 5 minutes ago, resume it
-          if (state.isLoading && timeDiff < 300000) {
-            setIsLoading(true);
-            setError(null);
-            analysisInProgressRef.current = true;
-          }
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [formData.industry, isLoading, error, formData]);
+  // Removed problematic tab visibility logic that caused infinite loading
 
   // Check for existing analysis when form data changes
   useEffect(() => {
@@ -123,12 +89,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     }
   }, [user, analysisCompletedTrigger, refreshTrigger, formData.industry, intelligence, fetchExistingAnalysis]);
 
-  // Clean up session storage when analysis completes
-  useEffect(() => {
-    if (!isLoading && intelligence) {
-      sessionStorage.removeItem(`market_intelligence_${formData.industry}`);
-    }
-  }, [isLoading, intelligence, formData.industry]);
+  // Removed session storage cleanup logic
 
   const handleGenerateIntelligence = async () => {
     if (!formData.industry.trim()) {
@@ -140,14 +101,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     setError(null);
     analysisInProgressRef.current = true;
 
-    // Store analysis state
-    const analysisState = {
-      formData,
-      isLoading: true,
-      error: null,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem(`market_intelligence_${formData.industry}`, JSON.stringify(analysisState));
+    // Analysis starting
 
     try {
       const response = await fetch('/api/ai/market-intelligence', {
@@ -174,8 +128,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
       // Notify other components that analysis completed
       triggerAnalysisRefetch();
 
-      // Clear session storage on successful completion
-      sessionStorage.removeItem(`market_intelligence_${formData.industry}`);
+      // Analysis completed successfully
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate market intelligence');
     } finally {

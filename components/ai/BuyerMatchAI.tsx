@@ -60,62 +60,12 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     }
   }, [user, hasCheckedForExisting, listingId]);
 
-  // Handle tab visibility to prevent analysis interruption
+  // Removed problematic tab visibility logic that caused infinite loading
+
+  // Check for existing analysis on mount
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Only handle visibility change if analysis is actually in progress
-      if (!analysisInProgressRef.current) return;
-
-      if (document.hidden) {
-        // Tab is hidden during analysis - store current state
-        const analysisState = {
-          listingId,
-          isLoading,
-          error,
-          timestamp: Date.now()
-        };
-        sessionStorage.setItem(`buyer_match_${listingId}`, JSON.stringify(analysisState));
-      } else if (!document.hidden) {
-        // Tab is visible again - check for stored state
-        const storedState = sessionStorage.getItem(`buyer_match_${listingId}`);
-        if (storedState) {
-          const state = JSON.parse(storedState);
-          const timeDiff = Date.now() - state.timestamp;
-
-          // If analysis was in progress less than 5 minutes ago, resume it
-          if (state.isLoading && timeDiff < 300000) {
-            setIsLoading(true);
-            setError(null);
-            analysisInProgressRef.current = true;
-          }
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [listingId, isLoading, error]);
-
-  // Check for existing analysis and restore state on mount
-  useEffect(() => {
-    if (user) {
-      // Check for stored session state first
-      const storedState = sessionStorage.getItem(`buyer_match_${listingId}`);
-      if (storedState) {
-        const state = JSON.parse(storedState);
-        const timeDiff = Date.now() - state.timestamp;
-
-        // If analysis was in progress recently, resume it
-        if (state.isLoading && timeDiff < 300000) {
-          setIsLoading(true);
-          setError(null);
-        }
-      }
-
-      // Fetch existing analysis if not already loaded
-      if (!matchScore && !hasCheckedForExisting) {
-        fetchExistingAnalysis();
-      }
+    if (user && !matchScore && !hasCheckedForExisting) {
+      fetchExistingAnalysis();
     }
   }, [user, listingId, matchScore, hasCheckedForExisting, fetchExistingAnalysis]);
 
@@ -130,26 +80,14 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     }
   }, [user, analysisCompletedTrigger, refreshTrigger, matchScore, fetchExistingAnalysis]);
 
-  // Clean up session storage when analysis completes
-  useEffect(() => {
-    if (!isLoading && matchScore) {
-      sessionStorage.removeItem(`buyer_match_${listingId}`);
-    }
-  }, [isLoading, matchScore, listingId]);
+  // Removed session storage cleanup logic
 
   const handleAnalyzeMatch = async () => {
     setIsLoading(true);
     setError(null);
     analysisInProgressRef.current = true;
 
-    // Store analysis state
-    const analysisState = {
-      listingId,
-      isLoading: true,
-      error: null,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem(`buyer_match_${listingId}`, JSON.stringify(analysisState));
+    // Analysis starting
 
     try {
       const response = await fetch('/api/ai/buyer-match', {
@@ -177,8 +115,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
       // Notify other components that analysis completed
       triggerAnalysisRefetch();
 
-      // Clear session storage on successful completion
-      sessionStorage.removeItem(`buyer_match_${listingId}`);
+      // Analysis completed successfully
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to calculate buyer match');
     } finally {

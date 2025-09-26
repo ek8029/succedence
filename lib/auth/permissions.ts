@@ -11,10 +11,24 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
   try {
     const supabase = createClient();
 
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Try getUser() first, fallback to getSession() for compatibility
+    let user = null;
+    let authError = null;
+
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      user = userData.user;
+      authError = userError;
+    } catch (e) {
+      console.log('getUser() failed, trying getSession():', e);
+      // Fallback to getSession for browser contexts
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      user = sessionData.session?.user || null;
+      authError = sessionError;
+    }
 
     if (authError || !user) {
+      console.log('Authentication failed:', authError?.message || 'No user found');
       return null;
     }
 
