@@ -521,7 +521,60 @@ BUSINESS OPPORTUNITY:
 
 Provide a comprehensive buyer-business compatibility analysis with confidence scoring and detailed recommendations.
 
-Respond in JSON format with detailed compatibility scoring, risk assessment, and strategic recommendations.
+Respond in JSON format with this EXACT structure:
+{
+  "score": number,
+  "confidence": {
+    "score": number,
+    "level": "high|medium|low",
+    "percentage": number,
+    "reasoning": "string",
+    "factors": {
+      "dataQuality": number,
+      "sampleSize": number,
+      "marketStability": number,
+      "historicalAccuracy": number
+    },
+    "methodology": "string",
+    "limitations": ["limitation1", "limitation2"]
+  },
+  "compatibility": {
+    "industryExperience": {
+      "insight": "detailed analysis of buyer's industry experience relevance",
+      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
+    },
+    "financialCapacity": {
+      "insight": "analysis of buyer's financial capacity vs deal requirements",
+      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
+    },
+    "operationalFit": {
+      "insight": "assessment of operational synergies and management capability",
+      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
+    },
+    "culturalAlignment": {
+      "insight": "cultural fit assessment between buyer profile and business",
+      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
+    },
+    "strategicValue": {
+      "insight": "strategic value and growth potential for this buyer",
+      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
+    }
+  },
+  "risks": ["risk1", "risk2", "risk3"],
+  "riskMitigation": ["mitigation1", "mitigation2"],
+  "synergies": ["synergy1", "synergy2"],
+  "growthOpportunities": ["opportunity1", "opportunity2"],
+  "recommendation": "strong_match|good_match|fair_match|poor_match",
+  "reasoning": ["reason1", "reason2", "reason3"],
+  "nextSteps": ["step1", "step2", "step3"],
+  "scoreBreakdown": {
+    "industryFit": number,
+    "financialFit": number,
+    "operationalFit": number,
+    "culturalFit": number,
+    "strategicFit": number
+  }
+}
 `;
 
   try {
@@ -548,31 +601,32 @@ Respond in JSON format with detailed compatibility scoring, risk assessment, and
 
     const rawMatch = JSON.parse(response) as any;
 
-    // Ensure all required arrays and objects are initialized for buyer match
+    console.log('🚀 BUYER MATCH DEBUG: OpenAI raw response:', JSON.stringify(rawMatch, null, 2));
+
+    // Validate that OpenAI returned the expected structure
+    if (!rawMatch.score && rawMatch.score !== 0) {
+      throw new Error('OpenAI response missing required score field');
+    }
+    if (!rawMatch.compatibility) {
+      throw new Error('OpenAI response missing required compatibility field');
+    }
+    if (!rawMatch.recommendation) {
+      throw new Error('OpenAI response missing required recommendation field');
+    }
+
+    // Use the actual OpenAI response directly
     const buyerMatch: SuperEnhancedBuyerMatch = {
-      score: rawMatch.score || 0,
-      confidence: rawMatch.confidence || { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] },
-      compatibility: rawMatch.compatibility || {
-        industryExperience: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        financialCapacity: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        operationalFit: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        culturalAlignment: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        strategicValue: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
-      },
-      risks: rawMatch.risks || [],
-      riskMitigation: rawMatch.riskMitigation || [],
-      synergies: rawMatch.synergies || [],
-      growthOpportunities: rawMatch.growthOpportunities || [],
-      recommendation: rawMatch.recommendation || 'poor_match',
-      reasoning: rawMatch.reasoning || [],
-      nextSteps: rawMatch.nextSteps || [],
-      scoreBreakdown: rawMatch.scoreBreakdown || {
-        industryFit: 0,
-        financialFit: 0,
-        operationalFit: 0,
-        culturalFit: 0,
-        strategicFit: 0
-      }
+      score: rawMatch.score,
+      confidence: rawMatch.confidence,
+      compatibility: rawMatch.compatibility,
+      risks: rawMatch.risks,
+      riskMitigation: rawMatch.riskMitigation,
+      synergies: rawMatch.synergies,
+      growthOpportunities: rawMatch.growthOpportunities,
+      recommendation: rawMatch.recommendation,
+      reasoning: rawMatch.reasoning,
+      nextSteps: rawMatch.nextSteps,
+      scoreBreakdown: rawMatch.scoreBreakdown
     };
 
     return buyerMatch;
