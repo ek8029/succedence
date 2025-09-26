@@ -106,19 +106,24 @@ export async function POST(request: NextRequest) {
 
         const followUpResponse = { error: "Follow-up analysis not yet implemented with SuperEnhanced AI" };
 
-        // Save follow-up to database
-        await (serviceSupabase as any)
-          .from('ai_analyses')
-          .insert({
-            user_id: effectiveUser.id,
-            listing_id: listingId,
-            analysis_type: 'follow_up_analysis',
-            analysis_data: {
-              originalAnalysisId: originalAnalysisData.id,
-              query: followUpQuery,
-              response: followUpResponse
-            },
-          });
+        // Skip database saves in development mode
+        if (process.env.DEV_BYPASS_AUTH !== 'true') {
+          // Save follow-up to database
+          await (serviceSupabase as any)
+            .from('ai_analyses')
+            .insert({
+              user_id: effectiveUser.id,
+              listing_id: listingId,
+              analysis_type: 'follow_up_analysis',
+              analysis_data: {
+                originalAnalysisId: originalAnalysisData.id,
+                query: followUpQuery,
+                response: followUpResponse
+              },
+            });
+        } else {
+          console.log('🔧 DEV MODE: Skipping database save');
+        }
 
         return NextResponse.json({
           success: true,
@@ -218,47 +223,57 @@ export async function POST(request: NextRequest) {
         throw error;
       }
 
-      // Save enhanced buyer match to database
-      try {
-        const serviceSupabase = createServiceClient();
-        const { error: insertError } = await (serviceSupabase as any)
-          .from('ai_analyses')
-          .insert({
-            user_id: effectiveUser.id,
-            listing_id: listingId,
-            analysis_type: 'buyer_match',
-            analysis_data: matchScore,
-          });
+      // Skip database saves in development mode
+      if (process.env.DEV_BYPASS_AUTH !== 'true') {
+        // Save enhanced buyer match to database
+        try {
+          const serviceSupabase = createServiceClient();
+          const { error: insertError } = await (serviceSupabase as any)
+            .from('ai_analyses')
+            .insert({
+              user_id: effectiveUser.id,
+              listing_id: listingId,
+              analysis_type: 'buyer_match',
+              analysis_data: matchScore,
+            });
 
-        if (!insertError) {
-          console.log('✅ Super Enhanced buyer match saved to database');
-        } else {
-          console.error('Failed to save super enhanced buyer match:', insertError);
+          if (!insertError) {
+            console.log('✅ Super Enhanced buyer match saved to database');
+          } else {
+            console.error('Failed to save super enhanced buyer match:', insertError);
+          }
+        } catch (error) {
+          console.error('Error saving enhanced buyer match:', error);
         }
-      } catch (error) {
-        console.error('Error saving enhanced buyer match:', error);
+      } else {
+        console.log('🔧 DEV MODE: Skipping database save');
       }
 
-      // Track user behavior for personalization
-      try {
-        const serviceSupabase = createServiceClient();
-        await (serviceSupabase as any)
-          .from('user_analysis_behavior')
-          .upsert({
-            user_id: effectiveUser.id,
-            analysis_type: 'super_enhanced_buyer_match',
-            perspective_used: 'buyer_focused',
-            focus_areas: ['compatibility', 'strategic_fit'],
-            listing_industry: (listing as any).industry,
-            listing_price: (listing as any).price,
-            analysis_score: matchScore.score,
-            recommendation: matchScore.score >= 80 ? 'strong_match' : matchScore.score >= 60 ? 'good_match' : 'poor_match',
-            timestamp: new Date().toISOString()
-          }, {
-            onConflict: 'user_id,analysis_type,timestamp'
-          });
-      } catch (error) {
-        console.log('User behavior tracking not available:', error);
+      // Skip database saves in development mode
+      if (process.env.DEV_BYPASS_AUTH !== 'true') {
+        // Track user behavior for personalization
+        try {
+          const serviceSupabase = createServiceClient();
+          await (serviceSupabase as any)
+            .from('user_analysis_behavior')
+            .upsert({
+              user_id: effectiveUser.id,
+              analysis_type: 'super_enhanced_buyer_match',
+              perspective_used: 'buyer_focused',
+              focus_areas: ['compatibility', 'strategic_fit'],
+              listing_industry: (listing as any).industry,
+              listing_price: (listing as any).price,
+              analysis_score: matchScore.score,
+              recommendation: matchScore.score >= 80 ? 'strong_match' : matchScore.score >= 60 ? 'good_match' : 'poor_match',
+              timestamp: new Date().toISOString()
+            }, {
+              onConflict: 'user_id,analysis_type,timestamp'
+            });
+        } catch (error) {
+          console.log('User behavior tracking not available:', error);
+        }
+      } else {
+        console.log('🔧 DEV MODE: Skipping database save');
       }
     }
 

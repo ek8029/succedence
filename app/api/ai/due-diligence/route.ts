@@ -153,20 +153,25 @@ export async function POST(request: NextRequest) {
       checklist = await generateSuperEnhancedDueDiligence(listing);
     }
 
-    // Store the analysis in the database
-    const { error: insertError } = await supabase
-      .from('ai_analyses')
-      .upsert({
-        listing_id: listingId,
-        user_id: effectiveUser.id,
-        analysis_type: 'due_diligence',
-        analysis_data: checklist,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as any);
+    // Skip database saves in development mode
+    if (process.env.DEV_BYPASS_AUTH !== 'true') {
+      // Store the analysis in the database
+      const { error: insertError } = await supabase
+        .from('ai_analyses')
+        .upsert({
+          listing_id: listingId,
+          user_id: effectiveUser.id,
+          analysis_type: 'due_diligence',
+          analysis_data: checklist,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        } as any);
 
-    if (insertError) {
-      console.error('Error storing due diligence analysis:', insertError);
+      if (insertError) {
+        console.error('Error storing due diligence analysis:', insertError);
+      }
+    } else {
+      console.log('🔧 DEV MODE: Skipping database save');
     }
 
     return NextResponse.json({

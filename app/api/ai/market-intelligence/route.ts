@@ -143,30 +143,35 @@ export async function POST(request: NextRequest) {
       intelligence = await generateSuperEnhancedMarketIntelligence(industry, geography, dealSize);
     }
 
-    // Store the analysis in the database
-    // Use service client for development bypass or when user exists
-    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || effectiveUser?.role === 'admin';
-    const supabase = useServiceClient ? createServiceClient() : createClient();
-    const { error: insertError } = await supabase
-      .from('ai_analyses')
-      .upsert({
-        user_id: effectiveUser.id,
-        listing_id: listingId || null,
-        analysis_type: 'market_intelligence',
-        analysis_data: {
-          ...intelligence,
-          parameters: {
-            industry,
-            geography,
-            dealSize
-          }
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as any);
+    // Skip database saves in development mode
+    if (process.env.DEV_BYPASS_AUTH !== 'true') {
+      // Store the analysis in the database
+      // Use service client for development bypass or when user exists
+      const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || effectiveUser?.role === 'admin';
+      const supabase = useServiceClient ? createServiceClient() : createClient();
+      const { error: insertError } = await supabase
+        .from('ai_analyses')
+        .upsert({
+          user_id: effectiveUser.id,
+          listing_id: listingId || null,
+          analysis_type: 'market_intelligence',
+          analysis_data: {
+            ...intelligence,
+            parameters: {
+              industry,
+              geography,
+              dealSize
+            }
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        } as any);
 
-    if (insertError) {
-      console.error('Error storing market intelligence:', insertError);
+      if (insertError) {
+        console.error('Error storing market intelligence:', insertError);
+      }
+    } else {
+      console.log('🔧 DEV MODE: Skipping database save');
     }
 
     return NextResponse.json({
