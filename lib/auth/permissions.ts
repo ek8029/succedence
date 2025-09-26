@@ -11,21 +11,9 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
   try {
     const supabase = createClient();
 
-    // Try getUser() first, fallback to getSession() for compatibility
-    let user = null;
-    let authError = null;
-
-    try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      user = userData.user;
-      authError = userError;
-    } catch (e) {
-      console.log('getUser() failed, trying getSession():', e);
-      // Fallback to getSession for browser contexts
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      user = sessionData.session?.user || null;
-      authError = sessionError;
-    }
+    // Use getUser() which validates session with Supabase Auth server
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+    const user = userData.user;
 
     if (authError || !user) {
       console.log('Authentication failed:', authError?.message || 'No user found');
@@ -44,7 +32,7 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
     }
 
     // Try to get user details from database, fallback to session metadata
-    let userData = null;
+    let dbUserData = null;
     let userError = null;
 
     try {
@@ -53,14 +41,14 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
         .select('role, plan')
         .eq('id', user.id)
         .single();
-      userData = data;
+      dbUserData = data;
       userError = error;
     } catch (e) {
       userError = e;
       console.log('Database query failed, using fallback user data:', e);
     }
 
-    if (userError || !userData) {
+    if (userError || !dbUserData) {
       // Fallback: Use session metadata or default values
       console.log('Using fallback user data due to DB error:', userError?.message);
 
@@ -78,8 +66,8 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
 
     return {
       id: user.id,
-      role: (userData as any).role,
-      plan: (userData as any).plan,
+      role: (dbUserData as any).role,
+      plan: (dbUserData as any).plan,
       email: user.email || ''
     };
   } catch (error) {
