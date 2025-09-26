@@ -9,6 +9,17 @@ export interface AuthUser {
 
 export async function getUserWithRole(): Promise<AuthUser | null> {
   try {
+    // DEVELOPMENT MODE BYPASS - Skip auth in development for testing
+    if (process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true') {
+      console.log('🔧 DEV MODE: Bypassing authentication for testing');
+      return {
+        id: 'dev-user-id',
+        role: 'admin',
+        plan: 'enterprise',
+        email: 'dev@test.com'
+      };
+    }
+
     const supabase = createClient();
 
     // Use getUser() which validates session with Supabase Auth server

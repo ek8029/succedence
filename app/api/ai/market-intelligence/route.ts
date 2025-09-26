@@ -135,7 +135,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Store the analysis in the database
-    const supabase = createClient();
+    // Use service client for development bypass or when user exists
+    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || authUser?.role === 'admin';
+    const supabase = useServiceClient ? createServiceClient() : createClient();
     const { error: insertError } = await supabase
       .from('ai_analyses')
       .upsert({
