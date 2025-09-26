@@ -232,8 +232,8 @@ export async function POST(request: NextRequest) {
             analysis_type: 'enhanced_business_analysis',
             perspective_used: enhancedOptions.perspective,
             focus_areas: enhancedOptions.focusAreas,
-            listing_industry: listing.industry,
-            listing_price: listing.price,
+            listing_industry: (listing as any).industry,
+            listing_price: (listing as any).price,
             analysis_score: analysis.overallScore,
             recommendation: analysis.recommendation,
             timestamp: new Date().toISOString()
@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
       analysis,
       cached: !!existingAnalysis,
       analysisDate: existingAnalysis ? existingAnalysis.created_at : new Date().toISOString(),
-      listingTitle: listing.title,
+      listingTitle: (listing as any).title,
       enhancedFeatures: {
         confidenceScoring: true,
         riskMatrix: true,
