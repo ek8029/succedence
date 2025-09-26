@@ -303,17 +303,17 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
       {matchScore && (
         <div className="space-y-6">
           {/* SuperEnhanced Match Score Display */}
-          <div className={`text-center p-6 rounded-luxury border-2 ${getScoreBackground(matchScore.score)}`}>
-            <div className={`text-4xl font-bold font-mono mb-2 ${getScoreColor(matchScore.score)}`}>
-              {matchScore.score}%
+          <div className={`text-center p-6 rounded-luxury border-2 ${matchScore.score ? getScoreBackground(matchScore.score) : 'bg-gray-900/20 border-gray-400/30'}`}>
+            <div className={`text-4xl font-bold font-mono mb-2 ${matchScore.score ? getScoreColor(matchScore.score) : 'text-gray-400'}`}>
+              {matchScore.score || 0}%
             </div>
-            <div className={`text-lg font-semibold ${getScoreColor(matchScore.score)}`}>
+            <div className={`text-lg font-semibold ${matchScore.score ? getScoreColor(matchScore.score) : 'text-gray-400'}`}>
               {matchScore.recommendation ? matchScore.recommendation.replace('_', ' ').toUpperCase() : 'ANALYZING MATCH'}
             </div>
             <div className="text-sm text-silver/80 mt-2">
               SuperEnhanced compatibility analysis with strategic fit assessment
             </div>
-            {matchScore.confidence && (
+            {matchScore.confidence && matchScore.confidence.score && (
               <div className={`text-xs mt-2 ${getConfidenceColor(matchScore.confidence)}`}>
                 {matchScore.confidence.score}% confidence{matchScore.confidence.reasoning ? ` • ${matchScore.confidence.reasoning}` : ''}
               </div>
@@ -326,23 +326,23 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
               <h4 className="text-lg font-semibold text-purple-400 mb-3 font-serif">Detailed Score Breakdown</h4>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.industryFit}</div>
+                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.industryFit || 0}</div>
                   <div className="text-xs text-silver/70">Industry Fit</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.financialFit}</div>
+                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.financialFit || 0}</div>
                   <div className="text-xs text-silver/70">Financial Fit</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.operationalFit}</div>
+                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.operationalFit || 0}</div>
                   <div className="text-xs text-silver/70">Operational</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.culturalFit}</div>
+                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.culturalFit || 0}</div>
                   <div className="text-xs text-silver/70">Cultural</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.strategicFit}</div>
+                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.strategicFit || 0}</div>
                   <div className="text-xs text-silver/70">Strategic</div>
                 </div>
               </div>
@@ -447,7 +447,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
               {isLoading ? 'Calculating...' : 'Recalculate Match'}
             </button>
 
-            {matchScore.score >= 60 && (
+            {matchScore.score && matchScore.score >= 60 && (
               <button className="px-6 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary text-sm">
                 Get Due Diligence Checklist
               </button>
