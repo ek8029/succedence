@@ -95,6 +95,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           listingId,
           analysisOptions: {
@@ -136,6 +137,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           listingId,
           followUpQuery: followUpQuery.trim()

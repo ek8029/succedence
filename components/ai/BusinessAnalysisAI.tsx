@@ -74,6 +74,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           listingId,
           analysisOptions: {
@@ -112,6 +113,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           listingId,
           followUpQuery: followUpQuery.trim()

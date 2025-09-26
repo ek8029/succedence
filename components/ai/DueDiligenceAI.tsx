@@ -85,6 +85,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ listingId }),
       });
 

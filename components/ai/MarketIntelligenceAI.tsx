@@ -109,6 +109,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           industry: formData.industry,
           geography: formData.geography || undefined,
