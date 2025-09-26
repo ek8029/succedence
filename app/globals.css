@@ -2094,3 +2094,45 @@ select.form-control-large {
 .footer-social {
   @apply flex items-center justify-center space-x-6;
 }
+
+/* ========================================
+   FIX FOR TAB VISIBILITY ANIMATION PAUSE
+   ======================================== */
+
+/* Force animations to continue when tab is hidden/inactive */
+.animate-spin {
+  animation: spin 1s linear infinite !important;
+  animation-play-state: running !important;
+  will-change: transform;
+}
+
+/* Define the spin animation explicitly to override Tailwind's */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Force animations to run even when page is hidden */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-spin {
+    animation: spin 1s linear infinite !important;
+  }
+}
+
+/* Override browser behavior that pauses animations in background tabs */
+body:not([data-visibility="hidden"]) .animate-spin,
+body[data-visibility="visible"] .animate-spin,
+.animate-spin {
+  animation-play-state: running !important;
+}
+
+/* Ensure animation continues with GPU acceleration */
+.animate-spin {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

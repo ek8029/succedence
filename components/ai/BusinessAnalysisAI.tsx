@@ -6,6 +6,7 @@ import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
+import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 
 interface BusinessAnalysisAIProps {
   listingId: string;
@@ -22,6 +23,9 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   const [followUpQuery, setFollowUpQuery] = useState('');
   const [followUpResponse, setFollowUpResponse] = useState<string | null>(null);
   const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
+
+  // Hook for protecting requests from tab visibility issues
+  const { protectRequest } = useVisibilityProtectedRequest();
 
   // Check if user has access to business analysis feature
   const userPlan = (user?.plan as PlanType) || 'free';
@@ -67,20 +71,23 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     // Analysis starting
 
     try {
-      const response = await fetch('/api/ai/analyze-business', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId,
-          analysisOptions: {
-            perspective: 'general',
-            focusAreas: []
-          }
+      const response = await protectRequest(
+        () => fetch('/api/ai/analyze-business', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            listingId,
+            analysisOptions: {
+              perspective: 'general',
+              focusAreas: []
+            }
+          }),
         }),
-      });
+        `business-analysis-${listingId}`
+      );
 
       const data = await response.json();
 
@@ -106,17 +113,20 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     setError(null);
 
     try {
-      const response = await fetch('/api/ai/analyze-business', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId,
-          followUpQuery: followUpQuery.trim()
+      const response = await protectRequest(
+        () => fetch('/api/ai/analyze-business', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            listingId,
+            followUpQuery: followUpQuery.trim()
+          }),
         }),
-      });
+        `business-analysis-followup-${listingId}-${Date.now()}`
+      );
 
       const data = await response.json();
 
