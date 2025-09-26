@@ -304,8 +304,8 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   };
 
   const totalItems = checklist ?
-    checklist.financial.length + checklist.legal.length + checklist.operational.length +
-    checklist.strategic.length + checklist.risks.length : 0;
+    (checklist.financial || []).length + (checklist.legal || []).length + (checklist.operational || []).length +
+    (checklist.strategic || []).length + (checklist.risks || []).length : 0;
   const totalCompleted = completedItems.size;
   const overallProgress = totalItems > 0 ? (totalCompleted / totalItems) * 100 : 0;
 
@@ -372,15 +372,15 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
 
           {/* Checklist Sections */}
           <div className="grid md:grid-cols-2 gap-4">
-            {renderChecklistSection('financial', checklist.financial, 'financial')}
-            {renderChecklistSection('legal', checklist.legal, 'legal')}
-            {renderChecklistSection('operational', checklist.operational, 'operational')}
-            {renderChecklistSection('strategic', checklist.strategic, 'strategic')}
+            {renderChecklistSection('financial', checklist.financial || [], 'financial')}
+            {renderChecklistSection('legal', checklist.legal || [], 'legal')}
+            {renderChecklistSection('operational', checklist.operational || [], 'operational')}
+            {renderChecklistSection('strategic', checklist.strategic || [], 'strategic')}
           </div>
 
           {/* Risk Factors - Full Width */}
           <div className="grid grid-cols-1 gap-4">
-            {renderChecklistSection('risks', checklist.risks, 'risks')}
+            {renderChecklistSection('risks', checklist.risks || [], 'risks')}
           </div>
 
           {/* Timeline */}

@@ -383,17 +383,17 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                   Synergies & Opportunities
                 </h4>
                 <ul className="space-y-2">
-                  {matchScore.synergies && matchScore.synergies.slice(0, 3).map((synergy, index) => (
+                  {(matchScore.synergies || []).slice(0, 3).map((synergy, index) => (
                     <li key={index} className="text-silver/90 text-xs flex items-start">
                       <span className="text-blue-400 mr-2">→</span>
-                      {synergy.insight}
+                      {synergy?.insight || 'Analyzing synergy...'}
                     </li>
                   ))}
                 </ul>
                 <div className="mt-3">
                   <h5 className="font-medium text-blue-300 text-sm mb-1">Growth Opportunities</h5>
-                  {matchScore.growthOpportunities && matchScore.growthOpportunities.slice(0, 2).map((opportunity, index) => (
-                    <p key={index} className="text-xs text-silver/80 mb-1">{opportunity.insight}</p>
+                  {(matchScore.growthOpportunities || []).slice(0, 2).map((opportunity, index) => (
+                    <p key={index} className="text-xs text-silver/80 mb-1">{opportunity?.insight || 'Analyzing growth opportunity...'}</p>
                   ))}
                 </div>
               </div>
@@ -401,7 +401,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           )}
 
           {/* Risk Assessment */}
-          {matchScore.risks && matchScore.risks.length > 0 && (
+          {matchScore.risks && (matchScore.risks || []).length > 0 && (
             <div className="p-4 bg-red-900/10 rounded-luxury border border-red-400/20">
               <h4 className="text-lg font-semibold text-red-400 mb-3 font-serif flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -410,14 +410,14 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                 Risk Assessment
               </h4>
               <div className="grid md:grid-cols-2 gap-3">
-                {matchScore.risks.slice(0, 4).map((risk, index) => (
-                  <div key={index} className={`p-3 rounded-luxury border ${getRiskSeverityColor(risk.severity)}`}>
+                {(matchScore.risks || []).slice(0, 4).map((risk, index) => (
+                  <div key={index} className={`p-3 rounded-luxury border ${risk?.severity ? getRiskSeverityColor(risk.severity) : 'border-gray-400/30'}`}>
                     <div className="flex justify-between items-start mb-1">
-                      <span className="font-medium text-xs">{risk.factor}</span>
-                      <span className="text-xs uppercase font-bold">{risk.severity}</span>
+                      <span className="font-medium text-xs">{risk?.factor || 'Risk factor'}</span>
+                      <span className="text-xs uppercase font-bold">{risk?.severity || 'unknown'}</span>
                     </div>
-                    <div className="text-xs opacity-90 mb-2">{risk.description}</div>
-                    <div className="text-xs">Risk Score: {risk.riskScore}</div>
+                    <div className="text-xs opacity-90 mb-2">{risk?.description || 'Analyzing risk...'}</div>
+                    <div className="text-xs">Risk Score: {risk?.riskScore || 0}</div>
                   </div>
                 ))}
               </div>

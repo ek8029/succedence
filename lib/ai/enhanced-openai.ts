@@ -311,7 +311,17 @@ Respond in JSON format:
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as FollowUpResponse;
+    const rawResponse = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized
+    const followUp: FollowUpResponse = {
+      answer: rawResponse.answer || 'Analysis not available',
+      confidence: rawResponse.confidence || { level: 'low', percentage: 0, reasoning: 'Unknown' },
+      relatedInsights: rawResponse.relatedInsights || [],
+      suggestedFollowUps: rawResponse.suggestedFollowUps || []
+    };
+
+    return followUp;
   } catch (error) {
     console.error('Error generating follow-up analysis:', error);
     throw new Error('Failed to generate follow-up analysis');
@@ -398,7 +408,16 @@ Respond in JSON format:
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response);
+    const rawRecommendations = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized for personalized recommendations
+    const recommendations = {
+      recommendedSettings: rawRecommendations.recommendedSettings || {},
+      insights: rawRecommendations.insights || [],
+      improvements: rawRecommendations.improvements || []
+    };
+
+    return recommendations;
   } catch (error) {
     console.error('Error generating personalized recommendations:', error);
     throw new Error('Failed to generate personalized recommendations');

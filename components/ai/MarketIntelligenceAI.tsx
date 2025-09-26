@@ -362,7 +362,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
                 Market Opportunities
               </h4>
               <ul className="space-y-2">
-                {intelligence.opportunities.map((opportunity, index) => (
+                {(intelligence.opportunities || []).map((opportunity, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
                     <span className="text-green-400 mr-2">•</span>
                     {opportunity}
@@ -380,7 +380,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
                 Market Risks
               </h4>
               <ul className="space-y-2">
-                {intelligence.risks.map((risk, index) => (
+                {(intelligence.risks || []).map((risk, index) => (
                   <li key={index} className="text-silver/90 text-sm flex items-start">
                     <span className="text-red-400 mr-2">•</span>
                     {risk}
@@ -437,10 +437,10 @@ TIMING INSIGHTS
 ${intelligence.timing}
 
 OPPORTUNITIES
-${intelligence.opportunities.map(op => `• ${op}`).join('\n')}
+${(intelligence.opportunities || []).map(op => `• ${op}`).join('\n')}
 
 RISKS
-${intelligence.risks.map(risk => `• ${risk}`).join('\n')}
+${(intelligence.risks || []).map(risk => `• ${risk}`).join('\n')}
 
 Generated on ${new Date().toLocaleDateString()}`;
 

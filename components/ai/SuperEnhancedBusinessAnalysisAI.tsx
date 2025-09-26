@@ -593,9 +593,9 @@ export default function SuperEnhancedBusinessAnalysisAI({ listingId, listingTitl
                 Analysis Depth: <span className="text-gold">{analysis.analysisDepth}</span>
               </div>
             </div>
-            {analysis.keyAssumptions.length > 0 && (
+            {analysis.keyAssumptions && (analysis.keyAssumptions || []).length > 0 && (
               <div className="mt-2">
-                <strong>Key Assumptions:</strong> {analysis.keyAssumptions.join(' • ')}
+                <strong>Key Assumptions:</strong> {(analysis.keyAssumptions || []).join(' • ')}
               </div>
             )}
           </div>

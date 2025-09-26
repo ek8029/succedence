@@ -436,8 +436,46 @@ Respond in JSON format with this EXACT structure:
       throw new Error('No response from OpenAI');
     }
 
-    const analysis = JSON.parse(response) as SuperEnhancedBusinessAnalysis;
-    analysis.processingTime = Date.now() - startTime;
+    const rawAnalysis = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized
+    const analysis: SuperEnhancedBusinessAnalysis = {
+      overallScore: rawAnalysis.overallScore || 0,
+      overallScoreConfidence: rawAnalysis.overallScoreConfidence || { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' },
+      recommendation: rawAnalysis.recommendation || 'hold',
+      strengths: rawAnalysis.strengths || [],
+      weaknesses: rawAnalysis.weaknesses || [],
+      opportunities: rawAnalysis.opportunities || [],
+      riskMatrix: rawAnalysis.riskMatrix || [],
+      riskScore: rawAnalysis.riskScore || 0,
+      summary: rawAnalysis.summary || 'Analysis summary unavailable',
+      nextSteps: rawAnalysis.nextSteps || [],
+      redFlags: rawAnalysis.redFlags || [],
+      dealBreakers: rawAnalysis.dealBreakers || [],
+      analysisVersion: rawAnalysis.analysisVersion || '2.0',
+      processingTime: Date.now() - startTime,
+      dataPoints: rawAnalysis.dataPoints || 0,
+      confidenceFactors: rawAnalysis.confidenceFactors || [],
+      marketDynamics: rawAnalysis.marketDynamics || {
+        industryTrends: [],
+        competitiveLandscape: [],
+        marketSize: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        growthProjections: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      },
+      financialProjections: rawAnalysis.financialProjections || {
+        revenueGrowth: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        profitabilityTrends: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        cashFlowAnalysis: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        valuationMultiples: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      },
+      strategicFit: rawAnalysis.strategicFit || {
+        buyerAlignment: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        synergies: [],
+        integrationComplexity: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        culturalFit: { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      }
+    };
+
     return analysis;
   } catch (error) {
     console.error('Error in super enhanced business analysis:', error);
@@ -508,7 +546,36 @@ Respond in JSON format with detailed compatibility scoring, risk assessment, and
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as SuperEnhancedBuyerMatch;
+    const rawMatch = JSON.parse(response) as any;
+
+    // Ensure all required arrays and objects are initialized for buyer match
+    const buyerMatch: SuperEnhancedBuyerMatch = {
+      score: rawMatch.score || 0,
+      confidence: rawMatch.confidence || { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] },
+      compatibility: rawMatch.compatibility || {
+        industryExperience: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        financialCapacity: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        operationalFit: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        culturalAlignment: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        strategicValue: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      },
+      risks: rawMatch.risks || [],
+      riskMitigation: rawMatch.riskMitigation || [],
+      synergies: rawMatch.synergies || [],
+      growthOpportunities: rawMatch.growthOpportunities || [],
+      recommendation: rawMatch.recommendation || 'poor_match',
+      reasoning: rawMatch.reasoning || [],
+      nextSteps: rawMatch.nextSteps || [],
+      scoreBreakdown: rawMatch.scoreBreakdown || {
+        industryFit: 0,
+        financialFit: 0,
+        operationalFit: 0,
+        culturalFit: 0,
+        strategicFit: 0
+      }
+    };
+
+    return buyerMatch;
   } catch (error) {
     console.error('Error in super enhanced buyer match:', error);
     throw new Error('Failed to analyze buyer match with super enhanced features');
@@ -566,7 +633,31 @@ Respond in JSON format with comprehensive due diligence structure.
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as SuperEnhancedDueDiligence;
+    const rawDueDiligence = JSON.parse(response) as any;
+
+    // Ensure all required arrays and objects are initialized for due diligence
+    const dueDiligence: SuperEnhancedDueDiligence = {
+      criticalItems: rawDueDiligence.criticalItems || [],
+      riskMatrix: rawDueDiligence.riskMatrix || [],
+      priorityActions: rawDueDiligence.priorityActions || [],
+      industrySpecific: rawDueDiligence.industrySpecific || {
+        regulations: [],
+        compliance: [],
+        certifications: [],
+        specialConsiderations: []
+      },
+      timeline: rawDueDiligence.timeline || [],
+      resourceRequirements: rawDueDiligence.resourceRequirements || {
+        legal: [],
+        financial: [],
+        technical: [],
+        operational: []
+      },
+      confidence: rawDueDiligence.confidence || { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] },
+      recommendations: rawDueDiligence.recommendations || []
+    };
+
+    return dueDiligence;
   } catch (error) {
     console.error('Error in super enhanced due diligence:', error);
     throw new Error('Failed to generate super enhanced due diligence');
@@ -623,7 +714,40 @@ Respond in JSON format with comprehensive market intelligence structure.
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as SuperEnhancedMarketIntelligence;
+    const rawIntelligence = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized for market intelligence
+    const marketIntelligence: SuperEnhancedMarketIntelligence = {
+      marketOverview: {
+        size: rawIntelligence.marketOverview?.size || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        growth: rawIntelligence.marketOverview?.growth || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        trends: rawIntelligence.marketOverview?.trends || [],
+        drivers: rawIntelligence.marketOverview?.drivers || []
+      },
+      competitive: {
+        intensity: rawIntelligence.competitive?.intensity || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        keyPlayers: rawIntelligence.competitive?.keyPlayers || [],
+        barriers: rawIntelligence.competitive?.barriers || [],
+        opportunities: rawIntelligence.competitive?.opportunities || []
+      },
+      economic: {
+        outlook: rawIntelligence.economic?.outlook || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        risks: rawIntelligence.economic?.risks || [],
+        opportunities: rawIntelligence.economic?.opportunities || [],
+        timing: rawIntelligence.economic?.timing || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      },
+      investment: {
+        activity: rawIntelligence.investment?.activity || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        valuations: rawIntelligence.investment?.valuations || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        trends: rawIntelligence.investment?.trends || [],
+        outlook: rawIntelligence.investment?.outlook || { insight: 'Data unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      },
+      recommendations: rawIntelligence.recommendations || [],
+      timing: rawIntelligence.timing || 'moderate',
+      confidence: rawIntelligence.confidence || { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' }
+    };
+
+    return marketIntelligence;
   } catch (error) {
     console.error('Error in super enhanced market intelligence:', error);
     throw new Error('Failed to generate super enhanced market intelligence');

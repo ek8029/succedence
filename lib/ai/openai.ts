@@ -125,8 +125,22 @@ Respond in JSON format with the structure:
       throw new Error('No response from OpenAI');
     }
 
-    // Parse JSON response
-    const analysis = JSON.parse(response) as BusinessAnalysis;
+    // Parse JSON response with proper array initialization
+    const rawAnalysis = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized
+    const analysis: BusinessAnalysis = {
+      overallScore: rawAnalysis.overallScore || 0,
+      strengths: rawAnalysis.strengths || [],
+      weaknesses: rawAnalysis.weaknesses || [],
+      risks: rawAnalysis.risks || [],
+      opportunities: rawAnalysis.opportunities || [],
+      valuationInsights: rawAnalysis.valuationInsights || 'Valuation insights not available',
+      marketPosition: rawAnalysis.marketPosition || 'Market position not available',
+      recommendation: rawAnalysis.recommendation || 'hold',
+      summary: rawAnalysis.summary || 'Analysis summary not available'
+    };
+
     return analysis;
   } catch (error) {
     console.error('Error analyzing business:', error);
@@ -202,7 +216,18 @@ Respond in JSON format:
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as BuyerMatchScore;
+    const rawMatch = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized
+    const buyerMatch: BuyerMatchScore = {
+      score: rawMatch.score || 0,
+      reasoning: rawMatch.reasoning || [],
+      compatibilityFactors: rawMatch.compatibilityFactors || [],
+      concerns: rawMatch.concerns || [],
+      recommendation: rawMatch.recommendation || 'poor_match'
+    };
+
+    return buyerMatch;
   } catch (error) {
     console.error('Error calculating buyer match:', error);
     throw new Error('Failed to calculate buyer compatibility');
@@ -266,7 +291,19 @@ Respond in JSON format:
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as DueDiligenceChecklist;
+    const rawChecklist = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized
+    const checklist: DueDiligenceChecklist = {
+      financial: rawChecklist.financial || [],
+      legal: rawChecklist.legal || [],
+      operational: rawChecklist.operational || [],
+      strategic: rawChecklist.strategic || [],
+      risks: rawChecklist.risks || [],
+      timeline: rawChecklist.timeline || 'Timeline not available'
+    };
+
+    return checklist;
   } catch (error) {
     console.error('Error generating due diligence checklist:', error);
     throw new Error('Failed to generate due diligence checklist');
@@ -330,7 +367,19 @@ Respond in JSON format:
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response) as MarketIntelligence;
+    const rawIntelligence = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized
+    const intelligence: MarketIntelligence = {
+      marketConditions: rawIntelligence.marketConditions || 'Market conditions not available',
+      valuationTrends: rawIntelligence.valuationTrends || 'Valuation trends not available',
+      competitiveAnalysis: rawIntelligence.competitiveAnalysis || 'Competitive analysis not available',
+      timing: rawIntelligence.timing || 'Timing analysis not available',
+      opportunities: rawIntelligence.opportunities || [],
+      risks: rawIntelligence.risks || []
+    };
+
+    return intelligence;
   } catch (error) {
     console.error('Error generating market intelligence:', error);
     throw new Error('Failed to generate market intelligence');
@@ -408,7 +457,17 @@ Respond in JSON format:
       throw new Error('No response from OpenAI');
     }
 
-    return JSON.parse(response);
+    const rawResponse = JSON.parse(response) as any;
+
+    // Ensure all required arrays are initialized for smart buy-box
+    const buyBox = {
+      criteria: rawResponse.criteria || [],
+      redFlags: rawResponse.redFlags || [],
+      targetMetrics: rawResponse.targetMetrics || {},
+      recommendations: rawResponse.recommendations || []
+    };
+
+    return buyBox;
   } catch (error) {
     console.error('Error generating smart buy-box:', error);
     throw new Error('Failed to generate smart buy-box');
