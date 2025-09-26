@@ -308,14 +308,14 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
               {matchScore.score}%
             </div>
             <div className={`text-lg font-semibold ${getScoreColor(matchScore.score)}`}>
-              {matchScore.recommendation.replace('_', ' ').toUpperCase()}
+              {matchScore.recommendation ? matchScore.recommendation.replace('_', ' ').toUpperCase() : 'ANALYZING MATCH'}
             </div>
             <div className="text-sm text-silver/80 mt-2">
               SuperEnhanced compatibility analysis with strategic fit assessment
             </div>
             {matchScore.confidence && (
               <div className={`text-xs mt-2 ${getConfidenceColor(matchScore.confidence)}`}>
-                {matchScore.confidence.score}% confidence • {matchScore.confidence.reasoning}
+                {matchScore.confidence.score}% confidence{matchScore.confidence.reasoning ? ` • ${matchScore.confidence.reasoning}` : ''}
               </div>
             )}
           </div>

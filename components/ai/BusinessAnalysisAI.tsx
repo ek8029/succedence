@@ -213,7 +213,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   };
 
   const formatRecommendation = (recommendation: string) => {
-    return recommendation.replace('_', ' ').toUpperCase();
+    return recommendation ? recommendation.replace('_', ' ').toUpperCase() : 'ANALYZING';
   };
 
   const getConfidenceColor = (confidence: SuperConfidenceScore) => {
