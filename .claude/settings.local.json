@@ -89,7 +89,8 @@
       "Bash(npx next build:*)",
       "Bash(dos2unix:*)",
       "Bash(pkill:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(del nul)"
     ],
     "deny": [],
     "ask": []

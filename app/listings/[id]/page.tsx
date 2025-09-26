@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { AIAnalysisProvider } from '@/contexts/AIAnalysisContext';
-import EnhancedBusinessAnalysisAI from '@/components/ai/EnhancedBusinessAnalysisAI';
+import BusinessAnalysisAI from '@/components/ai/BusinessAnalysisAI';
 import BuyerMatchAI from '@/components/ai/BuyerMatchAI';
 import DueDiligenceAI from '@/components/ai/DueDiligenceAI';
 import MarketIntelligenceAI from '@/components/ai/MarketIntelligenceAI';
@@ -57,14 +57,65 @@ export default function ListingDetailPage() {
 
   const fetchListingData = useCallback(async () => {
     try {
-      // Fetch listing details
-      const listingsResponse = await fetch('/api/listings');
-      const listingsData = await listingsResponse.json();
-      const listings: Listing[] = listingsData.listings || listingsData;
-      const foundListing = listings.find(l => l.id === listingId);
-      
-      if (foundListing) {
-        setListing(foundListing);
+      // First try to get public listing details (for browsing users)
+      const publicListingsResponse = await fetch('/api/listings');
+      if (publicListingsResponse.ok) {
+        const listingsData = await publicListingsResponse.json();
+        const listings: Listing[] = listingsData.listings || listingsData;
+        const foundListing = listings.find(l => l.id === listingId);
+
+        if (foundListing) {
+          setListing(foundListing);
+        } else {
+          // If not found in public listings, try authenticated endpoint if user is logged in
+          if (user) {
+            try {
+              const authListingResponse = await fetch(`/api/listings/${listingId}`);
+              if (authListingResponse.ok) {
+                const authData = await authListingResponse.json();
+                if (authData.listing) {
+                  // Convert the API response format to match the expected Listing type
+                  const listing: Listing = {
+                    id: authData.listing.id,
+                    ownerUserId: authData.listing.owner_user_id,
+                    source: authData.listing.source,
+                    title: authData.listing.title,
+                    description: authData.listing.description,
+                    industry: authData.listing.industry,
+                    city: authData.listing.city,
+                    state: authData.listing.state,
+                    revenue: authData.listing.revenue,
+                    ebitda: authData.listing.ebitda,
+                    metricType: authData.listing.metric_type,
+                    ownerHours: authData.listing.owner_hours,
+                    employees: authData.listing.employees,
+                    price: authData.listing.price,
+                    contactPhone: authData.listing.contact_phone,
+                    contactEmail: authData.listing.contact_email,
+                    contactOther: authData.listing.contact_other,
+                    status: authData.listing.status,
+                    createdAt: authData.listing.created_at,
+                    updatedAt: authData.listing.updated_at
+                  };
+                  setListing(listing);
+                } else {
+                  router.push('/browse');
+                  return;
+                }
+              } else {
+                router.push('/browse');
+                return;
+              }
+            } catch (error) {
+              console.error('Error fetching authenticated listing:', error);
+              router.push('/browse');
+              return;
+            }
+          } else {
+            router.push('/browse');
+            return;
+          }
+        }
       } else {
         router.push('/browse');
         return;
@@ -495,7 +546,7 @@ export default function ListingDetailPage() {
 
                     {/* Business Analysis */}
                     <div className="mb-8">
-                      <EnhancedBusinessAnalysisAI
+                      <BusinessAnalysisAI
                         listingId={listing.id}
                         listingTitle={listing.title}
                       />
