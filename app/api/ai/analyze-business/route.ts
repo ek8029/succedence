@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeBusinessForAcquisition, isAIEnabled } from '@/lib/ai/openai';
-import { analyzeBusinessEnhanced, generateFollowUpAnalysis } from '@/lib/ai/enhanced-openai';
-import { analyzeBusinessSuperEnhanced } from '@/lib/ai/super-enhanced-openai';
+import { analyzeBusinessSuperEnhanced, isAIEnabled, generateFollowUpAnalysis } from '@/lib/ai/super-enhanced-openai';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 

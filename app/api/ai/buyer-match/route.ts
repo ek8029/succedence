@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { calculateBuyerBusinessMatch, isAIEnabled } from '@/lib/ai/openai';
-import { analyzeBusinessEnhanced, generateFollowUpAnalysis } from '@/lib/ai/enhanced-openai';
-import { analyzeBusinessSuperEnhancedBuyerMatch } from '@/lib/ai/super-enhanced-openai';
+import { analyzeBusinessSuperEnhancedBuyerMatch, isAIEnabled, generateFollowUpAnalysis } from '@/lib/ai/super-enhanced-openai';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getUserWithRole, hasFeatureAccess } from '@/lib/auth/permissions';
 import type { Preferences, Listing } from '@/db/schema';
@@ -197,7 +195,17 @@ export async function POST(request: NextRequest) {
     // Generate fresh super enhanced analysis if no cached version exists or forced refresh
     if (!existingAnalysis || forceRefresh) {
       // Use super enhanced buyer matching for comprehensive analysis
-      matchScore = await analyzeBusinessSuperEnhancedBuyerMatch(listing, buyerPreferences);
+      console.log('🚀 BUYER MATCH DEBUG: Starting super enhanced buyer match analysis');
+      console.log('🚀 BUYER MATCH DEBUG: Listing:', listing?.title);
+      console.log('🚀 BUYER MATCH DEBUG: Buyer Preferences:', buyerPreferences);
+
+      try {
+        matchScore = await analyzeBusinessSuperEnhancedBuyerMatch(listing, buyerPreferences);
+        console.log('🚀 BUYER MATCH DEBUG: Analysis completed successfully');
+      } catch (error) {
+        console.error('🚀 BUYER MATCH DEBUG: Error in analysis:', error);
+        throw error;
+      }
 
       // Save enhanced buyer match to database
       try {

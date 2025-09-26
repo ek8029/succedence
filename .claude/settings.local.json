@@ -90,7 +90,9 @@
       "Bash(dos2unix:*)",
       "Bash(pkill:*)",
       "Bash(git reset:*)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(del:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

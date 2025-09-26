@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { BuyerMatchScore } from '@/lib/ai/openai';
-import { EnhancedBusinessAnalysis, ConfidenceScore, RiskFactor } from '@/lib/ai/enhanced-openai';
 import { SuperEnhancedBuyerMatch, SuperConfidenceScore, SuperRiskFactor } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';

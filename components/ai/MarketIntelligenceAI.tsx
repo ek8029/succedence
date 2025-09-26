@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MarketIntelligence } from '@/lib/ai/openai';
+import { SuperEnhancedMarketIntelligence } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +18,7 @@ interface MarketIntelligenceAIProps {
 export default function MarketIntelligenceAI({ industry, geography, dealSize, listingId }: MarketIntelligenceAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
-  const [intelligence, setIntelligence] = useState<MarketIntelligence | null>(null);
+  const [intelligence, setIntelligence] = useState<SuperEnhancedMarketIntelligence | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);

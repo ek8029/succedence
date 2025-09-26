@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { DueDiligenceChecklist } from '@/lib/ai/openai';
+import { SuperEnhancedDueDiligenceChecklist } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,7 +17,7 @@ interface DueDiligenceAIProps {
 export default function DueDiligenceAI({ listingId, listingTitle, industry }: DueDiligenceAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
-  const [checklist, setChecklist] = useState<DueDiligenceChecklist | null>(null);
+  const [checklist, setChecklist] = useState<SuperEnhancedDueDiligenceChecklist | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
