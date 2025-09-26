@@ -247,12 +247,9 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   return (
     <div className="glass p-6 rounded-luxury-lg border border-gold/20">
       <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-semibold text-warm-white font-serif">
-            SuperEnhanced AI Business Analysis
-          </h3>
-          <p className="text-xs text-gold/70 mt-1">Powered by AI v2.0 with advanced market dynamics & strategic insights</p>
-        </div>
+        <h3 className="text-xl font-semibold text-warm-white font-serif">
+          AI Business Analysis
+        </h3>
         {!analysis && (
           <button
             onClick={handleAnalyzeClick}

@@ -273,12 +273,9 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   return (
     <div className="glass p-6 rounded-luxury-lg border border-gold/20">
       <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-semibold text-warm-white font-serif">
-            SuperEnhanced Buyer Compatibility
-          </h3>
-          <p className="text-xs text-gold/70 mt-1">Advanced AI matching with compatibility scoring & strategic fit analysis</p>
-        </div>
+        <h3 className="text-xl font-semibold text-warm-white font-serif">
+          Buyer Compatibility Score
+        </h3>
         {!matchScore && (
           <button
             onClick={handleAnalyzeMatch}
