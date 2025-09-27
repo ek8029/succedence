@@ -117,6 +117,165 @@ function parseAIResponse(response: string): any {
   }
 }
 
+// Business Categorization System
+export interface BusinessType {
+  sector: string;
+  subsector: string;
+  confidence: number; // 0-100
+  matchingKeywords: string[];
+}
+
+export interface BusinessCategory {
+  sector: string;
+  subsectors: string[];
+  keywords: string[];
+  industryIdentifiers: string[];
+}
+
+// Comprehensive business categorization mapping
+const BUSINESS_CATEGORIES: BusinessCategory[] = [
+  {
+    sector: "Home Services",
+    subsectors: ["HVAC", "Plumbing", "Electrical", "Roofing", "Landscaping", "Cleaning", "Pest Control", "Security Systems"],
+    keywords: ["hvac", "heating", "cooling", "air conditioning", "plumbing", "electrical", "electrician", "roofing", "landscaping", "lawn care", "cleaning", "janitorial", "pest control", "security", "alarm"],
+    industryIdentifiers: ["professional services", "home services", "residential services", "commercial services"]
+  },
+  {
+    sector: "Food & Beverage",
+    subsectors: ["Restaurant", "Fast Food", "Catering", "Food Distribution", "Bakery", "Coffee Shop", "Bar/Nightclub", "Food Truck"],
+    keywords: ["restaurant", "food", "dining", "catering", "bakery", "coffee", "cafe", "bar", "nightclub", "food truck", "kitchen", "cuisine", "beverage"],
+    industryIdentifiers: ["food service", "hospitality", "restaurant", "food & beverage"]
+  },
+  {
+    sector: "Healthcare",
+    subsectors: ["Medical Practice", "Dental Practice", "Veterinary", "Medical Device Distribution", "Pharmacy", "Home Healthcare", "Mental Health", "Physical Therapy"],
+    keywords: ["medical", "healthcare", "dental", "veterinary", "pharmacy", "clinic", "hospital", "therapy", "counseling", "mental health", "device", "equipment"],
+    industryIdentifiers: ["healthcare", "medical", "dental", "veterinary"]
+  },
+  {
+    sector: "Technology",
+    subsectors: ["Software Development", "IT Services", "Cybersecurity", "Data Analytics", "E-commerce", "Digital Marketing", "Cloud Services", "Hardware"],
+    keywords: ["software", "technology", "IT", "cybersecurity", "data", "analytics", "e-commerce", "digital", "marketing", "cloud", "hardware", "programming", "development"],
+    industryIdentifiers: ["technology", "software", "IT", "digital"]
+  },
+  {
+    sector: "Manufacturing",
+    subsectors: ["Industrial Manufacturing", "Automotive Parts", "Electronics", "Textiles", "Chemical", "Machinery", "Packaging", "Metal Fabrication"],
+    keywords: ["manufacturing", "industrial", "automotive", "electronics", "textiles", "chemical", "machinery", "packaging", "metal", "fabrication", "production"],
+    industryIdentifiers: ["manufacturing", "industrial", "production"]
+  },
+  {
+    sector: "Retail",
+    subsectors: ["Specialty Retail", "Fashion", "Electronics Retail", "Automotive Retail", "Home Goods", "Sporting Goods", "Books/Media", "Jewelry"],
+    keywords: ["retail", "store", "shop", "fashion", "clothing", "electronics", "automotive", "home goods", "sporting goods", "books", "jewelry", "sales"],
+    industryIdentifiers: ["retail", "consumer goods", "sales"]
+  },
+  {
+    sector: "Professional Services",
+    subsectors: ["Legal Services", "Accounting", "Consulting", "Real Estate", "Insurance", "Financial Services", "Marketing/Advertising", "Engineering"],
+    keywords: ["legal", "law", "accounting", "consulting", "real estate", "insurance", "financial", "marketing", "advertising", "engineering", "architecture"],
+    industryIdentifiers: ["professional services", "business services"]
+  },
+  {
+    sector: "Transportation & Logistics",
+    subsectors: ["Trucking", "Delivery Services", "Warehousing", "Freight", "Moving Services", "Auto Services", "Logistics", "Supply Chain"],
+    keywords: ["trucking", "delivery", "shipping", "warehouse", "freight", "moving", "auto", "logistics", "supply chain", "transportation"],
+    industryIdentifiers: ["transportation", "logistics", "shipping"]
+  },
+  {
+    sector: "Education & Training",
+    subsectors: ["Training Services", "Educational Software", "Tutoring", "Corporate Training", "Online Education", "Childcare", "Skills Training"],
+    keywords: ["education", "training", "tutoring", "learning", "childcare", "school", "teaching", "skills", "certification"],
+    industryIdentifiers: ["education", "training", "learning"]
+  },
+  {
+    sector: "Construction",
+    subsectors: ["General Contracting", "Specialty Trades", "Commercial Construction", "Residential Construction", "Infrastructure", "Renovation"],
+    keywords: ["construction", "contracting", "building", "renovation", "remodeling", "infrastructure", "concrete", "roofing", "painting"],
+    industryIdentifiers: ["construction", "building", "contracting"]
+  },
+  {
+    sector: "Personal Services",
+    subsectors: ["Beauty/Salon", "Fitness", "Wellness", "Pet Services", "Automotive Services", "Dry Cleaning", "Photography"],
+    keywords: ["beauty", "salon", "fitness", "wellness", "spa", "pet", "automotive", "dry cleaning", "photography", "personal care"],
+    industryIdentifiers: ["personal services", "beauty", "wellness"]
+  },
+  {
+    sector: "Entertainment & Media",
+    subsectors: ["Entertainment Production", "Media Services", "Gaming", "Events", "Sports", "Publishing", "Broadcasting"],
+    keywords: ["entertainment", "media", "gaming", "events", "sports", "publishing", "broadcasting", "production", "film", "music"],
+    industryIdentifiers: ["entertainment", "media", "events"]
+  }
+];
+
+// Business type detection function
+export function detectBusinessType(listing: Listing): BusinessType {
+  const searchText = `${listing.title || ''} ${listing.industry || ''} ${listing.description || ''}`.toLowerCase();
+
+  let bestMatch: BusinessType = {
+    sector: "General Business",
+    subsector: "Unspecified",
+    confidence: 30,
+    matchingKeywords: []
+  };
+
+  for (const category of BUSINESS_CATEGORIES) {
+    let matchScore = 0;
+    const matchingKeywords: string[] = [];
+
+    // Check industry identifiers (highest weight)
+    for (const identifier of category.industryIdentifiers) {
+      if (searchText.includes(identifier.toLowerCase())) {
+        matchScore += 40;
+        matchingKeywords.push(identifier);
+      }
+    }
+
+    // Check keywords (medium weight)
+    for (const keyword of category.keywords) {
+      if (searchText.includes(keyword.toLowerCase())) {
+        matchScore += 20;
+        matchingKeywords.push(keyword);
+      }
+    }
+
+    // Determine best subsector match
+    let bestSubsector = category.subsectors[0];
+    let subsectorScore = 0;
+
+    for (const subsector of category.subsectors) {
+      let subScore = 0;
+      const subsectorKeywords = subsector.toLowerCase().split(/[\s/]+/);
+
+      for (const keyword of subsectorKeywords) {
+        if (searchText.includes(keyword)) {
+          subScore += 30;
+        }
+      }
+
+      if (subScore > subsectorScore) {
+        subsectorScore = subScore;
+        bestSubsector = subsector;
+        matchScore += subScore;
+      }
+    }
+
+    // Calculate final confidence score
+    const confidence = Math.min(95, matchScore);
+
+    if (confidence > bestMatch.confidence) {
+      bestMatch = {
+        sector: category.sector,
+        subsector: bestSubsector,
+        confidence,
+        matchingKeywords
+      };
+    }
+  }
+
+  return bestMatch;
+}
+
 // Super Enhanced Types - Advanced AI Analysis
 export interface SuperConfidenceScore {
   score: number; // 0-100
@@ -363,6 +522,11 @@ export async function analyzeBusinessSuperEnhanced(
     analysisDepth = 'comprehensive'
   } = analysisOptions;
 
+  // Detect business type for enhanced analysis
+  const businessType = detectBusinessType(listing);
+  console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
+  console.log('🔍 MATCHING KEYWORDS:', businessType.matchingKeywords);
+
   const perspectiveContext = {
     strategic_buyer: "You are analyzing for a strategic buyer seeking synergistic acquisitions with operational expertise and industry knowledge.",
     financial_buyer: "You are analyzing for a financial buyer focused on ROI, cash flow generation, and value creation through operational improvements.",
@@ -389,6 +553,8 @@ ANALYSIS PARAMETERS:
 BUSINESS INTELLIGENCE:
 - Title: ${listing.title}
 - Industry: ${listing.industry}
+- Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
+- Matching Keywords: ${businessType.matchingKeywords.join(', ')}
 - Location: ${listing.city}, ${listing.state}
 - Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
 - EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
@@ -598,9 +764,11 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
   // Generate dynamic analysis based on actual listing data
   console.log('🚀 BUYER MATCH DEBUG: Generating analysis for', listing.title, 'in', listing.industry);
 
-  const isHVAC = listing.industry?.toLowerCase().includes('professional services') ||
-                 listing.title?.toLowerCase().includes('hvac') ||
-                 listing.description?.toLowerCase().includes('hvac');
+  const businessType = detectBusinessType(listing);
+  console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
+  console.log('🔍 MATCHING KEYWORDS:', businessType.matchingKeywords);
+
+  const isHVAC = businessType.sector === "Home Services" && businessType.subsector === "HVAC";
 
   const mockBuyerMatch = isHVAC ? {
     score: 78,
@@ -959,9 +1127,10 @@ export async function generateSuperEnhancedDueDiligence(
   // Generate industry-specific due diligence based on actual listing
   console.log('🚀 DUE DILIGENCE DEBUG: Generating checklist for', listing.title, 'in', listing.industry);
 
-  const isHVAC = listing.industry?.toLowerCase().includes('professional services') ||
-                 listing.title?.toLowerCase().includes('hvac') ||
-                 listing.description?.toLowerCase().includes('hvac');
+  const businessType = detectBusinessType(listing);
+  console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
+
+  const isHVAC = businessType.sector === "Home Services" && businessType.subsector === "HVAC";
 
   const mockDueDiligence = isHVAC ? {
     criticalItems: [
@@ -1309,8 +1478,12 @@ export async function generateSuperEnhancedMarketIntelligence(
   // Generate market intelligence based on actual industry and geography
   console.log('🚀 MARKET INTELLIGENCE DEBUG: Analyzing', industry, 'market in', geography || 'general market');
 
-  const isHVAC = industry?.toLowerCase().includes('professional services') ||
-                 industry?.toLowerCase().includes('hvac');
+  // Create a fake listing to detect business type from industry
+  const fakeListing = { title: '', industry: industry, description: '', city: '', state: '' } as Listing;
+  const businessType = detectBusinessType(fakeListing);
+  console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
+
+  const isHVAC = businessType.sector === "Home Services" && businessType.subsector === "HVAC";
   const isAtlanta = geography?.toLowerCase().includes('atlanta') || geography?.toLowerCase().includes('ga');
 
   const mockMarketIntelligence = (isHVAC && isAtlanta) ? {
