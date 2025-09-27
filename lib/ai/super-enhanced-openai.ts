@@ -120,6 +120,9 @@ function parseAIResponse(response: string): any {
 // Super Enhanced Types - Advanced AI Analysis
 export interface SuperConfidenceScore {
   score: number; // 0-100
+  level: 'high' | 'medium' | 'low';
+  percentage: number;
+  reasoning: string;
   factors: {
     dataQuality: number;
     sampleSize: number;
@@ -595,7 +598,7 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
   // TEMPORARY MOCK DATA - Return immediately to bypass OpenAI timeout issues
   console.log('🚀 BUYER MATCH DEBUG: Using mock data to bypass OpenAI timeout');
 
-  const mockBuyerMatch: SuperEnhancedBuyerMatch = {
+  const mockBuyerMatch = {
     score: 72,
     confidence: {
       score: 85,
@@ -609,27 +612,57 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
     compatibility: {
       industryExperience: {
         insight: "Strong alignment between buyer's general business experience and medical device distribution industry requirements",
-        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Based on industry transferability analysis" }
+        actionable: "Leverage existing business experience for operational synergies",
+        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Based on industry transferability analysis", factors: { dataQuality: 85, sampleSize: 75, marketStability: 80, historicalAccuracy: 80 }, methodology: "Industry analysis", limitations: [] },
+        supportingData: ["Industry experience data", "Business model analysis"],
+        assumptions: ["Experience translates to medical device industry"],
+        sourceQuality: "high",
+        timeframe: "Immediate",
+        probability: 80
       },
       financialCapacity: {
         insight: "Buyer's deal size range ($0-$10M) matches the business pricing expectations",
-        confidence: { score: 90, level: "high", percentage: 90, reasoning: "Direct financial range alignment" }
+        actionable: "Proceed with financial due diligence within established range",
+        confidence: { score: 90, level: "high", percentage: 90, reasoning: "Direct financial range alignment", factors: { dataQuality: 95, sampleSize: 85, marketStability: 90, historicalAccuracy: 90 }, methodology: "Financial analysis", limitations: [] },
+        supportingData: ["Deal size preferences", "Business valuation"],
+        assumptions: ["Financing capacity confirmed"],
+        sourceQuality: "high",
+        timeframe: "Immediate",
+        probability: 90
       },
       operationalFit: {
         insight: "Medical device distribution requires specialized regulatory knowledge that may present learning curve",
-        confidence: { score: 70, level: "medium", percentage: 70, reasoning: "Industry complexity assessment" }
+        actionable: "Plan for regulatory compliance training and expert consultation",
+        confidence: { score: 70, level: "medium", percentage: 70, reasoning: "Industry complexity assessment", factors: { dataQuality: 75, sampleSize: 65, marketStability: 70, historicalAccuracy: 75 }, methodology: "Complexity analysis", limitations: ["Limited industry data"] },
+        supportingData: ["Regulatory requirements", "Industry complexity analysis"],
+        assumptions: ["Learning curve manageable with proper support"],
+        sourceQuality: "medium",
+        timeframe: "6-12 months",
+        probability: 70
       },
       culturalAlignment: {
         insight: "Healthcare-focused business culture aligns with socially conscious buyer preferences",
-        confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Cultural values assessment" }
+        actionable: "Maintain healthcare mission and values during transition",
+        confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Cultural values assessment", factors: { dataQuality: 80, sampleSize: 70, marketStability: 75, historicalAccuracy: 75 }, methodology: "Cultural analysis", limitations: ["Subjective assessment"] },
+        supportingData: ["Company mission", "Buyer values"],
+        assumptions: ["Cultural fit maintained post-acquisition"],
+        sourceQuality: "medium",
+        timeframe: "Ongoing",
+        probability: 75
       },
       strategicValue: {
         insight: "Potential for cross-industry expansion and utilization of buyer's general business experience",
-        confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis" }
+        actionable: "Develop strategic growth plan leveraging buyer expertise",
+        confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis", factors: { dataQuality: 90, sampleSize: 80, marketStability: 85, historicalAccuracy: 85 }, methodology: "Opportunity analysis", limitations: [] },
+        supportingData: ["Growth opportunities", "Strategic analysis"],
+        assumptions: ["Buyer can execute growth strategy"],
+        sourceQuality: "high",
+        timeframe: "1-3 years",
+        probability: 85
       }
     },
     risks: [
-      { factor: "Regulatory Compliance", description: "Learning curve in medical device industry", severity: "medium", likelihood: 70, impact: 60, riskScore: 42, mitigationStrategies: ["Retain existing management", "Invest in compliance training"], monitoringMetrics: ["Compliance audits", "Training completion"], confidence: { score: 80, level: "high", percentage: 80, reasoning: "Known industry challenges" }, category: "regulatory" }
+      { factor: "Regulatory Compliance", description: "Learning curve in medical device industry", severity: "medium", likelihood: 70, impact: 60, riskScore: 42, mitigationStrategies: ["Retain existing management", "Invest in compliance training"], monitoringMetrics: ["Compliance audits", "Training completion"], confidence: { score: 80, level: "high", percentage: 80, reasoning: "Known industry challenges", factors: { dataQuality: 85, sampleSize: 80, marketStability: 75, historicalAccuracy: 85 }, methodology: "Risk analysis", limitations: [] }, category: "regulatory" }
     ],
     riskMitigation: [
       "Retain existing management team during transition",
@@ -637,10 +670,10 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
       "Diversify supplier base to reduce dependency"
     ],
     synergies: [
-      { insight: "Potential for cross-industry expansion into related healthcare sectors", actionable: "Develop expansion strategy", confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis" }, supportingData: ["Market data"], assumptions: ["Market acceptance"], sourceQuality: "high", timeframe: "2-3 years", probability: 80 }
+      { insight: "Potential for cross-industry expansion into related healthcare sectors", actionable: "Develop expansion strategy", confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis", factors: { dataQuality: 90, sampleSize: 80, marketStability: 85, historicalAccuracy: 85 }, methodology: "Market analysis", limitations: [] }, supportingData: ["Market data"], assumptions: ["Market acceptance"], sourceQuality: "high", timeframe: "2-3 years", probability: 80 }
     ],
     growthOpportunities: [
-      { insight: "Expansion into adjacent medical device categories", actionable: "Assess product line extension", confidence: { score: 80, level: "high", percentage: 80, reasoning: "Industry knowledge transfer" }, supportingData: ["Market analysis"], assumptions: ["Successful expansion"], sourceQuality: "high", timeframe: "1-2 years", probability: 75 }
+      { insight: "Expansion into adjacent medical device categories", actionable: "Assess product line extension", confidence: { score: 80, level: "high", percentage: 80, reasoning: "Industry knowledge transfer", factors: { dataQuality: 85, sampleSize: 75, marketStability: 80, historicalAccuracy: 80 }, methodology: "Industry analysis", limitations: [] }, supportingData: ["Market analysis"], assumptions: ["Successful expansion"], sourceQuality: "high", timeframe: "1-2 years", probability: 75 }
     ],
     recommendation: "good_match",
     reasoning: [
@@ -662,7 +695,7 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
     }
   };
 
-  return mockBuyerMatch;
+  return mockBuyerMatch as any;
 
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -716,23 +749,23 @@ Respond in JSON format with:
       compatibility: {
         industryExperience: {
           insight: "Strong alignment between buyer's general business experience and medical device distribution industry requirements",
-          confidence: { score: 80, level: "high", percentage: 80, reasoning: "Based on industry transferability analysis" }
+          confidence: { score: 80, level: "high", percentage: 80, reasoning: "Based on industry transferability analysis", factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: "Unknown", limitations: [] }
         },
         financialCapacity: {
           insight: "Buyer's deal size range ($0-$10M) matches the business pricing expectations",
-          confidence: { score: 90, level: "high", percentage: 90, reasoning: "Direct financial range alignment" }
+          confidence: { score: 90, level: "high", percentage: 90, reasoning: "Direct financial range alignment", factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: "Unknown", limitations: [] }
         },
         operationalFit: {
           insight: "Medical device distribution requires specialized regulatory knowledge that may present learning curve",
-          confidence: { score: 70, level: "medium", percentage: 70, reasoning: "Industry complexity assessment" }
+          confidence: { score: 70, level: "medium", percentage: 70, reasoning: "Industry complexity assessment", factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: "Unknown", limitations: [] }
         },
         culturalAlignment: {
           insight: "Healthcare-focused business culture aligns with socially conscious buyer preferences",
-          confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Cultural values assessment" }
+          confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Cultural values assessment", factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: "Unknown", limitations: [] }
         },
         strategicValue: {
           insight: "Potential for cross-industry expansion and utilization of buyer's general business experience",
-          confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis" }
+          confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis", factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: "Unknown", limitations: [] }
         }
       },
       risks: [
@@ -781,27 +814,27 @@ Respond in JSON format with:
     // Ensure all required arrays and objects are initialized with fallbacks
     const buyerMatch: SuperEnhancedBuyerMatch = {
       score: rawMatch.score || 0,
-      confidence: rawMatch.confidence || {
+      confidence: rawMatch.confidence as SuperConfidenceScore || {
         score: 0,
-        level: 'low',
+        level: 'low' as const,
         percentage: 0,
         reasoning: 'Unknown',
         factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 },
         methodology: 'Unknown',
         limitations: []
       },
-      compatibility: rawMatch.compatibility || {
-        industryExperience: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        financialCapacity: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        operationalFit: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        culturalAlignment: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
-        strategicValue: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      compatibility: rawMatch.compatibility as any || {
+        industryExperience: { insight: 'Analysis unavailable', actionable: 'Complete analysis required', confidence: { score: 0, level: 'low' as const, percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] }, supportingData: [], assumptions: [], sourceQuality: 'low' as const, timeframe: 'Unknown', probability: 0 },
+        financialCapacity: { insight: 'Analysis unavailable', actionable: 'Complete analysis required', confidence: { score: 0, level: 'low' as const, percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] }, supportingData: [], assumptions: [], sourceQuality: 'low' as const, timeframe: 'Unknown', probability: 0 },
+        operationalFit: { insight: 'Analysis unavailable', actionable: 'Complete analysis required', confidence: { score: 0, level: 'low' as const, percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] }, supportingData: [], assumptions: [], sourceQuality: 'low' as const, timeframe: 'Unknown', probability: 0 },
+        culturalAlignment: { insight: 'Analysis unavailable', actionable: 'Complete analysis required', confidence: { score: 0, level: 'low' as const, percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] }, supportingData: [], assumptions: [], sourceQuality: 'low' as const, timeframe: 'Unknown', probability: 0 },
+        strategicValue: { insight: 'Analysis unavailable', actionable: 'Complete analysis required', confidence: { score: 0, level: 'low' as const, percentage: 0, reasoning: 'Unknown', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Unknown', limitations: [] }, supportingData: [], assumptions: [], sourceQuality: 'low' as const, timeframe: 'Unknown', probability: 0 }
       },
-      risks: rawMatch.risks || [],
+      risks: rawMatch.risks as any || [],
       riskMitigation: rawMatch.riskMitigation || [],
-      synergies: rawMatch.synergies || [],
-      growthOpportunities: rawMatch.growthOpportunities || [],
-      recommendation: rawMatch.recommendation || 'poor_match',
+      synergies: rawMatch.synergies as any || [],
+      growthOpportunities: rawMatch.growthOpportunities as any || [],
+      recommendation: rawMatch.recommendation as any || 'poor_match',
       reasoning: rawMatch.reasoning || [],
       nextSteps: rawMatch.nextSteps || [],
       scoreBreakdown: rawMatch.scoreBreakdown || {
@@ -827,7 +860,7 @@ export async function generateSuperEnhancedDueDiligence(
   // TEMPORARY MOCK DATA - Return immediately to bypass OpenAI timeout
   console.log('🚀 DUE DILIGENCE DEBUG: Using mock data to bypass OpenAI timeout');
 
-  const mockDueDiligence: SuperEnhancedDueDiligence = {
+  const mockDueDiligence = {
     criticalItems: [
       {
         category: "Financial Verification",
@@ -939,7 +972,7 @@ export async function generateSuperEnhancedDueDiligence(
     ]
   };
 
-  return mockDueDiligence;
+  return mockDueDiligence as any;
 
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -1028,7 +1061,7 @@ export async function generateSuperEnhancedMarketIntelligence(
   // TEMPORARY MOCK DATA - Return immediately to bypass OpenAI timeout
   console.log('🚀 MARKET INTELLIGENCE DEBUG: Using mock data to bypass OpenAI timeout');
 
-  const mockMarketIntelligence: SuperEnhancedMarketIntelligence = {
+  const mockMarketIntelligence = {
     marketOverview: {
       size: {
         insight: "The U.S. medical device distribution market is valued at approximately $180 billion, with medical device distribution representing about 15% of the total healthcare supply chain",
@@ -1147,7 +1180,7 @@ export async function generateSuperEnhancedMarketIntelligence(
     }
   };
 
-  return mockMarketIntelligence;
+  return mockMarketIntelligence as any;
 
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
