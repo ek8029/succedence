@@ -107,7 +107,11 @@ export async function POST(request: NextRequest) {
     let intelligence;
     let existingAnalysis = null;
 
-    if (!forceRefresh) {
+    // Skip caching entirely in development mode for truly dynamic analysis
+    const skipCache = process.env.DEV_BYPASS_AUTH === 'true' || forceRefresh;
+    const CACHE_EXPIRY_HOURS = 1; // Cache expires after 1 hour
+
+    if (!skipCache) {
       try {
         const serviceSupabase = createServiceClient();
         const { data: cached, error: cacheError } = await (serviceSupabase as any)
@@ -120,21 +124,33 @@ export async function POST(request: NextRequest) {
           .maybeSingle();
 
         if (!cacheError && cached) {
-          const cachedParams = cached.analysis_data?.parameters || {};
-          const paramsMatch = cachedParams.industry === industry &&
-                             cachedParams.geography === geography &&
-                             cachedParams.dealSize === dealSize;
+          // Check if cache is expired
+          const cacheAge = Date.now() - new Date(cached.created_at).getTime();
+          const cacheExpired = cacheAge > CACHE_EXPIRY_HOURS * 60 * 60 * 1000;
 
-          if (paramsMatch) {
-            existingAnalysis = cached;
-            const { parameters, ...intelligenceData } = cached.analysis_data;
-            intelligence = intelligenceData;
-            console.log('Using cached enhanced market intelligence from', cached.created_at);
+          if (cacheExpired) {
+            console.log('Cache expired, generating fresh market intelligence');
+          } else {
+            const cachedParams = cached.analysis_data?.parameters || {};
+            const paramsMatch = cachedParams.industry === industry &&
+                               cachedParams.geography === geography &&
+                               cachedParams.dealSize === dealSize;
+
+            if (paramsMatch) {
+              existingAnalysis = cached;
+              const { parameters, ...intelligenceData } = cached.analysis_data;
+              intelligence = intelligenceData;
+              console.log('Using cached enhanced market intelligence from', cached.created_at);
+            } else {
+              console.log('Cache parameters mismatch, generating fresh analysis');
+            }
           }
         }
       } catch (error) {
         console.log('No cached enhanced market intelligence found, generating fresh analysis');
       }
+    } else {
+      console.log('🔄 Development mode or force refresh - skipping cache, generating fresh AI analysis');
     }
 
     // Generate super enhanced market intelligence if no cached version exists
