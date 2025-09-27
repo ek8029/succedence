@@ -299,9 +299,9 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
                     )}
                     {(risk?.likelihood || risk?.impact || risk?.riskScore) && (
                       <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-                        <span>Likelihood: {risk?.likelihood || 0}/10</span>
-                        <span>Impact: {risk?.impact || 0}/10</span>
-                        <span>Score: {risk?.riskScore || 0}</span>
+                        <span>Likelihood: {Math.min(Math.max(risk?.likelihood || 0, 0), 10)}/10</span>
+                        <span>Impact: {Math.min(Math.max(risk?.impact || 0, 0), 10)}/10</span>
+                        <span>Score: {Math.min(Math.max(risk?.riskScore || 0, 0), 100)}</span>
                       </div>
                     )}
                     {risk?.mitigationStrategies && risk.mitigationStrategies.length > 0 && (

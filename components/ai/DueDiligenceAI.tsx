@@ -7,6 +7,7 @@ import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
+import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 
 interface DueDiligenceAIProps {
   listingId: string;
@@ -17,6 +18,7 @@ interface DueDiligenceAIProps {
 export default function DueDiligenceAI({ listingId, listingTitle, industry }: DueDiligenceAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
+  const { protectRequest } = useVisibilityProtectedRequest();
   const [checklist, setChecklist] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,14 +82,16 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     // Analysis starting
 
     try {
-      const response = await fetch('/api/ai/due-diligence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ listingId }),
-      });
+      const response = await protectRequest(
+        () => fetch('/api/ai/due-diligence', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ listingId }),
+        })
+      );
 
       const data = await response.json();
 
@@ -110,7 +114,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   };
 
   const toggleItem = (category: string, index: number) => {
-    const itemKey = `${category}-${index}`;
+    const itemKey = `${category.toLowerCase()}-${index}`;
     const newCompleted = new Set(completedItems);
 
     if (newCompleted.has(itemKey)) {
@@ -186,7 +190,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   };
 
   const renderChecklistSection = (title: string, items: string[], category: string) => {
-    const completed = items.filter((_, index) => completedItems.has(`${category}-${index}`)).length;
+    const completed = items.filter((_, index) => completedItems.has(`${category.toLowerCase()}-${index}`)).length;
     const progress = items.length > 0 ? (completed / items.length) * 100 : 0;
 
     return (
@@ -211,7 +215,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
 
         <ul className="space-y-2">
           {items.map((item, index) => {
-            const itemKey = `${category}-${index}`;
+            const itemKey = `${category.toLowerCase()}-${index}`;
             const isCompleted = completedItems.has(itemKey);
 
             return (
@@ -242,7 +246,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   };
 
   const totalItems = checklist ?
-    (checklist.criticalItems || []).reduce((total, category) => total + (category.items || []).length, 0) : 0;
+    (checklist.criticalItems || []).reduce((total: number, category: any) => total + (category.items || []).length, 0) : 0;
   const totalCompleted = completedItems.size;
   const overallProgress = totalItems > 0 ? (totalCompleted / totalItems) * 100 : 0;
 
@@ -308,16 +312,25 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
           </div>
 
           {/* Checklist Sections */}
-          <div className="grid md:grid-cols-2 gap-4">
-            {renderChecklistSection('financial', checklist.financial || [], 'financial')}
-            {renderChecklistSection('legal', checklist.legal || [], 'legal')}
-            {renderChecklistSection('operational', checklist.operational || [], 'operational')}
-            {renderChecklistSection('strategic', checklist.strategic || [], 'strategic')}
-          </div>
+          <div className="space-y-4">
+            {checklist.criticalItems && checklist.criticalItems.length > 0 ? (
+              checklist.criticalItems.map((categoryData: any, index: number) => {
+                const categoryName = categoryData.category || `Category ${index + 1}`;
+                const items = (categoryData.items || []).map((item: any) =>
+                  typeof item === 'string' ? item : item.task || 'Unnamed task'
+                );
 
-          {/* Risk Factors - Full Width */}
-          <div className="grid grid-cols-1 gap-4">
-            {renderChecklistSection('risks', checklist.risks || [], 'risks')}
+                return (
+                  <div key={index}>
+                    {renderChecklistSection(categoryName, items, categoryName.toLowerCase())}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-4 bg-gray-900/20 rounded-luxury border border-gray-400/20 text-center">
+                <p className="text-silver/70">No checklist items available. Generate a new checklist to see due diligence tasks.</p>
+              </div>
+            )}
           </div>
 
           {/* Timeline */}

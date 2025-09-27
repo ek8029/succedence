@@ -7,6 +7,7 @@ import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
+import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 
 interface MarketIntelligenceAIProps {
   industry?: string;
@@ -18,6 +19,7 @@ interface MarketIntelligenceAIProps {
 export default function MarketIntelligenceAI({ industry, geography, dealSize, listingId }: MarketIntelligenceAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
+  const { protectRequest } = useVisibilityProtectedRequest();
   const [intelligence, setIntelligence] = useState<SuperEnhancedMarketIntelligence | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,19 +106,21 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     // Analysis starting
 
     try {
-      const response = await fetch('/api/ai/market-intelligence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          industry: formData.industry,
-          geography: formData.geography || undefined,
-          dealSize: formData.dealSize || undefined,
-          listingId: listingId || undefined,
-        }),
-      });
+      const response = await protectRequest(
+        () => fetch('/api/ai/market-intelligence', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            industry: formData.industry,
+            geography: formData.geography || undefined,
+            dealSize: formData.dealSize || undefined,
+            listingId: listingId || undefined,
+          }),
+        })
+      );
 
       const data = await response.json();
 
@@ -302,7 +306,26 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
               </svg>
               Market Timing Insights
             </h4>
-            <p className="text-silver/90 leading-relaxed text-sm">{intelligence.timing}</p>
+            <div className="space-y-3">
+              {intelligence.economic?.timing?.insight ? (
+                <p className="text-silver/90 leading-relaxed text-sm">{intelligence.economic.timing.insight}</p>
+              ) : (
+                <p className="text-silver/90 leading-relaxed text-sm">Market timing analysis unavailable</p>
+              )}
+              {intelligence.timing && typeof intelligence.timing === 'string' && (
+                <div className="flex items-center space-x-2 mt-2">
+                  <span className="text-indigo-300 text-xs font-medium">Overall Timing Rating:</span>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    intelligence.timing === 'excellent' ? 'bg-green-500/20 text-green-400' :
+                    intelligence.timing === 'good' ? 'bg-blue-500/20 text-blue-400' :
+                    intelligence.timing === 'moderate' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-red-500/20 text-red-400'
+                  }`}>
+                    {intelligence.timing.charAt(0).toUpperCase() + intelligence.timing.slice(1)}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Opportunities & Risks */}

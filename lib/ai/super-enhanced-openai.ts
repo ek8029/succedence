@@ -575,9 +575,10 @@ REQUIRED SUPER ENHANCED ANALYSIS:
    - 5-8 growth opportunities with feasibility analysis
 
 3. COMPREHENSIVE RISK MATRIX:
-   - Detailed risk factors with likelihood×impact scoring
+   - Detailed risk factors with likelihood×impact scoring (IMPORTANT: Use 1-10 scale only)
    - Mitigation strategies and monitoring metrics
    - Risk tolerance matching for buyer profile
+   - CRITICAL: Likelihood and Impact must be integers from 1-10, where 1=very low and 10=very high
 
 4. MARKET DYNAMICS ANALYSIS:
    - Industry trends with impact probability
@@ -1062,10 +1063,11 @@ Each task must include:
 - Industry-specific red flags to watch for
 
 2. COMPREHENSIVE RISK MATRIX:
-   - Industry-specific risk factors with quantified likelihood and impact
+   - Industry-specific risk factors with quantified likelihood and impact (IMPORTANT: Use 1-10 scale only)
    - Risk mitigation strategies tailored to ${businessType.sector}
    - Monitoring metrics specific to ${businessType.subsector}
    - Confidence scoring with methodology
+   - CRITICAL: Likelihood and Impact must be integers from 1-10, where 1=very low and 10=very high
 
 3. INDUSTRY-SPECIFIC REQUIREMENTS:
    - Regulations specific to ${businessType.subsector}
@@ -1107,8 +1109,8 @@ Respond in JSON format with this EXACT structure:
       "factor": "string - ${businessType.subsector} specific risk",
       "description": "string - detailed risk description",
       "severity": "low|medium|high|critical",
-      "likelihood": number_1_to_100,
-      "impact": number_1_to_100,
+      "likelihood": number_1_to_10,
+      "impact": number_1_to_10,
       "riskScore": number,
       "mitigationStrategies": ["strategy1", "strategy2"],
       "monitoringMetrics": ["metric1", "metric2"],
