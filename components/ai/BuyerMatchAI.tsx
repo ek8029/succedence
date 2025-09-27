@@ -6,6 +6,7 @@ import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
+import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
 type EnhancedBuyerMatchScore = SuperEnhancedBuyerMatch;
@@ -18,6 +19,7 @@ interface BuyerMatchAIProps {
 export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIProps) {
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
+  const { protectRequest } = useVisibilityProtectedRequest();
   const [matchScore, setMatchScore] = useState<SuperEnhancedBuyerMatch | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,26 +85,30 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     // Analysis starting
 
     try {
-      const response = await fetch('/api/ai/buyer-match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId,
-          analysisOptions: {
-            perspective: 'buyer_focused',
-            focusAreas: ['compatibility', 'investment_fit']
-          }
-        }),
-      });
+      const data = await protectRequest(async () => {
+        const response = await fetch('/api/ai/buyer-match', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            listingId,
+            analysisOptions: {
+              perspective: 'buyer_focused',
+              focusAreas: ['compatibility', 'investment_fit']
+            }
+          }),
+        });
 
-      const data = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to calculate buyer match');
-      }
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to calculate buyer match');
+        }
+
+        return result;
+      }, `buyer-match-${listingId}`);
 
       setMatchScore(data.matchScore);
 
@@ -125,23 +131,27 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     setError(null);
 
     try {
-      const response = await fetch('/api/ai/buyer-match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId,
-          followUpQuery: followUpQuery.trim()
-        }),
-      });
+      const data = await protectRequest(async () => {
+        const response = await fetch('/api/ai/buyer-match', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            listingId,
+            followUpQuery: followUpQuery.trim()
+          }),
+        });
 
-      const data = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate follow-up');
-      }
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to generate follow-up');
+        }
+
+        return result;
+      }, `buyer-match-followup-${listingId}`);
 
       setFollowUpResponse(data.response);
       setFollowUpQuery('');

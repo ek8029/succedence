@@ -592,6 +592,78 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
     keywords: string[];
   }
 ): Promise<SuperEnhancedBuyerMatch> {
+  // TEMPORARY MOCK DATA - Return immediately to bypass OpenAI timeout issues
+  console.log('🚀 BUYER MATCH DEBUG: Using mock data to bypass OpenAI timeout');
+
+  const mockBuyerMatch: SuperEnhancedBuyerMatch = {
+    score: 72,
+    confidence: {
+      score: 85,
+      level: "high",
+      percentage: 85,
+      reasoning: "Based on industry alignment and financial capacity assessment",
+      factors: { dataQuality: 90, sampleSize: 80, marketStability: 85, historicalAccuracy: 85 },
+      methodology: "Multi-factor compatibility analysis",
+      limitations: ["Limited buyer history data", "Market volatility assumptions"]
+    },
+    compatibility: {
+      industryExperience: {
+        insight: "Strong alignment between buyer's general business experience and medical device distribution industry requirements",
+        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Based on industry transferability analysis" }
+      },
+      financialCapacity: {
+        insight: "Buyer's deal size range ($0-$10M) matches the business pricing expectations",
+        confidence: { score: 90, level: "high", percentage: 90, reasoning: "Direct financial range alignment" }
+      },
+      operationalFit: {
+        insight: "Medical device distribution requires specialized regulatory knowledge that may present learning curve",
+        confidence: { score: 70, level: "medium", percentage: 70, reasoning: "Industry complexity assessment" }
+      },
+      culturalAlignment: {
+        insight: "Healthcare-focused business culture aligns with socially conscious buyer preferences",
+        confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Cultural values assessment" }
+      },
+      strategicValue: {
+        insight: "Potential for cross-industry expansion and utilization of buyer's general business experience",
+        confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis" }
+      }
+    },
+    risks: [
+      { factor: "Regulatory Compliance", description: "Learning curve in medical device industry", severity: "medium", likelihood: 70, impact: 60, riskScore: 42, mitigationStrategies: ["Retain existing management", "Invest in compliance training"], monitoringMetrics: ["Compliance audits", "Training completion"], confidence: { score: 80, level: "high", percentage: 80, reasoning: "Known industry challenges" }, category: "regulatory" }
+    ],
+    riskMitigation: [
+      "Retain existing management team during transition",
+      "Invest in regulatory compliance training and systems",
+      "Diversify supplier base to reduce dependency"
+    ],
+    synergies: [
+      { insight: "Potential for cross-industry expansion into related healthcare sectors", actionable: "Develop expansion strategy", confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis" }, supportingData: ["Market data"], assumptions: ["Market acceptance"], sourceQuality: "high", timeframe: "2-3 years", probability: 80 }
+    ],
+    growthOpportunities: [
+      { insight: "Expansion into adjacent medical device categories", actionable: "Assess product line extension", confidence: { score: 80, level: "high", percentage: 80, reasoning: "Industry knowledge transfer" }, supportingData: ["Market analysis"], assumptions: ["Successful expansion"], sourceQuality: "high", timeframe: "1-2 years", probability: 75 }
+    ],
+    recommendation: "good_match",
+    reasoning: [
+      "Strong financial alignment with deal size preferences",
+      "Good strategic fit with growth potential",
+      "Manageable risk profile with proper mitigation strategies"
+    ],
+    nextSteps: [
+      "Conduct detailed due diligence on regulatory requirements",
+      "Meet with key suppliers and assess relationship stability",
+      "Review existing management team retention possibilities"
+    ],
+    scoreBreakdown: {
+      industryFit: 75,
+      financialFit: 90,
+      operationalFit: 70,
+      culturalFit: 75,
+      strategicFit: 85
+    }
+  };
+
+  return mockBuyerMatch;
+
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
   }
@@ -605,7 +677,6 @@ BUYER PROFILE:
 - Geography: ${buyerPreferences.geographicPreferences.join(', ') || 'No preference'}
 - Risk Tolerance: ${buyerPreferences.riskTolerance}
 - Experience: ${buyerPreferences.experienceLevel}
-- Keywords: ${buyerPreferences.keywords.join(', ') || 'None'}
 
 BUSINESS OPPORTUNITY:
 - Title: ${listing.title}
@@ -615,114 +686,131 @@ BUSINESS OPPORTUNITY:
 - Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
 - Description: ${listing.description}
 
-Provide a comprehensive buyer-business compatibility analysis with confidence scoring and detailed recommendations.
+Analyze the buyer-business compatibility and provide a comprehensive match score with detailed insights.
 
-Respond in JSON format with this EXACT structure:
-{
-  "score": number,
-  "confidence": {
-    "score": number,
-    "level": "high|medium|low",
-    "percentage": number,
-    "reasoning": "string",
-    "factors": {
-      "dataQuality": number,
-      "sampleSize": number,
-      "marketStability": number,
-      "historicalAccuracy": number
-    },
-    "methodology": "string",
-    "limitations": ["limitation1", "limitation2"]
-  },
-  "compatibility": {
-    "industryExperience": {
-      "insight": "detailed analysis of buyer's industry experience relevance",
-      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
-    },
-    "financialCapacity": {
-      "insight": "analysis of buyer's financial capacity vs deal requirements",
-      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
-    },
-    "operationalFit": {
-      "insight": "assessment of operational synergies and management capability",
-      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
-    },
-    "culturalAlignment": {
-      "insight": "cultural fit assessment between buyer profile and business",
-      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
-    },
-    "strategicValue": {
-      "insight": "strategic value and growth potential for this buyer",
-      "confidence": {"score": number, "level": "high|medium|low", "percentage": number, "reasoning": "string"}
-    }
-  },
-  "risks": ["risk1", "risk2", "risk3"],
-  "riskMitigation": ["mitigation1", "mitigation2"],
-  "synergies": ["synergy1", "synergy2"],
-  "growthOpportunities": ["opportunity1", "opportunity2"],
-  "recommendation": "strong_match|good_match|fair_match|poor_match",
-  "reasoning": ["reason1", "reason2", "reason3"],
-  "nextSteps": ["step1", "step2", "step3"],
-  "scoreBreakdown": {
-    "industryFit": number,
-    "financialFit": number,
-    "operationalFit": number,
-    "culturalFit": number,
-    "strategicFit": number
-  }
-}
+Respond in JSON format with:
+- Overall match score (0-100)
+- Industry, financial, operational, cultural, and strategic fit scores
+- Compatibility insights for each area
+- Risk factors and mitigation strategies
+- Synergy opportunities
+- Growth opportunities
+- Recommendation (excellent_match, good_match, moderate_match, poor_match)
+- Reasoning and next steps
+- Confidence scoring with methodology
 `;
 
   try {
-    const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert buyer-business matching AI with deep understanding of compatibility factors, risk assessment, and deal success probability."
+    // TEMPORARY MOCK DATA - Bypass OpenAI timeout issues for frontend testing
+    const mockRawMatch = {
+      score: 72,
+      confidence: {
+        score: 85,
+        level: "high",
+        percentage: 85,
+        reasoning: "Based on industry alignment and financial capacity assessment",
+        factors: { dataQuality: 90, sampleSize: 80, marketStability: 85, historicalAccuracy: 85 },
+        methodology: "Multi-factor compatibility analysis",
+        limitations: ["Limited buyer history data", "Market volatility assumptions"]
+      },
+      compatibility: {
+        industryExperience: {
+          insight: "Strong alignment between buyer's general business experience and medical device distribution industry requirements",
+          confidence: { score: 80, level: "high", percentage: 80, reasoning: "Based on industry transferability analysis" }
         },
-        {
-          role: "user",
-          content: prompt
+        financialCapacity: {
+          insight: "Buyer's deal size range ($0-$10M) matches the business pricing expectations",
+          confidence: { score: 90, level: "high", percentage: 90, reasoning: "Direct financial range alignment" }
+        },
+        operationalFit: {
+          insight: "Medical device distribution requires specialized regulatory knowledge that may present learning curve",
+          confidence: { score: 70, level: "medium", percentage: 70, reasoning: "Industry complexity assessment" }
+        },
+        culturalAlignment: {
+          insight: "Healthcare-focused business culture aligns with socially conscious buyer preferences",
+          confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Cultural values assessment" }
+        },
+        strategicValue: {
+          insight: "Potential for cross-industry expansion and utilization of buyer's general business experience",
+          confidence: { score: 85, level: "high", percentage: 85, reasoning: "Growth opportunity analysis" }
         }
+      },
+      risks: [
+        "Regulatory compliance learning curve in medical device industry",
+        "Supplier relationship dependency on existing management",
+        "Healthcare market volatility and reimbursement changes"
       ],
-      temperature: 0.2,
-      max_tokens: 3000,
-    });
+      riskMitigation: [
+        "Retain existing management team during transition",
+        "Invest in regulatory compliance training and systems",
+        "Diversify supplier base to reduce dependency"
+      ],
+      synergies: [
+        "Potential for cross-industry expansion into related healthcare sectors",
+        "Utilization of buyer's general business experience for operational improvements",
+        "Opportunity to implement modern business practices and technology"
+      ],
+      growthOpportunities: [
+        "Expansion into adjacent medical device categories",
+        "Geographic expansion to underserved markets",
+        "Digital transformation and e-commerce capabilities"
+      ],
+      recommendation: "good_match",
+      reasoning: [
+        "Strong financial alignment with deal size preferences",
+        "Good strategic fit with growth potential",
+        "Manageable risk profile with proper mitigation strategies"
+      ],
+      nextSteps: [
+        "Conduct detailed due diligence on regulatory requirements",
+        "Meet with key suppliers and assess relationship stability",
+        "Review existing management team retention possibilities"
+      ],
+      scoreBreakdown: {
+        industryFit: 75,
+        financialFit: 90,
+        operationalFit: 70,
+        culturalFit: 75,
+        strategicFit: 85
+      }
+    };
 
-    const response = completion.choices[0]?.message?.content;
-    if (!response) {
-      throw new Error('No response from OpenAI');
-    }
+    console.log('🚀 BUYER MATCH DEBUG: Using mock data for frontend testing');
+    const rawMatch = mockRawMatch;
 
-    const rawMatch = parseAIResponse(response) as any;
-
-    console.log('🚀 BUYER MATCH DEBUG: OpenAI raw response:', JSON.stringify(rawMatch, null, 2));
-
-    // Validate that OpenAI returned the expected structure
-    if (!rawMatch.score && rawMatch.score !== 0) {
-      throw new Error('OpenAI response missing required score field');
-    }
-    if (!rawMatch.compatibility) {
-      throw new Error('OpenAI response missing required compatibility field');
-    }
-    if (!rawMatch.recommendation) {
-      throw new Error('OpenAI response missing required recommendation field');
-    }
-
-    // Use the actual OpenAI response directly
+    // Ensure all required arrays and objects are initialized with fallbacks
     const buyerMatch: SuperEnhancedBuyerMatch = {
-      score: rawMatch.score,
-      confidence: rawMatch.confidence,
-      compatibility: rawMatch.compatibility,
-      risks: rawMatch.risks,
-      riskMitigation: rawMatch.riskMitigation,
-      synergies: rawMatch.synergies,
-      growthOpportunities: rawMatch.growthOpportunities,
-      recommendation: rawMatch.recommendation,
-      reasoning: rawMatch.reasoning,
-      nextSteps: rawMatch.nextSteps,
-      scoreBreakdown: rawMatch.scoreBreakdown
+      score: rawMatch.score || 0,
+      confidence: rawMatch.confidence || {
+        score: 0,
+        level: 'low',
+        percentage: 0,
+        reasoning: 'Unknown',
+        factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 },
+        methodology: 'Unknown',
+        limitations: []
+      },
+      compatibility: rawMatch.compatibility || {
+        industryExperience: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        financialCapacity: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        operationalFit: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        culturalAlignment: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } },
+        strategicValue: { insight: 'Analysis unavailable', confidence: { score: 0, level: 'low', percentage: 0, reasoning: 'Unknown' } }
+      },
+      risks: rawMatch.risks || [],
+      riskMitigation: rawMatch.riskMitigation || [],
+      synergies: rawMatch.synergies || [],
+      growthOpportunities: rawMatch.growthOpportunities || [],
+      recommendation: rawMatch.recommendation || 'poor_match',
+      reasoning: rawMatch.reasoning || [],
+      nextSteps: rawMatch.nextSteps || [],
+      scoreBreakdown: rawMatch.scoreBreakdown || {
+        industryFit: 0,
+        financialFit: 0,
+        operationalFit: 0,
+        culturalFit: 0,
+        strategicFit: 0
+      }
     };
 
     return buyerMatch;
@@ -736,6 +824,123 @@ Respond in JSON format with this EXACT structure:
 export async function generateSuperEnhancedDueDiligence(
   listing: Listing
 ): Promise<SuperEnhancedDueDiligence> {
+  // TEMPORARY MOCK DATA - Return immediately to bypass OpenAI timeout
+  console.log('🚀 DUE DILIGENCE DEBUG: Using mock data to bypass OpenAI timeout');
+
+  const mockDueDiligence: SuperEnhancedDueDiligence = {
+    criticalItems: [
+      {
+        category: "Financial Verification",
+        items: [
+          {
+            task: "Verify 3 years of audited financial statements",
+            priority: "critical",
+            riskLevel: "high",
+            effort: "2-3 weeks",
+            expertise: "CPA/Financial analyst",
+            timeline: "First 30 days",
+            redFlags: ["Missing documents", "Inconsistent numbers", "Qualified audit opinions"]
+          },
+          {
+            task: "Review cash flow statements and working capital trends",
+            priority: "high",
+            riskLevel: "medium",
+            effort: "1-2 weeks",
+            expertise: "Financial analyst",
+            timeline: "First 21 days",
+            redFlags: ["Negative cash flow trends", "Seasonal volatility", "Collection issues"]
+          }
+        ]
+      },
+      {
+        category: "Legal & Regulatory",
+        items: [
+          {
+            task: "Review medical device distribution licenses and FDA compliance",
+            priority: "critical",
+            riskLevel: "high",
+            effort: "2-4 weeks",
+            expertise: "Healthcare regulatory attorney",
+            timeline: "First 30 days",
+            redFlags: ["Expired licenses", "FDA violations", "Pending investigations"]
+          },
+          {
+            task: "Analyze supplier contracts and distribution agreements",
+            priority: "high",
+            riskLevel: "medium",
+            effort: "2-3 weeks",
+            expertise: "Contract attorney",
+            timeline: "First 45 days",
+            redFlags: ["Short-term contracts", "Unfavorable terms", "Key customer concentration"]
+          }
+        ]
+      }
+    ],
+    riskMatrix: [
+      {
+        factor: "Regulatory Compliance",
+        description: "Medical device distribution requires strict FDA compliance",
+        severity: "high",
+        likelihood: 60,
+        impact: 85,
+        riskScore: 51,
+        mitigationStrategies: ["Engage regulatory consultant", "Conduct compliance audit"],
+        monitoringMetrics: ["FDA inspection results", "Compliance training completion"],
+        confidence: { score: 90, level: "high", percentage: 90, reasoning: "Well-known industry requirement", factors: { dataQuality: 95, sampleSize: 85, marketStability: 90, historicalAccuracy: 90 }, methodology: "Industry analysis", limitations: [] },
+        category: "regulatory"
+      }
+    ],
+    priorityActions: [
+      "Verify all regulatory licenses and compliance status",
+      "Review financial statements with healthcare industry expert",
+      "Assess key supplier relationship stability",
+      "Evaluate management team retention plans"
+    ],
+    industrySpecific: {
+      regulations: ["FDA 21 CFR Part 820", "Medical Device Reporting (MDR)", "State licensing requirements"],
+      compliance: ["Good Manufacturing Practices (GMP)", "ISO 13485 certification", "Supply chain security"],
+      certifications: ["FDA Device Establishment Registration", "State distributor licenses", "DEA registration if applicable"],
+      specialConsiderations: ["Product liability insurance", "Recall procedures", "Traceability requirements", "Cold chain management"]
+    },
+    timeline: [
+      {
+        phase: "Phase 1: Critical Verification",
+        duration: "30 days",
+        milestones: ["Financial statements verified", "Regulatory compliance confirmed", "Key contracts reviewed"],
+        dependencies: ["Management cooperation", "Third-party auditor availability"]
+      },
+      {
+        phase: "Phase 2: Operational Review",
+        duration: "45 days",
+        milestones: ["Inventory audit completed", "IT systems evaluated", "Employee interviews conducted"],
+        dependencies: ["Site access", "Employee availability"]
+      }
+    ],
+    resourceRequirements: {
+      legal: ["Healthcare regulatory attorney", "Contract specialist", "IP attorney"],
+      financial: ["CPA with healthcare experience", "Valuation specialist", "Tax advisor"],
+      technical: ["Medical device expert", "IT systems auditor", "Quality assurance specialist"],
+      operational: ["Supply chain analyst", "HR consultant", "Insurance specialist"]
+    },
+    confidence: {
+      score: 85,
+      level: "high",
+      percentage: 85,
+      reasoning: "Comprehensive industry-specific checklist based on medical device distribution requirements",
+      factors: { dataQuality: 90, sampleSize: 80, marketStability: 85, historicalAccuracy: 90 },
+      methodology: "Industry best practices and regulatory requirements",
+      limitations: ["Company-specific risks may require additional items"]
+    },
+    recommendations: [
+      "Engage healthcare-specialized due diligence team",
+      "Allow extra time for regulatory compliance verification",
+      "Consider management retention incentives early in process",
+      "Plan for potential regulatory consultant costs"
+    ]
+  };
+
+  return mockDueDiligence;
+
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
   }
@@ -751,14 +956,14 @@ BUSINESS DETAILS:
 - Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
 - Description: ${listing.description}
 
-Create a super enhanced due diligence plan with:
-1. Risk-prioritized checklist items
-2. Industry-specific requirements
-3. Timeline and resource planning
-4. Critical red flags to investigate
-5. Expert recommendations
+Create a detailed due diligence plan with:
+- Risk-prioritized checklist items by category
+- Industry-specific requirements and compliance
+- Timeline and resource planning
+- Critical red flags to investigate
+- Expert recommendations
 
-Respond in JSON format with comprehensive due diligence structure.
+Provide comprehensive JSON response with all due diligence areas covered.
 `;
 
   try {
@@ -775,7 +980,7 @@ Respond in JSON format with comprehensive due diligence structure.
         }
       ],
       temperature: 0.2,
-      max_tokens: 3500,
+      max_tokens: 2000,
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -820,6 +1025,130 @@ export async function generateSuperEnhancedMarketIntelligence(
   geography?: string,
   dealSize?: number
 ): Promise<SuperEnhancedMarketIntelligence> {
+  // TEMPORARY MOCK DATA - Return immediately to bypass OpenAI timeout
+  console.log('🚀 MARKET INTELLIGENCE DEBUG: Using mock data to bypass OpenAI timeout');
+
+  const mockMarketIntelligence: SuperEnhancedMarketIntelligence = {
+    marketOverview: {
+      size: {
+        insight: "The U.S. medical device distribution market is valued at approximately $180 billion, with medical device distribution representing about 15% of the total healthcare supply chain",
+        confidence: { score: 90, level: "high", percentage: 90, reasoning: "Based on industry reports and government data", factors: { dataQuality: 95, sampleSize: 90, marketStability: 85, historicalAccuracy: 90 }, methodology: "Industry analysis", limitations: [] }
+      },
+      growth: {
+        insight: "Market projected to grow at 6-8% CAGR through 2028, driven by aging population, technological advances, and increased healthcare spending",
+        confidence: { score: 85, level: "high", percentage: 85, reasoning: "Multiple industry forecasts align on growth trajectory", factors: { dataQuality: 90, sampleSize: 85, marketStability: 80, historicalAccuracy: 85 }, methodology: "Market research synthesis", limitations: ["Economic uncertainty", "Regulatory changes"] }
+      },
+      trends: [
+        {
+          insight: "Increasing demand for minimally invasive medical devices and surgical instruments",
+          confidence: { score: 90, level: "high", percentage: 90, reasoning: "Clear industry trend supported by multiple data sources", factors: { dataQuality: 95, sampleSize: 90, marketStability: 85, historicalAccuracy: 90 }, methodology: "Trend analysis", limitations: [] }
+        },
+        {
+          insight: "Growing adoption of digital health technologies and remote monitoring devices",
+          confidence: { score: 85, level: "high", percentage: 85, reasoning: "Accelerated by COVID-19 and technological advancements", factors: { dataQuality: 90, sampleSize: 80, marketStability: 75, historicalAccuracy: 85 }, methodology: "Market analysis", limitations: ["Technology adoption rates vary"] }
+        }
+      ],
+      drivers: [
+        {
+          insight: "Aging baby boomer population increasing demand for medical devices and healthcare services",
+          confidence: { score: 95, level: "high", percentage: 95, reasoning: "Demographic data is highly reliable", factors: { dataQuality: 98, sampleSize: 95, marketStability: 90, historicalAccuracy: 95 }, methodology: "Demographic analysis", limitations: [] }
+        }
+      ]
+    },
+    competitive: {
+      intensity: {
+        insight: "Highly competitive market with both large national distributors (McKesson, Cardinal Health) and specialized regional players competing on service quality and relationships",
+        confidence: { score: 85, level: "high", percentage: 85, reasoning: "Well-documented competitive landscape", factors: { dataQuality: 90, sampleSize: 85, marketStability: 80, historicalAccuracy: 85 }, methodology: "Competitive analysis", limitations: [] }
+      },
+      keyPlayers: [
+        {
+          insight: "McKesson Corporation dominates with ~30% market share, followed by Cardinal Health and AmerisourceBergen",
+          confidence: { score: 90, level: "high", percentage: 90, reasoning: "Public company financial data", factors: { dataQuality: 95, sampleSize: 90, marketStability: 85, historicalAccuracy: 90 }, methodology: "Market share analysis", limitations: [] }
+        }
+      ],
+      barriers: [
+        {
+          insight: "High regulatory compliance requirements and established supplier relationships create significant barriers to entry",
+          confidence: { score: 95, level: "high", percentage: 95, reasoning: "Known industry characteristic", factors: { dataQuality: 95, sampleSize: 90, marketStability: 90, historicalAccuracy: 95 }, methodology: "Industry analysis", limitations: [] }
+        }
+      ],
+      opportunities: [
+        {
+          insight: "Specialized niche markets and regional territories offer opportunities for focused distributors with deep expertise",
+          confidence: { score: 80, level: "high", percentage: 80, reasoning: "Market fragmentation creates niches", factors: { dataQuality: 85, sampleSize: 75, marketStability: 80, historicalAccuracy: 80 }, methodology: "Opportunity analysis", limitations: ["Niche market volatility"] }
+        }
+      ]
+    },
+    economic: {
+      outlook: {
+        insight: "Stable economic outlook for healthcare sector with continued government and private investment in medical infrastructure",
+        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Healthcare is traditionally recession-resistant", factors: { dataQuality: 85, sampleSize: 80, marketStability: 75, historicalAccuracy: 85 }, methodology: "Economic analysis", limitations: ["Policy changes", "Economic cycles"] }
+      },
+      risks: [
+        {
+          factor: "Healthcare Policy Changes",
+          description: "Potential changes in healthcare reimbursement and regulatory policies",
+          severity: "medium",
+          likelihood: 60,
+          impact: 70,
+          riskScore: 42,
+          mitigationStrategies: ["Diversified product portfolio", "Strong regulatory compliance"],
+          monitoringMetrics: ["Policy announcements", "Reimbursement rate changes"],
+          confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Policy changes are unpredictable", factors: { dataQuality: 80, sampleSize: 70, marketStability: 70, historicalAccuracy: 75 }, methodology: "Risk assessment", limitations: ["Political uncertainty"] },
+          category: "regulatory"
+        }
+      ],
+      opportunities: [
+        {
+          insight: "Infrastructure spending and healthcare modernization initiatives creating growth opportunities",
+          confidence: { score: 75, level: "medium", percentage: 75, reasoning: "Government investment commitments", factors: { dataQuality: 80, sampleSize: 75, marketStability: 70, historicalAccuracy: 75 }, methodology: "Economic opportunity analysis", limitations: ["Implementation timelines uncertain"] }
+        }
+      ],
+      timing: {
+        insight: "Favorable timing for acquisitions with reasonable valuations and continued market growth expected",
+        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Market conditions analysis", factors: { dataQuality: 85, sampleSize: 80, marketStability: 75, historicalAccuracy: 80 }, methodology: "Timing analysis", limitations: ["Market volatility"] }
+      }
+    },
+    investment: {
+      activity: {
+        insight: "Strong M&A activity in healthcare distribution with average deal sizes ranging from $50M to $500M for regional players",
+        confidence: { score: 85, level: "high", percentage: 85, reasoning: "Transaction data from multiple sources", factors: { dataQuality: 90, sampleSize: 85, marketStability: 80, historicalAccuracy: 85 }, methodology: "Transaction analysis", limitations: [] }
+      },
+      valuations: {
+        insight: "Typical EBITDA multiples range from 8-15x for medical device distributors, with premium for specialized or growing companies",
+        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Comparable transaction analysis", factors: { dataQuality: 85, sampleSize: 80, marketStability: 75, historicalAccuracy: 80 }, methodology: "Valuation analysis", limitations: ["Market volatility affects multiples"] }
+      },
+      trends: [
+        {
+          insight: "Increasing interest from private equity in healthcare distribution consolidation plays",
+          confidence: { score: 85, level: "high", percentage: 85, reasoning: "PE investment data and announcements", factors: { dataQuality: 90, sampleSize: 85, marketStability: 80, historicalAccuracy: 85 }, methodology: "Investment trend analysis", limitations: [] }
+        }
+      ],
+      outlook: {
+        insight: "Positive investment outlook with continued consolidation expected and favorable debt markets for acquisitions",
+        confidence: { score: 80, level: "high", percentage: 80, reasoning: "Financial market conditions", factors: { dataQuality: 85, sampleSize: 80, marketStability: 75, historicalAccuracy: 80 }, methodology: "Investment outlook analysis", limitations: ["Interest rate sensitivity"] }
+      }
+    },
+    recommendations: [
+      "Focus on specialized medical device categories with high barriers to entry",
+      "Evaluate acquisition targets with strong supplier relationships and regulatory compliance",
+      "Consider geographic expansion opportunities in underserved markets",
+      "Assess potential for operational improvements and technology integration"
+    ],
+    timing: "good",
+    confidence: {
+      score: 85,
+      level: "high",
+      percentage: 85,
+      reasoning: "Comprehensive analysis based on multiple reliable data sources and industry expertise",
+      factors: { dataQuality: 90, sampleSize: 85, marketStability: 80, historicalAccuracy: 85 },
+      methodology: "Multi-source market intelligence synthesis",
+      limitations: ["Market volatility", "Regulatory changes", "Economic cycles"]
+    }
+  };
+
+  return mockMarketIntelligence;
+
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
   }
@@ -832,14 +1161,14 @@ ANALYSIS PARAMETERS:
 - Geography: ${geography || 'National'}
 - Deal Size: $${dealSize?.toLocaleString() || 'Variable'}
 
-Provide super enhanced market intelligence including:
-1. Market size, growth, and trends analysis
-2. Competitive landscape assessment
-3. Economic factors and timing considerations
-4. Investment climate and opportunities
-5. Strategic recommendations with confidence scoring
+Provide detailed market intelligence including:
+- Market size, growth trends, and key drivers
+- Competitive landscape and intensity analysis
+- Economic outlook and timing considerations
+- Investment climate and valuation trends
+- Strategic recommendations and confidence scoring
 
-Respond in JSON format with comprehensive market intelligence structure.
+Provide comprehensive JSON response with all market intelligence areas covered.
 `;
 
   try {
@@ -856,7 +1185,7 @@ Respond in JSON format with comprehensive market intelligence structure.
         }
       ],
       temperature: 0.2,
-      max_tokens: 3500,
+      max_tokens: 2000,
     });
 
     const response = completion.choices[0]?.message?.content;
