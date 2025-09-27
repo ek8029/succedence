@@ -321,15 +321,52 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
           </div>
 
           {/* Timeline */}
-          <div className="p-4 bg-navy/30 rounded-luxury border border-gold/10">
-            <h4 className="text-lg font-semibold text-gold mb-3 font-serif flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Recommended Timeline
-            </h4>
-            <p className="text-silver/90 leading-relaxed">{checklist.timeline}</p>
-          </div>
+          {checklist.timeline && Array.isArray(checklist.timeline) && (
+            <div className="p-4 bg-navy/30 rounded-luxury border border-gold/10">
+              <h4 className="text-lg font-semibold text-gold mb-3 font-serif flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Recommended Timeline
+              </h4>
+              <div className="space-y-3">
+                {checklist.timeline.map((phase, index) => (
+                  <div key={index} className="border-l-2 border-gold/30 pl-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <h5 className="font-semibold text-gold">{phase.phase}</h5>
+                      <span className="text-sm text-silver/80">{phase.duration}</span>
+                    </div>
+                    {phase.milestones && phase.milestones.length > 0 && (
+                      <div className="mb-2">
+                        <p className="text-xs text-silver/70 mb-1">Milestones:</p>
+                        <ul className="text-sm text-silver/90 space-y-1">
+                          {phase.milestones.map((milestone, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-gold mr-2">•</span>
+                              {milestone}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {phase.dependencies && phase.dependencies.length > 0 && (
+                      <div>
+                        <p className="text-xs text-silver/70 mb-1">Dependencies:</p>
+                        <ul className="text-sm text-silver/90">
+                          {phase.dependencies.map((dependency, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-orange-400 mr-2">→</span>
+                              {dependency}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-gold/10">
