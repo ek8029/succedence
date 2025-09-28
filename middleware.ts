@@ -73,8 +73,10 @@ export async function middleware(request: NextRequest) {
 
     if (userError) {
       console.error('Error fetching user data:', userError)
-      // For non-admin users, if database fails, redirect to auth
-      return NextResponse.redirect(new URL('/auth', request.url))
+      // For non-admin users, if database fails, allow access but log the issue
+      // Don't redirect on database errors - this causes the tab switching subscription gate issue
+      console.warn('⚠️ MIDDLEWARE: Database error, allowing access but user may see subscription prompts')
+      return NextResponse.next()
     }
 
     const userRole = (userData as any)?.role
@@ -96,12 +98,19 @@ export async function middleware(request: NextRequest) {
     // Users must have a PAID plan to access the application (no free tier)
     console.log('🔍 MIDDLEWARE: Checking subscription for:', session.user.email, 'Plan:', userPlan, 'Role:', userRole)
 
-    if (!userPlan || userPlan === null || userPlan === 'free') {
-      console.log('⚠️ MIDDLEWARE: User lacks paid subscription, redirecting to subscribe page')
-      // Redirect users without subscription or with expired free plan to subscribe page
+    // Only redirect to subscription page if we have definitive data that user lacks subscription
+    // Don't redirect on null/undefined plans (could be database connection issues)
+    if (userData && userPlan === 'free') {
+      console.log('⚠️ MIDDLEWARE: User has free plan, redirecting to subscribe page')
+      // Only redirect if we have confirmed free plan, not if plan is null/undefined
       const redirectUrl = new URL('/subscribe', request.url)
       redirectUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(redirectUrl)
+    }
+
+    // Log what we're allowing through
+    if (!userPlan || userPlan === null) {
+      console.log('⚠️ MIDDLEWARE: Unable to determine user plan (database issue?), allowing access')
     }
 
     console.log('✅ MIDDLEWARE: User has valid subscription, allowing access to:', pathname)
