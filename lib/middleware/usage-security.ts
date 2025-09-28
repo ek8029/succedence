@@ -230,7 +230,7 @@ async function logSecurityViolation(
       user_plan: details.userPlan,
       ip_address: details.ip,
       user_agent: details.userAgent
-    })
+    } as any)
 
     // Also log to console for immediate monitoring
     console.warn('SECURITY VIOLATION:', {
