@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
           .eq('id', user.id)
           .single()
 
-        if (profile?.plan) {
+        if (profile && profile.plan) {
           userPlan = profile.plan as any
         }
       }

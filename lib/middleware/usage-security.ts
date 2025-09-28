@@ -84,7 +84,7 @@ export async function performSecurityCheck(
       }
     }
 
-    const userPlan = profile.plan as PlanType || 'free'
+    const userPlan = (profile && profile.plan) ? profile.plan as PlanType : 'free'
 
     // DEV BYPASS MODE (only for development)
     if (bypassDevMode && process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true') {
@@ -312,7 +312,7 @@ export async function doubleCheckSecurity(
       return false
     }
 
-    const userPlan = profile.plan as PlanType || 'free'
+    const userPlan = (profile && profile.plan) ? profile.plan as PlanType : 'free'
 
     // Re-run the specific check
     switch (checkType) {
