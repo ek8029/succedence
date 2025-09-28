@@ -256,8 +256,8 @@ export default function SubscriptionPage() {
                 <div>
                   <h4 className="font-medium text-warm-white mb-2">What happens if I exceed my limits?</h4>
                   <p className="text-silver/70 text-sm">
-                    When you reach your daily or monthly limits, you'll need to wait for the next period or upgrade your plan.
-                    We'll notify you when you're approaching your limits.
+                    When you reach your daily or monthly limits, you&apos;ll need to wait for the next period or upgrade your plan.
+                    We&apos;ll notify you when you&apos;re approaching your limits.
                   </p>
                 </div>
                 <div>
@@ -268,7 +268,7 @@ export default function SubscriptionPage() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-warm-white mb-2">What's included in follow-up questions?</h4>
+                  <h4 className="font-medium text-warm-white mb-2">What&apos;s included in follow-up questions?</h4>
                   <p className="text-silver/70 text-sm">
                     Follow-up questions allow you to dive deeper into any analysis. Each analysis type
                     (Business Analysis, Market Intelligence, Due Diligence, Buyer Match) has separate limits.

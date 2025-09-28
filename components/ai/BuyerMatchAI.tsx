@@ -451,7 +451,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
             )}
             {remainingQuestions === 0 && (
               <div className="mt-2 p-2 bg-orange-900/20 border border-orange-400/20 rounded text-orange-300 text-xs">
-                You've reached your daily limit for follow-up questions. Upgrade your plan for more questions.
+                You&apos;ve reached your daily limit for follow-up questions. Upgrade your plan for more questions.
               </div>
             )}
           </div>

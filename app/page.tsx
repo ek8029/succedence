@@ -65,7 +65,7 @@ export default function PublicLandingPage() {
             </div>
           </ScrollAnimation>
 
-          {/* Preview Section - What's Inside */}
+          {/* Preview Section - What&apos;s Inside */}
           <ScrollAnimation direction="up" delay={50}>
             <div id="demo-section" className="mb-24 sm:mb-32">
               <div className="text-center mb-16">

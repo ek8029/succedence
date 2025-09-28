@@ -70,7 +70,7 @@ export default function AIAssistant({ isOpen, onToggle }: AIAssistantProps) {
     }
 
     if (input.includes('listing') || input.includes('list') || input.includes('sell')) {
-      return "To list your business, you'll need financial statements, business description, growth history, and asking price. Our platform helps present your business professionally to qualified buyers.";
+      return "To list your business, you&apos;ll need financial statements, business description, growth history, and asking price. Our platform helps present your business professionally to qualified buyers.";
     }
 
     if (input.includes('search') || input.includes('find') || input.includes('browse')) {
