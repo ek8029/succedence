@@ -2,27 +2,37 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Navbar() {
   const { user, isLoading, signOut } = useAuth();
-  const [savedDropdownOpen, setSavedDropdownOpen] = useState(false);
-  const [matchesDropdownOpen, setMatchesDropdownOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<'saved' | 'matches' | null>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Close dropdowns when clicking outside
+  // Clear timeout on unmount
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element)?.closest('.relative')) {
-        setSavedDropdownOpen(false);
-        setMatchesDropdownOpen(false);
+    return () => {
+      if (dropdownTimeoutRef.current) {
+        clearTimeout(dropdownTimeoutRef.current);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
   }, []);
+
+  const handleMouseEnter = (dropdown: 'saved' | 'matches') => {
+    // Clear any existing timeout
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setActiveDropdown(dropdown);
+  };
+
+  const handleMouseLeave = () => {
+    // Add a small delay before closing to prevent accidental closes
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 200);
+  };
 
   return (
     <nav className="header-professional px-3 sm:px-6 py-2 sm:py-3 sticky top-0 z-50">
@@ -61,18 +71,18 @@ export default function Navbar() {
                 <>
                   <div className="relative">
                     <button
-                      onClick={() => setSavedDropdownOpen(!savedDropdownOpen)}
+                      onClick={() => setActiveDropdown(activeDropdown === 'saved' ? null : 'saved')}
                       className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap flex items-center"
                       style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                     >
                       My Data ▼
                     </button>
-                    {savedDropdownOpen && (
+                    {activeDropdown === 'saved' && (
                       <div className="absolute top-full left-0 mt-1 bg-midnight border border-gold/20 rounded shadow-lg py-1 min-w-[120px] z-50">
-                        <Link href="/saved-listings" onClick={() => setSavedDropdownOpen(false)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                        <Link href="/saved-listings" onClick={() => setActiveDropdown(null)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                           Saved Listings
                         </Link>
-                        <Link href="/ai-analysis-history" onClick={() => setSavedDropdownOpen(false)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                        <Link href="/ai-analysis-history" onClick={() => setActiveDropdown(null)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                           AI History
                         </Link>
                       </div>
@@ -80,18 +90,18 @@ export default function Navbar() {
                   </div>
                   <div className="relative">
                     <button
-                      onClick={() => setMatchesDropdownOpen(!matchesDropdownOpen)}
+                      onClick={() => setActiveDropdown(activeDropdown === 'matches' ? null : 'matches')}
                       className="text-xs text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap flex items-center"
                       style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                     >
                       My Match ▼
                     </button>
-                    {matchesDropdownOpen && (
+                    {activeDropdown === 'matches' && (
                       <div className="absolute top-full left-0 mt-1 bg-midnight border border-gold/20 rounded shadow-lg py-1 min-w-[120px] z-50">
-                        <Link href="/preferences" onClick={() => setMatchesDropdownOpen(false)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                        <Link href="/preferences" onClick={() => setActiveDropdown(null)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                           Preferences
                         </Link>
-                        <Link href="/matches" onClick={() => setMatchesDropdownOpen(false)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                        <Link href="/matches" onClick={() => setActiveDropdown(null)} className="block px-3 py-1 text-xs text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                           Matches
                         </Link>
                       </div>
@@ -146,40 +156,46 @@ export default function Navbar() {
                   List Business
                 </Link>
 
-                <div className="relative">
+                <div
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter('saved')}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <button
-                    onClick={() => setSavedDropdownOpen(!savedDropdownOpen)}
                     className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium flex items-center"
                     style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                   >
                     My Data ▼
                   </button>
-                  {savedDropdownOpen && (
+                  {activeDropdown === 'saved' && (
                     <div className="absolute top-full left-0 mt-2 bg-midnight border border-gold/20 rounded shadow-lg py-2 min-w-[160px] z-50">
-                      <Link href="/saved-listings" onClick={() => setSavedDropdownOpen(false)} className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                      <Link href="/saved-listings" className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                         Saved Listings
                       </Link>
-                      <Link href="/ai-analysis-history" onClick={() => setSavedDropdownOpen(false)} className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                      <Link href="/ai-analysis-history" className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                         AI History
                       </Link>
                     </div>
                   )}
                 </div>
 
-                <div className="relative">
+                <div
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter('matches')}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <button
-                    onClick={() => setMatchesDropdownOpen(!matchesDropdownOpen)}
                     className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium flex items-center"
                     style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                   >
                     My Matches ▼
                   </button>
-                  {matchesDropdownOpen && (
+                  {activeDropdown === 'matches' && (
                     <div className="absolute top-full left-0 mt-2 bg-midnight border border-gold/20 rounded shadow-lg py-2 min-w-[160px] z-50">
-                      <Link href="/preferences" onClick={() => setMatchesDropdownOpen(false)} className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                      <Link href="/preferences" className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                         My Preferences
                       </Link>
-                      <Link href="/matches" onClick={() => setMatchesDropdownOpen(false)} className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                      <Link href="/matches" className="block px-4 py-2 text-sm text-neutral-400 hover:text-gold hover:bg-gold/10 transition-colors" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                         My Matches
                       </Link>
                     </div>
