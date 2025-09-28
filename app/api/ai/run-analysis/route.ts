@@ -1,23 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { analyzeBusinessSuperEnhanced } from '@/lib/ai/super-enhanced-openai'
 import { createServiceClient } from '@/lib/supabase/server'
-import {
-  setAnalysisProcessing,
-  storeAnalysis,
-  setAnalysisError,
-  getStoredAnalysis,
-  updateAnalysisProgress,
-  registerPoller,
-  unregisterPoller,
-  retryAnalysis
-} from '@/lib/utils/server-side-analysis'
+import { JobQueue } from '@/lib/services/job-queue'
 import { canRunAnalysis, incrementUsage } from '@/lib/utils/database-usage-tracking'
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Starting analysis request...')
     const body = await request.json()
-    const { listingId, analysisType, parameters, pollerId, userId } = body
+    const { listingId, analysisType, parameters, userId } = body
     console.log('📝 Request params:', { listingId, analysisType, userId })
 
     if (!listingId || !analysisType) {
@@ -62,35 +52,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check if already processing or completed
-    const existing = getStoredAnalysis(listingId, analysisType)
-    if (existing) {
-      if (existing.status === 'processing') {
-        // Register this poller
-        if (pollerId) {
-          registerPoller(listingId, analysisType, pollerId)
-        }
+    // Check for existing jobs using job queue
+    const jobQueue = JobQueue.getInstance()
+    const existingJob = await jobQueue.getLatestJob(listingId, analysisType)
+
+    if (existingJob) {
+      if (existingJob.status === 'queued' || existingJob.status === 'processing') {
         return NextResponse.json({
           status: 'processing',
-          message: 'Analysis already in progress',
-          progress: existing.progress || 0,
-          partialOutput: existing.partialOutput
+          jobId: existingJob.id,
+          progress: existingJob.progress,
+          message: existingJob.current_step || 'Analysis in progress'
         })
       }
-      if (existing.status === 'completed' && existing.result) {
+      if (existingJob.status === 'completed' && existingJob.result) {
         // Return cached result if less than 10 minutes old
-        if (Date.now() - existing.startedAt < 10 * 60 * 1000) {
+        const jobAge = Date.now() - new Date(existingJob.created_at).getTime()
+        if (jobAge < 10 * 60 * 1000) {
           return NextResponse.json({
             status: 'completed',
-            result: existing.result,
+            result: existingJob.result,
+            jobId: existingJob.id,
             cached: true
           })
-        }
-      }
-      if (existing.status === 'error') {
-        // Allow retry if requested
-        if (retryAnalysis(listingId, analysisType)) {
-          console.log(`Retrying failed analysis for ${listingId}:${analysisType}`)
         }
       }
     }
@@ -100,245 +84,22 @@ export async function POST(request: NextRequest) {
       await incrementUsage(actualUserId, 'analysis', analysisType, 0.15)
     }
 
-    // Mark as processing with enhanced tracking
-    setAnalysisProcessing(listingId, analysisType, actualUserId, parameters)
+    // Create new job in queue
+    const newJob = await jobQueue.createJob(
+      listingId,
+      analysisType as any,
+      actualUserId,
+      parameters || {}
+    )
 
-    // Register poller if provided
-    if (pollerId) {
-      registerPoller(listingId, analysisType, pollerId)
-    }
+    // Background worker will pick up and process the job automatically
+    console.log('✅ Job queued for background processing:', newJob.id)
 
-    // Spawn async task that continues even if client disconnects
-    // Using Promise without await so it runs independently
-    Promise.resolve().then(async () => {
-      try {
-        updateAnalysisProgress(listingId, analysisType, 5, 'Fetching listing data...')
-
-        // Fetch listing with comprehensive data
-        const supabase = createServiceClient()
-        const { data: listing, error: listingError } = await supabase
-          .from('listings')
-          .select(`
-            *,
-            listing_financials(*),
-            listing_documents(*),
-            user_profiles(*)
-          `)
-          .eq('id', listingId)
-          .single()
-
-        if (listingError || !listing) {
-          console.warn('⚠️  Listing not found, using fallback data for demo analysis')
-
-          // Use fallback data for demo purposes
-          const fallbackListing = {
-            id: listingId,
-            title: 'Demo Business Analysis',
-            industry: 'Technology Services',
-            description: 'A demonstration business for AI analysis capabilities. This is a sample software development company with steady growth and strong market position.',
-            city: 'San Francisco',
-            state: 'CA',
-            asking_price: 2500000,
-            revenue: 1500000,
-            ebitda: 450000,
-            employees: 25,
-            year_established: 2018,
-            business_type: 'Software Development',
-            owner_involvement: 'Full-time',
-            reason_for_selling: 'Retirement'
-          }
-
-          updateAnalysisProgress(listingId, analysisType, 15, 'Using demo data for analysis...')
-
-          // Create demo context
-          const listingContext = {
-            ...fallbackListing,
-            industry: fallbackListing.industry || 'General Business',
-            location: `${fallbackListing.city}, ${fallbackListing.state}` || 'Unknown Location',
-            askingPrice: fallbackListing.asking_price || 0,
-            revenue: fallbackListing.revenue || 0,
-            ebitda: fallbackListing.ebitda || 0,
-            employees: fallbackListing.employees || 0,
-            yearEstablished: fallbackListing.year_established || null,
-            businessType: fallbackListing.business_type || 'Unknown',
-            ownerInvolvement: fallbackListing.owner_involvement || 'Full-time',
-            reasonForSelling: fallbackListing.reason_for_selling || 'Not specified',
-            parameters: parameters || {}
-          }
-
-          let result: any
-          updateAnalysisProgress(listingId, analysisType, 25, 'Running AI analysis on demo data...')
-
-          // Run the appropriate analysis with demo context
-          switch (analysisType) {
-            case 'business_analysis':
-              updateAnalysisProgress(listingId, analysisType, 30, 'Analyzing business fundamentals...')
-              result = await analyzeBusinessSuperEnhanced(listingContext as any, parameters || {})
-              updateAnalysisProgress(listingId, analysisType, 90, 'Finalizing business analysis...')
-              break
-
-            case 'market_intelligence':
-              updateAnalysisProgress(listingId, analysisType, 30, 'Analyzing market conditions...')
-              result = {
-                message: `Market intelligence analysis for ${listingContext.industry} in ${listingContext.location}`,
-                industry: listingContext.industry,
-                location: listingContext.location,
-                dealSize: listingContext.askingPrice,
-                demo: true,
-                parameters: parameters
-              }
-              updateAnalysisProgress(listingId, analysisType, 90, 'Completing market analysis...')
-              break
-
-            case 'due_diligence':
-              updateAnalysisProgress(listingId, analysisType, 30, 'Creating due diligence checklist...')
-              result = {
-                message: `Due diligence checklist for ${listingContext.industry} business`,
-                industry: listingContext.industry,
-                businessType: listingContext.businessType,
-                revenue: listingContext.revenue,
-                demo: true,
-                parameters: parameters
-              }
-              updateAnalysisProgress(listingId, analysisType, 90, 'Finalizing checklist...')
-              break
-
-            case 'buyer_match':
-              updateAnalysisProgress(listingId, analysisType, 30, 'Calculating buyer compatibility...')
-              result = {
-                message: `Buyer compatibility for ${listingContext.industry} acquisition`,
-                industry: listingContext.industry,
-                dealSize: listingContext.askingPrice,
-                location: listingContext.location,
-                demo: true,
-                parameters: parameters
-              }
-              updateAnalysisProgress(listingId, analysisType, 90, 'Computing match score...')
-              break
-
-            default:
-              throw new Error(`Unknown analysis type: ${analysisType}`)
-          }
-
-          updateAnalysisProgress(listingId, analysisType, 95, 'Saving demo results...')
-
-          // Store the result with demo flag
-          storeAnalysis(listingId, analysisType, { ...result, demo: true }, actualUserId, parameters)
-
-          updateAnalysisProgress(listingId, analysisType, 100, 'Demo analysis complete!')
-          return
-        }
-
-        updateAnalysisProgress(listingId, analysisType, 15, 'Preparing personalized analysis...')
-
-        // Create personalized context based on listing specifics
-        const listingData = listing as any
-        const listingContext = {
-          ...listingData,
-          industry: listingData.industry || 'General Business',
-          location: listingData.location || 'Unknown Location',
-          askingPrice: listingData.asking_price || listingData.price || 0,
-          revenue: listingData.listing_financials?.[0]?.annual_revenue || 0,
-          ebitda: listingData.listing_financials?.[0]?.ebitda || 0,
-          employees: listingData.employees || listingData.number_of_employees || 0,
-          yearEstablished: listingData.year_established || listingData.founded || null,
-          businessType: listingData.business_type || 'Unknown',
-          ownerInvolvement: listingData.owner_involvement || 'Full-time',
-          reasonForSelling: listingData.reason_for_selling || 'Not specified',
-          parameters: parameters || {}
-        }
-
-        let result: any
-        updateAnalysisProgress(listingId, analysisType, 25, 'Running AI analysis...')
-
-        // Run the appropriate analysis with personalized context
-        switch (analysisType) {
-          case 'business_analysis':
-            updateAnalysisProgress(listingId, analysisType, 30, 'Analyzing business fundamentals...')
-            result = await analyzeBusinessSuperEnhanced(listingContext, parameters || {})
-            updateAnalysisProgress(listingId, analysisType, 90, 'Finalizing business analysis...')
-            break
-
-          case 'market_intelligence':
-            updateAnalysisProgress(listingId, analysisType, 30, 'Analyzing market conditions...')
-            // TODO: Implement personalized market intelligence
-            result = {
-              message: `Market intelligence analysis for ${listingContext.industry} in ${listingContext.location}`,
-              industry: listingContext.industry,
-              location: listingContext.location,
-              dealSize: listingContext.askingPrice,
-              placeholder: true,
-              parameters: parameters
-            }
-            updateAnalysisProgress(listingId, analysisType, 90, 'Completing market analysis...')
-            break
-
-          case 'due_diligence':
-            updateAnalysisProgress(listingId, analysisType, 30, 'Creating due diligence checklist...')
-            // TODO: Implement personalized due diligence
-            result = {
-              message: `Due diligence checklist for ${listingContext.industry} business`,
-              industry: listingContext.industry,
-              businessType: listingContext.businessType,
-              revenue: listingContext.revenue,
-              placeholder: true,
-              parameters: parameters
-            }
-            updateAnalysisProgress(listingId, analysisType, 90, 'Finalizing checklist...')
-            break
-
-          case 'buyer_match':
-            updateAnalysisProgress(listingId, analysisType, 30, 'Calculating buyer compatibility...')
-            // TODO: Implement personalized buyer matching
-            result = {
-              message: `Buyer compatibility for ${listingContext.industry} acquisition`,
-              industry: listingContext.industry,
-              dealSize: listingContext.askingPrice,
-              location: listingContext.location,
-              placeholder: true,
-              parameters: parameters
-            }
-            updateAnalysisProgress(listingId, analysisType, 90, 'Computing match score...')
-            break
-
-          default:
-            throw new Error(`Unknown analysis type: ${analysisType}`)
-        }
-
-        updateAnalysisProgress(listingId, analysisType, 95, 'Saving results...')
-
-        // Store the result with user and parameters
-        storeAnalysis(listingId, analysisType, result, actualUserId, parameters)
-
-        // Also save to Supabase for persistence
-        try {
-          await (supabase as any).from('ai_analyses').insert({
-            user_id: actualUserId || 'system',
-            listing_id: listingId,
-            analysis_type: analysisType,
-            analysis_data: result,
-            created_at: new Date().toISOString()
-          })
-        } catch (dbError) {
-          console.warn('Failed to save to database:', dbError)
-        }
-
-        updateAnalysisProgress(listingId, analysisType, 100, 'Analysis complete!')
-
-      } catch (error) {
-        console.error('Analysis error:', error)
-        setAnalysisError(
-          listingId,
-          analysisType,
-          error instanceof Error ? error.message : 'Analysis failed'
-        )
-      }
-    })
-
-    // Return immediately to client
+    // Return job information to client
     return NextResponse.json({
-      status: 'processing',
-      message: 'Analysis started successfully'
+      status: 'queued',
+      jobId: newJob.id,
+      message: 'Analysis queued for background processing'
     })
 
   } catch (error) {
@@ -350,12 +111,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to check status with enhanced polling support
+// GET endpoint to check job status
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const listingId = searchParams.get('listingId')
   const analysisType = searchParams.get('analysisType')
-  const pollerId = searchParams.get('pollerId')
+  const jobId = searchParams.get('jobId')
 
   if (!listingId || !analysisType) {
     return NextResponse.json(
@@ -364,66 +125,38 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Register the poller if provided
-  if (pollerId) {
-    registerPoller(listingId, analysisType, pollerId)
+  const jobQueue = JobQueue.getInstance()
+
+  // Get job status from database
+  let job
+  if (jobId) {
+    job = await jobQueue.getJob(jobId)
+  } else {
+    job = await jobQueue.getLatestJob(listingId, analysisType)
   }
 
-  const analysis = getStoredAnalysis(listingId, analysisType)
-
-  if (!analysis) {
-    // Check database for existing result
-    try {
-      const supabase = createServiceClient()
-      const { data, error } = await (supabase as any)
-        .from('ai_analyses')
-        .select('*')
-        .eq('listing_id', listingId)
-        .eq('analysis_type', analysisType)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      if (data && !error) {
-        // Cache it and return
-        storeAnalysis(listingId, analysisType, data.analysis_data)
-        return NextResponse.json({
-          status: 'completed',
-          result: data.analysis_data,
-          fromDb: true,
-          startedAt: new Date(data.created_at).getTime(),
-          completedAt: new Date(data.created_at).getTime()
-        })
-      }
-    } catch (dbError) {
-      console.warn('Database check failed:', dbError)
-    }
-
+  if (!job) {
     return NextResponse.json({
       status: 'not_found',
       message: 'No analysis found'
     })
   }
 
-  // Unregister poller if analysis is complete or failed
-  if (pollerId && (analysis.status === 'completed' || analysis.status === 'error')) {
-    unregisterPoller(listingId, analysisType, pollerId)
-  }
+  // Convert job status to client format
+  const clientStatus = job.status === 'queued' ? 'queued' :
+                      job.status === 'processing' ? 'processing' :
+                      job.status === 'completed' ? 'completed' :
+                      job.status === 'failed' ? 'error' : 'canceled'
 
   const response: any = {
-    status: analysis.status,
-    result: analysis.result,
-    error: analysis.error,
-    startedAt: analysis.startedAt,
-    completedAt: analysis.completedAt,
-    progress: analysis.progress || 0,
-    partialOutput: analysis.partialOutput,
-    retryCount: analysis.retryCount || 0
-  }
-
-  // Add retry option for failed analyses
-  if (analysis.status === 'error' && (analysis.retryCount || 0) < 3) {
-    response.canRetry = true
+    status: clientStatus,
+    jobId: job.id,
+    progress: job.progress,
+    partialOutput: job.current_step,
+    result: job.result,
+    error: job.error_message,
+    startedAt: job.started_at ? new Date(job.started_at).getTime() : new Date(job.created_at).getTime(),
+    completedAt: job.completed_at ? new Date(job.completed_at).getTime() : undefined
   }
 
   return NextResponse.json(response)

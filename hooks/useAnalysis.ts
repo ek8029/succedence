@@ -160,13 +160,14 @@ export function useAnalysis(): UseAnalysisReturn {
 
       // Convert AI response to Job format
       const updatedJob: Job = {
-        id: analysisKey,
+        id: result.jobId || analysisKey,
         listingId,
         analysisType: analysisType as Job['analysisType'],
         params: {},
         status: result.status === 'processing' ? 'running' :
+                result.status === 'queued' ? 'running' :
                 result.status === 'completed' ? 'succeeded' :
-                result.status === 'error' ? 'failed' : 'queued',
+                result.status === 'error' ? 'failed' : 'canceled',
         progress: result.progress || 0,
         partialOutput: result.partialOutput,
         result: result.result,
@@ -240,8 +241,7 @@ export function useAnalysis(): UseAnalysisReturn {
       setIsLoading(true)
       setError(null)
 
-      // Generate unique poller ID for this client
-      const pollerId = `poller_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      // No poller ID needed with job queue system
 
       const response = await fetch('/api/ai/run-analysis', {
         method: 'POST',
@@ -249,8 +249,7 @@ export function useAnalysis(): UseAnalysisReturn {
         body: JSON.stringify({
           listingId,
           analysisType,
-          parameters: params,
-          pollerId
+          parameters: params
         })
       })
 
@@ -261,20 +260,21 @@ export function useAnalysis(): UseAnalysisReturn {
 
       const result = await response.json()
 
-      // Create analysis key for tracking
+      // Use jobId from response for tracking
+      const jobId = result.jobId
       const analysisKey = `${listingId}:${analysisType}`
 
       // Save reference and start polling
-      saveJobReference(listingId, analysisType, analysisKey)
-      currentJobIdRef.current = analysisKey
+      saveJobReference(listingId, analysisType, jobId || analysisKey)
+      currentJobIdRef.current = jobId || analysisKey
 
       // Create initial job state
       const initialJob: Job = {
-        id: analysisKey,
+        id: jobId || analysisKey,
         listingId,
         analysisType: analysisType as Job['analysisType'],
         params: params || {},
-        status: 'running',
+        status: result.status === 'queued' ? 'running' : 'running',
         progress: 0,
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -283,7 +283,7 @@ export function useAnalysis(): UseAnalysisReturn {
       setJob(initialJob)
       saveJobToSession(initialJob)
 
-      startPolling(analysisKey)
+      startPolling(jobId || analysisKey)
 
     } catch (err) {
       setIsLoading(false)

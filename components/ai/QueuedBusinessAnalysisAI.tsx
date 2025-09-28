@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAnalysis } from '@/hooks/useAnalysis'
 import { hasAIFeatureAccess } from '@/lib/subscription'
 import { PlanType } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade'
+import AnalysisVerification from './AnalysisVerification'
 
 interface QueuedBusinessAnalysisAIProps {
   listingId: string
@@ -18,10 +19,14 @@ export default function QueuedBusinessAnalysisAI({
 }: QueuedBusinessAnalysisAIProps) {
   const { user } = useAuth()
   const { job, isLoading, error, start, attach, cancel, clear } = useAnalysis()
+  const [showVerification, setShowVerification] = useState(false)
 
-  // Check access
+  // Check access with fallback for temporary auth loss
   const userPlan = (user?.plan as PlanType) || 'free'
   const hasAccess = hasAIFeatureAccess(userPlan, 'businessAnalysis', user?.role)
+
+  // If there's an active analysis job, allow it to continue even if auth is temporarily lost
+  const shouldShowAnalysis = hasAccess || (job && ['running', 'succeeded'].includes(job.status))
 
   // Auto-attach on mount to resume any in-progress analysis
   useEffect(() => {
@@ -34,17 +39,26 @@ export default function QueuedBusinessAnalysisAI({
   }, [clear])
 
   const handleStartAnalysis = async () => {
+    setShowVerification(true)
+  }
+
+  const handleConfirmAnalysis = async () => {
+    setShowVerification(false)
     await start(listingId, 'business_analysis', {
       perspective: 'business_focused',
       focusAreas: ['financial_metrics', 'operational_efficiency']
     })
   }
 
+  const handleCancelVerification = () => {
+    setShowVerification(false)
+  }
+
   const handleCancel = async () => {
     await cancel()
   }
 
-  if (!hasAccess) {
+  if (!shouldShowAnalysis) {
     return (
       <SubscriptionUpgrade
         currentPlan={userPlan}
@@ -65,13 +79,19 @@ export default function QueuedBusinessAnalysisAI({
           Business Analysis
         </h3>
 
-        {!analysis && !isProcessing && (
+        {!analysis && !isProcessing && hasAccess && (
           <button
             onClick={handleStartAnalysis}
             className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm"
           >
             Analyze Business
           </button>
+        )}
+
+        {!hasAccess && job && (
+          <div className="text-xs text-amber-400 bg-amber-900/20 px-2 py-1 rounded border border-amber-400/30">
+            ⚠️ Session refreshing - analysis continuing
+          </div>
         )}
 
         {isProcessing && (
@@ -219,6 +239,16 @@ export default function QueuedBusinessAnalysisAI({
           your analysis will continue and resume when you return.
         </p>
       </div>
+
+      {/* Verification Modal */}
+      {showVerification && (
+        <AnalysisVerification
+          onConfirm={handleConfirmAnalysis}
+          onCancel={handleCancelVerification}
+          analysisType="business_analysis"
+          listingTitle={listingTitle}
+        />
+      )}
     </div>
   )
 }
