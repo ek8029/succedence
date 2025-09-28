@@ -7,6 +7,7 @@ import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
+import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 
 type EnhancedBuyerMatchScore = SuperEnhancedBuyerMatch;
@@ -20,6 +21,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const { protectRequest } = useVisibilityProtectedRequest();
+  const { fetchWithRetry } = useResilientFetch();
   const [matchScore, setMatchScore] = useState<SuperEnhancedBuyerMatch | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +40,10 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     if (!user || hasCheckedForExisting) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=buyer_match&listingId=${listingId}&limit=1&page=1`);
+      const response = await fetchWithRetry(`/api/ai/history?analysisType=buyer_match&listingId=${listingId}&limit=1&page=1`, {
+        maxRetries: 3,
+        retryDelay: 1000
+      }, `buyer-match-history-${listingId}`);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
@@ -53,7 +58,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     } finally {
       setHasCheckedForExisting(true);
     }
-  }, [user, hasCheckedForExisting, listingId]);
+  }, [user, hasCheckedForExisting, listingId, fetchWithRetry]);
 
   // Removed problematic tab visibility logic that caused infinite loading
 
@@ -86,7 +91,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
 
     try {
       const data = await protectRequest(async () => {
-        const response = await fetch('/api/ai/buyer-match', {
+        const response = await fetchWithRetry('/api/ai/buyer-match', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -99,7 +104,10 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
               focusAreas: ['compatibility', 'investment_fit']
             }
           }),
-        });
+          timeout: 300000, // 5 minute timeout
+          maxRetries: 5,
+          retryDelay: 2000
+        }, `buyer-match-${listingId}`);
 
         const result = await response.json();
 
@@ -132,7 +140,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
 
     try {
       const data = await protectRequest(async () => {
-        const response = await fetch('/api/ai/buyer-match', {
+        const response = await fetchWithRetry('/api/ai/buyer-match', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -142,7 +150,10 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
             listingId,
             followUpQuery: followUpQuery.trim()
           }),
-        });
+          timeout: 300000, // 5 minute timeout
+          maxRetries: 5,
+          retryDelay: 2000
+        }, `buyer-match-followup-${listingId}`);
 
         const result = await response.json();
 

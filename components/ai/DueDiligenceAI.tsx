@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
+import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 
 interface DueDiligenceAIProps {
   listingId: string;
@@ -19,6 +20,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const { protectRequest } = useVisibilityProtectedRequest();
+  const { fetchWithRetry } = useResilientFetch();
   const [checklist, setChecklist] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,15 +84,21 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     // Analysis starting
 
     try {
-      const response = await protectRequest(
-        () => fetch('/api/ai/due-diligence', {
+      // Use resilient fetch to prevent interruption when switching tabs
+      const response = await fetchWithRetry(
+        '/api/ai/due-diligence',
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
           body: JSON.stringify({ listingId }),
-        })
+          timeout: 300000, // 5 minute timeout
+          maxRetries: 5,
+          retryDelay: 2000
+        },
+        `due-diligence-${listingId}`
       );
 
       const data = await response.json();

@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
+import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 
 interface MarketIntelligenceAIProps {
   industry?: string;
@@ -20,6 +21,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
   const { user } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const { protectRequest } = useVisibilityProtectedRequest();
+  const { fetchWithRetry } = useResilientFetch();
   const [intelligence, setIntelligence] = useState<SuperEnhancedMarketIntelligence | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,8 +108,10 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     // Analysis starting
 
     try {
-      const response = await protectRequest(
-        () => fetch('/api/ai/market-intelligence', {
+      // Use resilient fetch to prevent interruption when switching tabs
+      const response = await fetchWithRetry(
+        '/api/ai/market-intelligence',
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -119,7 +123,11 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
             dealSize: formData.dealSize || undefined,
             listingId: listingId || undefined,
           }),
-        })
+          timeout: 300000, // 5 minute timeout
+          maxRetries: 5,
+          retryDelay: 2000
+        },
+        `market-intelligence-${listingId || 'general'}`
       );
 
       const data = await response.json();

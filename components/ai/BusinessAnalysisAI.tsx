@@ -7,6 +7,7 @@ import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
+import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 
 interface BusinessAnalysisAIProps {
   listingId: string;
@@ -26,6 +27,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
 
   // Hook for protecting requests from tab visibility issues
   const { protectRequest } = useVisibilityProtectedRequest();
+  const { fetchWithRetry } = useResilientFetch();
 
   // Check if user has access to business analysis feature
   const userPlan = (user?.plan as PlanType) || 'free';
@@ -36,7 +38,10 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     if (!user || hasCheckedForExisting) return;
 
     try {
-      const response = await fetch(`/api/ai/history?analysisType=business_analysis&listingId=${listingId}&limit=1&page=1`);
+      const response = await fetchWithRetry(`/api/ai/history?analysisType=business_analysis&listingId=${listingId}&limit=1&page=1`, {
+        maxRetries: 3,
+        retryDelay: 1000
+      }, `business-analysis-history-${listingId}`);
       const data = await response.json();
 
       if (data.success && data.aiHistory && data.aiHistory.length > 0) {
@@ -51,7 +56,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     } finally {
       setHasCheckedForExisting(true);
     }
-  }, [user, hasCheckedForExisting, listingId]);
+  }, [user, hasCheckedForExisting, listingId, fetchWithRetry]);
 
   // Removed problematic tab visibility logic that caused infinite loading
 
@@ -71,8 +76,10 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     // Analysis starting
 
     try {
-      const response = await protectRequest(
-        () => fetch('/api/ai/analyze-business', {
+      // Use resilient fetch to prevent interruption when switching tabs
+      const response = await fetchWithRetry(
+        '/api/ai/analyze-business',
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,7 +92,10 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
               focusAreas: []
             }
           }),
-        }),
+          timeout: 300000, // 5 minute timeout for AI analysis
+          maxRetries: 5,
+          retryDelay: 2000
+        },
         `business-analysis-${listingId}`
       );
 
