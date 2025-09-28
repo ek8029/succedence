@@ -59,45 +59,6 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
 
   // Removed problematic tab visibility logic that caused infinite loading
 
-  // Check for existing analysis on mount and resume if in progress
-  useEffect(() => {
-    if (user && !analysis && !hasCheckedForExisting) {
-      fetchExistingAnalysis();
-    }
-  }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
-
-  // Check for ongoing analysis when component mounts/remounts
-  useEffect(() => {
-    if (user && !analysis && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current) {
-      checkForOngoingAnalysis();
-    }
-  }, [user, listingId, analysis, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
-
-  const checkForOngoingAnalysis = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis`,
-        { credentials: 'include' }
-      );
-      const data = await response.json();
-
-      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
-        console.log('🔄 Resuming ongoing analysis:', data.jobId);
-        setIsLoading(true);
-        setJobId(data.jobId);
-        analysisInProgressRef.current = true;
-
-        // Resume polling for the ongoing job
-        resumePolling(data.jobId);
-      } else if (data.status === 'completed' && data.result) {
-        console.log('✅ Found completed analysis, loading result');
-        setAnalysis(data.result);
-      }
-    } catch (error) {
-      console.warn('Failed to check for ongoing analysis:', error);
-    }
-  }, [listingId, resumePolling]);
-
   const pollForResult = useCallback(async (targetJobId?: string): Promise<any> => {
     let attempts = 0;
     const maxAttempts = 180; // 6 minutes max
@@ -149,6 +110,45 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
       analysisInProgressRef.current = false;
     }
   }, [pollForResult]);
+
+  const checkForOngoingAnalysis = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis`,
+        { credentials: 'include' }
+      );
+      const data = await response.json();
+
+      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
+        console.log('🔄 Resuming ongoing analysis:', data.jobId);
+        setIsLoading(true);
+        setJobId(data.jobId);
+        analysisInProgressRef.current = true;
+
+        // Resume polling for the ongoing job
+        resumePolling(data.jobId);
+      } else if (data.status === 'completed' && data.result) {
+        console.log('✅ Found completed analysis, loading result');
+        setAnalysis(data.result);
+      }
+    } catch (error) {
+      console.warn('Failed to check for ongoing analysis:', error);
+    }
+  }, [listingId, resumePolling]);
+
+  // Check for existing analysis on mount and resume if in progress
+  useEffect(() => {
+    if (user && !analysis && !hasCheckedForExisting) {
+      fetchExistingAnalysis();
+    }
+  }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
+
+  // Check for ongoing analysis when component mounts/remounts
+  useEffect(() => {
+    if (user && !analysis && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current) {
+      checkForOngoingAnalysis();
+    }
+  }, [user, listingId, analysis, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
 
 
   // Admin bypass - check for admin role

@@ -78,6 +78,82 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
 
   // Removed problematic tab visibility logic that caused infinite loading
 
+  const pollForResult = useCallback(async (targetJobId?: string): Promise<any> => {
+    let attempts = 0;
+    const maxAttempts = 180; // 6 minutes max
+
+    while (analysisInProgressRef.current && attempts < maxAttempts) {
+      try {
+        const statusResponse = await fetch(
+          `/api/ai/run-analysis?listingId=${listingId || 'market-intelligence-general'}&analysisType=market_intelligence${
+            targetJobId ? `&jobId=${targetJobId}` : ''
+          }`,
+          { credentials: 'include' }
+        );
+        const statusData = await statusResponse.json();
+
+        if (statusData.status === 'completed' && statusData.result) {
+          return statusData.result;
+        } else if (statusData.status === 'error') {
+          throw new Error(statusData.error || 'Market intelligence analysis failed');
+        }
+
+        // Still processing, wait and try again
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        attempts++;
+      } catch (pollError) {
+        console.warn('Poll error, retrying:', pollError);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        attempts++;
+      }
+    }
+
+    if (attempts >= maxAttempts) {
+      throw new Error('Market intelligence analysis timed out - but it may still be running in the background');
+    }
+    throw new Error('Market intelligence analysis cancelled');
+  }, [listingId]);
+
+  const resumePolling = useCallback(async (resumeJobId?: string) => {
+    try {
+      const result = await pollForResult(resumeJobId);
+      if (result) {
+        setIntelligence(result);
+        console.log('✅ Market intelligence analysis completed (resumed)');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Market intelligence analysis failed during resume');
+      console.error('❌ Resumed market intelligence analysis failed:', err);
+    } finally {
+      setIsLoading(false);
+      analysisInProgressRef.current = false;
+    }
+  }, [pollForResult]);
+
+  const checkForOngoingAnalysis = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `/api/ai/run-analysis?listingId=${listingId || 'market-intelligence-general'}&analysisType=market_intelligence`,
+        { credentials: 'include' }
+      );
+      const data = await response.json();
+
+      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
+        console.log('🔄 Resuming ongoing market intelligence analysis:', data.jobId);
+        setIsLoading(true);
+        analysisInProgressRef.current = true;
+
+        // Resume polling for the ongoing job
+        resumePolling(data.jobId);
+      } else if (data.status === 'completed' && data.result) {
+        console.log('✅ Found completed market intelligence analysis, loading result');
+        setIntelligence(data.result);
+      }
+    } catch (error) {
+      console.warn('Failed to check for ongoing market intelligence analysis:', error);
+    }
+  }, [listingId, resumePolling]);
+
   // Check for existing analysis when form data changes
   useEffect(() => {
     if (user && formData.industry.trim() && !intelligence) {
@@ -85,6 +161,13 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
       fetchExistingAnalysis();
     }
   }, [user, formData.industry, formData.geography, formData.dealSize, intelligence, fetchExistingAnalysis]);
+
+  // Check for ongoing analysis when component mounts/remounts
+  useEffect(() => {
+    if (user && !intelligence && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current && formData.industry.trim()) {
+      checkForOngoingAnalysis();
+    }
+  }, [user, formData.industry, intelligence, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
 
   // Listen to analysis completion triggers from other components
   useEffect(() => {
@@ -134,31 +217,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
         throw new Error(startData.error || 'Failed to start market intelligence analysis');
       }
 
-      // Poll for completion - this works even if user switches tabs
-      const pollForResult = async (): Promise<any> => {
-        while (analysisInProgressRef.current) {
-          try {
-            const statusResponse = await fetch(
-              `/api/ai/run-analysis?listingId=${listingId || 'market-intelligence-general'}&analysisType=market_intelligence`,
-              { credentials: 'include' }
-            );
-            const statusData = await statusResponse.json();
-
-            if (statusData.status === 'completed' && statusData.result) {
-              return statusData.result;
-            } else if (statusData.status === 'error') {
-              throw new Error(statusData.error || 'Market intelligence analysis failed');
-            }
-            // Still processing, wait and try again
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          } catch (pollError) {
-            console.warn('Poll error, retrying:', pollError);
-            await new Promise(resolve => setTimeout(resolve, 3000));
-          }
-        }
-        throw new Error('Analysis cancelled');
-      };
-
+      // Use the shared polling function
       const result = await pollForResult();
       setIntelligence(result);
 
