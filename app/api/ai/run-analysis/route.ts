@@ -310,7 +310,7 @@ export async function GET(request: NextRequest) {
     unregisterPoller(listingId, analysisType, pollerId)
   }
 
-  const response = {
+  const response: any = {
     status: analysis.status,
     result: analysis.result,
     error: analysis.error,
