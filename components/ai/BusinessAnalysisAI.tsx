@@ -529,7 +529,7 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
           <ConversationalChatbox
             listingId={listingId}
             analysisType="business_analysis"
-            previousAnalysis={analysis}
+            previousAnalysis={{ ...analysis, listingTitle, listingId }}
             title="Ask About This Analysis"
             placeholder="Ask about strengths, risks, recommendations, or any specific aspect..."
             icon={

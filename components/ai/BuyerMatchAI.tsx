@@ -443,7 +443,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           <ConversationalChatbox
             listingId={listingId}
             analysisType="buyer_match"
-            previousAnalysis={matchScore}
+            previousAnalysis={{ ...matchScore, listingTitle, listingId }}
             title="Ask About Buyer Compatibility"
             placeholder="Ask about compatibility factors, synergies, investment fit, or specific concerns..."
             icon={

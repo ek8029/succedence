@@ -485,7 +485,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
           <ConversationalChatbox
             listingId={listingId}
             analysisType="due_diligence"
-            previousAnalysis={checklist}
+            previousAnalysis={{ ...checklist, listingTitle, listingId, industry }}
             title="Ask About Due Diligence"
             placeholder="Ask about specific checklist items, timelines, requirements, or industry considerations..."
             icon={

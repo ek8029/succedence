@@ -8,7 +8,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { listingId, analysisType, question, previousAnalysis, conversationHistory } = body
 
-    if (!listingId || !analysisType || !question || !previousAnalysis) {
+    console.log('📝 Follow-up request received:', {
+      listingId,
+      analysisType,
+      hasQuestion: !!question,
+      hasPreviousAnalysis: !!previousAnalysis,
+      conversationLength: conversationHistory?.length || 0
+    })
+
+    if (!analysisType || !question || !previousAnalysis) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
@@ -81,44 +89,54 @@ export async function POST(request: NextRequest) {
 
     // Fetch listing data for context (only if it's a real listing ID)
     let listing = null
-    const isGeneralAnalysis = listingId.includes('general') || listingId.includes('market-intelligence')
+    const isGeneralAnalysis = !listingId ||
+                            listingId.includes('general') ||
+                            listingId.includes('market-intelligence') ||
+                            listingId === 'undefined' ||
+                            listingId === 'null'
 
     if (!isGeneralAnalysis) {
       console.log('🔍 Fetching listing data for ID:', listingId)
-      const { data: listingData, error: listingError } = await supabase
-        .from('listings')
-        .select(`
-          *,
-          listing_financials(*),
-          listing_documents(*)
-        `)
-        .eq('id', listingId)
-        .single()
 
-      if (listingError) {
-        console.error('❌ Listing query error:', listingError)
-        return NextResponse.json(
-          { error: 'Listing not found', details: listingError.message },
-          { status: 404 }
-        )
+      // Validate UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(listingId)) {
+        console.log('⚠️ Invalid listing ID format, treating as general analysis')
+        listing = {
+          title: previousAnalysis?.listingTitle || 'Analysis',
+          industry: previousAnalysis?.industry || previousAnalysis?.parameters?.industry || 'General',
+          listing_financials: []
+        }
+      } else {
+        const { data: listingData, error: listingError } = await supabase
+          .from('listings')
+          .select(`
+            *,
+            listing_financials(*),
+            listing_documents(*)
+          `)
+          .eq('id', listingId)
+          .single()
+
+        if (listingError || !listingData) {
+          // Instead of returning error, use fallback data from previousAnalysis
+          console.warn('⚠️ Could not fetch listing, using analysis data as fallback')
+          listing = {
+            title: previousAnalysis?.listingTitle || previousAnalysis?.businessName || 'Business',
+            industry: previousAnalysis?.industry || previousAnalysis?.parameters?.industry || 'General',
+            listing_financials: previousAnalysis?.financials || []
+          }
+        } else {
+          listing = listingData
+          console.log('✅ Listing found:', (listing as any).title)
+        }
       }
-
-      if (!listingData) {
-        console.error('❌ No listing found for ID:', listingId)
-        return NextResponse.json(
-          { error: 'Listing not found' },
-          { status: 404 }
-        )
-      }
-
-      listing = listingData
-      console.log('✅ Listing found:', (listing as any).title)
     } else {
       // For general analyses (like market intelligence without specific listing)
       console.log('📊 General analysis - no specific listing needed')
       listing = {
-        title: 'General Analysis',
-        industry: previousAnalysis?.parameters?.industry || 'General',
+        title: previousAnalysis?.listingTitle || 'General Analysis',
+        industry: previousAnalysis?.industry || previousAnalysis?.parameters?.industry || 'General',
         listing_financials: []
       }
     }
