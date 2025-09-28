@@ -11,7 +11,7 @@ import {
   unregisterPoller,
   retryAnalysis
 } from '@/lib/utils/server-side-analysis'
-import { canRunAnalysis, incrementAnalysisUsage } from '@/lib/utils/plan-limitations'
+import { canRunAnalysis, incrementUsage } from '@/lib/utils/database-usage-tracking'
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (profile?.plan) {
-          userPlan = profile.plan
+          userPlan = profile.plan as any
         }
       }
     } catch (authError) {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     // Check plan limitations
     if (actualUserId) {
-      const analysisCheck = canRunAnalysis(actualUserId, userPlan as any)
+      const analysisCheck = await canRunAnalysis(actualUserId, userPlan as any)
       if (!analysisCheck.allowed) {
         return NextResponse.json(
           { error: analysisCheck.message },
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     // Increment usage tracking
     if (actualUserId) {
-      incrementAnalysisUsage(actualUserId)
+      await incrementUsage(actualUserId, 'analysis', analysisType, 0.15)
     }
 
     // Mark as processing with enhanced tracking

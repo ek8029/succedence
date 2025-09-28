@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { canUseFollowUp, incrementFollowUpUsage, checkRateLimit } from '@/lib/utils/plan-limitations'
+import { canUseFollowUp, incrementUsage, checkRateLimit } from '@/lib/utils/database-usage-tracking'
 import { analyzeBusinessSuperEnhanced } from '@/lib/ai/super-enhanced-openai'
 
 export async function POST(request: NextRequest) {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (profile?.plan) {
-          userPlan = profile.plan
+          userPlan = profile.plan as any
         }
       }
     } catch (authError) {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check rate limits first
-    const rateLimitCheck = checkRateLimit(userId, userPlan as any)
+    const rateLimitCheck = await checkRateLimit(userId, userPlan as any, request.headers.get('x-forwarded-for') || undefined, request.headers.get('user-agent') || undefined)
     if (!rateLimitCheck.allowed) {
       return NextResponse.json(
         {
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user can use follow-up questions for this analysis type
-    const followUpCheck = canUseFollowUp(userId, analysisType as any, userPlan as any)
+    const followUpCheck = await canUseFollowUp(userId, analysisType as any, userPlan as any)
     if (!followUpCheck.allowed) {
       return NextResponse.json(
         {
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Increment usage tracking
-      incrementFollowUpUsage(userId, analysisType as any)
+      await incrementUsage(userId, 'followup', analysisType, 0.06)
 
       // Save follow-up to database for history
       try {
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
           question,
           response,
           created_at: new Date().toISOString()
-        })
+        } as any)
       } catch (dbError) {
         console.warn('Failed to save follow-up to database:', dbError)
       }
@@ -207,7 +207,7 @@ Keep response under 500 words and focus on practical value.
     isFollowUp: true
   }, {})
 
-  return response.followUpResponse || 'I apologize, but I was unable to generate a specific follow-up response. Please try rephrasing your question.'
+  return (response as any).followUpResponse || 'I apologize, but I was unable to generate a specific follow-up response. Please try rephrasing your question.'
 }
 
 async function generateMarketIntelligenceFollowUp(

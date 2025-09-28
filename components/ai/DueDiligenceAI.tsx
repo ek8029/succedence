@@ -295,7 +295,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
                   onClick={() => toggleItem(category, index)}
                   className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
                     isCompleted
-                      ? 'bg-current border-current text-midnight'
+                      ? 'bg-gold/20 border-gold text-gold'
                       : 'border-current hover:bg-current/10'
                   }`}
                 >

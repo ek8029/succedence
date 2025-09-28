@@ -31,6 +31,30 @@ export interface PlanLimitations {
 }
 
 export const PLAN_LIMITATIONS: Record<PlanType, PlanLimitations> = {
+  beta: {
+    followUpQuestions: {
+      businessAnalysis: 5,
+      marketIntelligence: 5,
+      dueDiligence: 5,
+      buyerMatch: 5
+    },
+    analysisFrequency: {
+      dailyLimit: 20,
+      monthlyLimit: 100
+    },
+    rateLimiting: {
+      questionsPerHour: 10,
+      questionsPerDay: 20,
+      costAlertThreshold: 5.00
+    },
+    features: {
+      customParameters: true,
+      exportReports: true,
+      prioritySupport: false,
+      advancedMetrics: true,
+      conversationalHistory: true
+    }
+  },
   free: {
     followUpQuestions: {
       businessAnalysis: 2,
