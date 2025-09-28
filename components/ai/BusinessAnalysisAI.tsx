@@ -67,8 +67,8 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
 
 
-  // Admin bypass - hardcoded admin check
-  const isAdmin = user?.email === 'evank8029@gmail.com' || user?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1'
+  // Admin bypass - check for admin role
+  const isAdmin = user?.role === 'admin'
 
   const handleAnalyzeClick = async () => {
     setIsLoading(true);

@@ -46,8 +46,21 @@ export async function POST(request: NextRequest) {
       console.warn('Could not get user info for plan limitations:', authError)
     }
 
-    // Admin bypass - hardcoded admin check
-    const isAdmin = (user?.email === 'evank8029@gmail.com' || user?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1')
+    // Admin bypass - check for admin role from database
+    let isAdmin = false
+    if (user) {
+      try {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        isAdmin = profile?.role === 'admin'
+      } catch (roleError) {
+        console.warn('Could not check admin role:', roleError)
+      }
+    }
 
     // Check plan limitations (skip for admins)
     if (actualUserId && !isAdmin) {
