@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    const userPlan = (profile && profile.plan) ? profile.plan : 'free'
+    const userPlan = (profile && (profile as any).plan) ? (profile as any).plan : 'free'
 
     return NextResponse.json({
       current: {

@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
           .eq('id', user.id)
           .single()
 
-        if (profile && profile.plan) {
-          userPlan = profile.plan as any
+        if (profile && (profile as any).plan) {
+          userPlan = (profile as any).plan
         }
       }
     } catch (authError) {
