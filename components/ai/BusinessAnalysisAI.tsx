@@ -9,6 +9,7 @@ import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 import ConversationalChatbox from './ConversationalChatbox';
+import AnalysisVerification from './AnalysisVerification';
 
 interface BusinessAnalysisAIProps {
   listingId: string;
@@ -21,7 +22,9 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
   const analysisInProgressRef = useRef(false);
+  const [jobId, setJobId] = useState<string | null>(null);
 
   // Hook for protecting requests from tab visibility issues
   const { protectRequest } = useVisibilityProtectedRequest();
@@ -67,6 +70,11 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
 
 
   const handleAnalyzeClick = async () => {
+    setShowVerification(true);
+  };
+
+  const handleConfirmAnalysis = async () => {
+    setShowVerification(false);
     setIsLoading(true);
     setError(null);
     analysisInProgressRef.current = true;
@@ -91,12 +99,22 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
         throw new Error(startData.error || 'Failed to start analysis');
       }
 
-      // Poll for completion - this works even if user switches tabs
+      // Store job ID for tracking
+      if (startData.jobId) {
+        setJobId(startData.jobId);
+      }
+
+      // Poll for completion using background job system
       const pollForResult = async (): Promise<any> => {
-        while (analysisInProgressRef.current) {
+        let attempts = 0;
+        const maxAttempts = 180; // 6 minutes max
+
+        while (analysisInProgressRef.current && attempts < maxAttempts) {
           try {
             const statusResponse = await fetch(
-              `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis`,
+              `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis${
+                startData.jobId ? `&jobId=${startData.jobId}` : ''
+              }`,
               { credentials: 'include' }
             );
             const statusData = await statusResponse.json();
@@ -106,12 +124,19 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
             } else if (statusData.status === 'error') {
               throw new Error(statusData.error || 'Analysis failed');
             }
+
             // Still processing, wait and try again
             await new Promise(resolve => setTimeout(resolve, 2000));
+            attempts++;
           } catch (pollError) {
             console.warn('Poll error, retrying:', pollError);
             await new Promise(resolve => setTimeout(resolve, 3000));
+            attempts++;
           }
+        }
+
+        if (attempts >= maxAttempts) {
+          throw new Error('Analysis timed out - but it may still be running in the background');
         }
         throw new Error('Analysis cancelled');
       };
@@ -125,6 +150,10 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
       setIsLoading(false);
       analysisInProgressRef.current = false;
     }
+  };
+
+  const handleCancelVerification = () => {
+    setShowVerification(false);
   };
 
 
