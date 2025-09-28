@@ -9,6 +9,7 @@ import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
+import ConversationalChatbox from './ConversationalChatbox';
 
 type EnhancedBuyerMatchScore = SuperEnhancedBuyerMatch;
 
@@ -27,10 +28,6 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   const [error, setError] = useState<string | null>(null);
   const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
   const analysisInProgressRef = useRef(false);
-  const [followUpQuery, setFollowUpQuery] = useState('');
-  const [followUpResponse, setFollowUpResponse] = useState<string | null>(null);
-  const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
-  const [remainingQuestions, setRemainingQuestions] = useState<number | null>(null);
 
   // Check if user has access to buyer matching feature
   const userPlan = (user?.plan as PlanType) || 'free';
@@ -206,45 +203,6 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     }
   };
 
-  const handleFollowUp = async () => {
-    if (!followUpQuery.trim() || !matchScore || !user?.id) return;
-
-    setIsFollowUpLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/ai/follow-up', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId: listingId,
-          analysisType: 'buyer_match',
-          question: followUpQuery.trim(),
-          previousAnalysis: matchScore
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error(data.error || 'Follow-up question limit reached');
-        }
-        throw new Error(data.error || 'Failed to generate follow-up');
-      }
-
-      setFollowUpResponse(data.response);
-      setRemainingQuestions(data.remainingQuestions);
-      setFollowUpQuery('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate follow-up');
-    } finally {
-      setIsFollowUpLoading(false);
-    }
-  };
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-400';
@@ -481,51 +439,19 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
             </ul>
           </div>
 
-          {/* Follow-up Questions */}
-          <div className="p-4 bg-purple-900/10 rounded-luxury border border-purple-400/20">
-            <h4 className="text-lg font-semibold text-purple-400 mb-3 font-serif flex items-center">
+          {/* Conversational AI Chatbox */}
+          <ConversationalChatbox
+            listingId={listingId}
+            analysisType="buyer_match"
+            previousAnalysis={matchScore}
+            title="Ask About Buyer Compatibility"
+            placeholder="Ask about compatibility factors, synergies, investment fit, or specific concerns..."
+            icon={
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              Ask Follow-up Questions
-              {remainingQuestions !== null && (
-                <span className="ml-2 text-xs text-purple-300">
-                  ({remainingQuestions} remaining)
-                </span>
-              )}
-            </h4>
-            <div className="flex space-x-2 mb-3">
-              <input
-                type="text"
-                value={followUpQuery}
-                onChange={(e) => setFollowUpQuery(e.target.value)}
-                placeholder="Ask about buyer compatibility, synergies, or investment fit..."
-                className="flex-1 px-3 py-2 bg-charcoal/50 border border-purple-400/20 rounded-luxury text-warm-white placeholder-silver/60 focus:outline-none focus:border-purple-400"
-                onKeyPress={(e) => e.key === 'Enter' && handleFollowUp()}
-                disabled={!user?.id}
-              />
-              <button
-                onClick={handleFollowUp}
-                disabled={isFollowUpLoading || !followUpQuery.trim() || !user?.id}
-                className="px-4 py-2 bg-purple-600 text-white rounded-luxury hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isFollowUpLoading ? '...' : 'Ask'}
-              </button>
-            </div>
-            {!user?.id && (
-              <p className="text-purple-300 text-xs mb-3">Sign in to ask follow-up questions</p>
-            )}
-            {followUpResponse && (
-              <div className="p-3 bg-charcoal/30 rounded-luxury border border-purple-400/20">
-                <div className="text-purple-300 text-sm leading-relaxed whitespace-pre-wrap">{followUpResponse}</div>
-              </div>
-            )}
-            {remainingQuestions === 0 && (
-              <div className="mt-2 p-2 bg-orange-900/20 border border-orange-400/20 rounded text-orange-300 text-xs">
-                You&apos;ve reached your daily limit for follow-up questions. Upgrade your plan for more questions.
-              </div>
-            )}
-          </div>
+            }
+          />
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-gold/10">

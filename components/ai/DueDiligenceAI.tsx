@@ -9,6 +9,7 @@ import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import { useResilientFetch } from '@/lib/utils/resilient-fetch';
+import ConversationalChatbox from './ConversationalChatbox';
 
 interface DueDiligenceAIProps {
   listingId: string;
@@ -27,10 +28,6 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
   const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
   const analysisInProgressRef = useRef(false);
-  const [followUpQuery, setFollowUpQuery] = useState('');
-  const [followUpResponse, setFollowUpResponse] = useState<string | null>(null);
-  const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
-  const [remainingQuestions, setRemainingQuestions] = useState<number | null>(null);
 
   // Check if user has access to due diligence feature
   const userPlan = (user?.plan as PlanType) || 'free';
@@ -203,45 +200,6 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     }
   };
 
-  const handleFollowUp = async () => {
-    if (!followUpQuery.trim() || !checklist || !user?.id) return;
-
-    setIsFollowUpLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/ai/follow-up', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId: listingId,
-          analysisType: 'due_diligence',
-          question: followUpQuery.trim(),
-          previousAnalysis: checklist
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error(data.error || 'Follow-up question limit reached');
-        }
-        throw new Error(data.error || 'Failed to generate follow-up');
-      }
-
-      setFollowUpResponse(data.response);
-      setRemainingQuestions(data.remainingQuestions);
-      setFollowUpQuery('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate follow-up');
-    } finally {
-      setIsFollowUpLoading(false);
-    }
-  };
 
   const toggleItem = (category: string, index: number) => {
     const itemKey = `${category.toLowerCase()}-${index}`;
@@ -523,51 +481,19 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
             </div>
           )}
 
-          {/* Follow-up Questions */}
-          <div className="p-4 bg-purple-900/10 rounded-luxury border border-purple-400/20">
-            <h4 className="text-lg font-semibold text-purple-400 mb-3 font-serif flex items-center">
+          {/* Conversational AI Chatbox */}
+          <ConversationalChatbox
+            listingId={listingId}
+            analysisType="due_diligence"
+            previousAnalysis={checklist}
+            title="Ask About Due Diligence"
+            placeholder="Ask about specific checklist items, timelines, requirements, or industry considerations..."
+            icon={
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              Ask Follow-up Questions
-              {remainingQuestions !== null && (
-                <span className="ml-2 text-xs text-purple-300">
-                  ({remainingQuestions} remaining)
-                </span>
-              )}
-            </h4>
-            <div className="flex space-x-2 mb-3">
-              <input
-                type="text"
-                value={followUpQuery}
-                onChange={(e) => setFollowUpQuery(e.target.value)}
-                placeholder="Ask about specific due diligence items, timelines, or requirements..."
-                className="flex-1 px-3 py-2 bg-charcoal/50 border border-purple-400/20 rounded-luxury text-warm-white placeholder-silver/60 focus:outline-none focus:border-purple-400"
-                onKeyPress={(e) => e.key === 'Enter' && handleFollowUp()}
-                disabled={!user?.id}
-              />
-              <button
-                onClick={handleFollowUp}
-                disabled={isFollowUpLoading || !followUpQuery.trim() || !user?.id}
-                className="px-4 py-2 bg-purple-600 text-white rounded-luxury hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isFollowUpLoading ? '...' : 'Ask'}
-              </button>
-            </div>
-            {!user?.id && (
-              <p className="text-purple-300 text-xs mb-3">Sign in to ask follow-up questions</p>
-            )}
-            {followUpResponse && (
-              <div className="p-3 bg-charcoal/30 rounded-luxury border border-purple-400/20">
-                <div className="text-purple-300 text-sm leading-relaxed whitespace-pre-wrap">{followUpResponse}</div>
-              </div>
-            )}
-            {remainingQuestions === 0 && (
-              <div className="mt-2 p-2 bg-orange-900/20 border border-orange-400/20 rounded text-orange-300 text-xs">
-                You&apos;ve reached your daily limit for follow-up questions. Upgrade your plan for more questions.
-              </div>
-            )}
-          </div>
+            }
+          />
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-gold/10">

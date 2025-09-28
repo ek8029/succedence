@@ -79,35 +79,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch listing data for context
-    console.log('🔍 Fetching listing data for ID:', listingId)
-    const { data: listing, error: listingError } = await supabase
-      .from('listings')
-      .select(`
-        *,
-        listing_financials(*),
-        listing_documents(*)
-      `)
-      .eq('id', listingId)
-      .single()
+    // Fetch listing data for context (only if it's a real listing ID)
+    let listing = null
+    const isGeneralAnalysis = listingId.includes('general') || listingId.includes('market-intelligence')
 
-    if (listingError) {
-      console.error('❌ Listing query error:', listingError)
-      return NextResponse.json(
-        { error: 'Listing not found', details: listingError.message },
-        { status: 404 }
-      )
+    if (!isGeneralAnalysis) {
+      console.log('🔍 Fetching listing data for ID:', listingId)
+      const { data: listingData, error: listingError } = await supabase
+        .from('listings')
+        .select(`
+          *,
+          listing_financials(*),
+          listing_documents(*)
+        `)
+        .eq('id', listingId)
+        .single()
+
+      if (listingError) {
+        console.error('❌ Listing query error:', listingError)
+        return NextResponse.json(
+          { error: 'Listing not found', details: listingError.message },
+          { status: 404 }
+        )
+      }
+
+      if (!listingData) {
+        console.error('❌ No listing found for ID:', listingId)
+        return NextResponse.json(
+          { error: 'Listing not found' },
+          { status: 404 }
+        )
+      }
+
+      listing = listingData
+      console.log('✅ Listing found:', (listing as any).title)
+    } else {
+      // For general analyses (like market intelligence without specific listing)
+      console.log('📊 General analysis - no specific listing needed')
+      listing = {
+        title: 'General Analysis',
+        industry: previousAnalysis?.parameters?.industry || 'General',
+        listing_financials: []
+      }
     }
-
-    if (!listing) {
-      console.error('❌ No listing found for ID:', listingId)
-      return NextResponse.json(
-        { error: 'Listing not found' },
-        { status: 404 }
-      )
-    }
-
-    console.log('✅ Listing found:', (listing as any).title)
 
     // Generate follow-up response based on analysis type
     let response: string
@@ -133,18 +147,20 @@ export async function POST(request: NextRequest) {
       // Increment usage tracking
       await incrementUsage(userId, 'followup', analysisType, 0.06)
 
-      // Save follow-up to database for history
-      try {
-        await supabase.from('ai_follow_ups').insert({
-          user_id: userId,
-          listing_id: listingId,
-          analysis_type: analysisType,
-          question,
-          response,
-          created_at: new Date().toISOString()
-        } as any)
-      } catch (dbError) {
-        console.warn('Failed to save follow-up to database:', dbError)
+      // Save follow-up to database for history (only if real listing ID)
+      if (!isGeneralAnalysis) {
+        try {
+          await supabase.from('ai_follow_ups').insert({
+            user_id: userId,
+            listing_id: listingId,
+            analysis_type: analysisType,
+            question,
+            response,
+            created_at: new Date().toISOString()
+          } as any)
+        } catch (dbError) {
+          console.warn('Failed to save follow-up to database:', dbError)
+        }
       }
 
       return NextResponse.json({

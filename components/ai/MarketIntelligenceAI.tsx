@@ -9,6 +9,7 @@ import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import { useResilientFetch } from '@/lib/utils/resilient-fetch';
+import ConversationalChatbox from './ConversationalChatbox';
 
 interface MarketIntelligenceAIProps {
   industry?: string;
@@ -32,10 +33,6 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     geography: geography || '',
     dealSize: dealSize || 0
   });
-  const [followUpQuery, setFollowUpQuery] = useState('');
-  const [followUpResponse, setFollowUpResponse] = useState<string | null>(null);
-  const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
-  const [remainingQuestions, setRemainingQuestions] = useState<number | null>(null);
 
   // Check if user has access to market intelligence feature
   const userPlan = (user?.plan as PlanType) || 'free';
@@ -232,45 +229,6 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     }
   };
 
-  const handleFollowUp = async () => {
-    if (!followUpQuery.trim() || !intelligence || !user?.id) return;
-
-    setIsFollowUpLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/ai/follow-up', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId: listingId || 'market-intelligence-general',
-          analysisType: 'market_intelligence',
-          question: followUpQuery.trim(),
-          previousAnalysis: intelligence
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error(data.error || 'Follow-up question limit reached');
-        }
-        throw new Error(data.error || 'Failed to generate follow-up');
-      }
-
-      setFollowUpResponse(data.response);
-      setRemainingQuestions(data.remainingQuestions);
-      setFollowUpQuery('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate follow-up');
-    } finally {
-      setIsFollowUpLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
@@ -509,51 +467,19 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
             </div>
           </div>
 
-          {/* Follow-up Questions */}
-          <div className="p-4 bg-purple-900/10 rounded-luxury border border-purple-400/20">
-            <h4 className="text-lg font-semibold text-purple-400 mb-3 font-serif flex items-center">
+          {/* Conversational AI Chatbox */}
+          <ConversationalChatbox
+            listingId={listingId || 'market-intelligence-general'}
+            analysisType="market_intelligence"
+            previousAnalysis={{ ...intelligence, parameters: formData }}
+            title="Ask About Market Intelligence"
+            placeholder="Ask about market trends, competition, growth opportunities, valuations..."
+            icon={
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              Ask Follow-up Questions
-              {remainingQuestions !== null && (
-                <span className="ml-2 text-xs text-purple-300">
-                  ({remainingQuestions} remaining)
-                </span>
-              )}
-            </h4>
-            <div className="flex space-x-2 mb-3">
-              <input
-                type="text"
-                value={followUpQuery}
-                onChange={(e) => setFollowUpQuery(e.target.value)}
-                placeholder="Ask about market trends, competition, growth opportunities..."
-                className="flex-1 px-3 py-2 bg-charcoal/50 border border-purple-400/20 rounded-luxury text-warm-white placeholder-silver/60 focus:outline-none focus:border-purple-400"
-                onKeyPress={(e) => e.key === 'Enter' && handleFollowUp()}
-                disabled={!user?.id}
-              />
-              <button
-                onClick={handleFollowUp}
-                disabled={isFollowUpLoading || !followUpQuery.trim() || !user?.id}
-                className="px-4 py-2 bg-purple-600 text-white rounded-luxury hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isFollowUpLoading ? '...' : 'Ask'}
-              </button>
-            </div>
-            {!user?.id && (
-              <p className="text-purple-300 text-xs mb-3">Sign in to ask follow-up questions</p>
-            )}
-            {followUpResponse && (
-              <div className="p-3 bg-charcoal/30 rounded-luxury border border-purple-400/20">
-                <div className="text-purple-300 text-sm leading-relaxed whitespace-pre-wrap">{followUpResponse}</div>
-              </div>
-            )}
-            {remainingQuestions === 0 && (
-              <div className="mt-2 p-2 bg-orange-900/20 border border-orange-400/20 rounded text-orange-300 text-xs">
-                You&apos;ve reached your daily limit for follow-up questions. Upgrade your plan for more questions.
-              </div>
-            )}
-          </div>
+            }
+          />
 
           {/* Export Options */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-gold/10">
