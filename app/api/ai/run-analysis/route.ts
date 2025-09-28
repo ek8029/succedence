@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
           switch (analysisType) {
             case 'business_analysis':
               updateAnalysisProgress(listingId, analysisType, 30, 'Analyzing business fundamentals...')
-              result = await analyzeBusinessSuperEnhanced(listingContext, parameters || {})
+              result = await analyzeBusinessSuperEnhanced(listingContext as any, parameters || {})
               updateAnalysisProgress(listingId, analysisType, 90, 'Finalizing business analysis...')
               break
 
