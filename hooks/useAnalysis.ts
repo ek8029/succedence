@@ -17,6 +17,7 @@ interface UseAnalysisReturn {
 
 const STORAGE_KEY_PREFIX = 'analysis:'
 const SESSION_KEY_PREFIX = 'job:'
+const CACHE_EXPIRY_TIME = 30 * 60 * 1000 // 30 minutes
 
 // Polling with exponential backoff + jitter
 function getBackoffDelay(attempt: number): number {
@@ -36,20 +37,37 @@ export function useAnalysis(): UseAnalysisReturn {
   const pollAttemptRef = useRef(0)
   const currentJobIdRef = useRef<string | null>(null)
 
-  // Save job state to sessionStorage for instant restore
+  // Save job state to sessionStorage with timestamp
   const saveJobToSession = useCallback((job: Job) => {
     try {
-      sessionStorage.setItem(`${SESSION_KEY_PREFIX}${job.id}`, JSON.stringify(job))
+      const jobWithTimestamp = {
+        ...job,
+        cachedAt: Date.now()
+      }
+      sessionStorage.setItem(`${SESSION_KEY_PREFIX}${job.id}`, JSON.stringify(jobWithTimestamp))
     } catch (e) {
       console.warn('Failed to save job to sessionStorage:', e)
     }
   }, [])
 
-  // Load job state from sessionStorage
+  // Load job state from sessionStorage with expiry check
   const loadJobFromSession = useCallback((jobId: string): Job | null => {
     try {
       const stored = sessionStorage.getItem(`${SESSION_KEY_PREFIX}${jobId}`)
-      return stored ? JSON.parse(stored) : null
+      if (!stored) return null
+
+      const jobData = JSON.parse(stored)
+
+      // Check if cache is expired
+      if (jobData.cachedAt && (Date.now() - jobData.cachedAt) > CACHE_EXPIRY_TIME) {
+        console.log('🗑️ Removing expired job cache:', jobId)
+        sessionStorage.removeItem(`${SESSION_KEY_PREFIX}${jobId}`)
+        return null
+      }
+
+      // Remove the cachedAt timestamp before returning
+      const { cachedAt, ...job } = jobData
+      return job
     } catch (e) {
       console.warn('Failed to load job from sessionStorage:', e)
       return null
@@ -81,6 +99,40 @@ export function useAnalysis(): UseAnalysisReturn {
       localStorage.removeItem(`${STORAGE_KEY_PREFIX}${listingId}:${analysisType}`)
     } catch (e) {
       console.warn('Failed to clear job reference:', e)
+    }
+  }, [])
+
+  // Clear all stale cached data
+  const clearStaleCache = useCallback(() => {
+    try {
+      // Clear expired session storage items
+      const keysToRemove: string[] = []
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i)
+        if (key?.startsWith(SESSION_KEY_PREFIX)) {
+          try {
+            const stored = sessionStorage.getItem(key)
+            if (stored) {
+              const jobData = JSON.parse(stored)
+              if (jobData.cachedAt && (Date.now() - jobData.cachedAt) > CACHE_EXPIRY_TIME) {
+                keysToRemove.push(key)
+              }
+            }
+          } catch (e) {
+            // Invalid data, mark for removal
+            keysToRemove.push(key)
+          }
+        }
+      }
+
+      keysToRemove.forEach(key => {
+        console.log('🗑️ Removing stale cache:', key)
+        sessionStorage.removeItem(key)
+      })
+
+      console.log(`🧹 Cleared ${keysToRemove.length} stale cache entries`)
+    } catch (e) {
+      console.warn('Failed to clear stale cache:', e)
     }
   }, [])
 
@@ -244,27 +296,22 @@ export function useAnalysis(): UseAnalysisReturn {
     const analysisKey = `${listingId}:${analysisType}`
     const storedKey = loadJobReference(listingId, analysisType)
 
+    // Clear stale cache on attach
+    clearStaleCache()
+
     // Use stored key if available, otherwise use the analysis key
     const keyToUse = storedKey || analysisKey
 
-    setIsLoading(true)
+    setIsLoading(false) // Start conservative - don't show loading immediately
     setError(null)
+    setJob(null) // Clear any previous job state
 
-    // Load cached state immediately
-    const cachedJob = loadJobFromSession(keyToUse)
-    if (cachedJob) {
-      setJob(cachedJob)
-
-      // If already terminal, don't start polling
-      if (['succeeded', 'failed', 'canceled'].includes(cachedJob.status)) {
-        setIsLoading(false)
-        return
-      }
-    }
-
+    // Don't immediately show cached data - verify with server first
     currentJobIdRef.current = keyToUse
+
+    // Start polling to get current status (this will load cached data if valid)
     startPolling(keyToUse)
-  }, [loadJobReference, loadJobFromSession, startPolling])
+  }, [loadJobReference, clearStaleCache, startPolling])
 
   // Cancel current analysis (stop polling)
   const cancel = useCallback(async () => {
@@ -300,13 +347,13 @@ export function useAnalysis(): UseAnalysisReturn {
     setIsLoading(false)
     setError(null)
     pollAttemptRef.current = 0
-  }, [clearPolling])
+    clearStaleCache() // Clean up stale data when clearing
+  }, [clearPolling, clearStaleCache])
 
-  // Auto-attach on mount (for page refreshes)
+  // Clean stale cache on mount
   useEffect(() => {
-    // This will be called by components when they mount
-    // Components should call attach() with their listingId and analysisType
-  }, [])
+    clearStaleCache()
+  }, [clearStaleCache])
 
   // Cleanup on unmount
   useEffect(() => {
