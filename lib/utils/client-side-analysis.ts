@@ -82,12 +82,12 @@ class ClientAnalysisManager {
   }
 
   private resumePendingAnalyses() {
-    for (const [key, analysis] of this.state.entries()) {
+    Array.from(this.state.entries()).forEach(([key, analysis]) => {
       if (analysis.status === 'polling' || analysis.status === 'starting') {
         // Resume polling for this analysis
         this.startPolling(analysis.listingId, analysis.analysisType, analysis.pollerId)
       }
-    }
+    })
   }
 
   public startAnalysis(
@@ -279,9 +279,9 @@ class ClientAnalysisManager {
 
   public cleanup() {
     // Clear all intervals
-    for (const interval of this.pollIntervals.values()) {
+    Array.from(this.pollIntervals.values()).forEach(interval => {
       clearInterval(interval)
-    }
+    })
     this.pollIntervals.clear()
   }
 }

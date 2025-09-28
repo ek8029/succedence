@@ -396,12 +396,12 @@ setInterval(() => {
   cutoffDate.setDate(cutoffDate.getDate() - 90)
   const cutoffString = cutoffDate.toISOString().split('T')[0]
 
-  for (const [key, _] of usageStore.entries()) {
+  Array.from(usageStore.entries()).forEach(([key, _]) => {
     const [_, dateStr] = key.split(':')
     if (dateStr < cutoffString) {
       usageStore.delete(key)
     }
-  }
+  })
 }, 24 * 60 * 60 * 1000) // Clean daily
 
 export function getUsageStore() {

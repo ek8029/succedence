@@ -165,7 +165,7 @@ setInterval(() => {
   const oneHour = 60 * 60 * 1000
   const thirtyMinutes = 30 * 60 * 1000
 
-  for (const [key, analysis] of analysisStore.entries()) {
+  Array.from(analysisStore.entries()).forEach(([key, analysis]) => {
     let shouldDelete = false
 
     // Delete completed analyses older than 1 hour
@@ -192,7 +192,7 @@ setInterval(() => {
       analysisStore.delete(key)
       activePollers.delete(key)
     }
-  }
+  })
 }, 2 * 60 * 1000) // Clean every 2 minutes
 
 // Export for debugging
