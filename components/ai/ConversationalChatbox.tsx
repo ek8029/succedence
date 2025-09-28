@@ -36,8 +36,11 @@ export default function ConversationalChatbox({
   const [isLoading, setIsLoading] = useState(false);
   const [remainingQuestions, setRemainingQuestions] = useState<number | null>(null);
   const [rateLimitWarning, setRateLimitWarning] = useState<string | null>(null);
+  const [chatboxHeight, setChatboxHeight] = useState<number>(384); // Default max-h-96 = 384px
+  const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const resizeRef = useRef<HTMLDivElement>(null);
 
   const userPlan = (user?.plan as PlanType) || 'free';
 
@@ -50,6 +53,40 @@ export default function ConversationalChatbox({
       }
     }
   }, [messages]);
+
+  // Handle chatbox resizing
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing || !resizeRef.current) return;
+
+      const rect = resizeRef.current.getBoundingClientRect();
+      const newHeight = Math.max(200, Math.min(800, e.clientY - rect.top));
+      setChatboxHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
 
   // Note: Removed auto-focus to prevent unexpected page scrolling
   // Users can click on the input when they want to interact with it
@@ -215,7 +252,12 @@ export default function ConversationalChatbox({
       </div>
 
       {/* Messages */}
-      <div className="mb-4 max-h-96 overflow-y-auto space-y-3 bg-charcoal/20 rounded-lg p-3 scroll-smooth" data-messages-container>
+      <div ref={resizeRef} className="relative mb-4">
+        <div
+          className="overflow-y-auto space-y-3 bg-charcoal/20 rounded-lg p-3 scroll-smooth"
+          data-messages-container
+          style={{ height: `${chatboxHeight}px` }}
+        >
         {messages.length === 0 ? (
           <div className="text-center text-silver/60 text-sm py-8">
             <div className="mb-2">
@@ -281,6 +323,15 @@ export default function ConversationalChatbox({
         )}
 
         <div ref={messagesEndRef} />
+        </div>
+
+        {/* Resize handle */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize flex items-center justify-center hover:bg-purple-400/20 transition-colors"
+          onMouseDown={handleResizeStart}
+        >
+          <div className="w-12 h-1 bg-purple-400/40 rounded-full"></div>
+        </div>
       </div>
 
       {/* Rate limit warning */}

@@ -29,23 +29,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get user information for plan limitations
+    // Get user information for plan limitations and AI personalization
     const supabase = createServiceClient()
     let userPlan = 'free'
     let userId = null
+    let userProfile = null
+    let userPreferences = null
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         userId = user.id
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('plan')
-          .eq('id', user.id)
-          .single()
 
-        if (profile && (profile as any).plan) {
-          userPlan = (profile as any).plan
+        // Fetch user profile and preferences for AI personalization
+        const [profileResult, preferencesResult] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('plan, company, headline, location')
+            .eq('id', user.id)
+            .single(),
+          supabase
+            .from('preferences')
+            .select('industries, states, min_revenue, min_metric, metric_type, owner_hours_max, price_max, keywords')
+            .eq('user_id', user.id)
+            .single()
+        ]) as [any, any]
+
+        if ((profileResult as any).data && (profileResult as any).data.plan) {
+          userPlan = (profileResult as any).data.plan
+          userProfile = (profileResult as any).data
+        }
+
+        if ((preferencesResult as any).data) {
+          userPreferences = (preferencesResult as any).data
         }
       }
     } catch (authError) {
@@ -153,16 +169,16 @@ export async function POST(request: NextRequest) {
     try {
       switch (analysisType) {
         case 'business_analysis':
-          response = await generateBusinessAnalysisFollowUp(question, previousAnalysis, listing, conversationHistory)
+          response = await generateBusinessAnalysisFollowUp(question, previousAnalysis, listing, conversationHistory, userProfile, userPreferences)
           break
         case 'market_intelligence':
-          response = await generateMarketIntelligenceFollowUp(question, previousAnalysis, listing)
+          response = await generateMarketIntelligenceFollowUp(question, previousAnalysis, listing, userProfile, userPreferences)
           break
         case 'due_diligence':
-          response = await generateDueDiligenceFollowUp(question, previousAnalysis, listing)
+          response = await generateDueDiligenceFollowUp(question, previousAnalysis, listing, userProfile, userPreferences)
           break
         case 'buyer_match':
-          response = await generateBuyerMatchFollowUp(question, previousAnalysis, listing)
+          response = await generateBuyerMatchFollowUp(question, previousAnalysis, listing, userProfile, userPreferences)
           break
         default:
           throw new Error(`Unsupported analysis type: ${analysisType}`)
@@ -215,7 +231,9 @@ async function generateBusinessAnalysisFollowUp(
   question: string,
   previousAnalysis: any,
   listing: any,
-  conversationHistory?: any[]
+  conversationHistory?: any[],
+  userProfile?: any,
+  userPreferences?: any
 ): Promise<string> {
   // Build conversation context if provided
   let conversationContext = ''
@@ -224,6 +242,40 @@ async function generateBusinessAnalysisFollowUp(
     conversationHistory.slice(-4).forEach((msg, index) => {
       conversationContext += `${msg.role.toUpperCase()}: ${msg.content}\n`
     })
+  }
+
+  // Build user context for personalization
+  let userContext = ''
+  if (userProfile || userPreferences) {
+    userContext = '\n\nUSER PROFILE & PREFERENCES:\n'
+
+    if (userProfile) {
+      userContext += `• Company: ${userProfile.company || 'Not specified'}\n`
+      userContext += `• Role: ${userProfile.headline || 'Not specified'}\n`
+      userContext += `• Location: ${userProfile.location || 'Not specified'}\n`
+      userContext += `• Plan Level: ${userProfile.plan || 'free'}\n`
+    }
+
+    if (userPreferences) {
+      if (userPreferences.industries?.length) {
+        userContext += `• Target Industries: ${userPreferences.industries.join(', ')}\n`
+      }
+      if (userPreferences.states?.length) {
+        userContext += `• Geographic Focus: ${userPreferences.states.join(', ')}\n`
+      }
+      if (userPreferences.min_revenue) {
+        userContext += `• Minimum Revenue Interest: $${userPreferences.min_revenue.toLocaleString()}\n`
+      }
+      if (userPreferences.price_max) {
+        userContext += `• Maximum Deal Size: $${userPreferences.price_max.toLocaleString()}\n`
+      }
+      if (userPreferences.keywords?.length) {
+        userContext += `• Key Interests: ${userPreferences.keywords.join(', ')}\n`
+      }
+      if (userPreferences.owner_hours_max) {
+        userContext += `• Preferred Owner Involvement: Max ${userPreferences.owner_hours_max} hours/week\n`
+      }
+    }
   }
 
   const prompt = `
@@ -237,19 +289,26 @@ ORIGINAL ANALYSIS SUMMARY:
 - Recommendation: ${previousAnalysis.recommendation || 'Unknown'}
 
 PREVIOUS ANALYSIS KEY POINTS:
-${JSON.stringify(previousAnalysis, null, 2)}${conversationContext}
+${JSON.stringify(previousAnalysis, null, 2)}${conversationContext}${userContext}
 
 USER QUESTION: "${question}"
 
-Provide a detailed, actionable response that:
-1. Directly addresses the user's question
-2. References specific data from the original analysis
-3. Considers previous conversation context if relevant
-4. Provides additional insights or considerations
-5. Suggests concrete next steps if applicable
-6. Maintains professional tone suitable for M&A context
+IMPORTANT: Tailor your response specifically to this user's profile and preferences. Consider their:
+- Industry interests and geographic focus
+- Deal size preferences and financial capacity
+- Experience level and involvement preferences
+- Specific keywords and interests
 
-Keep response under 500 words and focus on practical value.
+Provide a detailed, actionable response that:
+1. Directly addresses the user's question with personalized insights
+2. References specific data from the original analysis
+3. Considers the user's specific preferences and criteria
+4. Evaluates fit based on their stated interests and constraints
+5. Provides recommendations tailored to their profile
+6. Suggests concrete next steps relevant to their situation
+7. Maintains professional tone suitable for M&A context
+
+Keep response under 500 words and focus on practical value specific to this user.
 `
 
   // Use the same AI system for follow-ups to maintain consistency
@@ -265,7 +324,9 @@ Keep response under 500 words and focus on practical value.
 async function generateMarketIntelligenceFollowUp(
   question: string,
   previousAnalysis: any,
-  listing: any
+  listing: any,
+  userProfile?: any,
+  userPreferences?: any
 ): Promise<string> {
   try {
     // Use the existing market intelligence function to generate a contextual response
@@ -275,27 +336,46 @@ async function generateMarketIntelligenceFollowUp(
       previousAnalysis?.parameters?.dealSize
     );
 
+    // Build user context for personalization
+    let userContext = ''
+    if (userProfile || userPreferences) {
+      if (userPreferences?.industries?.length) {
+        userContext += ` Given your focus on ${userPreferences.industries.join(', ')} industries,`
+      }
+      if (userPreferences?.states?.length) {
+        userContext += ` considering your geographic interest in ${userPreferences.states.join(', ')},`
+      }
+      if (userPreferences?.price_max) {
+        userContext += ` with your deal size range up to $${userPreferences.price_max.toLocaleString()},`
+      }
+    }
+
     // Extract relevant information to answer the specific question
-    const contextualResponse = `Based on the market intelligence analysis for ${listing.industry || 'this industry'}:
+    const contextualResponse = `Based on the market intelligence analysis for ${listing.industry || 'this industry'}${userContext ? ` - ${userContext}` : ''}:
 
 **Your Question**: "${question}"
 
-**Market Overview**:
+**Market Overview Tailored to Your Interests**:
 • Market Size: ${response.marketOverview?.size?.insight || 'Market size analysis available'}
 • Growth Trends: ${response.marketOverview?.growth?.insight || 'Growth trends identified'}
+${userPreferences?.industries?.includes(listing.industry) ? '• **Industry Match**: This aligns with your stated industry preferences' : ''}
 
 **Competitive Landscape**: ${response.competitive?.intensity?.insight || 'Competitive analysis complete'}
 
-**Strategic Opportunities**: ${response.competitive?.opportunities?.[0]?.insight || response.economic?.opportunities?.[0]?.insight || 'Strategic opportunities identified'}
+**Strategic Opportunities for Your Profile**: ${response.competitive?.opportunities?.[0]?.insight || response.economic?.opportunities?.[0]?.insight || 'Strategic opportunities identified'}
 
 **Investment Climate**: ${response.investment?.outlook?.insight || 'Investment outlook analyzed'}
 
 **Market Timing**: ${response.timing || 'Market timing assessed'} - ${response.economic?.timing?.insight || 'Timing considerations evaluated'}
 
-**Key Recommendations**:
+**Recommendations Specific to Your Profile**:
 ${response.recommendations?.slice(0, 2)?.map(rec => `• ${rec}`).join('\n') || '• Strategic recommendations provided'}
+${userPreferences?.min_revenue && listing.listing_financials?.[0]?.annual_revenue ?
+  (listing.listing_financials[0].annual_revenue >= userPreferences.min_revenue ?
+    '• ✅ This opportunity meets your minimum revenue criteria' :
+    '• ⚠️ This opportunity is below your stated minimum revenue preference') : ''}
 
-This analysis considers current market conditions${previousAnalysis?.parameters?.geography ? ` in ${previousAnalysis.parameters.geography}` : ''} and is tailored to your specific inquiry about the business opportunity.`;
+This analysis considers current market conditions${previousAnalysis?.parameters?.geography ? ` in ${previousAnalysis.parameters.geography}` : ''} and is specifically tailored to your investment profile and preferences.`;
 
     return contextualResponse;
   } catch (error) {
@@ -307,7 +387,9 @@ This analysis considers current market conditions${previousAnalysis?.parameters?
 async function generateDueDiligenceFollowUp(
   question: string,
   previousAnalysis: any,
-  listing: any
+  listing: any,
+  userProfile?: any,
+  userPreferences?: any
 ): Promise<string> {
   try {
     // Use the existing due diligence function to generate a contextual response
@@ -316,26 +398,49 @@ async function generateDueDiligenceFollowUp(
       industry: listing.industry || previousAnalysis?.industry || 'General'
     });
 
+    // Build user context for personalization
+    let experienceLevel = 'intermediate'
+    let riskFocus = ''
+    if (userProfile?.headline?.toLowerCase().includes('admin') || userProfile?.headline?.toLowerCase().includes('experienced')) {
+      experienceLevel = 'expert'
+    } else if (userProfile?.plan === 'free' || userProfile?.plan === 'starter') {
+      experienceLevel = 'novice'
+    }
+
+    if (userPreferences?.owner_hours_max) {
+      if (userPreferences.owner_hours_max <= 10) {
+        riskFocus = ' Focus on passive investment structures and minimal management requirements.'
+      } else if (userPreferences.owner_hours_max >= 40) {
+        riskFocus = ' Consider operational risks given your hands-on involvement preference.'
+      }
+    }
+
     // Extract relevant information to answer the specific question
-    const contextualResponse = `Based on the due diligence analysis for ${listing.title || 'this business'}:
+    const contextualResponse = `Based on the due diligence analysis for ${listing.title || 'this business'}, tailored for your ${experienceLevel} experience level:
 
 **Your Question**: "${question}"
 
-**Critical Due Diligence Areas**:
+**Critical Due Diligence Areas for Your Profile**:
 ${response.criticalItems?.slice(0, 2)?.map(category =>
   `• ${category.category}: ${category.items?.[0]?.task || 'Review required'} (${category.items?.[0]?.priority || 'high'} priority)`
 ).join('\n') || '• Financial records and statements review\n• Legal structure and compliance verification'}
+${experienceLevel === 'novice' ? '• **Recommended**: Engage professional advisors for complex areas' : ''}
 
-**Risk Assessment**:
+**Risk Assessment Tailored to Your Investment Profile**:
 ${response.riskMatrix?.slice(0, 2)?.map((risk: any) => `• ${risk.factor || risk}: ${risk.impact || 'Requires attention'}`).join('\n') || '• Key risks identified and evaluated'}
+${riskFocus}
+${userPreferences?.price_max && listing.price && listing.price > userPreferences.price_max ? '• ⚠️ **Price Risk**: This deal exceeds your stated maximum deal size preference' : ''}
 
-**Priority Actions**:
+**Priority Actions for Your Experience Level**:
 ${response.priorityActions?.slice(0, 3)?.map(action => `• ${action}`).join('\n') || '• Proceed with critical area verification\n• Engage relevant experts\n• Document findings systematically'}
+${experienceLevel === 'novice' ? '• Consider hiring an experienced M&A advisor to guide the process' : ''}
+${experienceLevel === 'expert' ? '• Leverage your experience to fast-track routine verifications' : ''}
 
 **Industry-Specific Considerations**:
 ${response.industrySpecific?.regulations?.slice(0, 2)?.map(reg => `• ${reg}`).join('\n') || '• Industry regulations compliance\n• Specific certifications required'}
+${userPreferences?.industries?.includes(listing.industry) ? '• ✅ This industry aligns with your stated preferences and expertise' : '• Consider additional research given this is outside your primary industry focus'}
 
-This due diligence framework addresses the critical aspects of your acquisition review and provides actionable guidance for your specific inquiry.`;
+This due diligence framework is customized for your investment approach and provides actionable guidance specific to your profile and experience level.`;
 
     return contextualResponse;
   } catch (error) {
@@ -347,51 +452,75 @@ This due diligence framework addresses the critical aspects of your acquisition 
 async function generateBuyerMatchFollowUp(
   question: string,
   previousAnalysis: any,
-  listing: any
+  listing: any,
+  userProfile?: any,
+  userPreferences?: any
 ): Promise<string> {
   try {
-    // Create mock buyer preferences for the analysis
-    const mockBuyerPreferences = {
-      industries: [listing.industry || 'General'],
-      dealSizeMin: 100000,
-      dealSizeMax: listing.price || 10000000,
-      geographicPreferences: [listing.state || listing.city || 'National'],
-      riskTolerance: 'medium' as const,
-      experienceLevel: 'intermediate' as const,
-      keywords: [listing.industry || 'business']
+    // Use actual user preferences for buyer match analysis
+    const actualBuyerPreferences = {
+      industries: userPreferences?.industries || [listing.industry || 'General'],
+      dealSizeMin: userPreferences?.min_revenue || 100000,
+      dealSizeMax: userPreferences?.price_max || listing.price || 10000000,
+      geographicPreferences: userPreferences?.states || [listing.state || listing.city || 'National'],
+      riskTolerance: (userPreferences?.owner_hours_max && userPreferences.owner_hours_max <= 10 ? 'low' :
+                     userPreferences?.owner_hours_max && userPreferences.owner_hours_max >= 40 ? 'high' : 'medium') as 'low' | 'medium' | 'high',
+      experienceLevel: (userProfile?.headline?.toLowerCase().includes('admin') || userProfile?.headline?.toLowerCase().includes('experienced') ? 'expert' :
+                       userProfile?.plan === 'free' || userProfile?.plan === 'starter' ? 'novice' : 'intermediate') as 'novice' | 'intermediate' | 'expert',
+      keywords: userPreferences?.keywords || [listing.industry || 'business']
     };
 
     // Use the existing buyer match function to generate a contextual response
-    const response = await analyzeBusinessSuperEnhancedBuyerMatch(listing, mockBuyerPreferences);
+    const response = await analyzeBusinessSuperEnhancedBuyerMatch(listing, actualBuyerPreferences);
+
+    // Build personalized compatibility insights
+    const industryMatch = userPreferences?.industries?.includes(listing.industry)
+    const geographicMatch = userPreferences?.states?.some(state =>
+      listing.state?.toLowerCase().includes(state.toLowerCase()) ||
+      listing.city?.toLowerCase().includes(state.toLowerCase())
+    )
+    const financialFit = userPreferences?.price_max ?
+      (listing.price <= userPreferences.price_max) : true
+    const revenueFit = userPreferences?.min_revenue && listing.listing_financials?.[0]?.annual_revenue ?
+      (listing.listing_financials[0].annual_revenue >= userPreferences.min_revenue) : true
 
     // Extract relevant information to answer the specific question
-    const contextualResponse = `Based on the buyer compatibility analysis for ${listing.title || 'this business'}:
+    const contextualResponse = `Based on the buyer compatibility analysis using YOUR SPECIFIC PREFERENCES for ${listing.title || 'this business'}:
 
 **Your Question**: "${question}"
 
-**Match Score**: ${response.score || previousAnalysis?.score || 85}% compatibility
+**Personalized Match Score**: ${response.score || previousAnalysis?.score || 85}% compatibility with your profile
 
-**Compatibility Assessment**:
+**Your Profile Alignment**:
+• Industry Match: ${industryMatch ? '✅ MATCHES your preferred industries' : '⚠️ Outside your stated industry preferences'}
+• Geographic Fit: ${geographicMatch ? '✅ MATCHES your geographic focus' : '⚠️ Outside your preferred locations'}
+• Financial Capacity: ${financialFit ? '✅ Within your deal size range' : '⚠️ Exceeds your maximum deal size'}
+• Revenue Requirements: ${revenueFit ? '✅ Meets your minimum revenue criteria' : '⚠️ Below your minimum revenue preference'}
+
+**Compatibility Assessment for Your Profile**:
 • Industry Experience: ${response.compatibility?.industryExperience?.insight || 'Industry alignment evaluated'}
 • Financial Capacity: ${response.compatibility?.financialCapacity?.insight || 'Financial requirements assessed'}
 • Operational Fit: ${response.compatibility?.operationalFit?.insight || 'Operational integration analyzed'}
+• Risk Tolerance: Assessed for ${actualBuyerPreferences.riskTolerance} risk tolerance
+• Experience Level: Suitable for ${actualBuyerPreferences.experienceLevel} investors
 
-**Score Breakdown**:
-• Industry Fit: ${response.scoreBreakdown?.industryFit || 85}%
-• Financial Fit: ${response.scoreBreakdown?.financialFit || 80}%
+**Score Breakdown Based on Your Preferences**:
+• Industry Fit: ${response.scoreBreakdown?.industryFit || 85}% ${industryMatch ? '(Strong match!)' : '(Consider expansion)'}
+• Financial Fit: ${response.scoreBreakdown?.financialFit || 80}% ${financialFit ? '(Within budget)' : '(Budget consideration needed)'}
 • Operational Fit: ${response.scoreBreakdown?.operationalFit || 75}%
 
-**Recommendation**: ${response.recommendation || previousAnalysis?.recommendation || 'good_match'}
+**Personalized Recommendation**: ${response.recommendation || previousAnalysis?.recommendation || 'good_match'}
 
-**Key Reasoning**:
-${response.reasoning?.slice(0, 2)?.map(reason => `• ${reason}`).join('\n') || '• Strong strategic alignment identified\n• Financial parameters within acceptable range'}
+**Key Reasoning for Your Profile**:
+${response.reasoning?.slice(0, 2)?.map(reason => `• ${reason}`).join('\n') || '• Strategic alignment with your investment criteria\n• Financial parameters match your stated preferences'}
 
-**Risk Factors**: ${response.risks?.[0]?.factor || response.risks?.[0] || 'Key risks and mitigation strategies identified'}
+**Risk Factors Specific to Your Profile**: ${response.risks?.[0]?.factor || response.risks?.[0] || 'Risks evaluated against your risk tolerance and experience level'}
 
-**Next Steps**:
-${response.nextSteps?.slice(0, 2)?.map(step => `• ${step}`).join('\n') || '• Proceed with detailed buyer evaluation\n• Conduct management meetings'}
+**Next Steps Tailored to Your Experience Level**:
+${response.nextSteps?.slice(0, 2)?.map(step => `• ${step}`).join('\n') || '• Proceed with detailed evaluation\n• Consider professional guidance if needed'}
+${actualBuyerPreferences.experienceLevel === 'novice' ? '• Recommended: Engage an M&A advisor given your experience level' : ''}
 
-This compatibility analysis considers your specific buyer profile and provides targeted insights for your acquisition evaluation.`;
+This analysis is specifically calibrated to YOUR investment preferences, risk tolerance, and experience level.`;
 
     return contextualResponse;
   } catch (error) {
