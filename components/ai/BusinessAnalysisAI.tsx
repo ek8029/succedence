@@ -9,7 +9,6 @@ import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 import ConversationalChatbox from './ConversationalChatbox';
-import AnalysisVerification from './AnalysisVerification';
 
 interface BusinessAnalysisAIProps {
   listingId: string;
@@ -22,7 +21,6 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
   const analysisInProgressRef = useRef(false);
   const [jobId, setJobId] = useState<string | null>(null);
 
@@ -69,12 +67,10 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
 
 
-  const handleAnalyzeClick = async () => {
-    setShowVerification(true);
-  };
+  // Admin bypass - hardcoded admin check
+  const isAdmin = user?.email === 'evank8029@gmail.com' || user?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1'
 
-  const handleConfirmAnalysis = async () => {
-    setShowVerification(false);
+  const handleAnalyzeClick = async () => {
     setIsLoading(true);
     setError(null);
     analysisInProgressRef.current = true;
@@ -152,9 +148,6 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     }
   };
 
-  const handleCancelVerification = () => {
-    setShowVerification(false);
-  };
 
 
   const getRecommendationColor = (recommendation: string) => {
@@ -499,15 +492,6 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
         </div>
       )}
 
-      {/* Verification Modal */}
-      {showVerification && (
-        <AnalysisVerification
-          onConfirm={handleConfirmAnalysis}
-          onCancel={handleCancelVerification}
-          analysisType="business_analysis"
-          listingTitle={listingTitle}
-        />
-      )}
     </div>
   );
 }

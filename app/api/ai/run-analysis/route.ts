@@ -25,9 +25,11 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceClient()
     let userPlan = 'free'
     let actualUserId = userId
+    let user = null
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      user = authUser
       if (user) {
         actualUserId = user.id
         const { data: profile } = await supabase
@@ -44,8 +46,11 @@ export async function POST(request: NextRequest) {
       console.warn('Could not get user info for plan limitations:', authError)
     }
 
-    // Check plan limitations
-    if (actualUserId) {
+    // Admin bypass - hardcoded admin check
+    const isAdmin = (user?.email === 'evank8029@gmail.com' || user?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1')
+
+    // Check plan limitations (skip for admins)
+    if (actualUserId && !isAdmin) {
       const analysisCheck = await canRunAnalysis(actualUserId, userPlan as any)
       if (!analysisCheck.allowed) {
         return NextResponse.json(
@@ -82,8 +87,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Increment usage tracking
-    if (actualUserId) {
+    // Increment usage tracking (skip for admins)
+    if (actualUserId && !isAdmin) {
       await incrementUsage(actualUserId, 'analysis', analysisType, 0.15)
     }
 
