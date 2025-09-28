@@ -1,9 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import type { Database } from '../types'
 
-export const createServerClientWrapper = () =>
+export const createClient = () =>
   createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -72,7 +72,7 @@ export const createServiceClient = () =>
 
 // Service role client for background workers (pure JS client, no SSR)
 export const createBackgroundServiceClient = () =>
-  createClient<Database>(
+  createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
