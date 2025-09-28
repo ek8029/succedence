@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PlanType } from '@/lib/types';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessage {
   id: string;
@@ -40,9 +41,14 @@ export default function ConversationalChatbox({
 
   const userPlan = (user?.plan as PlanType) || 'free';
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive (within the container only)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.closest('[data-messages-container]');
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
   }, [messages]);
 
   // Note: Removed auto-focus to prevent unexpected page scrolling
@@ -74,6 +80,8 @@ export default function ConversationalChatbox({
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !user?.id || isLoading) return;
+
+    // Prevent any form submission or default behaviors
 
     const userMessage: ChatMessage = {
       id: `user_${Date.now()}`,
@@ -207,7 +215,7 @@ export default function ConversationalChatbox({
       </div>
 
       {/* Messages */}
-      <div className="mb-4 max-h-96 overflow-y-auto space-y-3 bg-charcoal/20 rounded-lg p-3">
+      <div className="mb-4 max-h-96 overflow-y-auto space-y-3 bg-charcoal/20 rounded-lg p-3 scroll-smooth" data-messages-container>
         {messages.length === 0 ? (
           <div className="text-center text-silver/60 text-sm py-8">
             <div className="mb-2">
@@ -230,7 +238,25 @@ export default function ConversationalChatbox({
                     : 'bg-charcoal/50 text-silver border border-purple-400/20'
                 }`}
               >
-                <div className="whitespace-pre-wrap">{message.content}</div>
+                {message.role === 'assistant' ? (
+                  <div className="prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown
+                      components={{
+                        p: ({children}) => <p className="mb-2 last:mb-0 text-silver">{children}</p>,
+                        strong: ({children}) => <strong className="font-semibold text-white">{children}</strong>,
+                        ul: ({children}) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                        li: ({children}) => <li className="text-sm text-silver">{children}</li>,
+                        h1: ({children}) => <h1 className="text-lg font-bold mb-2 text-white">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-base font-semibold mb-2 text-white">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-sm font-semibold mb-1 text-white">{children}</h3>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="whitespace-pre-wrap">{message.content}</div>
+                )}
                 <div className={`text-xs mt-1 ${
                   message.role === 'user' ? 'text-purple-200' : 'text-silver/60'
                 }`}>
@@ -273,7 +299,12 @@ export default function ConversationalChatbox({
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={getPlaceholderText()}
           className="flex-1 px-3 py-2 bg-charcoal/50 border border-purple-400/20 rounded-luxury text-warm-white placeholder-silver/60 focus:outline-none focus:border-purple-400 disabled:opacity-50"
-          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
           disabled={!user?.id || remainingQuestions === 0 || isLoading}
         />
         <button
