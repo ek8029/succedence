@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           .eq('id', user.id)
           .single()
 
-        isAdmin = profile?.role === 'admin'
+        isAdmin = (profile as any)?.role === 'admin'
       } catch (roleError) {
         console.warn('Could not check admin role:', roleError)
       }
