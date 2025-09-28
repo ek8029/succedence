@@ -469,6 +469,16 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
           </div>
         </div>
       )}
+
+      {/* Verification Modal */}
+      {showVerification && (
+        <AnalysisVerification
+          onConfirm={handleConfirmAnalysis}
+          onCancel={handleCancelVerification}
+          analysisType="business_analysis"
+          listingTitle={listingTitle}
+        />
+      )}
     </div>
   );
 }
