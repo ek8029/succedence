@@ -34,12 +34,12 @@ export default function SubscriptionUpgrade({
   const upgradePlans = requiredFeature ? getUpgradeSuggestions(userPlan, requiredFeature) : (['starter', 'professional', 'enterprise'] as PlanType[]);
   const currentPlanDetails = getPlanDetails(userPlan);
 
-  // Admin users bypass all paywalls
-  const isAdmin = isAdminUser(user?.role);
+  // Admin users bypass all paywalls (check both role and enterprise plan)
+  const isAdmin = isAdminUser(user?.role) || userPlan === 'enterprise';
   const isBlocked = !isAdmin && userPlan === 'free';
   const isBeta = userPlan === 'beta';
 
-  // Don't show upgrade prompts to admin users
+  // Don't show upgrade prompts to admin users or enterprise users
   if (isAdmin) {
     return null;
   }
@@ -245,8 +245,8 @@ export function SubscriptionGate({
     );
   }
 
-  // Admin users bypass all restrictions
-  if (isAdminUser(user.role)) {
+  // Admin users bypass all restrictions (check both role and enterprise plan)
+  if (isAdminUser(user.role) || user.plan === 'enterprise') {
     return <>{children}</>;
   }
 

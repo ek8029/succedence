@@ -16,7 +16,7 @@ export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const userPlan = (user?.plan as PlanType) || 'free';
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || userPlan === 'enterprise';
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -117,7 +117,7 @@ export default function BrowsePage() {
                           Subscribe Now
                         </Link>
                       )}
-                      {userPlan !== 'free' && userPlan !== 'enterprise' && (
+                      {['starter', 'professional'].includes(userPlan) && !isAdmin && (
                         <Link
                           href="/subscribe"
                           className="px-4 py-2 bg-gold/20 text-gold border border-gold/30 rounded-luxury hover:bg-gold/30 transition-all duration-300 text-sm"

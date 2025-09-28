@@ -59,12 +59,96 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
 
   // Removed problematic tab visibility logic that caused infinite loading
 
-  // Check for existing analysis on mount
+  // Check for existing analysis on mount and resume if in progress
   useEffect(() => {
     if (user && !analysis && !hasCheckedForExisting) {
       fetchExistingAnalysis();
     }
   }, [user, listingId, analysis, hasCheckedForExisting, fetchExistingAnalysis]);
+
+  // Check for ongoing analysis when component mounts/remounts
+  useEffect(() => {
+    if (user && !analysis && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current) {
+      checkForOngoingAnalysis();
+    }
+  }, [user, listingId, analysis, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
+
+  const checkForOngoingAnalysis = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis`,
+        { credentials: 'include' }
+      );
+      const data = await response.json();
+
+      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
+        console.log('🔄 Resuming ongoing analysis:', data.jobId);
+        setIsLoading(true);
+        setJobId(data.jobId);
+        analysisInProgressRef.current = true;
+
+        // Resume polling for the ongoing job
+        resumePolling(data.jobId);
+      } else if (data.status === 'completed' && data.result) {
+        console.log('✅ Found completed analysis, loading result');
+        setAnalysis(data.result);
+      }
+    } catch (error) {
+      console.warn('Failed to check for ongoing analysis:', error);
+    }
+  }, [listingId, resumePolling]);
+
+  const pollForResult = useCallback(async (targetJobId?: string): Promise<any> => {
+    let attempts = 0;
+    const maxAttempts = 180; // 6 minutes max
+
+    while (analysisInProgressRef.current && attempts < maxAttempts) {
+      try {
+        const statusResponse = await fetch(
+          `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis${
+            targetJobId ? `&jobId=${targetJobId}` : ''
+          }`,
+          { credentials: 'include' }
+        );
+        const statusData = await statusResponse.json();
+
+        if (statusData.status === 'completed' && statusData.result) {
+          return statusData.result;
+        } else if (statusData.status === 'error') {
+          throw new Error(statusData.error || 'Analysis failed');
+        }
+
+        // Still processing, wait and try again
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        attempts++;
+      } catch (pollError) {
+        console.warn('Poll error, retrying:', pollError);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        attempts++;
+      }
+    }
+
+    if (attempts >= maxAttempts) {
+      throw new Error('Analysis timed out - but it may still be running in the background');
+    }
+    throw new Error('Analysis cancelled');
+  }, [listingId]);
+
+  const resumePolling = useCallback(async (resumeJobId?: string) => {
+    try {
+      const result = await pollForResult(resumeJobId);
+      if (result) {
+        setAnalysis(result);
+        console.log('✅ Analysis completed (resumed)');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Analysis failed during resume');
+      console.error('❌ Resumed analysis failed:', err);
+    } finally {
+      setIsLoading(false);
+      analysisInProgressRef.current = false;
+    }
+  }, [pollForResult]);
 
 
   // Admin bypass - check for admin role
@@ -100,44 +184,8 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
         setJobId(startData.jobId);
       }
 
-      // Poll for completion using background job system
-      const pollForResult = async (): Promise<any> => {
-        let attempts = 0;
-        const maxAttempts = 180; // 6 minutes max
-
-        while (analysisInProgressRef.current && attempts < maxAttempts) {
-          try {
-            const statusResponse = await fetch(
-              `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis${
-                startData.jobId ? `&jobId=${startData.jobId}` : ''
-              }`,
-              { credentials: 'include' }
-            );
-            const statusData = await statusResponse.json();
-
-            if (statusData.status === 'completed' && statusData.result) {
-              return statusData.result;
-            } else if (statusData.status === 'error') {
-              throw new Error(statusData.error || 'Analysis failed');
-            }
-
-            // Still processing, wait and try again
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            attempts++;
-          } catch (pollError) {
-            console.warn('Poll error, retrying:', pollError);
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            attempts++;
-          }
-        }
-
-        if (attempts >= maxAttempts) {
-          throw new Error('Analysis timed out - but it may still be running in the background');
-        }
-        throw new Error('Analysis cancelled');
-      };
-
-      const result = await pollForResult();
+      // Use shared polling function
+      const result = await pollForResult(startData.jobId);
       setAnalysis(result);
 
     } catch (err) {

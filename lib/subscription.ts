@@ -6,8 +6,10 @@ export function hasAIFeatureAccess(
   feature: keyof PlanFeatures['aiFeatures'],
   userRole?: string
 ): boolean {
-  // Admin users have access to everything
-  if (userRole === 'admin') return true
+  // Admin users have access to everything (including hardcoded admin)
+  if (userRole === 'admin' || userPlan === 'enterprise') {
+    return true
+  }
 
   const plan = SUBSCRIPTION_PLANS[userPlan]
   if (!plan) return false
