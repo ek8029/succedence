@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useScrollToTopOnMount } from '@/hooks/useScrollToTop';
 import { Listing, PlanType, SUBSCRIPTION_PLANS } from '@/lib/types';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +18,9 @@ export default function BrowsePage() {
 
   const userPlan = (user?.plan as PlanType) || 'free';
   const isAdmin = user?.role === 'admin' || userPlan === 'enterprise';
+
+  // Scroll to top when page loads
+  useScrollToTopOnMount();
 
   useEffect(() => {
     const fetchListings = async () => {

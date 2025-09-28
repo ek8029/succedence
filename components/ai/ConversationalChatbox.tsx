@@ -45,10 +45,8 @@ export default function ConversationalChatbox({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  // Note: Removed auto-focus to prevent unexpected page scrolling
+  // Users can click on the input when they want to interact with it
 
   // Load conversation history from localStorage
   useEffect(() => {

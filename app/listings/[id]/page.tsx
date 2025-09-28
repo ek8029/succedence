@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
@@ -54,6 +55,9 @@ export default function ListingDetailPage() {
   const [savingListing, setSavingListing] = useState(false);
 
   const listingId = params.id as string;
+
+  // Scroll to top when listing changes
+  useScrollToTop([listingId]);
 
   const fetchListingData = useCallback(async () => {
     try {
