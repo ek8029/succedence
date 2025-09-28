@@ -132,18 +132,19 @@ export async function POST(request: NextRequest) {
         updateAnalysisProgress(listingId, analysisType, 15, 'Preparing personalized analysis...')
 
         // Create personalized context based on listing specifics
+        const listingData = listing as any
         const listingContext = {
-          ...listing,
-          industry: listing.industry || 'General Business',
-          location: listing.location || 'Unknown Location',
-          askingPrice: listing.asking_price || listing.price || 0,
-          revenue: listing.listing_financials?.[0]?.annual_revenue || 0,
-          ebitda: listing.listing_financials?.[0]?.ebitda || 0,
-          employees: listing.employees || listing.number_of_employees || 0,
-          yearEstablished: listing.year_established || listing.founded || null,
-          businessType: listing.business_type || 'Unknown',
-          ownerInvolvement: listing.owner_involvement || 'Full-time',
-          reasonForSelling: listing.reason_for_selling || 'Not specified',
+          ...listingData,
+          industry: listingData.industry || 'General Business',
+          location: listingData.location || 'Unknown Location',
+          askingPrice: listingData.asking_price || listingData.price || 0,
+          revenue: listingData.listing_financials?.[0]?.annual_revenue || 0,
+          ebitda: listingData.listing_financials?.[0]?.ebitda || 0,
+          employees: listingData.employees || listingData.number_of_employees || 0,
+          yearEstablished: listingData.year_established || listingData.founded || null,
+          businessType: listingData.business_type || 'Unknown',
+          ownerInvolvement: listingData.owner_involvement || 'Full-time',
+          reasonForSelling: listingData.reason_for_selling || 'Not specified',
           parameters: parameters || {}
         }
 
