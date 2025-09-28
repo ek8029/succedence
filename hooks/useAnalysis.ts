@@ -92,10 +92,11 @@ export function useAnalysis(): UseAnalysisReturn {
     }
   }, [])
 
-  // Poll job status
-  const pollStatus = useCallback(async (jobId: string) => {
+  // Poll job status using the AI endpoint
+  const pollStatus = useCallback(async (analysisKey: string) => {
     try {
-      const response = await fetch(`/api/analysis/status?jobId=${jobId}`, {
+      const [listingId, analysisType] = analysisKey.split(':')
+      const response = await fetch(`/api/ai/run-analysis?listingId=${listingId}&analysisType=${analysisType}`, {
         cache: 'no-store'
       })
 
@@ -103,7 +104,24 @@ export function useAnalysis(): UseAnalysisReturn {
         throw new Error(`Status check failed: ${response.statusText}`)
       }
 
-      const updatedJob: Job = await response.json()
+      const result = await response.json()
+
+      // Convert AI response to Job format
+      const updatedJob: Job = {
+        id: analysisKey,
+        listingId,
+        analysisType: analysisType as Job['analysisType'],
+        params: {},
+        status: result.status === 'processing' ? 'running' :
+                result.status === 'completed' ? 'succeeded' :
+                result.status === 'error' ? 'failed' : 'queued',
+        progress: result.progress || 0,
+        partialOutput: result.partialOutput,
+        result: result.result,
+        error: result.error,
+        createdAt: result.startedAt || Date.now(),
+        updatedAt: Date.now()
+      }
 
       // Update state
       setJob(updatedJob)
@@ -160,7 +178,7 @@ export function useAnalysis(): UseAnalysisReturn {
     poll()
   }, [pollStatus, clearPolling])
 
-  // Start a new analysis
+  // Start a new analysis using the AI endpoint
   const start = useCallback(async (
     listingId: string,
     analysisType: AnalysisType,
@@ -170,10 +188,18 @@ export function useAnalysis(): UseAnalysisReturn {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch('/api/analysis/start', {
+      // Generate unique poller ID for this client
+      const pollerId = `poller_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+      const response = await fetch('/api/ai/run-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId, analysisType, params })
+        body: JSON.stringify({
+          listingId,
+          analysisType,
+          parameters: params,
+          pollerId
+        })
       })
 
       if (!response.ok) {
@@ -181,36 +207,51 @@ export function useAnalysis(): UseAnalysisReturn {
         throw new Error(errorData.error || 'Failed to start analysis')
       }
 
-      const { jobId } = await response.json()
+      const result = await response.json()
+
+      // Create analysis key for tracking
+      const analysisKey = `${listingId}:${analysisType}`
 
       // Save reference and start polling
-      saveJobReference(listingId, analysisType, jobId)
-      currentJobIdRef.current = jobId
+      saveJobReference(listingId, analysisType, analysisKey)
+      currentJobIdRef.current = analysisKey
 
-      // Try to load cached job state for instant feedback
-      const cachedJob = loadJobFromSession(jobId)
-      if (cachedJob) {
-        setJob(cachedJob)
+      // Create initial job state
+      const initialJob: Job = {
+        id: analysisKey,
+        listingId,
+        analysisType: analysisType as Job['analysisType'],
+        params: params || {},
+        status: 'running',
+        progress: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
       }
 
-      startPolling(jobId)
+      setJob(initialJob)
+      saveJobToSession(initialJob)
+
+      startPolling(analysisKey)
 
     } catch (err) {
       setIsLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to start analysis')
     }
-  }, [saveJobReference, loadJobFromSession, startPolling])
+  }, [saveJobReference, saveJobToSession, startPolling])
 
-  // Attach to existing job
+  // Attach to existing analysis
   const attach = useCallback((listingId: string, analysisType: AnalysisType) => {
-    const jobId = loadJobReference(listingId, analysisType)
-    if (!jobId) return
+    const analysisKey = `${listingId}:${analysisType}`
+    const storedKey = loadJobReference(listingId, analysisType)
+
+    // Use stored key if available, otherwise use the analysis key
+    const keyToUse = storedKey || analysisKey
 
     setIsLoading(true)
     setError(null)
 
     // Load cached state immediately
-    const cachedJob = loadJobFromSession(jobId)
+    const cachedJob = loadJobFromSession(keyToUse)
     if (cachedJob) {
       setJob(cachedJob)
 
@@ -221,32 +262,35 @@ export function useAnalysis(): UseAnalysisReturn {
       }
     }
 
-    currentJobIdRef.current = jobId
-    startPolling(jobId)
+    currentJobIdRef.current = keyToUse
+    startPolling(keyToUse)
   }, [loadJobReference, loadJobFromSession, startPolling])
 
-  // Cancel current job
+  // Cancel current analysis (stop polling)
   const cancel = useCallback(async () => {
     if (!job?.id) return
 
     try {
-      const response = await fetch('/api/analysis/cancel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobId: job.id })
-      })
+      // AI endpoints don't support cancellation, so just stop polling
+      clearPolling()
+      currentJobIdRef.current = null
+      setIsLoading(false)
 
-      if (!response.ok) {
-        throw new Error('Failed to cancel job')
+      // Update job status to canceled locally
+      if (job) {
+        const canceledJob = {
+          ...job,
+          status: 'canceled' as const,
+          updatedAt: Date.now()
+        }
+        setJob(canceledJob)
+        saveJobToSession(canceledJob)
       }
-
-      // Continue polling to see cancellation take effect
-      // The polling will stop automatically when status becomes 'canceled'
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to cancel analysis')
     }
-  }, [job?.id])
+  }, [job, clearPolling, saveJobToSession])
 
   // Clear current state
   const clear = useCallback(() => {
