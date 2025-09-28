@@ -17,7 +17,7 @@ interface DueDiligenceAIProps {
 }
 
 export default function DueDiligenceAI({ listingId, listingTitle, industry }: DueDiligenceAIProps) {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const { protectRequest } = useVisibilityProtectedRequest();
   const { fetchWithRetry } = useResilientFetch();
@@ -320,6 +320,18 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     (checklist.criticalItems || []).reduce((total: number, category: any) => total + (category.items || []).length, 0) : 0;
   const totalCompleted = completedItems.size;
   const overallProgress = totalItems > 0 ? (totalCompleted / totalItems) * 100 : 0;
+
+  // Show loading while auth is initializing (prevents subscription popup on tab switch)
+  if (authLoading || (!user && typeof window !== 'undefined')) {
+    return (
+      <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+        <div className="flex items-center justify-center py-8">
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mr-3"></div>
+          <span className="text-silver">Loading due diligence...</span>
+        </div>
+      </div>
+    );
+  }
 
   // Show upgrade prompt if user doesn't have access
   if (!hasAccess) {

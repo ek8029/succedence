@@ -29,6 +29,9 @@ export default function AnalysisVerification({
 
   const userPlan = (user?.plan as PlanType) || 'free'
 
+  // Admin bypass - hardcoded admin check
+  const isAdmin = user?.email === 'evank8029@gmail.com' || user?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1'
+
   useEffect(() => {
     fetchUsageData()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -110,7 +113,7 @@ export default function AnalysisVerification({
     )
   }
 
-  const canProceed = usage && usage.remaining > 0
+  const canProceed = isAdmin || (usage && usage.remaining > 0)
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -129,17 +132,23 @@ export default function AnalysisVerification({
 
         {/* Usage Information */}
         <div className="bg-navy/30 rounded-luxury p-4 mb-6 border border-gold/10">
+          {isAdmin && (
+            <div className="bg-gold/10 border border-gold/20 rounded p-2 mb-3">
+              <span className="text-gold text-sm font-medium">🔑 Admin Access - Unlimited Analyses</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-3">
             <span className="text-silver/70 text-sm">Current Plan:</span>
             <span className={`font-medium capitalize ${getPlanColor(userPlan)}`}>
-              {userPlan}
+              {isAdmin ? 'Admin' : userPlan}
             </span>
           </div>
 
           <div className="flex items-center justify-between mb-3">
             <span className="text-silver/70 text-sm">Analyses Remaining:</span>
             <span className={`font-bold text-lg ${canProceed ? 'text-green-400' : 'text-red-400'}`}>
-              {usage?.remaining || 0} / {usage?.total || 0}
+              {isAdmin ? '∞' : (usage?.remaining || 0)} / {isAdmin ? '∞' : (usage?.total || 0)}
             </span>
           </div>
 
@@ -153,7 +162,7 @@ export default function AnalysisVerification({
           )}
 
           {/* Progress Bar */}
-          {usage && (
+          {usage && !isAdmin && (
             <div className="mt-2">
               <div className="w-full bg-charcoal/50 rounded-full h-2">
                 <div
@@ -167,10 +176,18 @@ export default function AnalysisVerification({
               </div>
             </div>
           )}
+
+          {isAdmin && (
+            <div className="mt-2">
+              <div className="w-full bg-charcoal/50 rounded-full h-2">
+                <div className="h-2 rounded-full bg-gradient-to-r from-gold to-yellow-400 w-full animate-pulse" />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Warning for low usage */}
-        {usage && usage.remaining <= 1 && usage.remaining > 0 && (
+        {usage && usage.remaining <= 1 && usage.remaining > 0 && !isAdmin && (
           <div className="bg-amber-900/20 border border-amber-400/30 rounded-luxury p-3 mb-3">
             <div className="flex items-start">
               <span className="text-amber-400 mr-2 mt-0.5">⚠️</span>
@@ -182,7 +199,7 @@ export default function AnalysisVerification({
         )}
 
         {/* No analyses left */}
-        {!canProceed && (
+        {!canProceed && !isAdmin && (
           <div className="bg-red-900/20 border border-red-400/30 rounded-luxury p-3 mb-3">
             <div className="flex items-start">
               <span className="text-red-400 mr-2 mt-0.5">🚫</span>

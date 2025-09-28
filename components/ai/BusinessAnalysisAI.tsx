@@ -16,7 +16,7 @@ interface BusinessAnalysisAIProps {
 }
 
 export default function BusinessAnalysisAI({ listingId, listingTitle }: BusinessAnalysisAIProps) {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [analysis, setAnalysis] = useState<SuperEnhancedBusinessAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -185,6 +185,18 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
       default: return 'text-gray-400 bg-gray-900/20 border-gray-400/30';
     }
   };
+
+  // Show loading while auth is initializing (prevents subscription popup on tab switch)
+  if (authLoading || (!user && typeof window !== 'undefined')) {
+    return (
+      <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+        <div className="flex items-center justify-center py-8">
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mr-3"></div>
+          <span className="text-silver">Loading analysis...</span>
+        </div>
+      </div>
+    );
+  }
 
   // Show upgrade prompt if user doesn't have access
   if (!hasAccess) {

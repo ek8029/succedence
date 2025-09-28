@@ -221,7 +221,17 @@ export function SubscriptionGate({
   requiredPlan?: PlanType;
   requiredFeature?: string;
 }) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  // Show loading state while authentication is initializing (prevents subscription popup on tab switch)
+  if (isLoading || (!user && typeof window !== 'undefined')) {
+    return (
+      <div className="glass p-8 rounded-luxury border-2 border-gold/20 bg-charcoal/20 text-center">
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-silver/80">Loading...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

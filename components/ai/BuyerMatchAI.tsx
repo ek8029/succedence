@@ -18,7 +18,7 @@ interface BuyerMatchAIProps {
 }
 
 export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIProps) {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
   const { protectRequest } = useVisibilityProtectedRequest();
   const { fetchWithRetry } = useResilientFetch();
@@ -224,6 +224,18 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
       default: return 'text-gray-400 bg-gray-900/20 border-gray-400/30';
     }
   };
+
+  // Show loading while auth is initializing (prevents subscription popup on tab switch)
+  if (authLoading || (!user && typeof window !== 'undefined')) {
+    return (
+      <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+        <div className="flex items-center justify-center py-8">
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mr-3"></div>
+          <span className="text-silver">Loading buyer matching...</span>
+        </div>
+      </div>
+    );
+  }
 
   // Show upgrade prompt if user doesn't have access
   if (!hasAccess) {

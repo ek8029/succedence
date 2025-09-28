@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth...')
+        setIsLoading(true) // Set loading at start of initialization
 
         // Check if this should be a non-persistent session
         const sessionPersist = sessionStorage.getItem('session-persist')
@@ -90,7 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('Found existing session, fetching profile...')
           await fetchUserProfile(session.user.id, session.user)
         } else {
-          console.log('No existing session, no loading needed')
+          console.log('No existing session, setting loading false')
+          setIsLoading(false)
         }
       } catch (error) {
         console.error('Error getting initial session:', error)
