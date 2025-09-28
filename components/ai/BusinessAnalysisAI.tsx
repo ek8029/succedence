@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
 import { useResilientFetch } from '@/lib/utils/resilient-fetch';
+import ConversationalChatbox from './ConversationalChatbox';
 
 interface BusinessAnalysisAIProps {
   listingId: string;
@@ -21,9 +22,6 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   const [error, setError] = useState<string | null>(null);
   const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
   const analysisInProgressRef = useRef(false);
-  const [followUpQuery, setFollowUpQuery] = useState('');
-  const [followUpResponse, setFollowUpResponse] = useState<string | null>(null);
-  const [isFollowUpLoading, setIsFollowUpLoading] = useState(false);
 
   // Hook for protecting requests from tab visibility issues
   const { protectRequest } = useVisibilityProtectedRequest();
@@ -73,41 +71,54 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     setError(null);
     analysisInProgressRef.current = true;
 
-    // Analysis starting
-
     try {
-      // Use resilient fetch to prevent interruption when switching tabs
-      const response = await fetchWithRetry(
-        '/api/ai/analyze-business',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            listingId,
-            analysisOptions: {
-              perspective: 'general',
-              focusAreas: []
-            }
-          }),
-          timeout: 300000, // 5 minute timeout for AI analysis
-          maxRetries: 5,
-          retryDelay: 2000
+      // Start server-side analysis that continues even if tab is switched
+      const startResponse = await fetch('/api/ai/run-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        `business-analysis-${listingId}`
-      );
+        credentials: 'include',
+        body: JSON.stringify({
+          listingId,
+          analysisType: 'business_analysis'
+        }),
+      });
 
-      const data = await response.json();
+      const startData = await startResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze business');
+      if (!startResponse.ok) {
+        throw new Error(startData.error || 'Failed to start analysis');
       }
 
-      setAnalysis(data.analysis);
+      // Poll for completion - this works even if user switches tabs
+      const pollForResult = async (): Promise<any> => {
+        while (analysisInProgressRef.current) {
+          try {
+            const statusResponse = await fetch(
+              `/api/ai/run-analysis?listingId=${listingId}&analysisType=business_analysis`,
+              { credentials: 'include' }
+            );
+            const statusData = await statusResponse.json();
 
-      // Analysis completed successfully
+            if (statusData.status === 'completed' && statusData.result) {
+              return statusData.result;
+            } else if (statusData.status === 'error') {
+              throw new Error(statusData.error || 'Analysis failed');
+            }
+            // Still processing, wait and try again
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } catch (pollError) {
+            console.warn('Poll error, retrying:', pollError);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
+        }
+        throw new Error('Analysis cancelled');
+      };
+
+      const result = await pollForResult();
+      setAnalysis(result);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze business');
     } finally {
@@ -116,42 +127,6 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     }
   };
 
-  const handleFollowUp = async () => {
-    if (!followUpQuery.trim() || !analysis) return;
-
-    setIsFollowUpLoading(true);
-    setError(null);
-
-    try {
-      const response = await protectRequest(
-        () => fetch('/api/ai/analyze-business', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            listingId,
-            followUpQuery: followUpQuery.trim()
-          }),
-        }),
-        `business-analysis-followup-${listingId}-${Date.now()}`
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate follow-up');
-      }
-
-      setFollowUpResponse(data.response);
-      setFollowUpQuery('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate follow-up');
-    } finally {
-      setIsFollowUpLoading(false);
-    }
-  };
 
   const getRecommendationColor = (recommendation: string) => {
     switch (recommendation) {
@@ -468,37 +443,19 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
             </div>
           )}
 
-          {/* Follow-up Questions */}
-          <div className="p-4 bg-purple-900/10 rounded-luxury border border-purple-400/20">
-            <h4 className="text-lg font-semibold text-purple-400 mb-3 font-serif flex items-center">
+          {/* Conversational AI Chatbox */}
+          <ConversationalChatbox
+            listingId={listingId}
+            analysisType="business_analysis"
+            previousAnalysis={analysis}
+            title="Ask About This Analysis"
+            placeholder="Ask about strengths, risks, recommendations, or any specific aspect..."
+            icon={
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              Ask Follow-up Questions
-            </h4>
-            <div className="flex space-x-2 mb-3">
-              <input
-                type="text"
-                value={followUpQuery}
-                onChange={(e) => setFollowUpQuery(e.target.value)}
-                placeholder="Ask a specific question about this analysis..."
-                className="flex-1 px-3 py-2 bg-charcoal/50 border border-purple-400/20 rounded-luxury text-warm-white placeholder-silver/60 focus:outline-none focus:border-purple-400"
-                onKeyPress={(e) => e.key === 'Enter' && handleFollowUp()}
-              />
-              <button
-                onClick={handleFollowUp}
-                disabled={isFollowUpLoading || !followUpQuery.trim()}
-                className="px-4 py-2 bg-purple-600 text-white rounded-luxury hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isFollowUpLoading ? '...' : 'Ask'}
-              </button>
-            </div>
-            {followUpResponse && (
-              <div className="p-3 bg-charcoal/30 rounded-luxury border border-purple-400/20">
-                <div className="text-purple-300 text-sm leading-relaxed">{followUpResponse}</div>
-              </div>
-            )}
-          </div>
+            }
+          />
 
           {/* Actions */}
           <div className="text-center pt-4 border-t border-gold/10">
