@@ -68,3 +68,21 @@ export const createServiceClient = () =>
       }
     }
   )
+
+// Service role client for background workers (no cookies)
+export const createBackgroundServiceClient = () =>
+  createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        get() { return undefined },
+        set() {},
+        remove() {}
+      },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )

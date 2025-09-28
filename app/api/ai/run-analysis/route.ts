@@ -3,6 +3,9 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { JobQueue } from '@/lib/services/job-queue'
 import { canRunAnalysis, incrementUsage } from '@/lib/utils/database-usage-tracking'
 
+// Import the analysis worker to ensure it starts
+import '@/lib/services/analysis-worker'
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Starting analysis request...')

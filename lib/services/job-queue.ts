@@ -3,7 +3,7 @@
  * Provides persistent background processing for AI analysis
  */
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient, createBackgroundServiceClient } from '@/lib/supabase/server'
 
 export interface AnalysisJob {
   id: string
@@ -24,15 +24,25 @@ export interface AnalysisJob {
 
 export class JobQueue {
   private static instance: JobQueue
-  private supabase = createServiceClient()
+  private static backgroundInstance: JobQueue
+  private supabase: any
 
-  private constructor() {}
+  private constructor(useBackground = false) {
+    this.supabase = useBackground ? createBackgroundServiceClient() : createServiceClient()
+  }
 
   static getInstance(): JobQueue {
     if (!JobQueue.instance) {
-      JobQueue.instance = new JobQueue()
+      JobQueue.instance = new JobQueue(false)
     }
     return JobQueue.instance
+  }
+
+  static getBackgroundInstance(): JobQueue {
+    if (!JobQueue.backgroundInstance) {
+      JobQueue.backgroundInstance = new JobQueue(true)
+    }
+    return JobQueue.backgroundInstance
   }
 
   /**

@@ -5,12 +5,12 @@
 
 import { JobQueue, AnalysisJob } from './job-queue'
 import { analyzeBusinessSuperEnhanced } from '@/lib/ai/super-enhanced-openai'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createBackgroundServiceClient } from '@/lib/supabase/server'
 
 export class AnalysisWorker {
   private static instance: AnalysisWorker
   private isRunning = false
-  private jobQueue = JobQueue.getInstance()
+  private jobQueue = JobQueue.getBackgroundInstance()
   private processInterval: NodeJS.Timeout | null = null
 
   private constructor() {}
@@ -122,7 +122,7 @@ export class AnalysisWorker {
    */
   private async fetchListingData(listingId: string): Promise<any> {
     try {
-      const supabase = createServiceClient()
+      const supabase = createBackgroundServiceClient()
       const { data, error } = await supabase
         .from('listings')
         .select(`
