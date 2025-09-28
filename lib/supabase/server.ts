@@ -1,8 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import type { Database } from '../types'
 
-export const createClient = () =>
+export const createServerClientWrapper = () =>
   createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -69,17 +70,12 @@ export const createServiceClient = () =>
     }
   )
 
-// Service role client for background workers (no cookies)
+// Service role client for background workers (pure JS client, no SSR)
 export const createBackgroundServiceClient = () =>
-  createServerClient<Database>(
+  createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
-      cookies: {
-        get() { return undefined },
-        set() {},
-        remove() {}
-      },
       auth: {
         autoRefreshToken: false,
         persistSession: false
