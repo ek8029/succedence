@@ -99,8 +99,8 @@ export default function AnalysisVerification({
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="glass p-6 rounded-luxury-lg border border-gold/20 max-w-md w-full mx-4">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="glass p-6 rounded-luxury-lg border border-gold/20 max-w-lg w-full">
           <div className="flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin text-gold"></div>
             <span className="ml-3 text-warm-white">Loading usage data...</span>
@@ -113,8 +113,8 @@ export default function AnalysisVerification({
   const canProceed = usage && usage.remaining > 0
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="glass p-6 rounded-luxury-lg border border-gold/20 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="glass p-6 rounded-luxury-lg border border-gold/20 max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="text-center mb-6">
           <h3 className="text-xl font-semibold text-warm-white font-serif mb-2">
             Confirm Analysis
@@ -154,7 +154,7 @@ export default function AnalysisVerification({
 
           {/* Progress Bar */}
           {usage && (
-            <div className="mt-3">
+            <div className="mt-2">
               <div className="w-full bg-charcoal/50 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all duration-300 ${
@@ -171,10 +171,10 @@ export default function AnalysisVerification({
 
         {/* Warning for low usage */}
         {usage && usage.remaining <= 1 && usage.remaining > 0 && (
-          <div className="bg-amber-900/20 border border-amber-400/30 rounded-luxury p-3 mb-4">
-            <div className="flex items-center">
-              <span className="text-amber-400 mr-2">⚠️</span>
-              <span className="text-amber-300 text-sm">
+          <div className="bg-amber-900/20 border border-amber-400/30 rounded-luxury p-3 mb-3">
+            <div className="flex items-start">
+              <span className="text-amber-400 mr-2 mt-0.5">⚠️</span>
+              <span className="text-amber-300 text-sm leading-relaxed">
                 This is your last analysis for this month. Consider upgrading for more.
               </span>
             </div>
@@ -183,10 +183,10 @@ export default function AnalysisVerification({
 
         {/* No analyses left */}
         {!canProceed && (
-          <div className="bg-red-900/20 border border-red-400/30 rounded-luxury p-3 mb-4">
-            <div className="flex items-center">
-              <span className="text-red-400 mr-2">🚫</span>
-              <span className="text-red-300 text-sm">
+          <div className="bg-red-900/20 border border-red-400/30 rounded-luxury p-3 mb-3">
+            <div className="flex items-start">
+              <span className="text-red-400 mr-2 mt-0.5">🚫</span>
+              <span className="text-red-300 text-sm leading-relaxed">
                 You&apos;ve reached your monthly analysis limit. Upgrade your plan to continue.
               </span>
             </div>
@@ -194,10 +194,10 @@ export default function AnalysisVerification({
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-charcoal/50 border border-silver/20 text-silver hover:bg-charcoal/70 hover:border-silver/40 rounded-luxury transition-all duration-300"
+            className="flex-1 px-4 py-3 bg-charcoal/50 border border-silver/20 text-silver hover:bg-charcoal/70 hover:border-silver/40 rounded-luxury transition-all duration-300 text-sm font-medium"
           >
             Cancel
           </button>
@@ -205,14 +205,14 @@ export default function AnalysisVerification({
           {canProceed ? (
             <button
               onClick={onConfirm}
-              className="flex-1 px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300"
+              className="flex-1 px-4 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 text-sm"
             >
               Start Analysis
             </button>
           ) : (
             <button
               onClick={() => window.open('/pricing', '_blank')}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium rounded-luxury hover:from-purple-700 hover:to-purple-600 transition-all duration-300"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-medium rounded-luxury hover:from-purple-700 hover:to-purple-600 transition-all duration-300 text-sm"
             >
               Upgrade Plan
             </button>
