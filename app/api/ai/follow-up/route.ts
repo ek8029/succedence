@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch listing data for context
+    console.log('🔍 Fetching listing data for ID:', listingId)
     const { data: listing, error: listingError } = await supabase
       .from('listings')
       .select(`
@@ -90,12 +91,23 @@ export async function POST(request: NextRequest) {
       .eq('id', listingId)
       .single()
 
-    if (listingError || !listing) {
+    if (listingError) {
+      console.error('❌ Listing query error:', listingError)
+      return NextResponse.json(
+        { error: 'Listing not found', details: listingError.message },
+        { status: 404 }
+      )
+    }
+
+    if (!listing) {
+      console.error('❌ No listing found for ID:', listingId)
       return NextResponse.json(
         { error: 'Listing not found' },
         { status: 404 }
       )
     }
+
+    console.log('✅ Listing found:', (listing as any).title)
 
     // Generate follow-up response based on analysis type
     let response: string

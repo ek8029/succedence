@@ -498,7 +498,7 @@ export interface SuperEnhancedMarketIntelligence {
 
 // Super Enhanced Business Analysis AI
 export async function analyzeBusinessSuperEnhanced(
-  listing: Listing,
+  listing: Listing & { followUpPrompt?: string; isFollowUp?: boolean },
   analysisOptions: {
     perspective?: 'strategic_buyer' | 'financial_buyer' | 'first_time_buyer' | 'general';
     focusAreas?: string[];
@@ -512,6 +512,54 @@ export async function analyzeBusinessSuperEnhanced(
 ): Promise<SuperEnhancedBusinessAnalysis> {
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
+  }
+
+  // Handle follow-up questions
+  if (listing.isFollowUp && listing.followUpPrompt) {
+    try {
+      const completion = await getOpenAIClient().chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert business analyst providing follow-up insights on a business acquisition analysis. Provide detailed, actionable responses that directly address the user's question."
+          },
+          {
+            role: "user",
+            content: listing.followUpPrompt
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 1000,
+      });
+
+      const response = completion.choices[0]?.message?.content;
+      if (!response) {
+        throw new Error('No response from OpenAI for follow-up');
+      }
+
+      return {
+        followUpResponse: response,
+        overallScore: 0,
+        overallScoreConfidence: { score: 0, level: 'low' as const, percentage: 0, reasoning: 'Follow-up response', factors: { dataQuality: 0, sampleSize: 0, marketStability: 0, historicalAccuracy: 0 }, methodology: 'Follow-up', limitations: [] },
+        recommendation: 'hold' as const,
+        strengths: [],
+        weaknesses: [],
+        opportunities: [],
+        riskMatrix: [],
+        riskScore: 0,
+        summary: 'Follow-up response',
+        nextSteps: [],
+        redFlags: [],
+        analysisVersion: '2.0',
+        processingTime: Date.now() - Date.now(),
+        dataPoints: 0,
+        confidenceFactors: []
+      } as any;
+    } catch (error) {
+      console.error('Error in follow-up analysis:', error);
+      throw new Error('Failed to generate follow-up response');
+    }
   }
 
   const startTime = Date.now();

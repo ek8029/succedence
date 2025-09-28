@@ -15,10 +15,13 @@ import { canRunAnalysis, incrementUsage } from '@/lib/utils/database-usage-track
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 Starting analysis request...')
     const body = await request.json()
     const { listingId, analysisType, parameters, pollerId, userId } = body
+    console.log('📝 Request params:', { listingId, analysisType, userId })
 
     if (!listingId || !analysisType) {
+      console.error('❌ Missing required parameters:', { listingId, analysisType })
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
