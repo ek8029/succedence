@@ -36,12 +36,12 @@ export async function getUserCurrentUsage(userId: string): Promise<UsageData | n
   const supabase = createServiceClient()
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_user_current_usage', { p_user_id: userId })
 
     if (error) throw error
 
-    if (!data || data.length === 0) {
+    if (!data || (data as any).length === 0) {
       return {
         analyses_today: 0,
         followups_today: 0,
@@ -67,18 +67,18 @@ export async function getUserCurrentUsage(userId: string): Promise<UsageData | n
       .single()
 
     return {
-      analyses_today: data[0].analyses_today || 0,
-      followups_today: data[0].followups_today || 0,
-      cost_today: parseFloat(data[0].cost_today) || 0,
-      questions_this_hour: data[0].questions_this_hour || 0,
-      business_analysis_count: trackingData?.business_analysis_count || 0,
-      market_intelligence_count: trackingData?.market_intelligence_count || 0,
-      due_diligence_count: trackingData?.due_diligence_count || 0,
-      buyer_match_count: trackingData?.buyer_match_count || 0,
-      followup_business_analysis: trackingData?.followup_business_analysis || 0,
-      followup_market_intelligence: trackingData?.followup_market_intelligence || 0,
-      followup_due_diligence: trackingData?.followup_due_diligence || 0,
-      followup_buyer_match: trackingData?.followup_buyer_match || 0
+      analyses_today: (data as any)[0]?.analyses_today || 0,
+      followups_today: (data as any)[0]?.followups_today || 0,
+      cost_today: parseFloat((data as any)[0]?.cost_today) || 0,
+      questions_this_hour: (data as any)[0]?.questions_this_hour || 0,
+      business_analysis_count: (trackingData as any)?.business_analysis_count || 0,
+      market_intelligence_count: (trackingData as any)?.market_intelligence_count || 0,
+      due_diligence_count: (trackingData as any)?.due_diligence_count || 0,
+      buyer_match_count: (trackingData as any)?.buyer_match_count || 0,
+      followup_business_analysis: (trackingData as any)?.followup_business_analysis || 0,
+      followup_market_intelligence: (trackingData as any)?.followup_market_intelligence || 0,
+      followup_due_diligence: (trackingData as any)?.followup_due_diligence || 0,
+      followup_buyer_match: (trackingData as any)?.followup_buyer_match || 0
     }
   } catch (error) {
     console.error('Error getting user usage:', error)
@@ -181,7 +181,7 @@ export async function canRunAnalysis(
       .eq('month', now.getMonth() + 1)
       .single()
 
-    const monthlyUsage = monthlyData?.total_analyses || 0
+    const monthlyUsage = (monthlyData as any)?.total_analyses || 0
     if (monthlyUsage >= monthlyLimit) {
       return {
         allowed: false,
@@ -288,7 +288,7 @@ export async function incrementUsage(
   const supabase = createServiceClient()
 
   try {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .rpc('increment_usage', {
         p_user_id: userId,
         p_usage_type: usageType,
@@ -319,7 +319,7 @@ export async function logUsageViolation(
   const supabase = createServiceClient()
 
   try {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .rpc('log_usage_violation', {
         p_user_id: userId,
         p_violation_type: violationType,

@@ -396,8 +396,8 @@ setInterval(() => {
   cutoffDate.setDate(cutoffDate.getDate() - 90)
   const cutoffString = cutoffDate.toISOString().split('T')[0]
 
-  Array.from(usageStore.entries()).forEach(([key, _]) => {
-    const [_, dateStr] = key.split(':')
+  Array.from(usageStore.entries()).forEach(([key, usageData]) => {
+    const [userId, dateStr] = key.split(':')
     if (dateStr < cutoffString) {
       usageStore.delete(key)
     }
