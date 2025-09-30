@@ -4,14 +4,11 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Public routes that don't require authentication
-  const publicRoutes = ['/', '/auth', '/auth/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms']
+  // Only auth pages are public - everything else requires authentication
+  const publicRoutes = ['/auth', '/auth/reset-password']
 
   // Check if the current path is public (no auth needed)
   const isPublicRoute = publicRoutes.some(route => {
-    if (route === '/') {
-      return pathname === '/'
-    }
     return pathname === route || pathname.startsWith(route + '/')
   })
 
