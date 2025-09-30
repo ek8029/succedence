@@ -55,6 +55,8 @@ export default function ConnectCTA() {
           {/* Footer row under the section */}
           <div className="border-t border-white/10 pt-6">
             <ul className="flex items-center justify-center gap-6 text-sm opacity-80 mb-4">
+              <li><a href="/success" className="hover:opacity-100 text-gold hover:text-warm-white transition-colors">Success Stories</a></li>
+              <li>•</li>
               <li><a href="/terms" className="hover:opacity-100 text-gold hover:text-warm-white transition-colors">Terms of Service</a></li>
               <li>•</li>
               <li><span className="text-gold">AI Disclaimer: Not Financial Advice</span></li>

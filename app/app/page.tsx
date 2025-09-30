@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Listing, PlanType, SUBSCRIPTION_PLANS } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import Footer from '@/components/Footer';
+import MyMatches from '@/components/MyMatches';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -14,6 +16,9 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
   const [totalListings, setTotalListings] = useState(0);
+  const [savedListingsCount, setSavedListingsCount] = useState(0);
+  const [matchesCount, setMatchesCount] = useState(0);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   const userPlan = (authUser?.plan as PlanType) || 'free';
   const isAdmin = authUser?.role === 'admin';
@@ -33,8 +38,22 @@ export default function Dashboard() {
           const data = await response.json();
           setListings(data.listings || []);
           setTotalListings(data.total || 0);
+
+          // Fetch saved listings count
+          const savedResponse = await fetch('/api/saved-listings');
+          if (savedResponse.ok) {
+            const savedData = await savedResponse.json();
+            setSavedListingsCount(savedData.length || 0);
+          }
+
+          // Fetch matches count
+          const matchesResponse = await fetch('/api/matches');
+          if (matchesResponse.ok) {
+            const matchesData = await matchesResponse.json();
+            setMatchesCount(matchesData.matches?.length || 0);
+          }
         } catch (error) {
-          console.error('Error fetching listings:', error);
+          console.error('Error fetching data:', error);
         }
       }
 
@@ -88,23 +107,13 @@ export default function Dashboard() {
       <div className="relative z-10">
         {/* Header */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl page-content">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-warm-white mb-2 tracking-refined">
-                Welcome back{authUser?.name ? `, ${authUser.name}` : user?.email ? `, ${user.email.split('@')[0]}` : ''}
-              </h1>
-              <p className="text-silver/80 text-lg">
-                Your business acquisition dashboard
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/browse"
-                className="px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300"
-              >
-                Browse Opportunities
-              </Link>
-            </div>
+          <div className="mb-8">
+            <h1 className="font-serif text-3xl md:text-4xl font-bold text-warm-white mb-2 tracking-refined">
+              Welcome back{authUser?.name ? `, ${authUser.name}` : user?.email ? `, ${user.email.split('@')[0]}` : ''}
+            </h1>
+            <p className="text-silver/80 text-lg">
+              Your business acquisition dashboard
+            </p>
           </div>
 
           {/* Subscription Status */}
@@ -172,219 +181,115 @@ export default function Dashboard() {
           )}
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-serif text-lg font-semibold text-warm-white">
-                  Available Listings
-                </h3>
-                <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h.01M7 3h.01" />
-                </svg>
-              </div>
-              <div className="flex-grow flex flex-col justify-between">
-                <div className="text-3xl font-bold text-gold mb-2">{totalListings}</div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16 max-w-7xl mx-auto">
+            <div className="glass rounded-luxury-lg border border-gold/20" style={{height: '200px'}}>
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <svg className="w-8 h-8 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h.01M7 3h.01" />
+                  </svg>
+                  <h3 className="font-serif text-lg font-semibold text-warm-white whitespace-nowrap">
+                    Available Listings
+                  </h3>
+                </div>
+                <div className="text-5xl font-bold text-gold mb-2">{totalListings || 0}</div>
                 <div className="text-sm text-silver/70">Total opportunities</div>
               </div>
             </div>
 
-            <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-serif text-lg font-semibold text-warm-white">
-                  Total Value
-                </h3>
-                <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-              </div>
-              <div className="flex-grow flex flex-col justify-between">
-                <div className="text-3xl font-bold text-gold mb-2">
-                  {formatCurrency(listings.reduce((sum, listing) => sum + (listing.price || 0), 0))}
+            <div className="glass rounded-luxury-lg border border-gold/20" style={{height: '200px'}}>
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <svg className="w-8 h-8 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                  <h3 className="font-serif text-lg font-semibold text-warm-white whitespace-nowrap">
+                    Total Value
+                  </h3>
+                </div>
+                <div className="text-4xl font-bold text-gold mb-2">
+                  {listings && listings.length > 0
+                    ? formatCurrency(listings.reduce((sum, listing) => sum + (listing.price || 0), 0))
+                    : '$0'
+                  }
                 </div>
                 <div className="text-sm text-silver/70">Combined asking price</div>
               </div>
             </div>
 
-            <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-serif text-lg font-semibold text-warm-white">
-                  Average Revenue
-                </h3>
-                <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-              <div className="flex-grow flex flex-col justify-between">
-                <div className="text-3xl font-bold text-gold mb-2">
-                  {listings.length > 0
+            <div className="glass rounded-luxury-lg border border-gold/20" style={{height: '200px'}}>
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <svg className="w-8 h-8 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  <h3 className="font-serif text-lg font-semibold text-warm-white whitespace-nowrap">
+                    Average Revenue
+                  </h3>
+                </div>
+                <div className="text-4xl font-bold text-gold mb-2">
+                  {listings && listings.length > 0
                     ? formatCurrency(listings.reduce((sum, listing) => sum + (listing.revenue || 0), 0) / listings.length)
                     : '$0'
                   }
                 </div>
-                <div className="text-sm text-silver/70">Across all listings</div>
+                <div className="text-sm text-silver/70">Per listing</div>
               </div>
             </div>
           </div>
 
-          {/* Recent Listings */}
+          {/* My Matches */}
           <div className="mb-16">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-4">
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white tracking-refined">
-                Business Opportunities
-              </h2>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-silver/70 text-sm">Show:</span>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                    className="bg-charcoal/50 border border-gold/30 text-warm-white rounded px-3 py-1 text-sm focus:border-gold focus:outline-none"
-                  >
-                    <option value={15}>15</option>
-                    <option value={25}>25</option>
-                    <option value={50}>50</option>
-                  </select>
-                  <span className="text-silver/70 text-sm">per page</span>
+            <MyMatches />
+          </div>
+
+          {/* Personalized Recommendations */}
+          <div className="mb-16">
+            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white tracking-refined mb-8">
+              Recommended For You
+            </h2>
+            <div className="glass p-8 rounded-luxury-lg border border-gold/20 mb-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-semibold text-warm-white mb-4">Based on Your Profile</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-gold mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <Link href="/preferences" className="text-gold hover:text-warm-white transition-colors">
+                          Set your acquisition preferences
+                        </Link>
+                        <p className="text-sm text-silver/70 mt-1">Get personalized matches based on your criteria</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <svg className="w-5 h-5 text-gold mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <Link href="/profile" className="text-gold hover:text-warm-white transition-colors">
+                          Complete your profile
+                        </Link>
+                        <p className="text-sm text-silver/70 mt-1">Unlock better recommendations and features</p>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
-                <Link
-                  href="/browse"
-                  className="text-gold hover:text-warm-white transition-colors font-medium text-sm"
-                >
-                  View All →
-                </Link>
+                <div>
+                  <h3 className="text-lg font-semibold text-warm-white mb-4">Trending Industries</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 text-xs font-medium bg-gold/20 text-gold rounded-full border border-gold/30">SaaS</span>
+                    <span className="px-3 py-1 text-xs font-medium bg-gold/20 text-gold rounded-full border border-gold/30">E-commerce</span>
+                    <span className="px-3 py-1 text-xs font-medium bg-gold/20 text-gold rounded-full border border-gold/30">Healthcare</span>
+                    <span className="px-3 py-1 text-xs font-medium bg-gold/20 text-gold rounded-full border border-gold/30">FinTech</span>
+                    <span className="px-3 py-1 text-xs font-medium bg-gold/20 text-gold rounded-full border border-gold/30">Manufacturing</span>
+                  </div>
+                  <p className="text-sm text-silver/70 mt-4">These industries are seeing high activity this month</p>
+                </div>
               </div>
             </div>
-
-            {listings.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {listings.map((listing) => (
-                  <div key={listing.id} className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 text-xs font-semibold bg-accent-gradient text-midnight rounded-full">
-                          {listing.status?.toUpperCase() || 'ACTIVE'}
-                        </span>
-                        {listing.industry && (
-                          <span className="px-3 py-1 text-xs font-medium bg-charcoal/50 text-silver rounded-full">
-                            {listing.industry}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <h3 className="text-xl font-semibold text-warm-white mb-3 line-clamp-2">
-                      {listing.title}
-                    </h3>
-
-                    <p className="text-silver/80 text-sm mb-4 line-clamp-3">
-                      {listing.description}
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <div className="text-xs text-silver/70 mb-1">Annual Revenue</div>
-                        <div className="text-sm font-semibold text-gold">
-                          {formatCurrency(listing.revenue)}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-silver/70 mb-1">Asking Price</div>
-                        <div className="text-sm font-semibold text-gold">
-                          {formatCurrency(listing.price)}
-                        </div>
-                      </div>
-                    </div>
-
-                    <Link
-                      href={`/listings/${listing.id}`}
-                      className="block w-full text-center px-4 py-2 bg-transparent border border-gold/30 text-gold hover:bg-gold/10 font-medium rounded-luxury transition-all duration-300"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                ))}
-                </div>
-
-                {/* Pagination Controls */}
-                {totalListings > itemsPerPage && (
-                  <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
-                    <div className="text-silver/70 text-sm">
-                      Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalListings)} of {totalListings} opportunities
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-2 bg-charcoal/50 border border-gold/30 text-warm-white rounded hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Previous
-                      </button>
-
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: Math.min(5, Math.ceil(totalListings / itemsPerPage)) }, (_, i) => {
-                          const totalPages = Math.ceil(totalListings / itemsPerPage);
-                          let pageNumber;
-
-                          if (totalPages <= 5) {
-                            pageNumber = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNumber = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNumber = totalPages - 4 + i;
-                          } else {
-                            pageNumber = currentPage - 2 + i;
-                          }
-
-                          return (
-                            <button
-                              key={pageNumber}
-                              onClick={() => setCurrentPage(pageNumber)}
-                              className={`px-3 py-2 rounded transition-colors ${
-                                currentPage === pageNumber
-                                  ? 'bg-gold text-midnight font-semibold'
-                                  : 'bg-charcoal/50 border border-gold/30 text-warm-white hover:bg-gold/10'
-                              }`}
-                            >
-                              {pageNumber}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      <button
-                        onClick={() => setCurrentPage(Math.min(Math.ceil(totalListings / itemsPerPage), currentPage + 1))}
-                        disabled={currentPage === Math.ceil(totalListings / itemsPerPage)}
-                        className="px-3 py-2 bg-charcoal/50 border border-gold/30 text-warm-white rounded hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="glass p-8 rounded-luxury-lg border border-gold/20 text-center">
-                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h.01M7 3h.01" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-warm-white mb-2">No listings available</h3>
-                <p className="text-silver/80 mb-6">
-                  There are currently no business opportunities available. Check back soon for new listings.
-                </p>
-                <Link
-                  href="/browse"
-                  className="inline-flex items-center px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300"
-                >
-                  Refresh Listings
-                </Link>
-              </div>
-            )}
           </div>
 
           {/* Quick Actions */}
@@ -393,7 +298,7 @@ export default function Dashboard() {
               Quick Actions
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
               <Link
                 href="/browse"
                 className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
@@ -409,45 +314,95 @@ export default function Dashboard() {
                 </div>
               </Link>
 
-              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75 h-full flex flex-col">
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
+              {user && (
+                <Link
+                  href="/listings/new"
+                  className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+                >
+                  <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <div className="flex-grow flex flex-col">
+                    <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">List Business</h3>
+                    <p className="text-silver/80 text-sm flex-grow">Add your business to the marketplace</p>
+                  </div>
+                </Link>
+              )}
+
+              <Link
+                href="/preferences"
+                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+              >
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
+                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                </div>
+                <div className="flex-grow flex flex-col">
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Set Preferences</h3>
+                  <p className="text-silver/80 text-sm flex-grow">Define your acquisition criteria</p>
+                </div>
+              </Link>
+
+              <Link
+                href="/saved-listings"
+                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+              >
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
+                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                </div>
+                <div className="flex-grow flex flex-col">
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Saved Listings</h3>
+                  <p className="text-silver/80 text-sm flex-grow">View your saved opportunities</p>
+                  {savedListingsCount > 0 && (
+                    <span className="text-xs text-gold mt-2">({savedListingsCount} saved)</span>
+                  )}
+                </div>
+              </Link>
+
+              <Link
+                href="/ai-analysis-history"
+                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+              >
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
                   <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
                 <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">AI Analysis</h3>
-                  <p className="text-silver/80 text-sm flex-grow">Get AI-powered business analysis (Coming Soon)</p>
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">AI History</h3>
+                  <p className="text-silver/80 text-sm flex-grow">View your AI analysis history</p>
                 </div>
-              </div>
+              </Link>
 
-              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75 h-full flex flex-col">
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
+              <Link
+                href="/matches"
+                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+              >
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
                   <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
                 <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Saved Searches</h3>
-                  <p className="text-silver/80 text-sm flex-grow">Manage your saved search criteria (Coming Soon)</p>
+                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Your Matches</h3>
+                  <p className="text-silver/80 text-sm flex-grow">View personalized matches</p>
+                  {matchesCount > 0 && (
+                    <span className="text-xs text-gold mt-2">({matchesCount} matches)</span>
+                  )}
                 </div>
-              </div>
+              </Link>
 
-              <div className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group cursor-not-allowed opacity-75 h-full flex flex-col">
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                </div>
-                <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Due Diligence</h3>
-                  <p className="text-silver/80 text-sm flex-grow">Track your due diligence progress (Coming Soon)</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
