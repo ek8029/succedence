@@ -13,7 +13,7 @@ export default function GateLayout({
 }) {
   return (
     <html lang="en">
-      <body style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+      <body style={{fontFamily: 'Source Serif Pro, Georgia, serif', margin: 0, padding: 0, overflow: 'hidden', height: '100vh', width: '100vw'}}>
         {children}
       </body>
     </html>

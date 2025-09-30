@@ -53,7 +53,7 @@ export default function GatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-primary-gradient relative overflow-hidden flex items-center justify-center">
+    <div className="h-screen w-screen bg-primary-gradient relative overflow-hidden flex items-center justify-center fixed inset-0">
       <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
       <div className="absolute inset-0 bg-noise opacity-10"></div>
 
