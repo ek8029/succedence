@@ -145,7 +145,7 @@ export class JobQueue {
       throw new Error(`Failed to update job: ${error.message}`)
     }
 
-    console.log('📊 Updated job:', jobId, updates)
+    console.log('Updated job:', jobId, updates)
   }
 
   /**

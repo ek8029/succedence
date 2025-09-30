@@ -9,12 +9,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import SubscriptionUpgrade, { SubscriptionGate } from '@/components/SubscriptionUpgrade';
+import Tooltip from '@/components/Tooltip';
 
 export default function BrowsePage() {
   const { user } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    industry: '',
+    minRevenue: '',
+    maxPrice: '',
+    state: '',
+    sortBy: 'newest'
+  });
 
   const userPlan = (user?.plan as PlanType) || 'free';
   const isAdmin = user?.role === 'admin' || userPlan === 'enterprise';
@@ -34,7 +43,42 @@ export default function BrowsePage() {
         const response = await fetch(`/api/listings?${searchParams}`);
         if (response.ok) {
           const data = await response.json();
-          setListings(data.listings || []);
+          let filteredListings = data.listings || [];
+
+          // Apply client-side filters
+          if (filters.industry) {
+            filteredListings = filteredListings.filter((l: Listing) =>
+              l.industry?.toLowerCase() === filters.industry.toLowerCase()
+            );
+          }
+          if (filters.minRevenue) {
+            const minRev = parseFloat(filters.minRevenue.replace(/,/g, ''));
+            filteredListings = filteredListings.filter((l: Listing) =>
+              l.revenue && l.revenue >= minRev
+            );
+          }
+          if (filters.maxPrice) {
+            const maxPr = parseFloat(filters.maxPrice.replace(/,/g, ''));
+            filteredListings = filteredListings.filter((l: Listing) =>
+              l.price && l.price <= maxPr
+            );
+          }
+          if (filters.state) {
+            filteredListings = filteredListings.filter((l: Listing) =>
+              l.state?.toLowerCase() === filters.state.toLowerCase()
+            );
+          }
+
+          // Apply sorting
+          if (filters.sortBy === 'price-asc') {
+            filteredListings.sort((a: Listing, b: Listing) => (a.price || 0) - (b.price || 0));
+          } else if (filters.sortBy === 'price-desc') {
+            filteredListings.sort((a: Listing, b: Listing) => (b.price || 0) - (a.price || 0));
+          } else if (filters.sortBy === 'revenue-desc') {
+            filteredListings.sort((a: Listing, b: Listing) => (b.revenue || 0) - (a.revenue || 0));
+          }
+
+          setListings(filteredListings);
         } else {
           console.error('Failed to fetch listings');
           setListings([]);
@@ -49,7 +93,7 @@ export default function BrowsePage() {
 
     const timeoutId = setTimeout(fetchListings, searchTerm ? 300 : 0);
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [searchTerm, filters]);
 
   const formatCurrency = (amount: number | null) => {
     if (!amount) return 'N/A';
@@ -154,17 +198,19 @@ export default function BrowsePage() {
           </div>
         </ScrollAnimation>
 
-        {/* Search Bar - Always Visible */}
-        <div className="glass p-8 mb-16 rounded-lg">
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="flex-1">
-              <div className="relative">
+        {/* Search Bar and Filters */}
+        <div className="glass p-6 mb-12 rounded-lg">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search Input */}
+            <div className="flex-1 w-full flex items-center">
+              <div className="relative w-full">
                 <input
                   type="text"
                   placeholder="Search opportunities, industries..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="form-control w-full py-4 px-6 pr-12 text-lg"
+                  className="form-control w-full pr-12"
+                  style={{ height: '48px', padding: '0.75rem 1rem', lineHeight: '1.5' }}
                   aria-label="Search opportunities"
                 />
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -174,7 +220,111 @@ export default function BrowsePage() {
                 </div>
               </div>
             </div>
+
+            {/* Sort Dropdown */}
+            <div className="w-full lg:w-48 flex items-center">
+              <select
+                value={filters.sortBy}
+                onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+                className="form-control w-full"
+                style={{ height: '48px', padding: '0.75rem 1rem', lineHeight: '1.5' }}
+              >
+                <option value="newest">Newest First</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="revenue-desc">Revenue: High to Low</option>
+              </select>
+            </div>
+
+            {/* Filter Toggle Button */}
+            <div className="w-full lg:w-auto flex items-center">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center justify-center gap-2 px-6 bg-gold/20 border border-gold/30 text-gold hover:bg-gold/30 rounded-lg transition-all duration-300 whitespace-nowrap w-full"
+                style={{ height: '48px' }}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="hidden sm:inline">Filters</span>
+                {(filters.industry || filters.minRevenue || filters.maxPrice || filters.state) && (
+                  <span className="w-2 h-2 bg-gold rounded-full"></span>
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Expandable Filters */}
+          {showFilters && (
+            <div className="mt-6 pt-6 border-t border-gold/20">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-silver/80 text-sm font-medium mb-2">Industry</label>
+                  <select
+                    value={filters.industry}
+                    onChange={(e) => setFilters({...filters, industry: e.target.value})}
+                    className="form-control w-full py-2 px-3"
+                  >
+                    <option value="">All Industries</option>
+                    <option value="SaaS">SaaS</option>
+                    <option value="E-commerce">E-commerce</option>
+                    <option value="Professional Services">Professional Services</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Healthcare Services">Healthcare</option>
+                    <option value="Technology Services">Technology</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-silver/80 text-sm font-medium mb-2">State</label>
+                  <select
+                    value={filters.state}
+                    onChange={(e) => setFilters({...filters, state: e.target.value})}
+                    className="form-control w-full py-2 px-3"
+                  >
+                    <option value="">All States</option>
+                    <option value="California">California</option>
+                    <option value="New York">New York</option>
+                    <option value="Texas">Texas</option>
+                    <option value="Florida">Florida</option>
+                    <option value="Illinois">Illinois</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-silver/80 text-sm font-medium mb-2">Min Revenue</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 500,000"
+                    value={filters.minRevenue}
+                    onChange={(e) => setFilters({...filters, minRevenue: e.target.value})}
+                    className="form-control w-full py-2 px-3"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-silver/80 text-sm font-medium mb-2">Max Price</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 5,000,000"
+                    value={filters.maxPrice}
+                    onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                    className="form-control w-full py-2 px-3"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setFilters({industry: '', minRevenue: '', maxPrice: '', state: '', sortBy: 'newest'})}
+                  className="px-4 py-2 text-silver/70 hover:text-warm-white transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Results Summary - Always Visible */}
@@ -191,7 +341,14 @@ export default function BrowsePage() {
           {/* Dynamic AI Features Highlight */}
           <div className="glass p-8 mb-20 rounded-lg border-2 border-gold/30 bg-gradient-to-r from-gold/5 to-accent-gold/5">
             <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold text-gold mb-2">AI-Powered Acquisition Intelligence</h3>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <h3 className="text-xl font-semibold text-gold">AI-Powered Acquisition Intelligence</h3>
+                <Tooltip content="Our AI analyzes every listing to provide insights, compatibility scores, and due diligence support">
+                  <svg className="w-5 h-5 text-gold/70 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </Tooltip>
+              </div>
               <p className="text-silver/80 text-sm">
                 {isAdmin ? (
                   'Get comprehensive AI analysis, buyer compatibility scoring, due diligence checklists, and market intelligence for each listing.'
@@ -213,6 +370,11 @@ export default function BrowsePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                   <span className="text-warm-white font-medium">Business Analysis</span>
+                  <Tooltip content="AI analyzes strengths, weaknesses, risks, and opportunities for each business">
+                    <svg className="w-4 h-4 text-silver/50 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </Tooltip>
                 </div>
                 {!isAdmin && !hasAIFeatureAccess(userPlan, 'businessAnalysis', user?.role) && (
                   <Link href="/subscribe" className="text-xs bg-gold/20 text-gold px-2 py-1 rounded border border-gold/30 hover:bg-gold/30 transition-colors">
@@ -232,6 +394,11 @@ export default function BrowsePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span className="text-warm-white font-medium">Buyer Compatibility Matching</span>
+                  <Tooltip content="AI scores how well each business matches your investment preferences">
+                    <svg className="w-4 h-4 text-silver/50 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </Tooltip>
                 </div>
                 {!isAdmin && !hasAIFeatureAccess(userPlan, 'buyerMatching', user?.role) && (
                   <Link href="/subscribe" className="text-xs bg-gold/20 text-gold px-2 py-1 rounded border border-gold/30 hover:bg-gold/30 transition-colors">
@@ -251,6 +418,11 @@ export default function BrowsePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   <span className="text-warm-white font-medium">Due Diligence Assistant</span>
+                  <Tooltip content="Generate customized checklists to investigate businesses thoroughly">
+                    <svg className="w-4 h-4 text-silver/50 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </Tooltip>
                 </div>
                 {!isAdmin && !hasAIFeatureAccess(userPlan, 'dueDiligence', user?.role) && (
                   <Link href="/subscribe" className="text-xs bg-gold/20 text-gold px-2 py-1 rounded border border-gold/30 hover:bg-gold/30 transition-colors">
@@ -270,6 +442,11 @@ export default function BrowsePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <span className="text-warm-white font-medium">Market Intelligence</span>
+                  <Tooltip content="Understand industry trends, market conditions, and competitive landscape">
+                    <svg className="w-4 h-4 text-silver/50 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </Tooltip>
                 </div>
                 {!isAdmin && !hasAIFeatureAccess(userPlan, 'marketIntelligence', user?.role) && (
                   <Link href="/subscribe" className="text-xs bg-gold/20 text-gold px-2 py-1 rounded border border-gold/30 hover:bg-gold/30 transition-colors">

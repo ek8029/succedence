@@ -665,7 +665,7 @@ export default function NewListingPage() {
                         ))}
                       </div>
                       <p className="text-neutral-400 text-sm">
-                        💡 Tip: Include your logo, storefront, products, team photos, or facility images to make your listing more attractive to buyers.
+                        Tip: Include your logo, storefront, products, team photos, or facility images to make your listing more attractive to buyers.
                       </p>
                     </div>
                   )}

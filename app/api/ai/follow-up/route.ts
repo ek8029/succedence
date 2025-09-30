@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // For general analyses (like market intelligence without specific listing)
-      console.log('📊 General analysis - no specific listing needed')
+      console.log('General analysis - no specific listing needed')
       listing = {
         title: previousAnalysis?.listingTitle || 'General Analysis',
         industry: previousAnalysis?.industry || previousAnalysis?.parameters?.industry || 'General',

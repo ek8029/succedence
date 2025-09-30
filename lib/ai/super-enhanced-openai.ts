@@ -22,7 +22,7 @@ export const isAIEnabled = () => {
 };
 
 function parseAIResponse(response: string): any {
-  console.log('🚀 AI RAW RESPONSE PREVIEW:', response.substring(0, 300) + '...');
+  console.log('AI RAW RESPONSE PREVIEW:', response.substring(0, 300) + '...');
 
   // Clean the response first
   let cleanResponse = response.trim();
@@ -811,11 +811,11 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
   }
 ): Promise<SuperEnhancedBuyerMatch> {
   // Generate dynamic analysis based on actual listing data
-  console.log('🚀 BUYER MATCH DEBUG: Generating analysis for', listing.title, 'in', listing.industry);
+  console.log('BUYER MATCH DEBUG: Generating analysis for', listing.title, 'in', listing.industry);
 
   const businessType = detectBusinessType(listing);
-  console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
-  console.log('🔍 MATCHING KEYWORDS:', businessType.matchingKeywords);
+  console.log('DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
+  console.log('MATCHING KEYWORDS:', businessType.matchingKeywords);
 
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -1069,7 +1069,7 @@ export async function generateSuperEnhancedDueDiligence(
   }
 
   // Generate industry-specific due diligence based on actual listing
-  console.log('🚀 DUE DILIGENCE DEBUG: Generating checklist for', listing.title, 'in', listing.industry);
+  console.log('DUE DILIGENCE DEBUG: Generating checklist for', listing.title, 'in', listing.industry);
 
   const businessType = detectBusinessType(listing);
   console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
@@ -1290,7 +1290,7 @@ export async function generateSuperEnhancedMarketIntelligence(
   }
 
   // Generate market intelligence based on actual industry and geography
-  console.log('🚀 MARKET INTELLIGENCE DEBUG: Analyzing', industry, 'market in', geography || 'general market');
+  console.log('MARKET INTELLIGENCE DEBUG: Analyzing', industry, 'market in', geography || 'general market');
 
   // Create a fake listing to detect business type from industry
   const fakeListing = { title: '', industry: industry, description: '', city: '', state: '' } as Listing;

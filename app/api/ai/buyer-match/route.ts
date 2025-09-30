@@ -231,15 +231,15 @@ export async function POST(request: NextRequest) {
     // Generate fresh super enhanced analysis if no cached version exists or forced refresh
     if (!existingAnalysis || forceRefresh) {
       // Use super enhanced buyer matching for comprehensive analysis
-      console.log('🚀 BUYER MATCH DEBUG: Starting super enhanced buyer match analysis');
-      console.log('🚀 BUYER MATCH DEBUG: Listing:', listing?.title);
-      console.log('🚀 BUYER MATCH DEBUG: Buyer Preferences:', buyerPreferences);
+      console.log('BUYER MATCH DEBUG: Starting super enhanced buyer match analysis');
+      console.log('BUYER MATCH DEBUG: Listing:', listing?.title);
+      console.log('BUYER MATCH DEBUG: Buyer Preferences:', buyerPreferences);
 
       try {
         matchScore = await analyzeBusinessSuperEnhancedBuyerMatch(listing, buyerPreferences);
-        console.log('🚀 BUYER MATCH DEBUG: Analysis completed successfully');
+        console.log('BUYER MATCH DEBUG: Analysis completed successfully');
       } catch (error) {
-        console.error('🚀 BUYER MATCH DEBUG: Error in analysis:', error);
+        console.error('BUYER MATCH DEBUG: Error in analysis:', error);
         throw error;
       }
 

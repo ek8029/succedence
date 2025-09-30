@@ -37,7 +37,7 @@ export class AnalysisWorker {
     }
 
     this.isRunning = true
-    console.log('🚀 Starting analysis worker...')
+    console.log('Starting analysis worker...')
 
     // Process jobs every 5 seconds
     this.processInterval = setInterval(() => {

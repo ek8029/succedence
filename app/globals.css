@@ -50,6 +50,74 @@
   --spacing-section: 6rem;
 }
 
+/* Mobile-First Responsive Design */
+@media (max-width: 640px) {
+  :root {
+    --spacing-section: 3rem;
+  }
+
+  /* Ensure text is readable on mobile */
+  body {
+    font-size: 16px; /* Prevent zoom on iOS */
+    line-height: 1.5;
+  }
+
+  /* Better touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Responsive padding */
+  .container-professional {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Stack cards vertically on mobile */
+  .glass {
+    margin-bottom: 1rem;
+  }
+
+  /* Larger text on mobile for readability */
+  h1 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  h3 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Better form inputs on mobile */
+  .form-control {
+    font-size: 16px !important; /* Prevent zoom */
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Optimize tables for mobile */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Better modals on mobile */
+  .fixed.inset-0 {
+    padding: 1rem;
+  }
+
+  /* Responsive nav */
+  nav {
+    padding: 0.5rem 1rem;
+  }
+}
+
 * {
   border-color: hsl(var(--border));
 }

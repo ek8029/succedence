@@ -8,7 +8,7 @@ import '@/lib/services/analysis-worker'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 Starting analysis request...')
+    console.log('Starting analysis request...')
     const body = await request.json()
     const { listingId, analysisType, parameters, userId, forceNew } = body
     console.log('📝 Request params:', { listingId, analysisType, userId, forceNew })

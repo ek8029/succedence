@@ -360,7 +360,7 @@ export async function incrementUsage(
     } catch (rpcError) {
       console.warn('RPC increment_usage not available, using fallback:', rpcError)
       // Fallback: just log the usage without database tracking
-      console.log(`📊 Usage logged (fallback): User ${userId}, Type: ${usageType}, Analysis: ${analysisType}, Cost: $${cost}`)
+      console.log(`Usage logged (fallback): User ${userId}, Type: ${usageType}, Analysis: ${analysisType}, Cost: $${cost}`)
     }
   } catch (error) {
     console.error('Error incrementing usage:', error)

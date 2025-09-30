@@ -6,6 +6,7 @@ import { Listing, PlanType, SUBSCRIPTION_PLANS } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer';
+import OnboardingWizard from '@/components/OnboardingWizard';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [topMatches, setTopMatches] = useState<any[]>([]);
   const [aiHistory, setAiHistory] = useState<any[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const userPlan = (authUser?.plan as PlanType) || 'free';
   const isAdmin = authUser?.role === 'admin';
@@ -33,6 +35,12 @@ export default function Dashboard() {
       setUser(user);
 
       if (user) {
+        // Check if user has seen onboarding (using localStorage)
+        const hasSeenOnboarding = localStorage.getItem(`onboarding_${user.id}`);
+        if (!hasSeenOnboarding) {
+          setShowOnboarding(true);
+        }
+
         // Fetch recent listings
         try {
           const response = await fetch(`/api/listings?page=${currentPage}&pageSize=${itemsPerPage}`);
@@ -129,6 +137,13 @@ export default function Dashboard() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleCompleteOnboarding = () => {
+    if (user) {
+      localStorage.setItem(`onboarding_${user.id}`, 'true');
+    }
+    setShowOnboarding(false);
   };
 
   if (loading) {
@@ -515,6 +530,14 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Onboarding Wizard */}
+      {showOnboarding && authUser && (
+        <OnboardingWizard
+          onComplete={handleCompleteOnboarding}
+          userRole={authUser.role as 'buyer' | 'seller'}
+        />
+      )}
 
       <Footer />
     </div>
