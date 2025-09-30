@@ -4,7 +4,12 @@
  */
 
 import { JobQueue, AnalysisJob } from './job-queue'
-import { analyzeBusinessSuperEnhanced } from '@/lib/ai/super-enhanced-openai'
+import {
+  analyzeBusinessSuperEnhanced,
+  analyzeBusinessSuperEnhancedBuyerMatch,
+  generateSuperEnhancedDueDiligence,
+  generateSuperEnhancedMarketIntelligence
+} from '@/lib/ai/super-enhanced-openai'
 import { createBackgroundServiceClient } from '@/lib/supabase/server'
 
 export class AnalysisWorker {
@@ -107,6 +112,9 @@ export class AnalysisWorker {
       await this.jobQueue.updateProgress(job.id, 30, 'Running AI analysis...')
       const result = await this.runAnalysis(job, listing)
 
+      // Save analysis to ai_analyses table for history/dashboard
+      await this.saveAnalysisToHistory(job, result)
+
       // Complete the job
       await this.jobQueue.completeJob(job.id, result)
       console.log('✅ Completed job:', job.id)
@@ -118,6 +126,38 @@ export class AnalysisWorker {
   }
 
   /**
+   * Save completed analysis to ai_analyses table for history and dashboard
+   */
+  private async saveAnalysisToHistory(job: AnalysisJob, result: any): Promise<void> {
+    try {
+      if (!job.user_id) {
+        console.log('⚠️ No user_id for job, skipping history save');
+        return;
+      }
+
+      const supabase = createBackgroundServiceClient();
+      const { error } = await supabase
+        .from('ai_analyses')
+        .insert({
+          user_id: job.user_id,
+          listing_id: job.listing_id,
+          analysis_type: job.analysis_type,
+          analysis_data: result,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('❌ Failed to save analysis to history:', error);
+      } else {
+        console.log('✅ Analysis saved to history table');
+      }
+    } catch (error) {
+      console.error('❌ Error saving analysis to history:', error);
+    }
+  }
+
+  /**
    * Fetch listing data from database
    */
   private async fetchListingData(listingId: string): Promise<any> {
@@ -125,12 +165,7 @@ export class AnalysisWorker {
       const supabase = createBackgroundServiceClient()
       const { data, error } = await supabase
         .from('listings')
-        .select(`
-          *,
-          listing_financials(*),
-          listing_documents(*),
-          user_profiles(*)
-        `)
+        .select('*')
         .eq('id', listingId)
         .single()
 
@@ -176,14 +211,14 @@ export class AnalysisWorker {
       ...listing,
       industry: listing.industry || 'General Business',
       location: `${listing.city || 'Unknown'}, ${listing.state || ''}`.trim(),
-      askingPrice: listing.asking_price || listing.price || 0,
-      revenue: listing.listing_financials?.[0]?.annual_revenue || listing.revenue || 0,
-      ebitda: listing.listing_financials?.[0]?.ebitda || listing.ebitda || 0,
-      employees: listing.employees || listing.number_of_employees || 0,
-      yearEstablished: listing.year_established || listing.founded || null,
-      businessType: listing.business_type || 'Unknown',
-      ownerInvolvement: listing.owner_involvement || 'Full-time',
-      reasonForSelling: listing.reason_for_selling || 'Not specified',
+      askingPrice: listing.price || 0,
+      revenue: listing.revenue || 0,
+      ebitda: listing.ebitda || 0,
+      employees: listing.employees || 0,
+      yearEstablished: listing.year_established || listing.created_at?.substring(0, 4) || null,
+      businessType: listing.industry || 'Unknown',
+      ownerInvolvement: listing.owner_hours ? `${listing.owner_hours} hours/week` : 'Full-time',
+      reasonForSelling: 'Not specified',
       parameters: job.parameters || {}
     }
 
@@ -196,33 +231,38 @@ export class AnalysisWorker {
 
       case 'market_intelligence':
         await this.jobQueue.updateProgress(job.id, 50, 'Analyzing market conditions...')
-        return {
-          message: `Market intelligence analysis for ${listingContext.industry} in ${listingContext.location}`,
-          industry: listingContext.industry,
-          location: listingContext.location,
-          dealSize: listingContext.askingPrice,
-          parameters: job.parameters
-        }
+        const marketResult = await generateSuperEnhancedMarketIntelligence(
+          listingContext.industry,
+          listingContext.location,
+          listingContext.askingPrice
+        )
+        await this.jobQueue.updateProgress(job.id, 90, 'Finalizing market intelligence...')
+        return marketResult
 
       case 'due_diligence':
         await this.jobQueue.updateProgress(job.id, 50, 'Creating due diligence checklist...')
-        return {
-          message: `Due diligence checklist for ${listingContext.industry} business`,
-          industry: listingContext.industry,
-          businessType: listingContext.businessType,
-          revenue: listingContext.revenue,
-          parameters: job.parameters
-        }
+        const dueDiligenceResult = await generateSuperEnhancedDueDiligence(listingContext as any)
+        await this.jobQueue.updateProgress(job.id, 90, 'Finalizing due diligence checklist...')
+        return dueDiligenceResult
 
       case 'buyer_match':
         await this.jobQueue.updateProgress(job.id, 50, 'Calculating buyer compatibility...')
-        return {
-          message: `Buyer compatibility for ${listingContext.industry} acquisition`,
-          industry: listingContext.industry,
-          dealSize: listingContext.askingPrice,
-          location: listingContext.location,
-          parameters: job.parameters
+        // Create default buyer preferences for background processing
+        const buyerPreferences = {
+          industries: [],
+          dealSizeMin: 0,
+          dealSizeMax: 10000000,
+          geographicPreferences: [],
+          riskTolerance: 'medium' as const,
+          experienceLevel: 'experienced' as const,
+          keywords: []
         }
+        const buyerMatchResult = await analyzeBusinessSuperEnhancedBuyerMatch(
+          listingContext as any,
+          buyerPreferences
+        )
+        await this.jobQueue.updateProgress(job.id, 90, 'Finalizing buyer match analysis...')
+        return buyerMatchResult
 
       default:
         throw new Error(`Unknown analysis type: ${job.analysis_type}`)

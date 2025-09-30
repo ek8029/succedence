@@ -6,7 +6,6 @@ import { Listing, PlanType, SUBSCRIPTION_PLANS } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer';
-import MyMatches from '@/components/MyMatches';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -19,6 +18,8 @@ export default function Dashboard() {
   const [savedListingsCount, setSavedListingsCount] = useState(0);
   const [matchesCount, setMatchesCount] = useState(0);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [topMatches, setTopMatches] = useState<any[]>([]);
+  const [aiHistory, setAiHistory] = useState<any[]>([]);
 
   const userPlan = (authUser?.plan as PlanType) || 'free';
   const isAdmin = authUser?.role === 'admin';
@@ -46,11 +47,19 @@ export default function Dashboard() {
             setSavedListingsCount(savedData.length || 0);
           }
 
-          // Fetch matches count
-          const matchesResponse = await fetch('/api/matches');
+          // Fetch matches count and top 3 matches
+          const matchesResponse = await fetch('/api/matches?limit=3');
           if (matchesResponse.ok) {
             const matchesData = await matchesResponse.json();
             setMatchesCount(matchesData.matches?.length || 0);
+            setTopMatches(matchesData.matches?.slice(0, 3) || []);
+          }
+
+          // Fetch recent AI history
+          const aiResponse = await fetch('/api/ai/history?page=1&limit=6');
+          if (aiResponse.ok) {
+            const aiData = await aiResponse.json();
+            setAiHistory(aiData.aiHistory?.slice(0, 6) || []);
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -89,6 +98,37 @@ export default function Dashboard() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-400'
+    if (score >= 60) return 'text-yellow-400'
+    return 'text-orange-400'
+  }
+
+  const getScoreBadgeColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500/20 border-green-500/30'
+    if (score >= 60) return 'bg-yellow-500/20 border-yellow-500/30'
+    return 'bg-orange-500/20 border-orange-500/30'
+  }
+
+  const getAnalysisTypeName = (type: string) => {
+    switch (type) {
+      case 'business_analysis': return 'Business Analysis';
+      case 'buyer_match': return 'Buyer Match';
+      case 'due_diligence': return 'Due Diligence';
+      case 'market_intelligence': return 'Market Intelligence';
+      default: return type;
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   if (loading) {
@@ -238,9 +278,125 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* My Matches */}
+          {/* My Matches - Condensed */}
           <div className="mb-16">
-            <MyMatches />
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white tracking-refined">
+                My Matches
+              </h2>
+              <Link
+                href="/matches"
+                className="text-gold hover:text-warm-white transition-colors font-medium text-sm"
+              >
+                View All →
+              </Link>
+            </div>
+            <div className="glass p-6 border border-gold/30 rounded-luxury">
+              {topMatches.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {topMatches.map((match) => (
+                    <Link
+                      key={match.id}
+                      href={`/listings/${match.listing.id}`}
+                      className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-warm-white font-medium text-sm line-clamp-2 flex-1">
+                          {match.listing.title}
+                        </h3>
+                        <div className={`ml-2 px-2 py-1 rounded text-xs border ${getScoreBadgeColor(match.score)}`}>
+                          <span className={`font-medium ${getScoreColor(match.score)}`}>
+                            {match.score}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-silver/70 text-xs mb-2">
+                        {match.listing.industry} • {match.listing.city}, {match.listing.state}
+                      </div>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-gold">
+                          {formatCurrency(match.listing.price)}
+                        </span>
+                        <span className="text-silver/60">
+                          {match.reasons.length} reasons
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-silver/70 text-sm mb-4">No matches found yet</div>
+                  <Link
+                    href="/preferences"
+                    className="text-gold hover:text-warm-white transition-colors text-sm font-medium"
+                  >
+                    Set your preferences to get matches →
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* AI Analysis History - Embedded */}
+          <div className="mb-16">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white tracking-refined">
+                Recent AI Analysis
+              </h2>
+              <Link
+                href="/ai-analysis-history"
+                className="text-gold hover:text-warm-white transition-colors font-medium text-sm"
+              >
+                View All →
+              </Link>
+            </div>
+            <div className="glass p-6 border border-gold/30 rounded-luxury">
+              {aiHistory.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {aiHistory.map((analysis) => (
+                    <Link
+                      key={analysis.id}
+                      href={`/listings/${analysis.listing_id}`}
+                      className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="px-2 py-1 bg-gold/20 text-gold rounded text-xs font-medium">
+                          {getAnalysisTypeName(analysis.analysis_type)}
+                        </div>
+                        <div className="text-silver/60 text-xs">
+                          {formatDate(analysis.created_at)}
+                        </div>
+                      </div>
+                      <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
+                        {analysis.listings.title}
+                      </h3>
+                      <div className="text-silver/70 text-xs mb-2">
+                        {analysis.listings.industry} • {analysis.listings.city}, {analysis.listings.state}
+                      </div>
+                      <div className="text-gold text-xs">
+                        {formatCurrency(analysis.listings.price)}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <div className="text-silver/70 text-sm mb-4">No AI analyses yet</div>
+                  <Link
+                    href="/browse"
+                    className="text-gold hover:text-warm-white transition-colors text-sm font-medium"
+                  >
+                    Explore listings to generate AI insights →
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Personalized Recommendations */}
@@ -294,107 +450,65 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <div className="mb-16">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white tracking-refined mb-12">
+            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-warm-white tracking-refined mb-8">
               Quick Actions
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
               <Link
                 href="/browse"
-                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+                className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col items-center text-center min-h-[200px] justify-center"
               >
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mb-6 group-hover:bg-gold/30 transition-colors">
+                  <svg className="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
-                <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Browse Opportunities</h3>
-                  <p className="text-silver/80 text-sm flex-grow">Discover new business acquisition opportunities</p>
-                </div>
+                <h3 className="font-serif text-xl font-semibold text-warm-white mb-3 whitespace-nowrap">Browse Listings</h3>
+                <p className="text-silver/80 text-sm leading-relaxed">Discover and explore business acquisition opportunities across all industries</p>
               </Link>
 
               {user && (
                 <Link
                   href="/listings/new"
-                  className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+                  className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col items-center text-center min-h-[200px] justify-center"
                 >
-                  <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
-                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mb-6 group-hover:bg-gold/30 transition-colors">
+                    <svg className="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
-                  <div className="flex-grow flex flex-col">
-                    <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">List Business</h3>
-                    <p className="text-silver/80 text-sm flex-grow">Add your business to the marketplace</p>
-                  </div>
+                  <h3 className="font-serif text-xl font-semibold text-warm-white mb-3 whitespace-nowrap">List Your Business</h3>
+                  <p className="text-silver/80 text-sm leading-relaxed">Create a professional listing to sell your business to qualified buyers</p>
                 </Link>
               )}
 
               <Link
                 href="/preferences"
-                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+                className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col items-center text-center min-h-[200px] justify-center"
               >
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mb-6 group-hover:bg-gold/30 transition-colors">
+                  <svg className="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
                 </div>
-                <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Set Preferences</h3>
-                  <p className="text-silver/80 text-sm flex-grow">Define your acquisition criteria</p>
-                </div>
+                <h3 className="font-serif text-xl font-semibold text-warm-white mb-3 whitespace-nowrap">Set Preferences</h3>
+                <p className="text-silver/80 text-sm leading-relaxed">Configure your acquisition criteria and receive personalized matches</p>
               </Link>
 
               <Link
                 href="/saved-listings"
-                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
+                className="glass p-8 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col items-center text-center min-h-[200px] justify-center"
               >
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 bg-gold/20 rounded-full flex items-center justify-center mb-6 group-hover:bg-gold/30 transition-colors">
+                  <svg className="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                   </svg>
                 </div>
-                <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Saved Listings</h3>
-                  <p className="text-silver/80 text-sm flex-grow">View your saved opportunities</p>
-                  {savedListingsCount > 0 && (
-                    <span className="text-xs text-gold mt-2">({savedListingsCount} saved)</span>
-                  )}
-                </div>
-              </Link>
-
-              <Link
-                href="/ai-analysis-history"
-                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
-              >
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-                <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">AI History</h3>
-                  <p className="text-silver/80 text-sm flex-grow">View your AI analysis history</p>
-                </div>
-              </Link>
-
-              <Link
-                href="/matches"
-                className="glass p-6 rounded-luxury-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1 group h-full flex flex-col"
-              >
-                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/30 transition-colors flex-shrink-0">
-                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div className="flex-grow flex flex-col">
-                  <h3 className="font-serif text-lg font-semibold text-warm-white mb-2">Your Matches</h3>
-                  <p className="text-silver/80 text-sm flex-grow">View personalized matches</p>
-                  {matchesCount > 0 && (
-                    <span className="text-xs text-gold mt-2">({matchesCount} matches)</span>
-                  )}
-                </div>
+                <h3 className="font-serif text-xl font-semibold text-warm-white mb-3 whitespace-nowrap">Saved Listings</h3>
+                <p className="text-silver/80 text-sm leading-relaxed">
+                  {savedListingsCount > 0 ? `View your ${savedListingsCount} saved business opportunities` : 'Bookmark interesting businesses for later review'}
+                </p>
               </Link>
 
             </div>
