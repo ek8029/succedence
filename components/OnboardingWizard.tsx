@@ -80,7 +80,7 @@ export default function OnboardingWizard({ onComplete, userRole }: OnboardingWiz
             </p>
           </div>
           <div className="glass p-6 rounded-lg border border-gold/20">
-            <h4 className="text-warm-white font-semibold mb-4">What You'll Set:</h4>
+            <h4 className="text-warm-white font-semibold mb-4">What You&apos;ll Set:</h4>
             <ul className="space-y-3">
               <li className="flex items-center text-silver/80">
                 <svg className="w-5 h-5 text-gold mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +231,7 @@ export default function OnboardingWizard({ onComplete, userRole }: OnboardingWiz
               </svg>
               <div>
                 <h4 className="text-warm-white font-medium mb-1">AI-Enhanced Listings</h4>
-                <p className="text-silver/80 text-sm">Our AI helps showcase your business's strengths to potential buyers</p>
+                <p className="text-silver/80 text-sm">Our AI helps showcase your business&apos;s strengths to potential buyers</p>
               </div>
             </div>
             <div className="flex items-start space-x-3">
@@ -263,7 +263,7 @@ export default function OnboardingWizard({ onComplete, userRole }: OnboardingWiz
             </p>
           </div>
           <div className="glass p-6 rounded-lg border border-gold/20">
-            <h4 className="text-warm-white font-semibold mb-4">What You'll Need:</h4>
+            <h4 className="text-warm-white font-semibold mb-4">What You&apos;ll Need:</h4>
             <ul className="space-y-3">
               <li className="flex items-center text-silver/80">
                 <svg className="w-5 h-5 text-gold mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
