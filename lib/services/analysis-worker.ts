@@ -139,13 +139,11 @@ export class AnalysisWorker {
       const { error } = await supabase
         .from('ai_analyses')
         .insert({
-          user_id: job.user_id,
-          listing_id: job.listing_id,
-          analysis_type: job.analysis_type,
-          analysis_data: result,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+          userId: job.user_id,
+          listingId: job.listing_id,
+          analysisType: job.analysis_type,
+          analysisData: result
+        } as any);
 
       if (error) {
         console.error('❌ Failed to save analysis to history:', error);
@@ -254,7 +252,7 @@ export class AnalysisWorker {
           dealSizeMax: 10000000,
           geographicPreferences: [],
           riskTolerance: 'medium' as const,
-          experienceLevel: 'experienced' as const,
+          experienceLevel: 'expert' as const,
           keywords: []
         }
         const buyerMatchResult = await analyzeBusinessSuperEnhancedBuyerMatch(
