@@ -4,11 +4,31 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Only auth pages are public - everything else requires authentication
-  const publicRoutes = ['/auth', '/auth/reset-password']
+  // Check if gate password has been entered
+  const gateAccess = request.cookies.get('gate_access')?.value
+
+  // Allow gate page and its API without gate check
+  if (pathname === '/gate' || pathname === '/api/gate') {
+    return NextResponse.next()
+  }
+
+  // If no gate access, redirect to gate page
+  if (!gateAccess) {
+    // Skip for static files
+    if (pathname.startsWith('/_next')) {
+      return NextResponse.next()
+    }
+    return NextResponse.redirect(new URL('/gate', request.url))
+  }
+
+  // Public routes (no auth needed after gate)
+  const publicRoutes = ['/', '/auth', '/auth/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms']
 
   // Check if the current path is public (no auth needed)
   const isPublicRoute = publicRoutes.some(route => {
+    if (route === '/') {
+      return pathname === '/'
+    }
     return pathname === route || pathname.startsWith(route + '/')
   })
 
