@@ -15,8 +15,9 @@ export default function GateLayout({
     <html lang="en">
       <body style={{fontFamily: 'Source Serif Pro, Georgia, serif', margin: 0, padding: 0, overflow: 'hidden', height: '100vh', width: '100vw', position: 'relative'}}>
         <style>{`
-          body > *:not(:first-child) { display: none !important; }
-          #ai-assistant-root, [class*="ai-"], [id*="ai-"] { display: none !important; }
+          nav, header, footer { display: none !important; }
+          #ai-assistant-root, [id*="ai-assistant"], [class*="AIAssistant"] { display: none !important; }
+          button[class*="ai-"], div[class*="ai-chat"] { display: none !important; }
         `}</style>
         {children}
       </body>
