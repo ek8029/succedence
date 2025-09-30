@@ -3,12 +3,21 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const { user, isLoading, signOut } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<'user' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pathname = usePathname();
+
+  // Determine which nav items to hide based on current page
+  const hideDashboard = pathname === '/app'; // Hide "Dashboard" on dashboard page
+  const hideMyMatches = pathname === '/app' || pathname === '/matches'; // Hide "My Matches" on dashboard and matches page
+  const hideBrowse = pathname === '/browse'; // Hide "Browse" on browse page
+  const hideSavedListings = pathname === '/saved-listings'; // Hide "Saved Listings" on saved listings page
+  const hideListBusiness = pathname === '/listings/new'; // Hide "List Business" on list business page
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -69,7 +78,7 @@ export default function Navbar() {
           {/* Mobile Menu Dropdown */}
           {mobileMenuOpen && (
             <div className="absolute left-0 right-0 top-full bg-midnight border-t border-gold/20 shadow-lg py-4 px-4 space-y-3">
-              {user && (
+              {user && !hideDashboard && (
                 <Link
                   href="/app"
                   onClick={() => setMobileMenuOpen(false)}
@@ -79,40 +88,48 @@ export default function Navbar() {
                   Dashboard
                 </Link>
               )}
-              <Link
-                href="/browse"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-              >
-                Browse Opportunities
-              </Link>
-              <Link
-                href="/saved-listings"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-              >
-                Saved Listings
-              </Link>
+              {!hideBrowse && (
+                <Link
+                  href="/browse"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
+                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                >
+                  Browse Opportunities
+                </Link>
+              )}
+              {!hideSavedListings && (
+                <Link
+                  href="/saved-listings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
+                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                >
+                  Saved Listings
+                </Link>
+              )}
               {user && (
                 <>
-                  <Link
-                    href="/listings/new"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                    style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                  >
-                    List Business
-                  </Link>
-                  <Link
-                    href="/matches"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                    style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                  >
-                    My Matches
-                  </Link>
+                  {!hideListBusiness && (
+                    <Link
+                      href="/listings/new"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
+                      style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                    >
+                      List Business
+                    </Link>
+                  )}
+                  {!hideMyMatches && (
+                    <Link
+                      href="/matches"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
+                      style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                    >
+                      My Matches
+                    </Link>
+                  )}
                   <div className="border-t border-gold/20 my-2"></div>
                   <Link
                     href="/profile"
@@ -178,25 +195,29 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-6">
-              {user && (
+              {user && !hideDashboard && (
                 <Link href="/app" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   Dashboard
                 </Link>
               )}
-              <Link href="/browse" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                Browse Opportunities
-              </Link>
-              {user && (
+              {!hideBrowse && (
+                <Link href="/browse" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  Browse Opportunities
+                </Link>
+              )}
+              {user && !hideMyMatches && (
                 <Link href="/matches" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   My Matches
                 </Link>
               )}
-              <Link href="/saved-listings" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                Saved Listings
-              </Link>
+              {!hideSavedListings && (
+                <Link href="/saved-listings" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  Saved Listings
+                </Link>
+              )}
             </div>
 
-            {user && (
+            {user && !hideListBusiness && (
               <div className="flex items-center space-x-6">
                 <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   List Business
