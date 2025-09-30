@@ -180,7 +180,8 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
         credentials: 'include',
         body: JSON.stringify({
           listingId,
-          analysisType: 'buyer_match'
+          analysisType: 'buyer_match',
+          forceNew: true
         }),
       });
 

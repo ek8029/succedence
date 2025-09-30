@@ -175,7 +175,8 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
         credentials: 'include',
         body: JSON.stringify({
           listingId,
-          analysisType: 'due_diligence'
+          analysisType: 'due_diligence',
+          forceNew: true
         }),
       });
 

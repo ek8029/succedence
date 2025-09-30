@@ -169,7 +169,8 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
         credentials: 'include',
         body: JSON.stringify({
           listingId,
-          analysisType: 'business_analysis'
+          analysisType: 'business_analysis',
+          forceNew: true
         }),
       });
 

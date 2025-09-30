@@ -200,6 +200,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
         body: JSON.stringify({
           listingId: listingId || 'market-intelligence-general',
           analysisType: 'market_intelligence',
+          forceNew: true,
           parameters: {
             industry: formData.industry,
             geography: formData.geography || undefined,

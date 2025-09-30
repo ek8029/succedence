@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Starting analysis request...')
     const body = await request.json()
-    const { listingId, analysisType, parameters, userId } = body
-    console.log('📝 Request params:', { listingId, analysisType, userId })
+    const { listingId, analysisType, parameters, userId, forceNew } = body
+    console.log('📝 Request params:', { listingId, analysisType, userId, forceNew })
 
     if (!listingId || !analysisType) {
       console.error('❌ Missing required parameters:', { listingId, analysisType })
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const jobQueue = JobQueue.getInstance()
     const existingJob = await jobQueue.getLatestJob(listingId, analysisType)
 
-    if (existingJob) {
+    if (existingJob && !forceNew) {
       if (existingJob.status === 'queued' || existingJob.status === 'processing') {
         return NextResponse.json({
           status: 'processing',
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         })
       }
       if (existingJob.status === 'completed' && existingJob.result) {
-        // Return cached result if less than 10 minutes old
+        // Return cached result if less than 10 minutes old (unless forceNew is true)
         const jobAge = Date.now() - new Date(existingJob.created_at).getTime()
         if (jobAge < 10 * 60 * 1000) {
           return NextResponse.json({
