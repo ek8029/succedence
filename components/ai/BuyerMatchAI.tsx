@@ -166,6 +166,8 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   const handleAnalyzeMatch = async () => {
     setIsLoading(true);
     setError(null);
+    setMatchScore(null); // Clear existing result to show loading state
+    setHasCheckedForExisting(false); // Reset to allow fresh fetching
     analysisInProgressRef.current = true;
 
     try {
@@ -197,6 +199,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to calculate buyer match');
+      setMatchScore(null); // Ensure result is cleared on error
     } finally {
       setIsLoading(false);
       analysisInProgressRef.current = false;
@@ -272,27 +275,33 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
         <h3 className="text-xl font-semibold text-warm-white font-serif">
           Buyer Compatibility Score
         </h3>
-        {!matchScore && (
-          <button
-            onClick={handleAnalyzeMatch}
-            disabled={isLoading}
-            className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                <span>Calculating...</span>
-              </div>
-            ) : (
-              'Calculate Match'
-            )}
-          </button>
-        )}
+        <button
+          onClick={handleAnalyzeMatch}
+          disabled={isLoading}
+          className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              <span>Calculating...</span>
+            </div>
+          ) : (
+            matchScore ? 'Recalculate Match' : 'Calculate Match'
+          )}
+        </button>
       </div>
 
       {error && (
         <div className="mb-4 p-4 bg-red-900/20 border border-red-400/30 rounded-luxury text-red-400">
           <p className="text-sm">{error}</p>
+        </div>
+      )}
+
+      {isLoading && !matchScore && (
+        <div className="text-center py-12">
+          <div className="w-12 h-12 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg text-silver/80 mb-2">Calculating buyer compatibility...</div>
+          <div className="text-sm text-silver/60">This may take a few moments to complete</div>
         </div>
       )}
 
@@ -454,21 +463,13 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           />
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-gold/10">
-            <button
-              onClick={handleAnalyzeMatch}
-              disabled={isLoading}
-              className="px-6 py-2 bg-transparent border-2 border-gold/30 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-sm disabled:opacity-50"
-            >
-              {isLoading ? 'Calculating...' : 'Recalculate Match'}
-            </button>
-
-            {matchScore.score && matchScore.score >= 60 && (
+          {matchScore.score && matchScore.score >= 60 && (
+            <div className="flex justify-center pt-4 border-t border-gold/10">
               <button className="px-6 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary text-sm">
                 Get Due Diligence Checklist
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* AI Disclaimer */}
           <div className="mt-6 p-4 bg-navy/20 rounded-luxury border border-gold/10">
