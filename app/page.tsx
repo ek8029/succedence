@@ -38,8 +38,8 @@ export default function PublicLandingPage() {
                     <div className="text-sm text-silver">Faster Closures</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-gold mb-2 font-mono">500+</div>
-                    <div className="text-sm text-silver">Active Buyers</div>
+                    <div className="text-3xl font-bold text-gold mb-2 font-mono">AI</div>
+                    <div className="text-sm text-silver">Powered Insights</div>
                   </div>
                 </div>
 
