@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     const { userId } = revokeBetaSchema.parse(body)
 
     // Update user plan back to free
-    const { error: updateError } = await supabase
-      .from('users')
+    const { error: updateError } = await (supabase
+      .from('users') as any)
       .update({ plan: 'free' })
       .eq('id', userId)
 

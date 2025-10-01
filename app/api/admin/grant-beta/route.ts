@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     const { email } = grantBetaSchema.parse(body)
 
     // Find the user by email
-    const { data: targetUser, error: findError } = await supabase
-      .from('users')
+    const { data: targetUser, error: findError } = await (supabase
+      .from('users') as any)
       .select('id, plan')
       .eq('email', email)
       .single()
@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user plan to beta
-    const { error: updateError } = await supabase
-      .from('users')
+    const { error: updateError } = await (supabase
+      .from('users') as any)
       .update({ plan: 'beta' })
       .eq('id', targetUser.id)
 
