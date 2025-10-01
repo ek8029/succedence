@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -80,8 +80,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, name, password } = createAdminSchema.parse(body)
 
+    // Use service client for admin operations
+    const serviceClient = createServiceClient()
+
     // Create admin user using Supabase Auth Admin API
-    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+    const { data: newUser, error: createError } = await serviceClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert user data into users table
-    const { error: insertError } = await (supabase
+    const { error: insertError } = await (serviceClient
       .from('users') as any)
       .insert({
         id: newUser.user.id,
@@ -112,7 +115,7 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       console.error('Error inserting user data:', insertError)
       // Try to clean up the auth user if database insert failed
-      await supabase.auth.admin.deleteUser(newUser.user.id)
+      await serviceClient.auth.admin.deleteUser(newUser.user.id)
       return NextResponse.json(
         { error: 'Failed to complete admin creation' },
         { status: 500 }
@@ -181,8 +184,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
+    // Use service client for admin operations
+    const serviceClient = createServiceClient()
+
     // Delete user from auth and users table
-    const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(userId)
+    const { error: deleteAuthError } = await serviceClient.auth.admin.deleteUser(userId)
 
     if (deleteAuthError) {
       console.error('Error deleting auth user:', deleteAuthError)
@@ -193,7 +199,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete from users table (should cascade due to foreign key)
-    const { error: deleteUserError } = await supabase
+    const { error: deleteUserError } = await serviceClient
       .from('users')
       .delete()
       .eq('id', userId)

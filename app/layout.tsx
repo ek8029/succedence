@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import { AuthProvider } from '@/contexts/AuthContext'
-import AIAssistantWrapper from '@/components/AIAssistantWrapper'
 
 export const metadata: Metadata = {
   title: 'Succedence - Sophisticated Business Marketplace',
@@ -21,7 +20,6 @@ export default function RootLayout({
           <div className="min-h-screen bg-brand-darker text-white">
             <Navbar />
             {children}
-            <AIAssistantWrapper />
           </div>
         </AuthProvider>
       </body>
