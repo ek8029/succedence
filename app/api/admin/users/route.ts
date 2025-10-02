@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient, createBackgroundServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -22,8 +22,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Use background service client to bypass RLS for admin check
+    const serviceClient = createBackgroundServiceClient()
+
     // Check if user is admin
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await serviceClient
       .from('users')
       .select('role')
       .eq('id', user.id)
@@ -33,10 +36,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
-    // Get all users with their roles
-    const { data: users, error: usersError } = await supabase
+    // Get all users with their roles and plans using background service client to bypass RLS
+    const { data: users, error: usersError } = await serviceClient
       .from('users')
-      .select('id, name, email, role, created_at')
+      .select('id, name, email, role, plan, status, created_at')
       .order('created_at', { ascending: false })
 
     if (usersError) {
@@ -80,8 +83,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, name, password } = createAdminSchema.parse(body)
 
-    // Use service client for admin operations
-    const serviceClient = createServiceClient()
+    // Use background service client for admin operations
+    const serviceClient = createBackgroundServiceClient()
 
     // Create admin user using Supabase Auth Admin API
     const { data: newUser, error: createError } = await serviceClient.auth.admin.createUser({
@@ -184,8 +187,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
-    // Use service client for admin operations
-    const serviceClient = createServiceClient()
+    // Use background service client for admin operations
+    const serviceClient = createBackgroundServiceClient()
 
     // Delete user from auth and users table
     const { error: deleteAuthError } = await serviceClient.auth.admin.deleteUser(userId)

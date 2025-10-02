@@ -98,6 +98,7 @@ export default function ListingDetailPage() {
                     contactEmail: authData.listing.contact_email,
                     contactOther: authData.listing.contact_other,
                     status: authData.listing.status,
+                    brokerProfileId: authData.listing.broker_profile_id,
                     createdAt: authData.listing.created_at,
                     updatedAt: authData.listing.updated_at
                   };

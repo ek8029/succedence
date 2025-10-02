@@ -12,7 +12,7 @@ import {
 import { relations } from 'drizzle-orm';
 
 // Enums
-export const userRoleEnum = pgEnum('user_role', ['buyer', 'seller', 'admin']);
+export const userRoleEnum = pgEnum('user_role', ['buyer', 'seller', 'admin', 'broker']);
 export const planTypeEnum = pgEnum('plan_type', ['free', 'starter', 'professional', 'enterprise']);
 export const userStatusEnum = pgEnum('user_status', ['active', 'inactive', 'banned']);
 export const listingStatusEnum = pgEnum('listing_status', ['draft', 'active', 'rejected', 'archived']);
@@ -40,6 +40,28 @@ export const profiles = pgTable('profiles', {
   location: text('location'),
   avatarUrl: text('avatar_url'),
   kycStatus: text('kyc_status'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Broker profiles table
+export const brokerProfiles = pgTable('broker_profiles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id).notNull().unique(),
+  displayName: text('display_name').notNull(),
+  headshotUrl: text('headshot_url'),
+  bio: text('bio'),
+  phone: text('phone'),
+  email: text('email'),
+  company: text('company'),
+  licenseNumber: text('license_number'),
+  workAreas: text('work_areas').array(),
+  specialties: text('specialties').array(),
+  yearsExperience: integer('years_experience'),
+  websiteUrl: text('website_url'),
+  linkedinUrl: text('linkedin_url'),
+  isPublic: text('is_public').notNull().default('true'),
+  customSections: jsonb('custom_sections'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -80,6 +102,7 @@ export const listings = pgTable('listings', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   ownerUserId: uuid('owner_user_id').references(() => users.id),
+  brokerProfileId: uuid('broker_profile_id').references(() => brokerProfiles.id),
 }, (table) => ({
   industryStateIdx: index('listings_industry_state_idx').on(table.industry, table.state),
   updatedAtIdx: index('listings_updated_at_idx').on(table.updatedAt),
@@ -191,6 +214,7 @@ export const savedListings = pgTable('saved_listings', {
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles),
   preferences: one(preferences),
+  brokerProfile: one(brokerProfiles),
   ownedListings: many(listings),
   matches: many(matches),
   alerts: many(alerts),
@@ -217,10 +241,22 @@ export const preferencesRelations = relations(preferences, ({ one }) => ({
   }),
 }));
 
+export const brokerProfilesRelations = relations(brokerProfiles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [brokerProfiles.userId],
+    references: [users.id],
+  }),
+  listings: many(listings),
+}));
+
 export const listingsRelations = relations(listings, ({ one, many }) => ({
   owner: one(users, {
     fields: [listings.ownerUserId],
     references: [users.id],
+  }),
+  broker: one(brokerProfiles, {
+    fields: [listings.brokerProfileId],
+    references: [brokerProfiles.id],
   }),
   media: many(listingMedia),
   matches: many(matches),
@@ -324,6 +360,8 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
+export type BrokerProfile = typeof brokerProfiles.$inferSelect;
+export type NewBrokerProfile = typeof brokerProfiles.$inferInsert;
 export type Preferences = typeof preferences.$inferSelect;
 export type NewPreferences = typeof preferences.$inferInsert;
 export type Listing = typeof listings.$inferSelect;

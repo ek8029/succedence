@@ -30,6 +30,7 @@ function AdminPageContent() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [brokerCount, setBrokerCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
   const [showBetaManagement, setShowBetaManagement] = useState(false);
@@ -169,19 +170,22 @@ function AdminPageContent() {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsResponse, listingsResponse, usersResponse] = await Promise.all([
+      const [statsResponse, listingsResponse, usersResponse, brokersResponse] = await Promise.all([
         fetch('/api/admin'),
         fetch('/api/admin/listings'),
-        fetch('/api/admin/users')
+        fetch('/api/admin/users'),
+        fetch('/api/admin/brokers')
       ]);
 
       const statsData = await statsResponse.json();
       const listingsData = await listingsResponse.json();
       const usersData = await usersResponse.json();
+      const brokersData = await brokersResponse.json();
 
       setStats(statsData);
       setListings(listingsData || []);
       setUsers(usersData.users || []);
+      setBrokerCount(brokersData.brokers?.length || 0);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -328,6 +332,34 @@ function AdminPageContent() {
     }
   };
 
+  const handleUpgradeToAdmin = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to upgrade "${userName}" to admin role?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role: 'admin' }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('User upgraded to admin successfully!');
+        fetchDashboardData(); // Refresh data
+      } else {
+        alert(data.error || 'Failed to upgrade user to admin');
+      }
+    } catch (error) {
+      console.error('Error upgrading user:', error);
+      alert('Failed to upgrade user to admin');
+    }
+  };
+
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
@@ -428,6 +460,14 @@ function AdminPageContent() {
               <div className="text-3xl font-bold text-white mb-2 text-financial">{stats.totalMessages}</div>
               <div className="text-neutral-400">Messages Sent</div>
             </div>
+
+            <div className="metric-card p-8 slide-up" style={{animationDelay: '0.6s'}}>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-caption text-neutral-500">Brokers</span>
+              </div>
+              <div className="text-3xl font-bold text-white mb-2 text-financial">{brokerCount}</div>
+              <div className="text-neutral-400">Active Brokers</div>
+            </div>
             </div>
           </div>
         </ScrollAnimation>
@@ -452,177 +492,206 @@ function AdminPageContent() {
         <ScrollAnimation direction="up" delay={125}>
           <div className="max-w-6xl mx-auto mb-16">
           <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl text-white font-medium">User Management</h2>
-              <div className="flex gap-4 items-center">
-                <button
-                  onClick={() => setShowBetaManagement(true)}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"
-                >
-                  Manage Beta Access
-                </button>
-                <button
-                  onClick={() => setShowCreateAdmin(true)}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
-                >
-                  Create New Admin
-                </button>
+            {!showCreateAdmin && !showBetaManagement && (
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl text-white font-medium">User Management</h2>
+                <div className="flex gap-4 items-center">
+                  <Link
+                    href="/admin/brokers"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white border border-purple-600 rounded transition-all h-10"
+                  >
+                    Manage Brokers
+                  </Link>
+                  <button
+                    onClick={() => setShowBetaManagement(true)}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"
+                  >
+                    Manage Beta Access
+                  </button>
+                  <button
+                    onClick={() => setShowCreateAdmin(true)}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
+                  >
+                    Create New Admin
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Create Admin Modal */}
+            {/* Create Admin Form */}
             {showCreateAdmin && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto p-4">
-                <div className="glass p-8 border border-gold/30 rounded-luxury max-w-md w-full my-8">
-                  <h3 className="text-xl text-white font-medium mb-6">Create New Admin</h3>
-                  <form onSubmit={handleCreateAdmin} className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl text-white font-medium">Create New Admin</h2>
+                  <button
+                    onClick={() => {
+                      setShowCreateAdmin(false);
+                      setNewAdminData({ name: '', email: '', password: '' });
+                    }}
+                    className="text-neutral-400 hover:text-white transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form onSubmit={handleCreateAdmin} className="space-y-4 max-w-md">
+                  <div>
+                    <label className="form-label">Full Name</label>
+                    <input
+                      type="text"
+                      value={newAdminData.name}
+                      onChange={(e) => setNewAdminData({...newAdminData, name: e.target.value})}
+                      className="form-control w-full"
+                      placeholder="Enter full name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Email Address</label>
+                    <input
+                      type="email"
+                      value={newAdminData.email}
+                      onChange={(e) => setNewAdminData({...newAdminData, email: e.target.value})}
+                      className="form-control w-full"
+                      placeholder="Enter email address"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Password</label>
+                    <input
+                      type="password"
+                      value={newAdminData.password}
+                      onChange={(e) => setNewAdminData({...newAdminData, password: e.target.value})}
+                      className="form-control w-full"
+                      placeholder="Enter password (min 6 characters)"
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="submit"
+                      className="btn-primary px-6 py-2.5 text-sm font-medium"
+                    >
+                      Create Admin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCreateAdmin(false);
+                        setNewAdminData({ name: '', email: '', password: '' });
+                      }}
+                      className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-2.5 text-sm font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Beta Management Form */}
+            {showBetaManagement && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl text-white font-medium">Beta Access Management</h2>
+                  <button
+                    onClick={() => {
+                      setShowBetaManagement(false);
+                      setBetaUserEmail('');
+                    }}
+                    className="text-neutral-400 hover:text-white transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Grant Beta Access */}
+                <div className="mb-8 max-w-md">
+                  <h4 className="text-lg text-blue-200 font-medium mb-4">Grant Beta Access</h4>
+                  <form onSubmit={handleGrantBetaAccess} className="space-y-4">
                     <div>
-                      <label className="form-label">Full Name</label>
-                      <input
-                        type="text"
-                        value={newAdminData.name}
-                        onChange={(e) => setNewAdminData({...newAdminData, name: e.target.value})}
-                        className="form-control w-full"
-                        placeholder="Enter full name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="form-label">Email Address</label>
+                      <label className="form-label">User Email</label>
                       <input
                         type="email"
-                        value={newAdminData.email}
-                        onChange={(e) => setNewAdminData({...newAdminData, email: e.target.value})}
+                        value={betaUserEmail}
+                        onChange={(e) => setBetaUserEmail(e.target.value)}
                         className="form-control w-full"
-                        placeholder="Enter email address"
+                        placeholder="Enter user email address"
                         required
                       />
                     </div>
-                    <div>
-                      <label className="form-label">Password</label>
-                      <input
-                        type="password"
-                        value={newAdminData.password}
-                        onChange={(e) => setNewAdminData({...newAdminData, password: e.target.value})}
-                        className="form-control w-full"
-                        placeholder="Enter password (min 6 characters)"
-                        minLength={6}
-                        required
-                      />
-                    </div>
-                    <div className="flex gap-4 pt-4">
+                    <div className="flex gap-3">
                       <button
                         type="submit"
-                        className="btn-primary px-6 py-3 font-medium flex-1"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium rounded transition-all"
                       >
-                        Create Admin
+                        Grant Beta Access
                       </button>
                       <button
                         type="button"
                         onClick={() => {
-                          setShowCreateAdmin(false);
-                          setNewAdminData({ name: '', email: '', password: '' });
+                          setShowBetaManagement(false);
+                          setBetaUserEmail('');
                         }}
-                        className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1"
+                        className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-2.5 text-sm font-medium rounded"
                       >
                         Cancel
                       </button>
                     </div>
                   </form>
                 </div>
-              </div>
-            )}
 
-            {/* Beta Management Modal */}
-            {showBetaManagement && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto p-4">
-                <div className="glass p-8 border border-blue-400/30 rounded-luxury max-w-2xl w-full my-8 max-h-[90vh] overflow-y-auto">
-                  <h3 className="text-xl text-white font-medium mb-6">Beta Access Management</h3>
-
-                  {/* Grant Beta Access */}
-                  <div className="mb-8">
-                    <h4 className="text-lg text-blue-200 font-medium mb-4">Grant Beta Access</h4>
-                    <form onSubmit={handleGrantBetaAccess} className="space-y-4">
-                      <div>
-                        <label className="form-label">User Email</label>
-                        <input
-                          type="email"
-                          value={betaUserEmail}
-                          onChange={(e) => setBetaUserEmail(e.target.value)}
-                          className="form-control w-full"
-                          placeholder="Enter user email address"
-                          required
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium rounded-luxury transition-all duration-300"
-                      >
-                        Grant Beta Access
-                      </button>
-                    </form>
-                  </div>
-
-                  {/* Current Beta Users */}
-                  <div className="mb-6">
-                    <h4 className="text-lg text-blue-200 font-medium mb-4">Current Beta Users</h4>
-                    <div className="max-h-60 overflow-y-auto">
-                      {users.filter(user => user.plan === 'beta').length > 0 ? (
-                        <div className="space-y-2">
-                          {users.filter(user => user.plan === 'beta').map((user) => (
-                            <div key={user.id} className="flex items-center justify-between p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg">
-                              <div>
-                                <div className="text-white font-medium">{user.name}</div>
-                                <div className="text-blue-200 text-sm">{user.email}</div>
-                                <div className="text-blue-300 text-xs">
-                                  Beta since: {new Date(user.created_at).toLocaleDateString()}
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => handleRevokeBetaAccess(user.id, user.name)}
-                                className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 transition-all duration-300"
-                              >
-                                Revoke
-                              </button>
+                {/* Current Beta Users */}
+                <div>
+                  <h4 className="text-lg text-blue-200 font-medium mb-4">Current Beta Users ({users.filter(user => user.plan === 'beta').length})</h4>
+                  {users.filter(user => user.plan === 'beta').length > 0 ? (
+                    <div className="space-y-2">
+                      {users.filter(user => user.plan === 'beta').map((user) => (
+                        <div key={user.id} className="flex items-center justify-between p-4 bg-blue-900/20 border border-blue-400/30 rounded-lg">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-medium truncate">{user.name}</div>
+                            <div className="text-blue-200 text-sm truncate">{user.email}</div>
+                            <div className="text-blue-300 text-xs mt-1">
+                              Beta since: {new Date(user.created_at).toLocaleDateString()}
                             </div>
-                          ))}
+                          </div>
+                          <button
+                            onClick={() => handleRevokeBetaAccess(user.id, user.name)}
+                            className="ml-4 px-4 py-2 text-xs font-medium bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 transition-all whitespace-nowrap"
+                          >
+                            Revoke
+                          </button>
                         </div>
-                      ) : (
-                        <div className="text-center py-8 text-silver/70">
-                          No beta users currently active
-                        </div>
-                      )}
+                      ))}
                     </div>
-                  </div>
-
-                  <div className="flex gap-4 pt-4 border-t border-blue-400/20">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowBetaManagement(false);
-                        setBetaUserEmail('');
-                      }}
-                      className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1 rounded-luxury transition-all duration-300"
-                    >
-                      Close
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="text-center py-12 text-neutral-400 bg-blue-900/10 border border-blue-400/20 rounded-lg">
+                      No beta users currently active
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Users Table */}
-            <div className="overflow-x-auto">
-              <table className="data-table w-full min-w-[800px]">
-                <thead>
-                  <tr>
-                    <th className="text-left py-4 px-6">User</th>
-                    <th className="text-left py-4 px-6">Role</th>
-                    <th className="text-left py-4 px-6">Plan</th>
-                    <th className="text-left py-4 px-6">Created</th>
-                    <th className="text-left py-4 px-6">Actions</th>
-                  </tr>
-                </thead>
+            {!showCreateAdmin && !showBetaManagement && (
+              <>
+              <div className="overflow-x-auto">
+                <table className="data-table w-full min-w-[800px]">
+                  <thead>
+                    <tr>
+                      <th className="text-left py-4 px-6">User</th>
+                      <th className="text-left py-4 px-6">Role</th>
+                      <th className="text-left py-4 px-6">Plan</th>
+                      <th className="text-left py-4 px-6">Created</th>
+                      <th className="text-left py-4 px-6">Actions</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {getUsersForCurrentPage().map((user) => (
                     <tr key={user.id}>
@@ -635,6 +704,7 @@ function AdminPageContent() {
                       <td className="py-4 px-6">
                         <span className={`status-badge ${
                           user.role === 'admin' ? 'status-approved' :
+                          user.role === 'broker' ? 'bg-purple-600/20 text-purple-200 border-purple-400/30' :
                           user.role === 'seller' ? 'status-pending' : 'status-info'
                         }`}>
                           {user.role}
@@ -656,7 +726,15 @@ function AdminPageContent() {
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex gap-2 items-center">
+                        <div className="flex gap-2 items-center flex-wrap">
+                          {user.role !== 'admin' && (
+                            <button
+                              onClick={() => handleUpgradeToAdmin(user.id, user.name)}
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all whitespace-nowrap h-8"
+                            >
+                              Make Admin
+                            </button>
+                          )}
                           {user.plan === 'beta' && (
                             <button
                               onClick={() => handleRevokeBetaAccess(user.id, user.name)}
@@ -700,6 +778,8 @@ function AdminPageContent() {
               onPageSizeChange={handleUsersPageSizeChange}
               itemName="users"
             />
+            </>
+            )}
           </div>
           </div>
         </ScrollAnimation>

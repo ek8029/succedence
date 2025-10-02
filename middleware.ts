@@ -76,10 +76,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // For admin routes, do a quick check if needed
+  // For admin routes, check database for admin role
   if (pathname.startsWith('/admin')) {
-    // Only redirect if definitely not admin - avoid database query
-    if (session.user.email !== 'evank8029@gmail.com' && session.user.id !== 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+    try {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+
+      if (userError || !userData || (userData as any).role !== 'admin') {
+        console.log('❌ MIDDLEWARE: Non-admin trying to access admin route:', session.user.email)
+        return NextResponse.redirect(new URL('/app', request.url))
+      }
+
+      console.log('🔒 MIDDLEWARE: Admin access granted for:', session.user.email)
+    } catch (error) {
+      console.error('MIDDLEWARE: Error checking admin role:', error)
       return NextResponse.redirect(new URL('/app', request.url))
     }
   }

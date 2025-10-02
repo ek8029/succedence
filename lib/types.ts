@@ -1,10 +1,11 @@
-import type { User as DrizzleUser, Profile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses, SavedListing } from '../db/schema'
+import type { User as DrizzleUser, Profile, BrokerProfile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses, SavedListing } from '../db/schema'
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 
 // Database types from Drizzle
 export type {
   User as DrizzleUser,
   Profile,
+  BrokerProfile,
   Preferences,
   Listing,
   ListingMedia,
@@ -20,7 +21,7 @@ export type {
 export type AIAnalysis = InferSelectModel<typeof aiAnalyses>
 
 // Enum types
-export type UserRole = 'buyer' | 'seller' | 'admin'
+export type UserRole = 'buyer' | 'seller' | 'admin' | 'broker'
 export type PlanType = 'free' | 'beta' | 'starter' | 'professional' | 'enterprise'
 export type UserStatus = 'active' | 'inactive' | 'banned'
 export type ListingStatus = 'draft' | 'active' | 'rejected' | 'archived'
@@ -43,6 +44,11 @@ export interface Database {
         Row: Profile
         Insert: Omit<Profile, 'updatedAt'>
         Update: Partial<Omit<Profile, 'userId' | 'updatedAt'>>
+      }
+      broker_profiles: {
+        Row: BrokerProfile
+        Insert: Omit<BrokerProfile, 'id' | 'createdAt' | 'updatedAt'>
+        Update: Partial<Omit<BrokerProfile, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
       }
       preferences: {
         Row: Preferences
@@ -114,11 +120,13 @@ export interface Database {
 export interface UserWithProfile extends DrizzleUser {
   profile?: Profile | null
   preferences?: Preferences | null
+  brokerProfile?: BrokerProfile | null
 }
 
 // Listing with related data
 export interface ListingWithDetails extends Listing {
   owner?: DrizzleUser | null
+  broker?: BrokerProfile | null
   media?: ListingMedia[]
   matchCount?: number
 }
@@ -137,6 +145,23 @@ export interface ProfileFormData {
   headline?: string
   location?: string
   avatarUrl?: string
+}
+
+export interface BrokerProfileFormData {
+  displayName: string
+  headshotUrl?: string
+  bio?: string
+  phone?: string
+  email?: string
+  company?: string
+  licenseNumber?: string
+  workAreas?: string[]
+  specialties?: string[]
+  yearsExperience?: number
+  websiteUrl?: string
+  linkedinUrl?: string
+  isPublic?: string
+  customSections?: Record<string, any>
 }
 
 export interface PreferencesFormData {
