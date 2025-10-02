@@ -93,7 +93,9 @@
       "Bash(del nul)",
       "Bash(del:*)",
       "Bash(echo:*)",
-      "Bash(npx psql:*)"
+      "Bash(npx psql:*)",
+      "Bash(git log:*)",
+      "Bash(npx dotenv:*)"
     ],
     "deny": [],
     "ask": []

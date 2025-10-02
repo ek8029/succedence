@@ -261,7 +261,7 @@ function AdminPageContent() {
 
       if (response.ok) {
         alert('User deleted successfully!');
-        fetchDashboardData(); // Refresh data
+        await fetchDashboardData(); // Refresh data
       } else {
         const data = await response.json();
         alert(data.error || 'Failed to delete user');
@@ -294,7 +294,7 @@ function AdminPageContent() {
       if (response.ok) {
         alert('Beta access granted successfully!');
         setBetaUserEmail('');
-        fetchDashboardData(); // Refresh data
+        await fetchDashboardData(); // Refresh data
       } else {
         alert(data.error || 'Failed to grant beta access');
       }
@@ -322,7 +322,7 @@ function AdminPageContent() {
 
       if (response.ok) {
         alert('Beta access revoked successfully!');
-        fetchDashboardData(); // Refresh data
+        await fetchDashboardData(); // Refresh data
       } else {
         alert(data.error || 'Failed to revoke beta access');
       }
@@ -350,7 +350,7 @@ function AdminPageContent() {
 
       if (response.ok) {
         alert('User upgraded to admin successfully!');
-        fetchDashboardData(); // Refresh data
+        await fetchDashboardData(); // Refresh data
       } else {
         alert(data.error || 'Failed to upgrade user to admin');
       }

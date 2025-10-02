@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createBackgroundServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -19,8 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
+    // Use background service client to bypass RLS
+    const serviceClient = createBackgroundServiceClient()
+
+    // Check if user is admin using service client
+    const { data: userData, error: userError } = await serviceClient
       .from('users')
       .select('role')
       .eq('id', user.id)
@@ -34,7 +37,7 @@ export async function POST(request: NextRequest) {
     const { email } = grantBetaSchema.parse(body)
 
     // Find the user by email
-    const { data: targetUser, error: findError } = await (supabase
+    const { data: targetUser, error: findError } = await (serviceClient
       .from('users') as any)
       .select('id, plan')
       .eq('email', email)
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user plan to beta
-    const { error: updateError } = await (supabase
+    const { error: updateError } = await (serviceClient
       .from('users') as any)
       .update({ plan: 'beta' })
       .eq('id', targetUser.id)
