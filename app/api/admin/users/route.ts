@@ -190,18 +190,30 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
-    // First, delete from Supabase Auth (this will cascade to auth-dependent tables)
+    // First, try to delete from Supabase Auth (this will cascade to auth-dependent tables)
     const { error: deleteAuthError } = await serviceClient.auth.admin.deleteUser(userId)
 
     if (deleteAuthError) {
-      console.error('Error deleting auth user:', deleteAuthError)
-      return NextResponse.json(
-        { error: `Failed to delete auth user: ${deleteAuthError.message}` },
-        { status: 500 }
-      )
+      // Check if the error is just that the user doesn't exist in auth
+      const isUserNotFound = deleteAuthError.message?.toLowerCase().includes('not found') ||
+                             deleteAuthError.status === 404
+
+      if (isUserNotFound) {
+        // This is OK - user exists in users table but not in auth (orphaned record)
+        console.log(`Auth user ${userId} not found - will delete from users table only`)
+      } else {
+        // Some other auth error - this is a problem
+        console.error('Error deleting auth user:', deleteAuthError)
+        return NextResponse.json(
+          { error: `Failed to delete auth user: ${deleteAuthError.message}` },
+          { status: 500 }
+        )
+      }
+    } else {
+      console.log(`Successfully deleted auth user ${userId}`)
     }
 
-    // Then delete from users table (CASCADE will automatically delete all related records)
+    // Delete from users table (CASCADE will automatically delete all related records)
     const { error: deleteUserError } = await serviceClient
       .from('users')
       .delete()
@@ -227,7 +239,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    console.log(`Successfully deleted user ${userId}`)
+    console.log(`Successfully deleted user record ${userId}`)
 
     return NextResponse.json({
       message: 'User deleted successfully'
