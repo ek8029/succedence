@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Update user plan to beta
+    // Update user plan to professional (beta access)
     const { error: updateError } = await (serviceClient
       .from('users') as any)
-      .update({ plan: 'beta' })
+      .update({ plan: 'professional' })
       .eq('id', targetUser.id)
 
     if (updateError) {

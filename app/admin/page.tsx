@@ -41,6 +41,10 @@ function AdminPageContent() {
   });
   const [betaUserEmail, setBetaUserEmail] = useState('');
 
+  // Filter states
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [planFilter, setPlanFilter] = useState<string>('all');
+
   // Pagination states
   const [usersPage, setUsersPage] = useState(1);
   const [usersPageSize, setUsersPageSize] = useState(15);
@@ -51,11 +55,20 @@ function AdminPageContent() {
     fetchDashboardData();
   }, []);
 
-  // Pagination calculations
+  // Filter and pagination calculations
+  const getFilteredUsers = () => {
+    return users.filter(user => {
+      const roleMatch = roleFilter === 'all' || user.role === roleFilter;
+      const planMatch = planFilter === 'all' || user.plan === planFilter;
+      return roleMatch && planMatch;
+    });
+  };
+
   const getUsersForCurrentPage = () => {
+    const filteredUsers = getFilteredUsers();
     const startIndex = (usersPage - 1) * usersPageSize;
     const endIndex = startIndex + usersPageSize;
-    return users.slice(startIndex, endIndex);
+    return filteredUsers.slice(startIndex, endIndex);
   };
 
   const getListingsForCurrentPage = () => {
@@ -64,7 +77,7 @@ function AdminPageContent() {
     return listings.slice(startIndex, endIndex);
   };
 
-  const getUsersTotalPages = () => Math.ceil(users.length / usersPageSize);
+  const getUsersTotalPages = () => Math.ceil(getFilteredUsers().length / usersPageSize);
   const getListingsTotalPages = () => Math.ceil(listings.length / listingsPageSize);
 
   const handleUsersPageSizeChange = (newSize: number) => {
@@ -259,13 +272,15 @@ function AdminPageContent() {
         method: 'DELETE',
       });
 
-      if (response.ok) {
-        alert('User deleted successfully!');
-        await fetchDashboardData(); // Refresh data
-      } else {
+      if (!response.ok) {
         const data = await response.json();
         alert(data.error || 'Failed to delete user');
+        return;
       }
+
+      // Refresh first, then show success
+      await fetchDashboardData();
+      alert('User deleted successfully!');
     } catch (error) {
       console.error('Error deleting user:', error);
       alert('Failed to delete user');
@@ -289,15 +304,16 @@ function AdminPageContent() {
         body: JSON.stringify({ email: betaUserEmail }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Beta access granted successfully!');
-        setBetaUserEmail('');
-        await fetchDashboardData(); // Refresh data
-      } else {
+      if (!response.ok) {
+        const data = await response.json();
         alert(data.error || 'Failed to grant beta access');
+        return;
       }
+
+      // Refresh first, then show success
+      setBetaUserEmail('');
+      await fetchDashboardData();
+      alert('Beta access granted successfully!');
     } catch (error) {
       console.error('Error granting beta access:', error);
       alert('Failed to grant beta access');
@@ -318,14 +334,15 @@ function AdminPageContent() {
         body: JSON.stringify({ userId }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Beta access revoked successfully!');
-        await fetchDashboardData(); // Refresh data
-      } else {
+      if (!response.ok) {
+        const data = await response.json();
         alert(data.error || 'Failed to revoke beta access');
+        return;
       }
+
+      // Refresh first, then show success
+      await fetchDashboardData();
+      alert('Beta access revoked successfully!');
     } catch (error) {
       console.error('Error revoking beta access:', error);
       alert('Failed to revoke beta access');
@@ -346,14 +363,15 @@ function AdminPageContent() {
         body: JSON.stringify({ role: 'admin' }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('User upgraded to admin successfully!');
-        await fetchDashboardData(); // Refresh data
-      } else {
+      if (!response.ok) {
+        const data = await response.json();
         alert(data.error || 'Failed to upgrade user to admin');
+        return;
       }
+
+      // Refresh first, then show success
+      await fetchDashboardData();
+      alert('User upgraded to admin successfully!');
     } catch (error) {
       console.error('Error upgrading user:', error);
       alert('Failed to upgrade user to admin');
@@ -493,27 +511,67 @@ function AdminPageContent() {
           <div className="max-w-6xl mx-auto mb-16">
           <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.65s'}}>
             {!showCreateAdmin && !showBetaManagement && (
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl text-white font-medium">User Management</h2>
-                <div className="flex gap-4 items-center">
-                  <Link
-                    href="/admin/brokers"
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white border border-purple-600 rounded transition-all h-10"
-                  >
-                    Manage Brokers
-                  </Link>
-                  <button
-                    onClick={() => setShowBetaManagement(true)}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"
-                  >
-                    Manage Beta Access
-                  </button>
-                  <button
-                    onClick={() => setShowCreateAdmin(true)}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
-                  >
-                    Create New Admin
-                  </button>
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl text-white font-medium">User Management</h2>
+                  <div className="flex gap-4 items-center">
+                    <Link
+                      href="/admin/brokers"
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white border border-purple-600 rounded transition-all h-10"
+                    >
+                      Manage Brokers
+                    </Link>
+                    <button
+                      onClick={() => setShowBetaManagement(true)}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"
+                    >
+                      Manage Beta Access
+                    </button>
+                    <button
+                      onClick={() => setShowCreateAdmin(true)}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
+                    >
+                      Create New Admin
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter Controls */}
+                <div className="flex gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-400 mb-2">Filter by Role</label>
+                    <select
+                      value={roleFilter}
+                      onChange={(e) => {
+                        setRoleFilter(e.target.value);
+                        setUsersPage(1);
+                      }}
+                      className="form-control min-w-[150px]"
+                    >
+                      <option value="all">All Roles</option>
+                      <option value="admin">Admin</option>
+                      <option value="broker">Broker</option>
+                      <option value="buyer">Buyer</option>
+                      <option value="seller">Seller</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-400 mb-2">Filter by Plan</label>
+                    <select
+                      value={planFilter}
+                      onChange={(e) => {
+                        setPlanFilter(e.target.value);
+                        setUsersPage(1);
+                      }}
+                      className="form-control min-w-[150px]"
+                    >
+                      <option value="all">All Plans</option>
+                      <option value="free">Free</option>
+                      <option value="starter">Starter</option>
+                      <option value="professional">Professional</option>
+                      <option value="enterprise">Enterprise</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
@@ -773,7 +831,7 @@ function AdminPageContent() {
               currentPage={usersPage}
               totalPages={getUsersTotalPages()}
               pageSize={usersPageSize}
-              totalItems={users.length}
+              totalItems={getFilteredUsers().length}
               onPageChange={setUsersPage}
               onPageSizeChange={handleUsersPageSizeChange}
               itemName="users"

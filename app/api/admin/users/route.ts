@@ -164,8 +164,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
+    // Use background service client to bypass RLS
+    const serviceClient = createBackgroundServiceClient()
+
+    // Check if user is admin using service client
+    const { data: userData, error: userError } = await serviceClient
       .from('users')
       .select('role')
       .eq('id', user.id)
@@ -187,29 +190,44 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
-    // Use background service client for admin operations
-    const serviceClient = createBackgroundServiceClient()
-
-    // Delete user from auth and users table
+    // First, delete from Supabase Auth (this will cascade to auth-dependent tables)
     const { error: deleteAuthError } = await serviceClient.auth.admin.deleteUser(userId)
 
     if (deleteAuthError) {
       console.error('Error deleting auth user:', deleteAuthError)
       return NextResponse.json(
-        { error: 'Failed to delete user' },
+        { error: `Failed to delete auth user: ${deleteAuthError.message}` },
         { status: 500 }
       )
     }
 
-    // Delete from users table (should cascade due to foreign key)
+    // Then delete from users table (CASCADE will automatically delete all related records)
     const { error: deleteUserError } = await serviceClient
       .from('users')
       .delete()
       .eq('id', userId)
 
     if (deleteUserError) {
-      console.error('Error deleting user data:', deleteUserError)
+      console.error('Error deleting user from users table:', deleteUserError)
+      // Log detailed error info
+      console.error('Delete error details:', {
+        code: deleteUserError.code,
+        message: deleteUserError.message,
+        details: deleteUserError.details,
+        hint: deleteUserError.hint
+      })
+
+      return NextResponse.json(
+        {
+          error: 'Failed to delete user from database',
+          details: deleteUserError.message,
+          hint: deleteUserError.hint || 'Check foreign key constraints and RLS policies'
+        },
+        { status: 500 }
+      )
     }
+
+    console.log(`Successfully deleted user ${userId}`)
 
     return NextResponse.json({
       message: 'User deleted successfully'
@@ -217,8 +235,15 @@ export async function DELETE(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in admin users DELETE:', error)
+
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        details: errorMessage
+      },
       { status: 500 }
     )
   }
