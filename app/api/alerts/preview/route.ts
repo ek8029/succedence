@@ -125,7 +125,8 @@ export async function GET(request: NextRequest) {
     // Render the email
     const { html, text } = renderDigestEmail({
       user: {
-        ...user,
+        id: user.id,
+        email: user.email,
         name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User'
       },
       listings,
