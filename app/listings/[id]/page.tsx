@@ -389,17 +389,18 @@ export default function ListingDetailPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
+                  {listing.price && (
+                    <div className="text-center p-6 bg-gradient-to-br from-gold/10 to-accent-gold/5 border-2 border-gold/30 rounded-lg">
+                      <div className="text-gold text-sm font-medium mb-2 uppercase tracking-wider">Asking Price</div>
+                      <div className="text-4xl text-white font-bold mb-1">{formatCurrency(listing.price)}</div>
+                      <div className="text-silver/70 text-xs">Negotiable</div>
+                    </div>
+                  )}
+                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
                     <div className="text-3xl text-white font-bold mb-2">{formatCurrency(listing.revenue)}</div>
                     <div className="text-neutral-400">Annual Revenue</div>
                   </div>
-                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
-                    <div className="text-2xl text-white font-bold mb-2">
-                      {formatCurrency(listing.price)}
-                    </div>
-                    <div className="text-neutral-400">Valuation Range</div>
-                  </div>
-                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600">
+                  <div className="text-center p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
                     <div className="text-lg text-white font-bold mb-2">
                       {listing.city}, {listing.state}
                     </div>
@@ -477,12 +478,14 @@ export default function ListingDetailPage() {
                       <div className="text-neutral-400 font-medium mb-2">Annual Revenue</div>
                       <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.revenue)}</div>
                     </div>
-                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
-                      <div className="text-neutral-400 font-medium mb-2">Valuation Range</div>
-                      <div className="text-white font-bold text-financial text-2xl">
-                        {formatCurrency(listing.price)}
+                    {listing.price && (
+                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                        <div className="text-neutral-400 font-medium mb-2">Asking Price</div>
+                        <div className="text-white font-bold text-financial text-2xl">
+                          {formatCurrency(listing.price)}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>

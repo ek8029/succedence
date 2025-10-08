@@ -20,6 +20,7 @@ export default function BrowsePage() {
   const [filters, setFilters] = useState({
     industry: '',
     minRevenue: '',
+    minPrice: '',
     maxPrice: '',
     state: '',
     sortBy: 'newest'
@@ -55,6 +56,12 @@ export default function BrowsePage() {
             const minRev = parseFloat(filters.minRevenue.replace(/,/g, ''));
             filteredListings = filteredListings.filter((l: Listing) =>
               l.revenue && l.revenue >= minRev
+            );
+          }
+          if (filters.minPrice) {
+            const minPr = parseFloat(filters.minPrice.replace(/,/g, ''));
+            filteredListings = filteredListings.filter((l: Listing) =>
+              l.price && l.price >= minPr
             );
           }
           if (filters.maxPrice) {
@@ -247,7 +254,7 @@ export default function BrowsePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 <span className="hidden sm:inline">Filters</span>
-                {(filters.industry || filters.minRevenue || filters.maxPrice || filters.state) && (
+                {(filters.industry || filters.minRevenue || filters.minPrice || filters.maxPrice || filters.state) && (
                   <span className="w-2 h-2 bg-gold rounded-full"></span>
                 )}
               </button>
@@ -304,6 +311,17 @@ export default function BrowsePage() {
                 </div>
 
                 <div>
+                  <label className="block text-silver/80 text-sm font-medium mb-2">Min Price</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 100,000"
+                    value={filters.minPrice}
+                    onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                    className="form-control w-full py-2 px-3"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-silver/80 text-sm font-medium mb-2">Max Price</label>
                   <input
                     type="text"
@@ -317,7 +335,7 @@ export default function BrowsePage() {
 
               <div className="flex justify-end gap-3 mt-4">
                 <button
-                  onClick={() => setFilters({industry: '', minRevenue: '', maxPrice: '', state: '', sortBy: 'newest'})}
+                  onClick={() => setFilters({industry: '', minRevenue: '', minPrice: '', maxPrice: '', state: '', sortBy: 'newest'})}
                   className="px-4 py-2 text-silver/70 hover:text-warm-white transition-colors"
                 >
                   Clear Filters
