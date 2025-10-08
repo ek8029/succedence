@@ -122,13 +122,15 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Render the email
+    // Render the email (construct User type for template)
+    const digestUser = {
+      id: user.id,
+      email: user.email,
+      name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User'
+    }
+
     const { html, text } = renderDigestEmail({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User'
-      },
+      user: digestUser,
       listings,
       reasons
     })
