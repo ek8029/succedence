@@ -504,7 +504,7 @@ export default function BrowsePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-12">
             {listings.map((listing, index) => (
               <ScrollAnimation key={listing.id} direction="up" delay={index * 50} className="h-full">
-                <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300">
+                <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300 h-full flex flex-col">
                   {/* Header Section */}
                   <div className="mb-6">
                     {/* Location - Prominent */}
@@ -545,7 +545,7 @@ export default function BrowsePage() {
                   </div>
 
                   {/* Financials */}
-                  <div className="space-y-3 mb-6">
+                  <div className="space-y-3 mb-6 flex-grow">
                     <div className="flex justify-between">
                       <span className="text-platinum/70 text-sm">Revenue</span>
                       <span className="text-warm-white font-bold">
@@ -553,36 +553,30 @@ export default function BrowsePage() {
                       </span>
                     </div>
 
-                    {listing.ebitda && (
-                      <div className="flex justify-between">
-                        <span className="text-platinum/70 text-sm">EBITDA</span>
-                        <span className="text-warm-white font-bold">
-                          {formatCurrency(listing.ebitda)}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">EBITDA</span>
+                      <span className="text-warm-white font-bold">
+                        {listing.ebitda ? formatCurrency(listing.ebitda) : 'N/A'}
+                      </span>
+                    </div>
 
-                    {listing.price && (
-                      <div className="flex justify-between">
-                        <span className="text-platinum/70 text-sm">Asking Price</span>
-                        <span className="text-warm-white font-bold">
-                          {formatCurrency(listing.price)}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">Asking Price</span>
+                      <span className="text-warm-white font-bold">
+                        {listing.price ? formatCurrency(listing.price) : 'N/A'}
+                      </span>
+                    </div>
 
-                    {listing.employees && (
-                      <div className="flex justify-between">
-                        <span className="text-platinum/70 text-sm">Employees</span>
-                        <span className="text-warm-white font-bold">
-                          {listing.employees}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">Employees</span>
+                      <span className="text-warm-white font-bold">
+                        {listing.employees || 'N/A'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* CTA */}
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-4 border-t border-white/10 mt-auto">
                     <Link
                       href={`/listings/${listing.id}`}
                       className="btn-secondary w-full py-2 text-center hover-lift text-sm"

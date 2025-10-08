@@ -369,11 +369,13 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="glass p-6 border border-gold/30 rounded-luxury">
-              {aiListingSummary.length > 0 ? (
+              {aiListingSummary.filter((summary) => summary.listing && summary.listing.id).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {aiListingSummary.map((summary, index) => (
+                  {aiListingSummary
+                    .filter((summary) => summary.listing && summary.listing.id)
+                    .map((summary, index) => (
                     <Link
-                      key={index}
+                      key={summary.listing.id}
                       href={`/listings/${summary.listing.id}`}
                       className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
                     >

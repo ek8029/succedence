@@ -244,8 +244,10 @@ export default function AIAnalysisHistoryPage() {
                 {viewMode === 'summary' ? (
                   // Summary view - grouped by listing in grid layout
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {listingSummary.map((summary, index) => (
-                      <div key={index} className="glass p-6 h-fit">
+                    {listingSummary
+                      .filter((summary) => summary.listing && summary.listing.id)
+                      .map((summary, index) => (
+                      <div key={summary.listing.id} className="glass p-6 h-fit">
                         <div className="mb-4">
                           <Link
                             href={`/listings/${summary.listing.id}`}
