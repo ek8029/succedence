@@ -62,9 +62,16 @@ export async function GET(
     const { isOwner, listing: basicListing } = await checkListingOwnership(id, user.id)
     const userIsAdmin = await isAdmin(user.id)
 
-    if (!isOwner && !userIsAdmin) {
+    // Allow access if:
+    // 1. User owns the listing
+    // 2. User is admin
+    // 3. Listing is active/published (any authenticated user can view)
+    const listingStatus = (basicListing as any)?.status
+    const isPublicListing = listingStatus === 'active' || listingStatus === 'published'
+
+    if (!isOwner && !userIsAdmin && !isPublicListing) {
       return NextResponse.json(
-        { error: 'Forbidden' },
+        { error: 'Forbidden - This listing is not publicly available' },
         { status: 403 }
       )
     }

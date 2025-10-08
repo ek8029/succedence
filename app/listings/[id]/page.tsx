@@ -64,7 +64,8 @@ export default function ListingDetailPage() {
       console.log('🔍 Fetching listing with ID:', listingId);
 
       // First try to get public listing details (for browsing users)
-      const publicListingsResponse = await fetch('/api/listings');
+      // Fetch more listings to increase chance of finding the one we need
+      const publicListingsResponse = await fetch('/api/listings?page=1&pageSize=100');
       if (publicListingsResponse.ok) {
         const listingsData = await publicListingsResponse.json();
         const listings: Listing[] = listingsData.listings || listingsData;
