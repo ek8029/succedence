@@ -61,22 +61,33 @@ export default function ListingDetailPage() {
 
   const fetchListingData = useCallback(async () => {
     try {
+      console.log('🔍 Fetching listing with ID:', listingId);
+
       // First try to get public listing details (for browsing users)
       const publicListingsResponse = await fetch('/api/listings');
       if (publicListingsResponse.ok) {
         const listingsData = await publicListingsResponse.json();
         const listings: Listing[] = listingsData.listings || listingsData;
-        const foundListing = listings.find(l => l.id === listingId);
+        console.log('📋 Total listings from API:', listings.length);
+        console.log('🔎 Looking for listing ID:', listingId, typeof listingId);
+        console.log('📝 Available listing IDs:', listings.map(l => `${l.id} (${typeof l.id})`).join(', '));
+
+        // Handle both string and number IDs for comparison
+        const foundListing = listings.find(l => String(l.id) === String(listingId));
 
         if (foundListing) {
+          console.log('✅ Found listing:', foundListing.title);
           setListing(foundListing);
         } else {
+          console.log('⚠️ Listing not found in public listings, trying authenticated endpoint');
           // If not found in public listings, try authenticated endpoint if user is logged in
           if (user) {
             try {
               const authListingResponse = await fetch(`/api/listings/${listingId}`);
+              console.log('🔐 Auth listing response status:', authListingResponse.status);
               if (authListingResponse.ok) {
                 const authData = await authListingResponse.json();
+                console.log('🔐 Auth data:', authData);
                 if (authData.listing) {
                   // Convert the API response format to match the expected Listing type
                   const listing: Listing = {
@@ -104,24 +115,31 @@ export default function ListingDetailPage() {
                   };
                   setListing(listing);
                 } else {
+                  console.error('❌ Auth listing data missing');
+                  console.error('Full auth response:', authData);
                   router.push('/browse');
                   return;
                 }
               } else {
+                console.error('❌ Auth listing fetch failed:', authListingResponse.status);
+                const errorText = await authListingResponse.text();
+                console.error('Error response:', errorText);
                 router.push('/browse');
                 return;
               }
             } catch (error) {
-              console.error('Error fetching authenticated listing:', error);
+              console.error('❌ Error fetching authenticated listing:', error);
               router.push('/browse');
               return;
             }
           } else {
+            console.error('❌ User not logged in, cannot fetch listing');
             router.push('/browse');
             return;
           }
         }
       } else {
+        console.error('❌ Public listings fetch failed:', publicListingsResponse.status);
         router.push('/browse');
         return;
       }

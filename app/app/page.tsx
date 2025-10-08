@@ -68,6 +68,8 @@ export default function Dashboard() {
           const aiResponse = await fetch('/api/ai/history?page=1&limit=6');
           if (aiResponse.ok) {
             const aiData = await aiResponse.json();
+            console.log('AI Data Response:', aiData);
+            console.log('Listing Summary:', aiData.listingSummary);
             setAiHistory(aiData.aiHistory?.slice(0, 6) || []);
             setAiListingSummary(aiData.listingSummary?.slice(0, 6) || []);
           }
@@ -373,11 +375,19 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {aiListingSummary
                     .filter((summary) => summary.listing && summary.listing.id)
-                    .map((summary, index) => (
+                    .map((summary, index) => {
+                      console.log('Rendering summary:', summary);
+                      console.log('Listing ID:', summary.listing.id);
+                      console.log('Link href:', `/listings/${summary.listing.id}`);
+                      return (
                     <Link
                       key={summary.listing.id}
                       href={`/listings/${summary.listing.id}`}
                       className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
+                      onClick={(e) => {
+                        console.log('Link clicked!', summary.listing.id);
+                        console.log('Target href:', `/listings/${summary.listing.id}`);
+                      }}
                     >
                       <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
                         {summary.listing.title}
@@ -402,7 +412,8 @@ export default function Dashboard() {
                         {summary.totalAnalyses} {summary.totalAnalyses === 1 ? 'analysis' : 'analyses'} • {formatDate(summary.lastAnalysisAt)}
                       </div>
                     </Link>
-                  ))}
+                      );
+                    })}
                 </div>
               ) : (
                 <div className="text-center py-8">
