@@ -16,6 +16,7 @@ export default function Navbar() {
   const hideDashboard = pathname === '/app'; // Hide "Dashboard" on dashboard page
   const hideMyMatches = pathname === '/app' || pathname === '/matches'; // Hide "My Matches" on dashboard and matches page
   const hideBrowse = pathname === '/browse'; // Hide "Browse" on browse page
+  const hideBrokers = pathname === '/brokers'; // Hide "Brokers" on brokers page
   const hideSavedListings = pathname === '/saved-listings'; // Hide "Saved Listings" on saved listings page
   const hideListBusiness = pathname === '/listings/new'; // Hide "List Business" on list business page
 
@@ -96,6 +97,16 @@ export default function Navbar() {
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >
                   Browse Opportunities
+                </Link>
+              )}
+              {!hideBrokers && (
+                <Link
+                  href="/brokers"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
+                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                >
+                  Find Brokers
                 </Link>
               )}
               {!hideSavedListings && (
@@ -203,6 +214,11 @@ export default function Navbar() {
               {!hideBrowse && (
                 <Link href="/browse" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   Browse Opportunities
+                </Link>
+              )}
+              {!hideBrokers && (
+                <Link href="/brokers" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                  Find Brokers
                 </Link>
               )}
               {user && !hideMyMatches && (

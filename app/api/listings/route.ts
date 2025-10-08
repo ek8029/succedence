@@ -166,6 +166,7 @@ export async function POST(request: NextRequest) {
         contact_phone: validatedData.contact_phone,
         contact_email: validatedData.contact_email,
         contact_other: validatedData.contact_other,
+        broker_profile_id: (validatedData as any).broker_profile_id || null,
         status: 'draft',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()

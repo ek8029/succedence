@@ -53,6 +53,8 @@ export default function ListingDetailPage() {
   const [activeAccordion, setActiveAccordion] = useState<string | null>('overview');
   const [isSaved, setIsSaved] = useState(false);
   const [savingListing, setSavingListing] = useState(false);
+  const [brokerProfile, setBrokerProfile] = useState<any>(null);
+  const [loadingBroker, setLoadingBroker] = useState(false);
 
   const listingId = params.id as string;
 
@@ -167,6 +169,31 @@ export default function ListingDetailPage() {
       setLoading(false);
     }
   }, [listingId, router, user]);
+
+  // Fetch broker profile if listing has one
+  useEffect(() => {
+    const fetchBrokerProfile = async () => {
+      if (!listing?.brokerProfileId) {
+        setBrokerProfile(null);
+        return;
+      }
+
+      setLoadingBroker(true);
+      try {
+        const response = await fetch(`/api/brokers/${listing.brokerProfileId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setBrokerProfile(data.broker);
+        }
+      } catch (error) {
+        console.error('Error fetching broker profile:', error);
+      } finally {
+        setLoadingBroker(false);
+      }
+    };
+
+    fetchBrokerProfile();
+  }, [listing?.brokerProfileId]);
 
   useEffect(() => {
     fetchListingData();
@@ -513,46 +540,141 @@ export default function ListingDetailPage() {
             {/* Owner/Broker Contact Information */}
             <AccordionSection id="contact" title="Owner/Broker Contact Information">
               <div className="space-y-6">
-                <div className="bg-gradient-to-r from-gold/5 to-accent-gold/5 border border-gold/30 rounded-lg p-6">
-                  <h3 className="text-xl text-white font-medium mb-4 flex items-center">
-                    <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Listing Contact
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-neutral-400 font-medium mb-2">Source/Broker</div>
-                        <div className="text-white font-semibold text-lg">{listing.source}</div>
-                      </div>
-                      <div>
-                        <div className="text-neutral-400 font-medium mb-2">Location</div>
-                        <div className="text-white font-medium">{listing.city}, {listing.state}</div>
+                {loadingBroker ? (
+                  <div className="text-center py-8">
+                    <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <div className="text-neutral-400">Loading contact information...</div>
+                  </div>
+                ) : brokerProfile ? (
+                  <div className="bg-gradient-to-r from-gold/5 to-accent-gold/5 border border-gold/30 rounded-lg p-6">
+                    <h3 className="text-xl text-white font-medium mb-4 flex items-center">
+                      <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Broker Contact
+                    </h3>
+
+                    <div className="flex items-start gap-6 mb-6">
+                      {brokerProfile.headshotUrl && (
+                        <img
+                          src={brokerProfile.headshotUrl}
+                          alt={brokerProfile.displayName}
+                          className="w-20 h-20 rounded-full object-cover border-2 border-gold/30"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <div className="text-2xl text-white font-semibold mb-1">{brokerProfile.displayName}</div>
+                        {brokerProfile.company && (
+                          <div className="text-gold font-medium mb-2">{brokerProfile.company}</div>
+                        )}
+                        {brokerProfile.licenseNumber && (
+                          <div className="text-neutral-400 text-sm">License: {brokerProfile.licenseNumber}</div>
+                        )}
+                        {brokerProfile.yearsExperience && brokerProfile.yearsExperience > 0 && (
+                          <div className="text-neutral-400 text-sm">{brokerProfile.yearsExperience} years experience</div>
+                        )}
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-neutral-400 font-medium mb-2">Phone</div>
-                        <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
-                          {listing.contactPhone || 'Contact broker for details'}
+
+                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                      {brokerProfile.phone && (
+                        <div>
+                          <div className="text-neutral-400 font-medium mb-2">Phone</div>
+                          <a href={`tel:${brokerProfile.phone}`} className="text-white hover:text-gold font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded block transition-colors">
+                            {brokerProfile.phone}
+                          </a>
+                        </div>
+                      )}
+                      {brokerProfile.email && (
+                        <div>
+                          <div className="text-neutral-400 font-medium mb-2">Email</div>
+                          <a href={`mailto:${brokerProfile.email}`} className="text-white hover:text-gold font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded block truncate transition-colors">
+                            {brokerProfile.email}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {brokerProfile.bio && (
+                      <div className="mb-4">
+                        <div className="text-neutral-400 font-medium mb-2">About</div>
+                        <div className="text-neutral-300 text-sm leading-relaxed">{brokerProfile.bio}</div>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 flex-wrap">
+                      {brokerProfile.websiteUrl && (
+                        <a
+                          href={brokerProfile.websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-4 py-2 text-sm bg-gold hover:bg-gold-light text-midnight rounded transition-all"
+                        >
+                          Visit Website →
+                        </a>
+                      )}
+                      {brokerProfile.linkedinUrl && (
+                        <a
+                          href={brokerProfile.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-4 py-2 text-sm bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-all"
+                        >
+                          LinkedIn →
+                        </a>
+                      )}
+                      <Link
+                        href={`/brokers/${brokerProfile.id}`}
+                        className="inline-flex items-center px-4 py-2 text-sm bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-all"
+                      >
+                        View Full Profile →
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-r from-gold/5 to-accent-gold/5 border border-gold/30 rounded-lg p-6">
+                    <h3 className="text-xl text-white font-medium mb-4 flex items-center">
+                      <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Listing Contact
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-neutral-400 font-medium mb-2">Source</div>
+                          <div className="text-white font-semibold text-lg">{listing.source}</div>
+                        </div>
+                        <div>
+                          <div className="text-neutral-400 font-medium mb-2">Location</div>
+                          <div className="text-white font-medium">{listing.city}, {listing.state}</div>
                         </div>
                       </div>
-                      <div>
-                        <div className="text-neutral-400 font-medium mb-2">Email</div>
-                        <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
-                          {listing.contactEmail || 'Contact broker for details'}
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-neutral-400 font-medium mb-2">Phone</div>
+                          <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                            {listing.contactPhone || 'Not provided'}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <div className="text-neutral-400 font-medium mb-2">Other Contact</div>
-                        <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
-                          {listing.contactOther || 'Contact broker for details'}
+                        <div>
+                          <div className="text-neutral-400 font-medium mb-2">Email</div>
+                          <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                            {listing.contactEmail || 'Not provided'}
+                          </div>
                         </div>
+                        {listing.contactOther && (
+                          <div>
+                            <div className="text-neutral-400 font-medium mb-2">Other Contact</div>
+                            <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                              {listing.contactOther}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </AccordionSection>
 

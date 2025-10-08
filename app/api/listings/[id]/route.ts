@@ -141,6 +141,7 @@ export async function GET(
         owner_hours: listingData.owner_hours,
         employees: listingData.employees,
         price: listingData.price,
+        broker_profile_id: listingData.broker_profile_id,
         status: listingData.status,
         created_at: listingData.created_at,
         updated_at: listingData.updated_at,
@@ -222,6 +223,7 @@ export async function PATCH(
           contact_phone: validatedData.contact_phone,
           contact_email: validatedData.contact_email,
           contact_other: validatedData.contact_other,
+          broker_profile_id: (validatedData as any).broker_profile_id || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)

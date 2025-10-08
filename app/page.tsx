@@ -235,6 +235,47 @@ export default function PublicLandingPage() {
             </div>
           </ScrollAnimation>
 
+          {/* Broker Network Section */}
+          <ScrollAnimation direction="up" delay={125}>
+            <div className="mb-24 sm:mb-32">
+              <div className="text-center mb-12">
+                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-warm-white mb-6 tracking-refined">
+                  Connect with Expert Brokers
+                </h2>
+                <p className="font-sans text-xl text-platinum/80 max-w-3xl mx-auto leading-relaxed mb-8">
+                  Access our network of experienced business brokers who can guide you through your acquisition journey
+                </p>
+                <Link
+                  href="/brokers"
+                  className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gold/40 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105"
+                >
+                  Browse Broker Directory
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div className="glass p-6 rounded-luxury border border-gold/10 text-center">
+                  <div className="text-4xl mb-4">🏆</div>
+                  <div className="text-lg font-semibold text-warm-white mb-2">Verified Experts</div>
+                  <div className="text-sm text-silver/80">Licensed and experienced professionals</div>
+                </div>
+                <div className="glass p-6 rounded-luxury border border-gold/10 text-center">
+                  <div className="text-4xl mb-4">🎯</div>
+                  <div className="text-lg font-semibold text-warm-white mb-2">Industry Specialists</div>
+                  <div className="text-sm text-silver/80">Experts in specific business sectors</div>
+                </div>
+                <div className="glass p-6 rounded-luxury border border-gold/10 text-center">
+                  <div className="text-4xl mb-4">🤝</div>
+                  <div className="text-lg font-semibold text-warm-white mb-2">Direct Contact</div>
+                  <div className="text-sm text-silver/80">Connect directly with brokers</div>
+                </div>
+              </div>
+            </div>
+          </ScrollAnimation>
+
           {/* Final CTA Section */}
           <ScrollAnimation direction="fade" delay={150}>
             <div className="mb-32">

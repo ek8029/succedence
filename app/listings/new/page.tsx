@@ -26,7 +26,8 @@ export default function NewListingPage() {
     source: 'manual' as const,
     contact_phone: '',
     contact_email: '',
-    contact_other: ''
+    contact_other: '',
+    broker_profile_id: ''
   });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -37,6 +38,26 @@ export default function NewListingPage() {
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [brokers, setBrokers] = useState<any[]>([]);
+  const [loadingBrokers, setLoadingBrokers] = useState(true);
+
+  // Fetch brokers on component mount
+  useEffect(() => {
+    const fetchBrokers = async () => {
+      try {
+        const response = await fetch('/api/brokers');
+        if (response.ok) {
+          const data = await response.json();
+          setBrokers(data.brokers || []);
+        }
+      } catch (error) {
+        console.error('Error fetching brokers:', error);
+      } finally {
+        setLoadingBrokers(false);
+      }
+    };
+    fetchBrokers();
+  }, []);
 
   const uploadMedia = useCallback(async (listingIdParam: string) => {
     for (const file of uploadedImages) {
@@ -88,6 +109,7 @@ export default function NewListingPage() {
         contact_phone: formData.contact_phone?.trim() || null,
         contact_email: formData.contact_email?.trim() || null,
         contact_other: formData.contact_other?.trim() || null,
+        broker_profile_id: formData.broker_profile_id?.trim() || null,
       };
 
       console.log('Request data after processing:', requestData);
@@ -770,6 +792,48 @@ export default function NewListingPage() {
                 </div>
               </div>
 
+              {/* Broker Assignment Section */}
+              <div className="space-y-8">
+                <div className="border-t border-neutral-600 pt-8">
+                  <h3 className="text-2xl text-white font-medium mb-6 flex items-center">
+                    <svg className="w-6 h-6 text-gold mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Broker Assignment (Optional)
+                  </h3>
+                  <p className="text-neutral-400 mb-8">
+                    Assign a broker to this listing. Their contact information will be displayed to potential buyers.
+                  </p>
+
+                  <div className="space-y-4">
+                    <label htmlFor="broker_profile_id" className="block text-lg text-neutral-300 font-medium">
+                      Select Broker
+                    </label>
+                    {loadingBrokers ? (
+                      <div className="text-neutral-400">Loading brokers...</div>
+                    ) : (
+                      <select
+                        id="broker_profile_id"
+                        name="broker_profile_id"
+                        value={formData.broker_profile_id}
+                        onChange={handleInputChange}
+                        className="form-control w-full"
+                      >
+                        <option value="">No broker assigned</option>
+                        {brokers.map((broker) => (
+                          <option key={broker.id} value={broker.id}>
+                            {broker.displayName} {broker.company ? `- ${broker.company}` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <p className="text-neutral-400 text-sm">
+                      If a broker is assigned, their contact information will be shown on the listing page. Otherwise, use the contact fields below.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Contact Information Section */}
               <div className="space-y-8">
                 <div className="border-t border-neutral-600 pt-8">
@@ -780,7 +844,7 @@ export default function NewListingPage() {
                     Contact Information
                   </h3>
                   <p className="text-neutral-400 mb-8">
-                    Provide your contact details so interested buyers can reach you. These fields are optional for drafts.
+                    Provide your contact details so interested buyers can reach you. These fields are optional for drafts {formData.broker_profile_id ? 'and will be used if no broker is assigned or as additional contact methods.' : 'but required for submission.'}
                   </p>
 
                   <div className="grid md:grid-cols-1 gap-6">

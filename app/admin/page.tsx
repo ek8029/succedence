@@ -190,18 +190,37 @@ function AdminPageContent() {
         fetch('/api/admin/brokers')
       ]);
 
+      console.log('Admin API responses:', {
+        stats: statsResponse.status,
+        listings: listingsResponse.status,
+        users: usersResponse.status,
+        brokers: brokersResponse.status
+      });
+
       const statsData = await statsResponse.json();
       const listingsData = await listingsResponse.json();
       const usersData = await usersResponse.json();
       const brokersData = await brokersResponse.json();
 
+      console.log('Admin data received:', {
+        statsData,
+        listingsData,
+        usersData,
+        brokersData
+      });
+
       setStats(statsData);
-      setListings(listingsData || []);
-      setUsers(usersData.users || []);
+      // Defensive: ensure we set arrays even if API returns error objects
+      setListings(Array.isArray(listingsData) ? listingsData : []);
+      setUsers(Array.isArray(usersData?.users) ? usersData.users : []);
       setBrokerCount(brokersData.brokers?.length || 0);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      // Set empty arrays on error to prevent map() failures
+      setListings([]);
+      setUsers([]);
+      setBrokerCount(0);
       setLoading(false);
     }
   };
@@ -496,7 +515,7 @@ function AdminPageContent() {
           <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.6s'}}>
             <h2 className="text-2xl text-white font-medium mb-6">Industry Distribution</h2>
             <div className="flex flex-wrap gap-4">
-              {stats.industries.map(industry => (
+              {(stats.industries || []).map(industry => (
                 <span key={industry} className="status-badge status-pending">
                   {industry}
                 </span>

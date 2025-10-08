@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -34,14 +34,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
+    // Use service client to check admin role (bypasses RLS)
+    const serviceSupabase = createServiceClient()
+    const { data: userData, error: userError } = await serviceSupabase
       .from('users')
       .select('role')
       .eq('id', user.id)
       .single()
 
     if (userError || !userData || (userData as any).role !== 'admin') {
+      console.error('Admin check failed:', { userError, role: (userData as any)?.role, userId: user.id })
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
@@ -91,14 +93,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin
-    const { data: userData, error: userError } = await supabase
+    // Use service client to check admin role (bypasses RLS)
+    const serviceSupabase = createServiceClient()
+    const { data: userData, error: userError } = await serviceSupabase
       .from('users')
       .select('role')
       .eq('id', user.id)
       .single()
 
     if (userError || !userData || (userData as any).role !== 'admin') {
+      console.error('Admin check failed:', { userError, role: (userData as any)?.role, userId: user.id })
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
