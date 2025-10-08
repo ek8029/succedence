@@ -213,14 +213,17 @@ function BrokerForm({
         </label>
       </div>
 
-      <div className="flex gap-4 pt-4">
-        <button type="submit" className="btn-primary px-6 py-3 font-medium flex-1">
+      <div className="flex gap-3 pt-6 border-t border-neutral-700 mt-6">
+        <button
+          type="submit"
+          className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded-lg transition-all flex-1"
+        >
           {submitLabel}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1"
+          className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-neutral-300 hover:text-white glass border border-neutral-600 hover:border-neutral-500 rounded-lg transition-all flex-1"
         >
           Cancel
         </button>
@@ -412,15 +415,15 @@ function BrokerManagementContent() {
           <div className="text-center mb-20 mt-32">
             <h1 className="text-heading text-white font-medium mb-6">Broker Management</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Create and manage broker profiles</p>
-            <div className="flex gap-3 justify-center items-center">
-              <Link href="/admin" className="inline-flex items-center px-4 py-2 text-sm font-medium text-white glass border border-neutral-600 hover-lift transition-all rounded h-10">
+            <div className="flex gap-4 justify-center items-center">
+              <Link href="/admin" className="inline-flex items-center px-4 py-2 text-sm font-medium text-white glass border border-neutral-600 hover:border-neutral-500 rounded-lg transition-all">
                 ← Back to Dashboard
               </Link>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded-lg transition-all"
               >
-                Create New Broker
+                + Create New Broker
               </button>
             </div>
           </div>
@@ -479,12 +482,12 @@ function BrokerManagementContent() {
             <div className="glass p-8 border border-gold/30 rounded-luxury">
               {brokers.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-neutral-400 text-lg mb-4">No broker profiles yet</p>
+                  <p className="text-neutral-400 text-lg mb-6">No broker profiles yet</p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="btn-primary px-6 py-3 font-medium"
+                    className="inline-flex items-center px-6 py-2.5 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded-lg transition-all"
                   >
-                    Create First Broker
+                    + Create First Broker
                   </button>
                 </div>
               ) : (
@@ -530,21 +533,21 @@ function BrokerManagementContent() {
                         )}
                       </div>
 
-                      <div className="flex gap-2 mt-4 pt-4 border-t border-gold/10">
+                      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gold/10 items-center">
                         <button
                           onClick={() => handleEdit(broker)}
-                          className="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
+                          className="inline-flex items-center px-3 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded-lg transition-all"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDelete(broker)}
-                          className="text-xs px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded transition-all"
+                          className="inline-flex items-center px-3 py-2 text-xs font-medium bg-red-600 hover:bg-red-700 text-white border border-red-600 rounded-lg transition-all"
                         >
                           Delete
                         </button>
                         {broker.isPublic === 'true' && (
-                          <span className="text-xs px-3 py-1.5 bg-green-600/20 text-green-200 border border-green-400/30 rounded ml-auto">
+                          <span className="inline-flex items-center px-3 py-1.5 text-xs font-medium bg-green-600/20 text-green-200 border border-green-400/30 rounded-lg ml-auto">
                             Public
                           </span>
                         )}
