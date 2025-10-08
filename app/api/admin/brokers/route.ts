@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
-    // Fetch all broker profiles with user data
-    const { data: brokers, error: brokersError } = await supabase
+    // Fetch all broker profiles with user data - use service client to bypass RLS
+    const { data: brokers, error: brokersError } = await serviceSupabase
       .from('broker_profiles')
       .select(`
         *,

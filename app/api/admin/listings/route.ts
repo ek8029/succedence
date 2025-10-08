@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
-    // Get all listings for admin (not just active ones)
-    const { data: listings, error } = await supabase
+    // Get all listings for admin (not just active ones) - use service client to bypass RLS
+    const { data: listings, error } = await serviceSupabase
       .from('listings')
       .select('*')
       .order('updated_at', { ascending: false })

@@ -3,6 +3,20 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+// Helper to convert snake_case to camelCase
+function toCamelCase(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(toCamelCase)
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).reduce((result, key) => {
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+      result[camelKey] = toCamelCase(obj[key])
+      return result
+    }, {} as any)
+  }
+  return obj
+}
+
 // GET all public broker profiles
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +47,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({ brokers })
+    // Convert to camelCase for frontend
+    const camelCaseBrokers = toCamelCase(brokers)
+
+    return NextResponse.json({ brokers: camelCaseBrokers })
 
   } catch (error) {
     console.error('Error in GET brokers:', error)
