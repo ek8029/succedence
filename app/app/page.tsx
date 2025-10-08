@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [topMatches, setTopMatches] = useState<any[]>([]);
   const [aiHistory, setAiHistory] = useState<any[]>([]);
+  const [aiListingSummary, setAiListingSummary] = useState<any[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const userPlan = (authUser?.plan as PlanType) || 'free';
@@ -63,11 +64,12 @@ export default function Dashboard() {
             setTopMatches(matchesData.matches?.slice(0, 3) || []);
           }
 
-          // Fetch recent AI history
+          // Fetch recent AI history (grouped by listing)
           const aiResponse = await fetch('/api/ai/history?page=1&limit=6');
           if (aiResponse.ok) {
             const aiData = await aiResponse.json();
             setAiHistory(aiData.aiHistory?.slice(0, 6) || []);
+            setAiListingSummary(aiData.listingSummary?.slice(0, 6) || []);
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -367,30 +369,35 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="glass p-6 border border-gold/30 rounded-luxury">
-              {aiHistory.length > 0 ? (
+              {aiListingSummary.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {aiHistory.map((analysis) => (
+                  {aiListingSummary.map((summary, index) => (
                     <Link
-                      key={analysis.id}
-                      href={`/listings/${analysis.listing_id}`}
+                      key={index}
+                      href={`/listings/${summary.listing.id}`}
                       className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
                     >
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="px-2 py-1 bg-gold/20 text-gold rounded text-xs font-medium">
-                          {getAnalysisTypeName(analysis.analysis_type)}
-                        </div>
-                        <div className="text-silver/60 text-xs">
-                          {formatDate(analysis.created_at)}
-                        </div>
-                      </div>
                       <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
-                        {analysis.listings.title}
+                        {summary.listing.title}
                       </h3>
-                      <div className="text-silver/70 text-xs mb-2">
-                        {analysis.listings.industry} • {analysis.listings.city}, {analysis.listings.state}
+                      <div className="text-silver/70 text-xs mb-3">
+                        {summary.listing.industry} • {summary.listing.city}, {summary.listing.state}
                       </div>
-                      <div className="text-gold text-xs">
-                        {formatCurrency(analysis.listings.price)}
+                      <div className="text-gold text-xs mb-3">
+                        {formatCurrency(summary.listing.price)}
+                      </div>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {summary.analysisTypes.map((type: string, typeIndex: number) => (
+                          <span
+                            key={typeIndex}
+                            className="px-2 py-1 bg-gold/20 text-gold rounded text-xs font-medium"
+                          >
+                            {getAnalysisTypeName(type)}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="text-silver/60 text-xs">
+                        {summary.totalAnalyses} {summary.totalAnalyses === 1 ? 'analysis' : 'analyses'} • {formatDate(summary.lastAnalysisAt)}
                       </div>
                     </Link>
                   ))}
