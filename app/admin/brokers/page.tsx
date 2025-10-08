@@ -17,6 +17,218 @@ interface BrokerWithUser extends BrokerProfile {
   };
 }
 
+interface BrokerFormData {
+  userId: string;
+  displayName: string;
+  headshotUrl: string;
+  bio: string;
+  phone: string;
+  email: string;
+  company: string;
+  licenseNumber: string;
+  workAreas: string[];
+  specialties: string[];
+  yearsExperience: number;
+  websiteUrl: string;
+  linkedinUrl: string;
+  isPublic: string;
+}
+
+// Broker form component - moved outside to prevent re-render issues
+function BrokerForm({
+  formData,
+  setFormData,
+  users,
+  selectedBroker,
+  onSubmit,
+  onCancel,
+  submitLabel
+}: {
+  formData: BrokerFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BrokerFormData>>;
+  users: any[];
+  selectedBroker: BrokerWithUser | null;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+  submitLabel: string;
+}) {
+  return (
+    <form onSubmit={onSubmit} className="space-y-4">
+      {!selectedBroker && (
+        <div>
+          <label className="form-label">Link to User Account (Optional)</label>
+          <select
+            value={formData.userId}
+            onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
+            className="form-control w-full"
+          >
+            <option value="">No user account - standalone broker</option>
+            {users.filter(u => u.role !== 'broker').map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name} ({user.email})
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-neutral-400 mt-1">
+            Only link if this broker has a user account on the platform
+          </p>
+        </div>
+      )}
+
+      <div>
+        <label className="form-label">Display Name *</label>
+        <input
+          type="text"
+          value={formData.displayName}
+          onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+          className="form-control w-full"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Email *</label>
+        <input
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className="form-control w-full"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Phone *</label>
+        <input
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          className="form-control w-full"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Bio</label>
+        <textarea
+          value={formData.bio}
+          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+          className="form-control w-full"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Company</label>
+        <input
+          type="text"
+          value={formData.company}
+          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+          className="form-control w-full"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">License Number</label>
+        <input
+          type="text"
+          value={formData.licenseNumber}
+          onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+          className="form-control w-full"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Years of Experience</label>
+        <input
+          type="number"
+          value={formData.yearsExperience}
+          onChange={(e) => setFormData({ ...formData, yearsExperience: parseInt(e.target.value) || 0 })}
+          className="form-control w-full"
+          min="0"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Work Areas (comma-separated)</label>
+        <input
+          type="text"
+          value={formData.workAreas.join(', ')}
+          onChange={(e) => setFormData({ ...formData, workAreas: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
+          className="form-control w-full"
+          placeholder="e.g., California, Nevada, Arizona"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Specialties (comma-separated)</label>
+        <input
+          type="text"
+          value={formData.specialties.join(', ')}
+          onChange={(e) => setFormData({ ...formData, specialties: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
+          className="form-control w-full"
+          placeholder="e.g., Restaurants, Retail, Healthcare"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Website URL</label>
+        <input
+          type="url"
+          value={formData.websiteUrl}
+          onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+          className="form-control w-full"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">LinkedIn URL</label>
+        <input
+          type="url"
+          value={formData.linkedinUrl}
+          onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+          className="form-control w-full"
+        />
+      </div>
+
+      <div>
+        <label className="form-label">Headshot URL</label>
+        <input
+          type="url"
+          value={formData.headshotUrl}
+          onChange={(e) => setFormData({ ...formData, headshotUrl: e.target.value })}
+          className="form-control w-full"
+        />
+      </div>
+
+      <div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={formData.isPublic === 'true'}
+            onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked ? 'true' : 'false' })}
+            className="form-checkbox"
+          />
+          <span className="text-white">Public Profile (visible to all users)</span>
+        </label>
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <button type="submit" className="btn-primary px-6 py-3 font-medium flex-1">
+          {submitLabel}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function BrokerManagementContent() {
   const [brokers, setBrokers] = useState<BrokerWithUser[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -182,186 +394,6 @@ function BrokerManagementContent() {
     }
   };
 
-  const BrokerForm = ({ onSubmit, submitLabel }: { onSubmit: (e: React.FormEvent) => void; submitLabel: string }) => (
-    <form onSubmit={onSubmit} className="space-y-4">
-      {!selectedBroker && (
-        <div>
-          <label className="form-label">Select User</label>
-          <select
-            value={formData.userId}
-            onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
-            className="form-control w-full"
-            required
-          >
-            <option value="">Select a user...</option>
-            {users.filter(u => u.role !== 'broker').map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name} ({user.email})
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <div>
-        <label className="form-label">Display Name *</label>
-        <input
-          type="text"
-          value={formData.displayName}
-          onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-          className="form-control w-full"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Email</label>
-        <input
-          type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Phone</label>
-        <input
-          type="tel"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Bio</label>
-        <textarea
-          value={formData.bio}
-          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-          className="form-control w-full"
-          rows={4}
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Company</label>
-        <input
-          type="text"
-          value={formData.company}
-          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">License Number</label>
-        <input
-          type="text"
-          value={formData.licenseNumber}
-          onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Years of Experience</label>
-        <input
-          type="number"
-          value={formData.yearsExperience}
-          onChange={(e) => setFormData({ ...formData, yearsExperience: parseInt(e.target.value) || 0 })}
-          className="form-control w-full"
-          min="0"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Work Areas (comma-separated)</label>
-        <input
-          type="text"
-          value={formData.workAreas.join(', ')}
-          onChange={(e) => setFormData({ ...formData, workAreas: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
-          className="form-control w-full"
-          placeholder="e.g., California, Nevada, Arizona"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Specialties (comma-separated)</label>
-        <input
-          type="text"
-          value={formData.specialties.join(', ')}
-          onChange={(e) => setFormData({ ...formData, specialties: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
-          className="form-control w-full"
-          placeholder="e.g., Restaurants, Retail, Healthcare"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Website URL</label>
-        <input
-          type="url"
-          value={formData.websiteUrl}
-          onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">LinkedIn URL</label>
-        <input
-          type="url"
-          value={formData.linkedinUrl}
-          onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="form-label">Headshot URL</label>
-        <input
-          type="url"
-          value={formData.headshotUrl}
-          onChange={(e) => setFormData({ ...formData, headshotUrl: e.target.value })}
-          className="form-control w-full"
-        />
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={formData.isPublic === 'true'}
-            onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked ? 'true' : 'false' })}
-            className="form-checkbox"
-          />
-          <span className="text-white">Public Profile (visible to all users)</span>
-        </label>
-      </div>
-
-      <div className="flex gap-4 pt-4">
-        <button type="submit" className="btn-primary px-6 py-3 font-medium flex-1">
-          {submitLabel}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (selectedBroker) {
-              setShowEditModal(false);
-              setSelectedBroker(null);
-            } else {
-              setShowCreateModal(false);
-            }
-            resetForm();
-          }}
-          className="glass border border-neutral-600 text-neutral-300 hover:text-white px-6 py-3 font-medium flex-1"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
-  );
-
   if (loading) {
     return (
       <div className="min-h-screen bg-brand-darker flex items-center justify-center">
@@ -400,7 +432,18 @@ function BrokerManagementContent() {
             <div className="min-h-screen flex items-start justify-center p-4">
               <div className="glass p-8 border border-gold/30 rounded-luxury max-w-2xl w-full my-8 relative">
                 <h3 className="text-xl text-white font-medium mb-6">Create Broker Profile</h3>
-                <BrokerForm onSubmit={handleCreate} submitLabel="Create Broker" />
+                <BrokerForm
+                  formData={formData}
+                  setFormData={setFormData}
+                  users={users}
+                  selectedBroker={null}
+                  onSubmit={handleCreate}
+                  onCancel={() => {
+                    setShowCreateModal(false);
+                    resetForm();
+                  }}
+                  submitLabel="Create Broker"
+                />
               </div>
             </div>
           </div>
@@ -412,7 +455,19 @@ function BrokerManagementContent() {
             <div className="min-h-screen flex items-start justify-center p-4">
               <div className="glass p-8 border border-gold/30 rounded-luxury max-w-2xl w-full my-8 relative">
                 <h3 className="text-xl text-white font-medium mb-6">Edit Broker Profile</h3>
-                <BrokerForm onSubmit={handleUpdate} submitLabel="Update Broker" />
+                <BrokerForm
+                  formData={formData}
+                  setFormData={setFormData}
+                  users={users}
+                  selectedBroker={selectedBroker}
+                  onSubmit={handleUpdate}
+                  onCancel={() => {
+                    setShowEditModal(false);
+                    setSelectedBroker(null);
+                    resetForm();
+                  }}
+                  submitLabel="Update Broker"
+                />
               </div>
             </div>
           </div>

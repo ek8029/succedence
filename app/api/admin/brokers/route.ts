@@ -5,19 +5,19 @@ import { z } from 'zod'
 export const dynamic = 'force-dynamic'
 
 const brokerProfileCreateSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().uuid().optional().or(z.literal('')),
   displayName: z.string().min(1),
-  headshotUrl: z.string().url().optional(),
+  headshotUrl: z.string().url().optional().or(z.literal('')),
   bio: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
+  phone: z.string().min(1), // Required
+  email: z.string().email(), // Required
   company: z.string().optional(),
   licenseNumber: z.string().optional(),
   workAreas: z.array(z.string()).optional(),
   specialties: z.array(z.string()).optional(),
   yearsExperience: z.number().int().min(0).optional(),
-  websiteUrl: z.string().url().optional(),
-  linkedinUrl: z.string().url().optional(),
+  websiteUrl: z.string().url().optional().or(z.literal('')),
+  linkedinUrl: z.string().url().optional().or(z.literal('')),
   isPublic: z.string().optional(),
   customSections: z.record(z.any()).optional(),
 })
@@ -109,37 +109,40 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const brokerData = brokerProfileCreateSchema.parse(body)
 
-    // Check if user exists and update their role to broker
-    const { data: targetUser, error: targetUserError } = await supabase
-      .from('users')
-      .select('id, role')
-      .eq('id', brokerData.userId)
-      .single()
+    // Only check/update user if userId is provided
+    if (brokerData.userId && brokerData.userId.trim()) {
+      // Check if user exists and update their role to broker
+      const { data: targetUser, error: targetUserError } = await serviceSupabase
+        .from('users')
+        .select('id, role')
+        .eq('id', brokerData.userId)
+        .single()
 
-    if (targetUserError || !targetUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
+      if (targetUserError || !targetUser) {
+        return NextResponse.json(
+          { error: 'User not found' },
+          { status: 404 }
+        )
+      }
 
-    // Update user role to broker
-    const { error: roleUpdateError } = await (supabase
-      .from('users') as any)
-      .update({ role: 'broker' })
-      .eq('id', brokerData.userId)
+      // Update user role to broker
+      const { error: roleUpdateError } = await (serviceSupabase
+        .from('users') as any)
+        .update({ role: 'broker' })
+        .eq('id', brokerData.userId)
 
-    if (roleUpdateError) {
-      console.error('Error updating user role:', roleUpdateError)
-      return NextResponse.json(
-        { error: 'Failed to update user role' },
-        { status: 500 }
-      )
+      if (roleUpdateError) {
+        console.error('Error updating user role:', roleUpdateError)
+        return NextResponse.json(
+          { error: 'Failed to update user role' },
+          { status: 500 }
+        )
+      }
     }
 
     // Map to database column names
     const dbData = {
-      user_id: brokerData.userId,
+      user_id: brokerData.userId && brokerData.userId.trim() ? brokerData.userId : null,
       display_name: brokerData.displayName,
       headshot_url: brokerData.headshotUrl,
       bio: brokerData.bio,
