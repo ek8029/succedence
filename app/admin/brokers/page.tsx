@@ -416,12 +416,12 @@ function BrokerManagementContent() {
             <h1 className="text-heading text-white font-medium mb-6">Broker Management</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Create and manage broker profiles</p>
             <div className="flex gap-4 justify-center items-center">
-              <Link href="/admin" className="inline-flex items-center px-4 py-2 text-sm font-medium text-white glass border border-neutral-600 hover:border-neutral-500 rounded-lg transition-all">
+              <Link href="/admin" className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white glass border border-neutral-600 hover:border-neutral-500 rounded-lg transition-all min-h-[42px]">
                 ← Back to Dashboard
               </Link>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded-lg transition-all"
+                className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded-lg transition-all min-h-[42px]"
               >
                 + Create New Broker
               </button>
