@@ -396,20 +396,24 @@ function BrokerManagementContent() {
 
         {/* Create Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="glass p-8 border border-gold/30 rounded-luxury max-w-2xl w-full my-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
-              <h3 className="text-xl text-white font-medium mb-6">Create Broker Profile</h3>
-              <BrokerForm onSubmit={handleCreate} submitLabel="Create Broker" />
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+            <div className="min-h-screen flex items-start justify-center p-4">
+              <div className="glass p-8 border border-gold/30 rounded-luxury max-w-2xl w-full my-8 relative">
+                <h3 className="text-xl text-white font-medium mb-6">Create Broker Profile</h3>
+                <BrokerForm onSubmit={handleCreate} submitLabel="Create Broker" />
+              </div>
             </div>
           </div>
         )}
 
         {/* Edit Modal */}
         {showEditModal && selectedBroker && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="glass p-8 border border-gold/30 rounded-luxury max-w-2xl w-full my-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
-              <h3 className="text-xl text-white font-medium mb-6">Edit Broker Profile</h3>
-              <BrokerForm onSubmit={handleUpdate} submitLabel="Update Broker" />
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+            <div className="min-h-screen flex items-start justify-center p-4">
+              <div className="glass p-8 border border-gold/30 rounded-luxury max-w-2xl w-full my-8 relative">
+                <h3 className="text-xl text-white font-medium mb-6">Edit Broker Profile</h3>
+                <BrokerForm onSubmit={handleUpdate} submitLabel="Update Broker" />
+              </div>
             </div>
           </div>
         )}
