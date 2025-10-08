@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { SuperEnhancedDueDiligence } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
-import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
-import { useResilientFetch } from '@/lib/utils/resilient-fetch';
+import { usePersistedAIAnalysis } from '@/lib/hooks/usePersistedAIAnalysis';
 import ConversationalChatbox from './ConversationalChatbox';
 
 interface DueDiligenceAIProps {
@@ -19,188 +17,23 @@ interface DueDiligenceAIProps {
 
 export default function DueDiligenceAI({ listingId, listingTitle, industry }: DueDiligenceAIProps) {
   const { user, isLoading: authLoading } = useAuth();
-  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
-  const { protectRequest } = useVisibilityProtectedRequest();
-  const { fetchWithRetry } = useResilientFetch();
-  const [checklist, setChecklist] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
-  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
-  const analysisInProgressRef = useRef(false);
 
-  // Check if user has access to due diligence feature
+  // Use the enhanced hook - it handles everything internally
+  const {
+    analysis,
+    isLoading,
+    error,
+    startAnalysis,
+    clearAnalysis,
+  } = usePersistedAIAnalysis<SuperEnhancedDueDiligence>(
+    listingId,
+    'due_diligence'
+  );
+
+  // Check if user has access
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'dueDiligence', user?.role);
-
-  // Fetch existing analysis on component mount
-  const fetchExistingAnalysis = useCallback(async () => {
-    if (!user || hasCheckedForExisting) return;
-
-    try {
-      const response = await fetch(`/api/ai/history?analysisType=due_diligence&listingId=${listingId}&limit=1&page=1`);
-      const data = await response.json();
-
-      if (data.success && data.aiHistory && data.aiHistory.length > 0) {
-        // Since API now filters by listingId, take the first (and only) result
-        const existingAnalysis = data.aiHistory[0];
-        if (existingAnalysis && existingAnalysis.analysis_data) {
-          setChecklist(existingAnalysis.analysis_data);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching existing due diligence analysis:', err);
-    } finally {
-      setHasCheckedForExisting(true);
-    }
-  }, [user, hasCheckedForExisting, listingId]);
-
-  // Removed problematic tab visibility logic that caused infinite loading
-
-  const pollForResult = useCallback(async (targetJobId?: string): Promise<any> => {
-    let attempts = 0;
-    const maxAttempts = 180; // 6 minutes max
-
-    while (analysisInProgressRef.current && attempts < maxAttempts) {
-      try {
-        const statusResponse = await fetch(
-          `/api/ai/run-analysis?listingId=${listingId}&analysisType=due_diligence${
-            targetJobId ? `&jobId=${targetJobId}` : ''
-          }`,
-          { credentials: 'include' }
-        );
-        const statusData = await statusResponse.json();
-
-        if (statusData.status === 'completed' && statusData.result) {
-          return statusData.result;
-        } else if (statusData.status === 'error') {
-          throw new Error(statusData.error || 'Due diligence analysis failed');
-        }
-
-        // Still processing, wait and try again
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        attempts++;
-      } catch (pollError) {
-        console.warn('Poll error, retrying:', pollError);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        attempts++;
-      }
-    }
-
-    if (attempts >= maxAttempts) {
-      throw new Error('Due diligence analysis timed out - but it may still be running in the background');
-    }
-    throw new Error('Due diligence analysis cancelled');
-  }, [listingId]);
-
-  const resumePolling = useCallback(async (resumeJobId?: string) => {
-    try {
-      const result = await pollForResult(resumeJobId);
-      if (result) {
-        setChecklist(result);
-        console.log('✅ Due diligence analysis completed (resumed)');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Due diligence analysis failed during resume');
-      console.error('❌ Resumed due diligence analysis failed:', err);
-    } finally {
-      setIsLoading(false);
-      analysisInProgressRef.current = false;
-    }
-  }, [pollForResult]);
-
-  const checkForOngoingAnalysis = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `/api/ai/run-analysis?listingId=${listingId}&analysisType=due_diligence`,
-        { credentials: 'include' }
-      );
-      const data = await response.json();
-
-      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
-        console.log('🔄 Resuming ongoing due diligence analysis:', data.jobId);
-        setIsLoading(true);
-        analysisInProgressRef.current = true;
-
-        // Resume polling for the ongoing job
-        resumePolling(data.jobId);
-      } else if (data.status === 'completed' && data.result) {
-        console.log('✅ Found completed due diligence analysis, loading result');
-        setChecklist(data.result);
-      }
-    } catch (error) {
-      console.warn('Failed to check for ongoing due diligence analysis:', error);
-    }
-  }, [listingId, resumePolling]);
-
-  // Check for existing analysis on mount
-  useEffect(() => {
-    if (user && !checklist && !hasCheckedForExisting) {
-      fetchExistingAnalysis();
-    }
-  }, [user, listingId, checklist, hasCheckedForExisting, fetchExistingAnalysis]);
-
-  // Check for ongoing analysis when component mounts/remounts
-  useEffect(() => {
-    if (user && !checklist && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current) {
-      checkForOngoingAnalysis();
-    }
-  }, [user, checklist, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
-
-  // Listen to analysis completion triggers from other components
-  useEffect(() => {
-    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0)) {
-      // Reset and refetch when other analyses complete
-      setHasCheckedForExisting(false);
-      if (!checklist) {
-        fetchExistingAnalysis();
-      }
-    }
-  }, [user, analysisCompletedTrigger, refreshTrigger, checklist, fetchExistingAnalysis]);
-
-  // Removed session storage cleanup logic
-
-  const handleGenerateChecklist = async () => {
-    setIsLoading(true);
-    setError(null);
-    analysisInProgressRef.current = true;
-
-    try {
-      // Start server-side analysis that continues even if tab is switched
-      const startResponse = await fetch('/api/ai/run-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId,
-          analysisType: 'due_diligence',
-          forceNew: true
-        }),
-      });
-
-      const startData = await startResponse.json();
-
-      if (!startResponse.ok) {
-        throw new Error(startData.error || 'Failed to start due diligence analysis');
-      }
-
-      // Use the shared polling function
-      const result = await pollForResult();
-      setChecklist(result);
-
-      // Notify other components that analysis completed
-      triggerAnalysisRefetch();
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate due diligence checklist');
-    } finally {
-      setIsLoading(false);
-      analysisInProgressRef.current = false;
-    }
-  };
-
 
   const toggleItem = (category: string, index: number) => {
     const itemKey = `${category.toLowerCase()}-${index}`;
@@ -334,12 +167,12 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     );
   };
 
-  const totalItems = checklist ?
-    (checklist.criticalItems || []).reduce((total: number, category: any) => total + (category.items || []).length, 0) : 0;
+  const totalItems = analysis ?
+    (analysis.criticalItems || []).reduce((total: number, category: any) => total + (category.items || []).length, 0) : 0;
   const totalCompleted = completedItems.size;
   const overallProgress = totalItems > 0 ? (totalCompleted / totalItems) * 100 : 0;
 
-  // Show loading while auth is initializing (prevents subscription popup on tab switch)
+  // Show loading while auth is initializing
   if (authLoading || (!user && typeof window !== 'undefined')) {
     return (
       <div className="glass p-6 rounded-luxury-lg border border-gold/20">
@@ -369,9 +202,9 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
         <h3 className="text-xl font-semibold text-warm-white font-serif">
           AI Due Diligence Assistant
         </h3>
-        {!checklist && (
+        {!analysis && (
           <button
-            onClick={handleGenerateChecklist}
+            onClick={() => startAnalysis(false)}
             disabled={isLoading}
             className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -385,6 +218,18 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
             )}
           </button>
         )}
+        {analysis && (
+          <button
+            onClick={() => {
+              clearAnalysis();
+              startAnalysis(true);
+            }}
+            disabled={isLoading}
+            className="px-4 py-2 bg-transparent border-2 border-gold/30 text-gold font-medium rounded-luxury hover:border-gold hover:bg-gold/10 transition-all duration-300 text-sm disabled:opacity-50"
+          >
+            Re-analyze
+          </button>
+        )}
       </div>
 
       {error && (
@@ -393,7 +238,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
         </div>
       )}
 
-      {checklist && (
+      {analysis && (
         <div className="space-y-6">
           {/* Overall Progress */}
           <div className="p-4 bg-charcoal/50 rounded-luxury border border-gold/10">
@@ -414,8 +259,8 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
 
           {/* Checklist Sections */}
           <div className="space-y-4">
-            {checklist.criticalItems && checklist.criticalItems.length > 0 ? (
-              checklist.criticalItems.map((categoryData: any, index: number) => {
+            {analysis.criticalItems && analysis.criticalItems.length > 0 ? (
+              analysis.criticalItems.map((categoryData: any, index: number) => {
                 const categoryName = categoryData.category || `Category ${index + 1}`;
                 const items = (categoryData.items || []).map((item: any) =>
                   typeof item === 'string' ? item : item.task || 'Unnamed task'
@@ -435,7 +280,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
           </div>
 
           {/* Timeline */}
-          {checklist.timeline && Array.isArray(checklist.timeline) && (
+          {analysis.timeline && Array.isArray(analysis.timeline) && (
             <div className="p-4 bg-navy/30 rounded-luxury border border-gold/10">
               <h4 className="text-lg font-semibold text-gold mb-3 font-serif flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -444,7 +289,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
                 Recommended Timeline
               </h4>
               <div className="space-y-3">
-                {checklist.timeline.map((phase, index) => (
+                {analysis.timeline.map((phase, index) => (
                   <div key={index} className="border-l-2 border-gold/30 pl-4">
                     <div className="flex items-center justify-between mb-1">
                       <h5 className="font-semibold text-gold">{phase.phase}</h5>
@@ -486,7 +331,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
           <ConversationalChatbox
             listingId={listingId}
             analysisType="due_diligence"
-            previousAnalysis={{ ...checklist, listingTitle, listingId, industry }}
+            previousAnalysis={{ ...analysis, listingTitle, listingId, industry }}
             title="Ask About Due Diligence"
             placeholder="Ask about specific checklist items, timelines, requirements, or industry considerations..."
             icon={
@@ -499,19 +344,11 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-gold/10">
             <button
-              onClick={handleGenerateChecklist}
-              disabled={isLoading}
-              className="px-6 py-2 bg-transparent border-2 border-gold/30 text-gold hover:bg-gold/10 hover:border-gold font-medium rounded-luxury transition-all duration-300 hover:transform hover:scale-105 font-primary text-sm disabled:opacity-50"
-            >
-              {isLoading ? 'Generating...' : 'Generate New Checklist'}
-            </button>
-
-            <button
               onClick={() => {
                 const checklistData = {
                   listing: listingTitle,
                   industry,
-                  checklist,
+                  checklist: analysis,
                   completed: Array.from(completedItems),
                   progress: overallProgress
                 };

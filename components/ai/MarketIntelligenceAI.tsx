@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { SuperEnhancedMarketIntelligence } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
-import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
-import { useResilientFetch } from '@/lib/utils/resilient-fetch';
+import { usePersistedAIAnalysis } from '@/lib/hooks/usePersistedAIAnalysis';
 import ConversationalChatbox from './ConversationalChatbox';
 
 interface MarketIntelligenceAIProps {
@@ -20,216 +18,41 @@ interface MarketIntelligenceAIProps {
 
 export default function MarketIntelligenceAI({ industry, geography, dealSize, listingId }: MarketIntelligenceAIProps) {
   const { user, isLoading: authLoading } = useAuth();
-  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
-  const { protectRequest } = useVisibilityProtectedRequest();
-  const { fetchWithRetry } = useResilientFetch();
-  const [intelligence, setIntelligence] = useState<SuperEnhancedMarketIntelligence | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
-  const analysisInProgressRef = useRef(false);
+
   const [formData, setFormData] = useState({
     industry: industry || '',
     geography: geography || '',
     dealSize: dealSize || 0
   });
 
+  // Use the enhanced hook - it handles everything internally
+  const {
+    analysis: intelligence,
+    isLoading,
+    error,
+    startAnalysis,
+    clearAnalysis,
+  } = usePersistedAIAnalysis<SuperEnhancedMarketIntelligence>(
+    listingId || 'market-intelligence-general',
+    'market_intelligence'
+  );
+
   // Check if user has access to market intelligence feature
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'marketIntelligence', user?.role);
 
-  // Fetch existing analysis on component mount
-  const fetchExistingAnalysis = useCallback(async () => {
-    if (!user || hasCheckedForExisting || !formData.industry.trim()) return;
-
-    try {
-      let url = `/api/ai/history?analysisType=market_intelligence&limit=10&page=1`;
-      if (listingId) {
-        url += `&listingId=${listingId}`;
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.success && data.aiHistory && data.aiHistory.length > 0) {
-        // Since API now filters by listingId, search through results for parameter match
-        const existingAnalysis = data.aiHistory.find((item: any) => {
-          const analysisParams = item.analysis_data?.parameters || {};
-          return analysisParams.industry?.toLowerCase() === formData.industry.toLowerCase() &&
-                 (!formData.geography || analysisParams.geography?.toLowerCase() === formData.geography.toLowerCase()) &&
-                 (!formData.dealSize || analysisParams.dealSize === formData.dealSize);
-        });
-
-        if (existingAnalysis && existingAnalysis.analysis_data) {
-          // Extract the intelligence data (skip parameters)
-          const { parameters, ...intelligenceData } = existingAnalysis.analysis_data;
-          setIntelligence(intelligenceData);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching existing market intelligence analysis:', err);
-    } finally {
-      setHasCheckedForExisting(true);
-    }
-  }, [user, hasCheckedForExisting, formData.industry, formData.geography, formData.dealSize, listingId]);
-
-  // Removed problematic tab visibility logic that caused infinite loading
-
-  const pollForResult = useCallback(async (targetJobId?: string): Promise<any> => {
-    let attempts = 0;
-    const maxAttempts = 180; // 6 minutes max
-
-    while (analysisInProgressRef.current && attempts < maxAttempts) {
-      try {
-        const statusResponse = await fetch(
-          `/api/ai/run-analysis?listingId=${listingId || 'market-intelligence-general'}&analysisType=market_intelligence${
-            targetJobId ? `&jobId=${targetJobId}` : ''
-          }`,
-          { credentials: 'include' }
-        );
-        const statusData = await statusResponse.json();
-
-        if (statusData.status === 'completed' && statusData.result) {
-          return statusData.result;
-        } else if (statusData.status === 'error') {
-          throw new Error(statusData.error || 'Market intelligence analysis failed');
-        }
-
-        // Still processing, wait and try again
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        attempts++;
-      } catch (pollError) {
-        console.warn('Poll error, retrying:', pollError);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        attempts++;
-      }
-    }
-
-    if (attempts >= maxAttempts) {
-      throw new Error('Market intelligence analysis timed out - but it may still be running in the background');
-    }
-    throw new Error('Market intelligence analysis cancelled');
-  }, [listingId]);
-
-  const resumePolling = useCallback(async (resumeJobId?: string) => {
-    try {
-      const result = await pollForResult(resumeJobId);
-      if (result) {
-        setIntelligence(result);
-        console.log('✅ Market intelligence analysis completed (resumed)');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Market intelligence analysis failed during resume');
-      console.error('❌ Resumed market intelligence analysis failed:', err);
-    } finally {
-      setIsLoading(false);
-      analysisInProgressRef.current = false;
-    }
-  }, [pollForResult]);
-
-  const checkForOngoingAnalysis = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `/api/ai/run-analysis?listingId=${listingId || 'market-intelligence-general'}&analysisType=market_intelligence`,
-        { credentials: 'include' }
-      );
-      const data = await response.json();
-
-      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
-        console.log('🔄 Resuming ongoing market intelligence analysis:', data.jobId);
-        setIsLoading(true);
-        analysisInProgressRef.current = true;
-
-        // Resume polling for the ongoing job
-        resumePolling(data.jobId);
-      } else if (data.status === 'completed' && data.result) {
-        console.log('✅ Found completed market intelligence analysis, loading result');
-        setIntelligence(data.result);
-      }
-    } catch (error) {
-      console.warn('Failed to check for ongoing market intelligence analysis:', error);
-    }
-  }, [listingId, resumePolling]);
-
-  // Check for existing analysis when form data changes
-  useEffect(() => {
-    if (user && formData.industry.trim() && !intelligence) {
-      setHasCheckedForExisting(false);
-      fetchExistingAnalysis();
-    }
-  }, [user, formData.industry, formData.geography, formData.dealSize, intelligence, fetchExistingAnalysis]);
-
-  // Check for ongoing analysis when component mounts/remounts
-  useEffect(() => {
-    if (user && !intelligence && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current && formData.industry.trim()) {
-      checkForOngoingAnalysis();
-    }
-  }, [user, formData.industry, intelligence, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
-
-  // Listen to analysis completion triggers from other components
-  useEffect(() => {
-    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0) && formData.industry.trim()) {
-      // Reset and refetch when other analyses complete
-      setHasCheckedForExisting(false);
-      if (!intelligence) {
-        fetchExistingAnalysis();
-      }
-    }
-  }, [user, analysisCompletedTrigger, refreshTrigger, formData.industry, intelligence, fetchExistingAnalysis]);
-
-  // Removed session storage cleanup logic
-
   const handleGenerateIntelligence = async () => {
     if (!formData.industry.trim()) {
-      setError('Industry is required');
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
-    analysisInProgressRef.current = true;
-
-    try {
-      // Start server-side analysis that continues even if tab is switched
-      const startResponse = await fetch('/api/ai/run-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId: listingId || 'market-intelligence-general',
-          analysisType: 'market_intelligence',
-          forceNew: true,
-          parameters: {
-            industry: formData.industry,
-            geography: formData.geography || undefined,
-            dealSize: formData.dealSize || undefined
-          }
-        }),
-      });
-
-      const startData = await startResponse.json();
-
-      if (!startResponse.ok) {
-        throw new Error(startData.error || 'Failed to start market intelligence analysis');
-      }
-
-      // Use the shared polling function
-      const result = await pollForResult();
-      setIntelligence(result);
-
-      // Notify other components that analysis completed
-      triggerAnalysisRefetch();
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate market intelligence');
-    } finally {
-      setIsLoading(false);
-      analysisInProgressRef.current = false;
-    }
+    // Start analysis with parameters
+    await startAnalysis(true, {
+      industry: formData.industry,
+      geography: formData.geography || undefined,
+      dealSize: formData.dealSize || undefined
+    });
   };
-
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {

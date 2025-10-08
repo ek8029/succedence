@@ -1,17 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { SuperEnhancedBuyerMatch, SuperConfidenceScore, SuperRiskFactor } from '@/lib/ai/super-enhanced-openai';
+import React from 'react';
+import { SuperEnhancedBuyerMatch, SuperConfidenceScore } from '@/lib/ai/super-enhanced-openai';
 import { hasAIFeatureAccess } from '@/lib/subscription';
 import { PlanType } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAIAnalysis } from '@/contexts/AIAnalysisContext';
-import { useVisibilityProtectedRequest } from '@/lib/utils/page-visibility';
-import { useResilientFetch } from '@/lib/utils/resilient-fetch';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
+import { usePersistedAIAnalysis } from '@/lib/hooks/usePersistedAIAnalysis';
 import ConversationalChatbox from './ConversationalChatbox';
-
-type EnhancedBuyerMatchScore = SuperEnhancedBuyerMatch;
 
 interface BuyerMatchAIProps {
   listingId: string;
@@ -20,193 +16,22 @@ interface BuyerMatchAIProps {
 
 export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIProps) {
   const { user, isLoading: authLoading } = useAuth();
-  const { analysisCompletedTrigger, triggerAnalysisRefetch, refreshTrigger } = useAIAnalysis();
-  const { protectRequest } = useVisibilityProtectedRequest();
-  const { fetchWithRetry } = useResilientFetch();
-  const [matchScore, setMatchScore] = useState<SuperEnhancedBuyerMatch | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasCheckedForExisting, setHasCheckedForExisting] = useState(false);
-  const analysisInProgressRef = useRef(false);
 
-  // Check if user has access to buyer matching feature
+  // Use the enhanced hook - it handles everything internally
+  const {
+    analysis,
+    isLoading,
+    error,
+    startAnalysis,
+    clearAnalysis,
+  } = usePersistedAIAnalysis<SuperEnhancedBuyerMatch>(
+    listingId,
+    'buyer_match'
+  );
+
+  // Check if user has access
   const userPlan = (user?.plan as PlanType) || 'free';
   const hasAccess = hasAIFeatureAccess(userPlan, 'buyerMatching', user?.role);
-
-  // Fetch existing analysis on component mount
-  const fetchExistingAnalysis = useCallback(async () => {
-    if (!user || hasCheckedForExisting) return;
-
-    try {
-      const response = await fetchWithRetry(`/api/ai/history?analysisType=buyer_match&listingId=${listingId}&limit=1&page=1`, {
-        maxRetries: 3,
-        retryDelay: 1000
-      }, `buyer-match-history-${listingId}`);
-      const data = await response.json();
-
-      if (data.success && data.aiHistory && data.aiHistory.length > 0) {
-        // Since API now filters by listingId, take the first (and only) result
-        const existingAnalysis = data.aiHistory[0];
-        if (existingAnalysis && existingAnalysis.analysis_data) {
-          setMatchScore(existingAnalysis.analysis_data);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching existing buyer match analysis:', err);
-    } finally {
-      setHasCheckedForExisting(true);
-    }
-  }, [user, hasCheckedForExisting, listingId, fetchWithRetry]);
-
-  // Removed problematic tab visibility logic that caused infinite loading
-
-  const pollForResult = useCallback(async (targetJobId?: string): Promise<any> => {
-    let attempts = 0;
-    const maxAttempts = 180; // 6 minutes max
-
-    while (analysisInProgressRef.current && attempts < maxAttempts) {
-      try {
-        const statusResponse = await fetch(
-          `/api/ai/run-analysis?listingId=${listingId}&analysisType=buyer_match${
-            targetJobId ? `&jobId=${targetJobId}` : ''
-          }`,
-          { credentials: 'include' }
-        );
-        const statusData = await statusResponse.json();
-
-        if (statusData.status === 'completed' && statusData.result) {
-          return statusData.result;
-        } else if (statusData.status === 'error') {
-          throw new Error(statusData.error || 'Buyer match analysis failed');
-        }
-
-        // Still processing, wait and try again
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        attempts++;
-      } catch (pollError) {
-        console.warn('Poll error, retrying:', pollError);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        attempts++;
-      }
-    }
-
-    if (attempts >= maxAttempts) {
-      throw new Error('Buyer match analysis timed out - but it may still be running in the background');
-    }
-    throw new Error('Buyer match analysis cancelled');
-  }, [listingId]);
-
-  const resumePolling = useCallback(async (resumeJobId?: string) => {
-    try {
-      const result = await pollForResult(resumeJobId);
-      if (result) {
-        setMatchScore(result);
-        console.log('✅ Buyer match analysis completed (resumed)');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Buyer match analysis failed during resume');
-      console.error('❌ Resumed buyer match analysis failed:', err);
-    } finally {
-      setIsLoading(false);
-      analysisInProgressRef.current = false;
-    }
-  }, [pollForResult]);
-
-  const checkForOngoingAnalysis = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `/api/ai/run-analysis?listingId=${listingId}&analysisType=buyer_match`,
-        { credentials: 'include' }
-      );
-      const data = await response.json();
-
-      if (response.ok && (data.status === 'processing' || data.status === 'queued')) {
-        console.log('🔄 Resuming ongoing buyer match analysis:', data.jobId);
-        setIsLoading(true);
-        analysisInProgressRef.current = true;
-
-        // Resume polling for the ongoing job
-        resumePolling(data.jobId);
-      } else if (data.status === 'completed' && data.result) {
-        console.log('✅ Found completed buyer match analysis, loading result');
-        setMatchScore(data.result);
-      }
-    } catch (error) {
-      console.warn('Failed to check for ongoing buyer match analysis:', error);
-    }
-  }, [listingId, resumePolling]);
-
-  // Check for existing analysis on mount
-  useEffect(() => {
-    if (user && !matchScore && !hasCheckedForExisting) {
-      fetchExistingAnalysis();
-    }
-  }, [user, listingId, matchScore, hasCheckedForExisting, fetchExistingAnalysis]);
-
-  // Check for ongoing analysis when component mounts/remounts
-  useEffect(() => {
-    if (user && !matchScore && !isLoading && hasCheckedForExisting && !analysisInProgressRef.current) {
-      checkForOngoingAnalysis();
-    }
-  }, [user, matchScore, isLoading, hasCheckedForExisting, checkForOngoingAnalysis]);
-
-  // Listen to analysis completion triggers from other components
-  useEffect(() => {
-    if (user && (analysisCompletedTrigger > 0 || refreshTrigger > 0)) {
-      // Reset and refetch when other analyses complete
-      setHasCheckedForExisting(false);
-      if (!matchScore) {
-        fetchExistingAnalysis();
-      }
-    }
-  }, [user, analysisCompletedTrigger, refreshTrigger, matchScore, fetchExistingAnalysis]);
-
-  // Removed session storage cleanup logic
-
-  const handleAnalyzeMatch = async () => {
-    setIsLoading(true);
-    setError(null);
-    setMatchScore(null); // Clear existing result to show loading state
-    setHasCheckedForExisting(false); // Reset to allow fresh fetching
-    analysisInProgressRef.current = true;
-
-    try {
-      // Start server-side analysis that continues even if tab is switched
-      const startResponse = await fetch('/api/ai/run-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          listingId,
-          analysisType: 'buyer_match',
-          forceNew: true
-        }),
-      });
-
-      const startData = await startResponse.json();
-
-      if (!startResponse.ok) {
-        throw new Error(startData.error || 'Failed to start buyer match analysis');
-      }
-
-      // Use the shared polling function
-      const result = await pollForResult();
-      setMatchScore(result);
-
-      // Notify other components that analysis completed
-      triggerAnalysisRefetch();
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to calculate buyer match');
-      setMatchScore(null); // Ensure result is cleared on error
-    } finally {
-      setIsLoading(false);
-      analysisInProgressRef.current = false;
-    }
-  };
-
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-400';
@@ -246,7 +71,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     }
   };
 
-  // Show loading while auth is initializing (prevents subscription popup on tab switch)
+  // Show loading while auth is initializing
   if (authLoading || (!user && typeof window !== 'undefined')) {
     return (
       <div className="glass p-6 rounded-luxury-lg border border-gold/20">
@@ -276,20 +101,34 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
         <h3 className="text-xl font-semibold text-warm-white font-serif">
           Buyer Compatibility Score
         </h3>
-        <button
-          onClick={handleAnalyzeMatch}
-          disabled={isLoading}
-          className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-              <span>Calculating...</span>
-            </div>
-          ) : (
-            matchScore ? 'Recalculate Match' : 'Calculate Match'
-          )}
-        </button>
+        {!analysis && (
+          <button
+            onClick={() => startAnalysis(false)}
+            disabled={isLoading}
+            className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <span>Calculating...</span>
+              </div>
+            ) : (
+              'Calculate Match'
+            )}
+          </button>
+        )}
+        {analysis && (
+          <button
+            onClick={() => {
+              clearAnalysis();
+              startAnalysis(true);
+            }}
+            disabled={isLoading}
+            className="px-4 py-2 bg-transparent border-2 border-gold/30 text-gold font-medium rounded-luxury hover:border-gold hover:bg-gold/10 transition-all duration-300 text-sm disabled:opacity-50"
+          >
+            Re-analyze
+          </button>
+        )}
       </div>
 
       {error && (
@@ -298,57 +137,49 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
         </div>
       )}
 
-      {isLoading && !matchScore && (
-        <div className="text-center py-12">
-          <div className="w-12 h-12 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-lg text-silver/80 mb-2">Calculating buyer compatibility...</div>
-          <div className="text-sm text-silver/60">This may take a few moments to complete</div>
-        </div>
-      )}
-
-      {matchScore && (
+      {analysis && (
         <div className="space-y-6">
           {/* SuperEnhanced Match Score Display */}
-          <div className={`text-center p-6 rounded-luxury border-2 ${matchScore.score ? getScoreBackground(matchScore.score) : 'bg-gray-900/20 border-gray-400/30'}`}>
-            <div className={`text-4xl font-bold font-mono mb-2 ${matchScore.score ? getScoreColor(matchScore.score) : 'text-gray-400'}`}>
-              {matchScore.score || 0}%
+          <div className={`text-center p-6 rounded-luxury border-2 ${analysis.score ? getScoreBackground(analysis.score) : 'bg-gray-900/20 border-gray-400/30'}`}>
+            <div className={`text-4xl font-bold font-mono mb-2 ${analysis.score ? getScoreColor(analysis.score) : 'text-gray-400'}`}>
+              {analysis.score || 0}%
             </div>
-            <div className={`text-lg font-semibold ${matchScore.score ? getScoreColor(matchScore.score) : 'text-gray-400'}`}>
-              {matchScore.recommendation ? matchScore.recommendation.replace('_', ' ').toUpperCase() : 'ANALYZING MATCH'}
+            <div className={`text-lg font-semibold ${analysis.score ? getScoreColor(analysis.score) : 'text-gray-400'}`}>
+              {analysis.recommendation ? analysis.recommendation.replace('_', ' ').toUpperCase() : 'ANALYZING MATCH'}
             </div>
             <div className="text-sm text-silver/80 mt-2">
               SuperEnhanced compatibility analysis with strategic fit assessment
             </div>
-            {matchScore.confidence && matchScore.confidence.score && (
-              <div className={`text-xs mt-2 ${getConfidenceColor(matchScore.confidence)}`}>
-                {matchScore.confidence.score}% confidence{matchScore.confidence.methodology ? ` • ${matchScore.confidence.methodology}` : ''}
+            {analysis.confidence && analysis.confidence.score && (
+              <div className={`text-xs mt-2 ${getConfidenceColor(analysis.confidence)}`}>
+                {analysis.confidence.score}% confidence{analysis.confidence.methodology ? ` • ${analysis.confidence.methodology}` : ''}
               </div>
             )}
           </div>
 
           {/* Score Breakdown with SuperEnhanced Details */}
-          {matchScore.scoreBreakdown && (
+          {analysis.scoreBreakdown && (
             <div className="p-4 bg-purple-900/10 rounded-luxury border border-purple-400/20">
               <h4 className="text-lg font-semibold text-purple-400 mb-3 font-serif">Detailed Score Breakdown</h4>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.industryFit || 0}</div>
+                  <div className="text-2xl font-bold text-purple-300">{analysis.scoreBreakdown.industryFit || 0}</div>
                   <div className="text-xs text-silver/70">Industry Fit</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.financialFit || 0}</div>
+                  <div className="text-2xl font-bold text-purple-300">{analysis.scoreBreakdown.financialFit || 0}</div>
                   <div className="text-xs text-silver/70">Financial Fit</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.operationalFit || 0}</div>
+                  <div className="text-2xl font-bold text-purple-300">{analysis.scoreBreakdown.operationalFit || 0}</div>
                   <div className="text-xs text-silver/70">Operational</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.culturalFit || 0}</div>
+                  <div className="text-2xl font-bold text-purple-300">{analysis.scoreBreakdown.culturalFit || 0}</div>
                   <div className="text-xs text-silver/70">Cultural</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-300">{matchScore.scoreBreakdown.strategicFit || 0}</div>
+                  <div className="text-2xl font-bold text-purple-300">{analysis.scoreBreakdown.strategicFit || 0}</div>
                   <div className="text-xs text-silver/70">Strategic</div>
                 </div>
               </div>
@@ -356,7 +187,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           )}
 
           {/* SuperEnhanced Compatibility Analysis */}
-          {matchScore.compatibility && (
+          {analysis.compatibility && (
             <div className="grid md:grid-cols-2 gap-4">
               <div className="p-4 bg-green-900/10 rounded-luxury border border-green-400/20">
                 <h4 className="text-lg font-semibold text-green-400 mb-3 font-serif flex items-center">
@@ -368,15 +199,15 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                 <div className="space-y-3">
                   <div>
                     <h5 className="font-medium text-green-300 text-sm">Industry Experience</h5>
-                    <p className="text-xs text-silver/80">{matchScore.compatibility.industryExperience.insight}</p>
+                    <p className="text-xs text-silver/80">{analysis.compatibility.industryExperience.insight}</p>
                   </div>
                   <div>
                     <h5 className="font-medium text-green-300 text-sm">Financial Capacity</h5>
-                    <p className="text-xs text-silver/80">{matchScore.compatibility.financialCapacity.insight}</p>
+                    <p className="text-xs text-silver/80">{analysis.compatibility.financialCapacity.insight}</p>
                   </div>
                   <div>
                     <h5 className="font-medium text-green-300 text-sm">Strategic Value</h5>
-                    <p className="text-xs text-silver/80">{matchScore.compatibility.strategicValue.insight}</p>
+                    <p className="text-xs text-silver/80">{analysis.compatibility.strategicValue.insight}</p>
                   </div>
                 </div>
               </div>
@@ -389,7 +220,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                   Synergies & Opportunities
                 </h4>
                 <ul className="space-y-2">
-                  {(matchScore.synergies || []).slice(0, 3).map((synergy, index) => (
+                  {(analysis.synergies || []).slice(0, 3).map((synergy, index) => (
                     <li key={index} className="text-silver/90 text-xs flex items-start">
                       <span className="text-blue-400 mr-2">→</span>
                       {synergy?.insight || ''}
@@ -398,7 +229,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                 </ul>
                 <div className="mt-3">
                   <h5 className="font-medium text-blue-300 text-sm mb-1">Growth Opportunities</h5>
-                  {(matchScore.growthOpportunities || []).slice(0, 2).map((opportunity, index) =>
+                  {(analysis.growthOpportunities || []).slice(0, 2).map((opportunity, index) =>
                     opportunity?.insight ? (
                       <p key={index} className="text-xs text-silver/80 mb-1">{opportunity.insight}</p>
                     ) : null
@@ -409,7 +240,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           )}
 
           {/* Risk Assessment */}
-          {matchScore.risks && (matchScore.risks || []).length > 0 && (
+          {analysis.risks && (analysis.risks || []).length > 0 && (
             <div className="p-4 bg-red-900/10 rounded-luxury border border-red-400/20">
               <h4 className="text-lg font-semibold text-red-400 mb-3 font-serif flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,7 +249,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
                 Risk Assessment
               </h4>
               <div className="grid md:grid-cols-2 gap-3">
-                {(matchScore.risks || []).slice(0, 4).map((risk, index) => (
+                {(analysis.risks || []).slice(0, 4).map((risk, index) => (
                   <div key={index} className={`p-3 rounded-luxury border ${risk?.severity ? getRiskSeverityColor(risk.severity) : 'border-gray-400/30'}`}>
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-medium text-xs">{risk?.factor || 'Risk factor'}</span>
@@ -440,7 +271,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           <div className="p-4 bg-charcoal/30 rounded-luxury border border-gold/10">
             <h4 className="text-lg font-semibold text-gold mb-3 font-serif">Strategic Reasoning</h4>
             <ul className="space-y-2">
-              {matchScore.reasoning && matchScore.reasoning.map((reason, index) => (
+              {analysis.reasoning && analysis.reasoning.map((reason, index) => (
                 <li key={index} className="text-silver/90 text-sm flex items-start">
                   <span className="text-gold mr-2">•</span>
                   {reason}
@@ -453,7 +284,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           <ConversationalChatbox
             listingId={listingId}
             analysisType="buyer_match"
-            previousAnalysis={{ ...matchScore, listingTitle, listingId }}
+            previousAnalysis={{ ...analysis, listingTitle, listingId }}
             title="Ask About Buyer Compatibility"
             placeholder="Ask about compatibility factors, synergies, investment fit, or specific concerns..."
             icon={
@@ -464,7 +295,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
           />
 
           {/* Actions */}
-          {matchScore.score && matchScore.score >= 60 && (
+          {analysis.score && analysis.score >= 60 && (
             <div className="flex justify-center pt-4 border-t border-gold/10">
               <button className="px-6 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary text-sm">
                 Get Due Diligence Checklist
