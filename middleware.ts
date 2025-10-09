@@ -70,12 +70,6 @@ export async function middleware(request: NextRequest) {
 
   // SIMPLIFIED MIDDLEWARE - Trust the session, avoid database queries that cause tab switching issues
 
-  // HARDCODED ADMIN BYPASS - Critical for preventing account switching bugs
-  if (session.user.email === 'evank8029@gmail.com' || session.user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-    console.log('🔒 MIDDLEWARE: Admin bypass activated for:', session.user.email)
-    return NextResponse.next()
-  }
-
   // For admin routes, check database for admin role
   if (pathname.startsWith('/admin')) {
     try {

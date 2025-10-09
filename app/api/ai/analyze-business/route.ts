@@ -25,8 +25,10 @@ export async function POST(request: NextRequest) {
     // Authenticate user and get role
     const authUser = await getUserWithRole();
 
-    // Allow bypass in development mode
-    if (!authUser && process.env.DEV_BYPASS_AUTH !== 'true') {
+    // Allow bypass in development mode ONLY
+    const isDevBypass = process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true';
+
+    if (!authUser && !isDevBypass) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create effective user for processing (real user or dev bypass)
-    const effectiveUser = authUser || (process.env.DEV_BYPASS_AUTH === 'true' ? {
+    const effectiveUser = authUser || (isDevBypass ? {
       id: 'dev-user-' + Date.now(),
       role: 'admin',
       plan: 'enterprise'
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use service client for development bypass or when user exists
-    const useServiceClient = process.env.DEV_BYPASS_AUTH === 'true' || effectiveUser?.role === 'admin';
+    const useServiceClient = isDevBypass || effectiveUser?.role === 'admin';
     const supabase = useServiceClient ? createServiceClient() : createClient();
 
     const body = await request.json();
@@ -114,7 +116,7 @@ export async function POST(request: NextRequest) {
         const followUpResponse = { error: "Follow-up analysis not yet implemented with SuperEnhanced AI" };
 
         // Skip database saves in development mode
-        if (process.env.DEV_BYPASS_AUTH !== 'true') {
+        if (!isDevBypass) {
           // Save follow-up to database
           await (serviceSupabase as any)
             .from('ai_analyses')
@@ -153,7 +155,7 @@ export async function POST(request: NextRequest) {
     let existingAnalysis = null;
 
     // Skip caching entirely in development mode for truly dynamic analysis
-    const skipCache = process.env.DEV_BYPASS_AUTH === 'true' || forceRefresh;
+    const skipCache = isDevBypass || forceRefresh;
     const CACHE_EXPIRY_HOURS = 1; // Cache expires after 1 hour
 
     if (!skipCache) {
@@ -238,7 +240,7 @@ export async function POST(request: NextRequest) {
       analysis.analysisOptions = enhancedOptions;
 
       // Skip database saves in development mode
-      if (process.env.DEV_BYPASS_AUTH !== 'true') {
+      if (!isDevBypass) {
         // Save enhanced analysis to database
         try {
           const serviceSupabase = createServiceClient();
@@ -264,7 +266,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Skip database saves in development mode
-      if (process.env.DEV_BYPASS_AUTH !== 'true') {
+      if (!isDevBypass) {
         // Track user behavior for personalization
         try {
           const serviceSupabase = createServiceClient();

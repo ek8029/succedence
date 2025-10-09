@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { BrokerProfile } from '@/lib/types';
@@ -73,11 +74,13 @@ export default function BrokerProfilePage() {
             <div className="glass p-8 border border-gold/30 rounded-luxury mb-8">
               <div className="flex flex-col md:flex-row gap-8 items-start">
                 {broker.headshotUrl && (
-                  <div className="flex-shrink-0">
-                    <img
+                  <div className="flex-shrink-0 w-32 h-32 rounded-full overflow-hidden border-4 border-gold/30">
+                    <Image
                       src={broker.headshotUrl}
                       alt={broker.displayName}
-                      className="w-32 h-32 rounded-full object-cover border-4 border-gold/30"
+                      width={128}
+                      height={128}
+                      className="object-cover"
                     />
                   </div>
                 )}

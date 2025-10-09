@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
@@ -213,17 +214,17 @@ function BrokerForm({
         </label>
       </div>
 
-      <div className="flex gap-4 pt-6 border-t border-neutral-700 mt-6">
+      <div className="flex gap-3 pt-6 border-t border-neutral-700 mt-6">
         <button
           type="submit"
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10 flex-1"
+          className="px-3 py-1.5 text-xs font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all"
         >
           {submitLabel}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-300 hover:text-white glass border border-neutral-600 hover:border-neutral-500 rounded transition-all h-10 flex-1"
+          className="px-3 py-1.5 text-xs font-medium bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-600 rounded transition-all"
         >
           Cancel
         </button>
@@ -416,12 +417,12 @@ function BrokerManagementContent() {
             <h1 className="text-heading text-white font-medium mb-6">Broker Management</h1>
             <p className="text-xl text-neutral-400 leading-relaxed mb-12">Create and manage broker profiles</p>
             <div className="flex gap-4 justify-center items-center">
-              <Link href="/admin" className="inline-flex items-center px-4 py-2 text-sm font-medium text-white glass border border-neutral-600 hover:border-neutral-500 rounded transition-all h-10">
-                ← Back to Dashboard
+              <Link href="/admin" className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-600 rounded transition-all">
+                Back to Dashboard
               </Link>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
+                className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all"
               >
                 Create New Broker
               </button>
@@ -485,7 +486,7 @@ function BrokerManagementContent() {
                   <p className="text-neutral-400 text-lg mb-6">No broker profiles yet</p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all h-10"
+                    className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium bg-gold hover:bg-gold-light text-midnight border border-gold rounded transition-all"
                   >
                     Create First Broker
                   </button>
@@ -495,12 +496,14 @@ function BrokerManagementContent() {
                   {brokers.map((broker) => (
                     <div key={broker.id} className="glass p-6 border border-gold/20 rounded-lg flex flex-col h-full">
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center flex-shrink-0">
+                        <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {broker.headshotUrl ? (
-                            <img
+                            <Image
                               src={broker.headshotUrl}
                               alt={broker.displayName}
-                              className="w-16 h-16 rounded-full object-cover"
+                              width={64}
+                              height={64}
+                              className="rounded-full object-cover"
                             />
                           ) : (
                             <span className="text-2xl text-neutral-500">{broker.displayName.charAt(0)}</span>

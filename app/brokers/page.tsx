@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { BrokerProfile } from '@/lib/types';
@@ -173,11 +174,15 @@ export default function BrokersDirectoryPage() {
                     {/* Broker Header */}
                     <div className="flex items-start gap-4 mb-4">
                       {broker.headshotUrl ? (
-                        <img
-                          src={broker.headshotUrl}
-                          alt={broker.displayName}
-                          className="w-20 h-20 rounded-full object-cover border-2 border-gold/30 flex-shrink-0"
-                        />
+                        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gold/30 flex-shrink-0">
+                          <Image
+                            src={broker.headshotUrl}
+                            alt={broker.displayName}
+                            width={80}
+                            height={80}
+                            className="object-cover"
+                          />
+                        </div>
                       ) : (
                         <div className="w-20 h-20 rounded-full bg-neutral-800 flex items-center justify-center border-2 border-gold/30 flex-shrink-0">
                           <span className="text-3xl text-neutral-500">{broker.displayName.charAt(0)}</span>

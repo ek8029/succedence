@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Footer from '@/components/Footer';
 import { Listing } from '@/lib/types';
@@ -556,11 +557,15 @@ export default function ListingDetailPage() {
 
                     <div className="flex items-start gap-6 mb-6">
                       {brokerProfile.headshotUrl && (
-                        <img
-                          src={brokerProfile.headshotUrl}
-                          alt={brokerProfile.displayName}
-                          className="w-20 h-20 rounded-full object-cover border-2 border-gold/30"
-                        />
+                        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gold/30 flex-shrink-0">
+                          <Image
+                            src={brokerProfile.headshotUrl}
+                            alt={brokerProfile.displayName}
+                            width={80}
+                            height={80}
+                            className="object-cover"
+                          />
+                        </div>
                       )}
                       <div className="flex-1">
                         <div className="text-2xl text-white font-semibold mb-1">{brokerProfile.displayName}</div>

@@ -31,17 +31,6 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
       return null;
     }
 
-    // HARDCODED ADMIN BYPASS - Skip database check for admin account
-    if (user.email === 'evank8029@gmail.com' || user.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-      console.log('🔒 HARDCODED ADMIN BYPASS - Returning admin user without DB check');
-      return {
-        id: user.id,
-        role: 'admin',
-        plan: 'enterprise',
-        email: user.email || ''
-      };
-    }
-
     // Try to get user details from database, fallback to session metadata
     let dbUserData = null;
     let userError = null;

@@ -6,6 +6,8 @@ import {
   getUsageHistory
 } from '@/lib/utils/database-usage-tracking'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Get user information
