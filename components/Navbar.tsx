@@ -12,13 +12,16 @@ export default function Navbar() {
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
 
-  // Determine which nav items to hide based on current page
-  const hideDashboard = pathname === '/app'; // Hide "Dashboard" on dashboard page
-  const hideMyMatches = pathname === '/app' || pathname === '/matches'; // Hide "My Matches" on dashboard and matches page
-  const hideBrowse = pathname === '/browse'; // Hide "Browse" on browse page
-  const hideBrokers = pathname === '/brokers'; // Hide "Brokers" on brokers page
-  const hideSavedListings = pathname === '/saved-listings'; // Hide "Saved Listings" on saved listings page
-  const hideListBusiness = pathname === '/listings/new'; // Hide "List Business" on list business page
+  // Determine which nav items are active based on current page
+  const isActivePage = (path: string) => pathname === path;
+
+  // Helper function to get link classes based on active state
+  const getLinkClasses = (path: string, baseClasses: string = '') => {
+    const isActive = isActivePage(path);
+    return `${baseClasses} text-sm font-medium whitespace-nowrap transition-colors duration-200 ${
+      isActive ? 'text-gold' : 'text-neutral-400 hover:text-gold'
+    }`;
+  };
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -79,68 +82,58 @@ export default function Navbar() {
           {/* Mobile Menu Dropdown */}
           {mobileMenuOpen && (
             <div className="absolute left-0 right-0 top-full bg-midnight border-t border-gold/20 shadow-lg py-4 px-4 space-y-3">
-              {user && !hideDashboard && (
+              {user && (
                 <Link
                   href="/app"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
+                  className={getLinkClasses('/app', 'block py-2')}
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >
                   Dashboard
                 </Link>
               )}
-              {!hideBrowse && (
-                <Link
-                  href="/browse"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                >
-                  Browse Opportunities
-                </Link>
-              )}
-              {!hideBrokers && (
-                <Link
-                  href="/brokers"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                >
-                  Find Brokers
-                </Link>
-              )}
-              {!hideSavedListings && (
-                <Link
-                  href="/saved-listings"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                  style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                >
-                  Saved Listings
-                </Link>
-              )}
+              <Link
+                href="/browse"
+                onClick={() => setMobileMenuOpen(false)}
+                className={getLinkClasses('/browse', 'block py-2')}
+                style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+              >
+                Browse Opportunities
+              </Link>
+              <Link
+                href="/brokers"
+                onClick={() => setMobileMenuOpen(false)}
+                className={getLinkClasses('/brokers', 'block py-2')}
+                style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+              >
+                Find Brokers
+              </Link>
+              <Link
+                href="/saved-listings"
+                onClick={() => setMobileMenuOpen(false)}
+                className={getLinkClasses('/saved-listings', 'block py-2')}
+                style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+              >
+                Saved Listings
+              </Link>
               {user && (
                 <>
-                  {!hideListBusiness && (
-                    <Link
-                      href="/listings/new"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                      style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                    >
-                      List Business
-                    </Link>
-                  )}
-                  {!hideMyMatches && (
-                    <Link
-                      href="/matches"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium py-2"
-                      style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
-                    >
-                      My Matches
-                    </Link>
-                  )}
+                  <Link
+                    href="/listings/new"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getLinkClasses('/listings/new', 'block py-2')}
+                    style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                  >
+                    List Business
+                  </Link>
+                  <Link
+                    href="/matches"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getLinkClasses('/matches', 'block py-2')}
+                    style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+                  >
+                    My Matches
+                  </Link>
                   <div className="border-t border-gold/20 my-2"></div>
                   <Link
                     href="/profile"
@@ -206,36 +199,30 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-6">
-              {user && !hideDashboard && (
-                <Link href="/app" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              {user && (
+                <Link href="/app" className={getLinkClasses('/app')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   Dashboard
                 </Link>
               )}
-              {!hideBrowse && (
-                <Link href="/browse" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                  Browse Opportunities
-                </Link>
-              )}
-              {!hideBrokers && (
-                <Link href="/brokers" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                  Find Brokers
-                </Link>
-              )}
-              {user && !hideMyMatches && (
-                <Link href="/matches" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+              <Link href="/browse" className={getLinkClasses('/browse')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Browse Opportunities
+              </Link>
+              <Link href="/brokers" className={getLinkClasses('/brokers')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Find Brokers
+              </Link>
+              {user && (
+                <Link href="/matches" className={getLinkClasses('/matches')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   My Matches
                 </Link>
               )}
-              {!hideSavedListings && (
-                <Link href="/saved-listings" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium whitespace-nowrap" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
-                  Saved Listings
-                </Link>
-              )}
+              <Link href="/saved-listings" className={getLinkClasses('/saved-listings')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                Saved Listings
+              </Link>
             </div>
 
-            {user && !hideListBusiness && (
+            {user && (
               <div className="flex items-center space-x-6">
-                <Link href="/listings/new" className="text-sm text-neutral-400 hover:text-gold transition-colors duration-200 font-medium" style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                <Link href="/listings/new" className={getLinkClasses('/listings/new')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   List Business
                 </Link>
               </div>

@@ -238,13 +238,76 @@ export default function MyMatches() {
       </div>
 
       {matches.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="text-neutral-400 mb-4">
-            No matches found yet
+        <div className="text-center py-12 px-6">
+          {/* Icon */}
+          <div className="mb-6 flex justify-center">
+            <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center">
+              <svg className="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
           </div>
-          <p className="text-sm text-neutral-500">
-            Update your preferences to start receiving personalized listing matches
+
+          {/* Heading */}
+          <h3 className="text-2xl font-semibold text-warm-white mb-3">
+            Your Perfect Match Awaits
+          </h3>
+
+          {/* Description */}
+          <p className="text-silver/80 mb-6 max-w-md mx-auto">
+            We haven't found matches yet because we're still learning your preferences.
+            Complete your profile to unlock AI-powered match recommendations.
           </p>
+
+          {/* Action Steps */}
+          <div className="bg-neutral-900/40 border border-gold/20 rounded-lg p-6 mb-6 max-w-lg mx-auto text-left">
+            <h4 className="text-white font-semibold mb-4 text-center">Get Started in 3 Steps:</h4>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0 text-sm font-bold">
+                  1
+                </div>
+                <div>
+                  <div className="text-white font-medium">Set Your Preferences</div>
+                  <div className="text-sm text-neutral-400">Tell us your ideal industry, location, and budget</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0 text-sm font-bold">
+                  2
+                </div>
+                <div>
+                  <div className="text-white font-medium">Browse Listings</div>
+                  <div className="text-sm text-neutral-400">Explore available businesses to train our AI</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0 text-sm font-bold">
+                  3
+                </div>
+                <div>
+                  <div className="text-white font-medium">Receive Matches</div>
+                  <div className="text-sm text-neutral-400">Get personalized recommendations daily</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/preferences"
+              className="px-6 py-3 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all"
+            >
+              Set Up Preferences →
+            </Link>
+            <Link
+              href="/browse"
+              className="px-6 py-3 glass-border text-warm-white font-semibold rounded-luxury hover:border-gold/50 transition-all"
+            >
+              Browse All Listings
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
