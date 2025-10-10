@@ -26,6 +26,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Known admin emails - must match middleware list
+const KNOWN_ADMIN_EMAILS = [
+  'evank8029@gmail.com',
+  'succedence@gmail.com',
+  'founder@succedence.com',
+  'clydek627@gmail.com'
+]
+
+// Helper function to check if email is a known admin
+const isKnownAdmin = (email: string | null | undefined): boolean => {
+  return email ? KNOWN_ADMIN_EMAILS.includes(email) : false
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -36,8 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Helper function to extract role from session metadata
   const extractRoleFromSession = (sessionUser: any): 'buyer' | 'seller' | 'admin' => {
-    // HARDCODED ADMIN PROTECTION - Never allow admin account to be anything but admin
-    if (sessionUser?.email === 'evank8029@gmail.com' || sessionUser?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+    // HARDCODED ADMIN PROTECTION - Never allow known admin accounts to be anything but admin
+    if (isKnownAdmin(sessionUser?.email) || sessionUser?.id === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
       console.log('🔒 HARDCODED ADMIN DETECTION - Forcing admin role for:', sessionUser?.email)
       return 'admin'
     }
@@ -130,8 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               id: session.user.id,
               email: session.user.email || '',
               name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
-              role: session.user.email === 'evank8029@gmail.com' ? 'admin' : 'buyer',
-              plan: session.user.email === 'evank8029@gmail.com' ? 'enterprise' : 'free',
+              role: isKnownAdmin(session.user.email) ? 'admin' : 'buyer',
+              plan: isKnownAdmin(session.user.email) ? 'enterprise' : 'free',
               status: 'active'
             }
             setUser(quickUser)
@@ -187,41 +200,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sessionUser = sessionData?.session?.user
       }
 
-      // IMMEDIATE ADMIN AUTHENTICATION for known admin account
-      if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-        console.log('🔒 ADMIN ACCOUNT - Setting up admin user immediately')
-        const adminUser: AuthUser = {
-          id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-          email: 'evank8029@gmail.com',
-          name: 'Evan Kim',
+      // IMMEDIATE ADMIN AUTHENTICATION for known admin accounts
+      if (isKnownAdmin(sessionUser?.email) || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+        console.log('🔒 ADMIN ACCOUNT - Setting up admin user immediately for:', sessionUser?.email)
+
+        // Still fetch from database to get user's actual name and plan
+        try {
+          const { data: adminData } = await supabase.from('users').select('*').eq('id', userId).single()
+
+          if (adminData) {
+            const adminUser: AuthUser = {
+              id: (adminData as any).id,
+              email: (adminData as any).email,
+              name: (adminData as any).name || 'Admin User',
+              role: 'admin', // Always admin for known admins
+              plan: (adminData as any).plan || 'enterprise',
+              status: (adminData as any).status || 'active',
+            }
+            setUser(adminUser)
+            setIsLoading(false)
+            console.log('✅ Admin authenticated with database data:', adminUser.email)
+            return
+          }
+        } catch (error) {
+          console.log('Admin database fetch failed, using fallback')
+        }
+
+        // Fallback if database fetch fails
+        const fallbackAdmin: AuthUser = {
+          id: userId,
+          email: sessionUser?.email || 'admin@example.com',
+          name: sessionUser?.user_metadata?.name || 'Admin User',
           role: 'admin',
           plan: 'enterprise',
           status: 'active'
         }
-        setUser(adminUser)
+        setUser(fallbackAdmin)
         setIsLoading(false)
-        console.log('✅ Admin authenticated immediately')
-
-        // Still try to fetch from database in background to get latest data, but don't override hardcoded admin
-        setTimeout(async () => {
-          try {
-            const { data: adminData } = await supabase.from('users').select('*').eq('id', userId).single()
-            if (adminData) {
-              console.log('📋 Got admin database data, but keeping hardcoded admin info to prevent account switching')
-              // Only update plan from database, keep hardcoded name/role to prevent account switching issues
-              setUser({
-                id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-                email: 'evank8029@gmail.com',
-                name: 'Evan Kim', // Keep hardcoded to prevent "User" override
-                role: 'admin', // Keep hardcoded to prevent role switching
-                plan: (adminData as any).plan || 'enterprise',
-                status: (adminData as any).status || 'active',
-              })
-            }
-          } catch (bgError) {
-            console.log('Background admin data fetch failed (non-critical):', bgError)
-          }
-        }, 100)
+        console.log('✅ Admin authenticated with fallback data')
         return
       }
 
@@ -257,13 +273,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Creating fallback user due to fetch failure and no existing user')
         console.error('User fetch failed:', userError)
 
-        // NEVER CREATE FALLBACK FOR ADMIN ACCOUNT - admin should always be hardcoded
-        if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-          console.log('🚫 BLOCKED FALLBACK - Admin account must use hardcoded data, not fallback')
+        // NEVER CREATE FALLBACK FOR KNOWN ADMIN ACCOUNTS - admins should always be hardcoded
+        if (isKnownAdmin(sessionUser?.email) || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+          console.log('🚫 BLOCKED FALLBACK - Known admin account must use hardcoded data, not fallback:', sessionUser?.email)
           const hardcodedAdmin: AuthUser = {
-            id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-            email: 'evank8029@gmail.com',
-            name: 'Evan Kim',
+            id: userId,
+            email: sessionUser?.email || 'admin@example.com',
+            name: sessionUser?.user_metadata?.name || 'Admin User',
             role: 'admin',
             plan: 'enterprise',
             status: 'active'
@@ -294,15 +310,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // FINAL ADMIN CHECK - Even if we got database data, use hardcoded for admin
-      if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-        console.log('🔐 FINAL ADMIN CHECK - Using hardcoded admin data even with database response')
+      // FINAL ADMIN CHECK - Even if we got database data, ensure role is admin for known admins
+      if (isKnownAdmin(sessionUser?.email) || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+        console.log('🔐 FINAL ADMIN CHECK - Forcing admin role for known admin:', sessionUser?.email)
         const finalAdminUser: AuthUser = {
-          id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-          email: 'evank8029@gmail.com',
-          name: 'Evan Kim', // Always hardcoded
-          role: 'admin', // Always hardcoded
-          plan: userData.plan || 'enterprise', // Use database plan if available
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          role: 'admin', // Always hardcoded for known admins
+          plan: userData.plan || 'enterprise',
           status: userData.status || 'active',
         }
         console.log('✅ Final admin user set:', finalAdminUser)
@@ -357,13 +373,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: sessionData } = await supabase.auth.getSession()
         const sessionUser = sessionData?.session?.user
 
-        // BULLETPROOF ADMIN ACCOUNT HANDLING
-        if (sessionUser?.email === 'evank8029@gmail.com' || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
-          console.log('🔒 FINAL ADMIN EMERGENCY - Using hardcoded admin data')
+        // BULLETPROOF ADMIN ACCOUNT HANDLING for known admins
+        if (isKnownAdmin(sessionUser?.email) || userId === 'a041dff2-d833-49e3-bdf3-1a5c02523ce1') {
+          console.log('🔒 FINAL ADMIN EMERGENCY - Using hardcoded admin data for:', sessionUser?.email)
           const emergencyUser: AuthUser = {
-            id: 'a041dff2-d833-49e3-bdf3-1a5c02523ce1',
-            email: 'evank8029@gmail.com',
-            name: 'Evan Kim',
+            id: userId,
+            email: sessionUser?.email || 'admin@example.com',
+            name: sessionUser?.user_metadata?.name || 'Admin User',
             role: 'admin',
             plan: 'enterprise',
             status: 'active'
@@ -532,8 +548,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: data.user.id,
           email: data.user.email || email,
           name: data.user.user_metadata?.name || data.user.user_metadata?.full_name || 'User',
-          role: data.user.email === 'evank8029@gmail.com' ? 'admin' : 'buyer',
-          plan: data.user.email === 'evank8029@gmail.com' ? 'enterprise' : 'free',
+          role: isKnownAdmin(data.user.email) ? 'admin' : 'buyer',
+          plan: isKnownAdmin(data.user.email) ? 'enterprise' : 'free',
           status: 'active'
         }
 

@@ -104,29 +104,74 @@ export default function MyMatches() {
 
   const enhanceReasonExplanation = (reason: string) => {
     const explanations: { [key: string]: string } = {
-      'Industry match': 'This business operates in one of your preferred industries',
-      'State match': 'Located in one of your target geographic regions',
-      'Meets min revenue': 'Revenue meets or exceeds your minimum threshold',
-      'Within price range': 'Asking price is within your maximum budget',
-      'Owner hours match': 'Current owner time commitment aligns with your availability',
-      'Recently updated': 'Fresh listing with current information',
+      // Industry
+      'Perfect industry match': 'This business operates in one of your preferred industries',
+      'Established industry sector': 'Well-established industry with proven market demand',
       'Open to all industries': 'You haven\'t specified industry preferences, so all sectors are considered',
+
+      // Location
+      'Preferred location': 'Located in one of your target geographic regions',
+      'Business-friendly state': 'Located in a state known for favorable business conditions',
       'Open to all locations': 'You haven\'t specified location preferences, so all regions are included',
+
+      // Revenue
+      'Well exceeds revenue target': 'Significantly higher revenue than your minimum requirement',
+      'Exceeds revenue target': 'Revenue substantially above your target threshold',
+      'Meets revenue requirement': 'Revenue meets or exceeds your minimum threshold',
+      'Strong revenue base': 'Established revenue stream indicating business stability',
+      'Solid revenue': 'Healthy revenue demonstrating market traction',
+      'Moderate revenue': 'Reasonable revenue level for the business size',
       'Revenue information available': 'Financial data is provided for your evaluation',
-      'Meets min ebitda': 'EBITDA meets your minimum profitability requirements',
-      'Meets min gross_profit': 'Gross profit meets your minimum requirements',
-      'Meets min net_income': 'Net income meets your minimum requirements',
-      'Large established business': 'High-revenue business with proven market presence',
-      'Medium-sized business': 'Well-established business with solid revenue base',
-      'Small business opportunity': 'Emerging business with growth potential',
-      'Competitive pricing': 'Excellent value proposition with favorable price-to-revenue ratio',
-      'Fair market pricing': 'Reasonably priced within market standards'
+
+      // Price Value
+      'Exceptional value': 'Outstanding price-to-revenue ratio and within budget',
+      'Excellent deal': 'Highly favorable pricing relative to revenue',
+      'Great value': 'Strong value proposition with good price-to-revenue ratio',
+      'Good pricing': 'Fair market pricing within your budget',
+      'Fair pricing': 'Reasonably priced for the business metrics',
+      'Within price range': 'Asking price is within your maximum budget',
+      'Within budget': 'Price falls within your specified range',
+
+      // Profitability
+      'Excellent margins (>25%)': 'Exceptional profitability with margins over 25%',
+      'Strong margins (20-25%)': 'Very strong profit margins of 20-25%',
+      'Good margins (15-20%)': 'Healthy profit margins of 15-20%',
+      'Solid margins (10-15%)': 'Good profitability with 10-15% margins',
+      'Average margins (5-10%)': 'Acceptable profit margins in the 5-10% range',
+      'Profitable business': 'Generates positive profit margins',
+
+      // Owner Time
+      'Well below time capacity': 'Requires significantly less time than you have available',
+      'Comfortable time fit': 'Time commitment fits well within your availability',
+      'Matches time availability': 'Owner hours align with your time capacity',
+      'Minimal owner involvement': 'Very limited time commitment required',
+      'Part-time commitment': 'Can be managed on a part-time basis',
+      'Moderate time required': 'Reasonable time commitment expected',
+
+      // Business Maturity
+      'Major enterprise ($10M+)': 'Large, established enterprise with $10M+ in revenue',
+      'Large business ($5-10M)': 'Substantial business with $5-10M annual revenue',
+      'Established business ($2-5M)': 'Well-established business generating $2-5M annually',
+      'Mid-sized business ($1-2M)': 'Growing business with $1-2M in revenue',
+      'Growing business ($500K-1M)': 'Expanding business with $500K-1M revenue',
+      'Small business ($250K-500K)': 'Small business opportunity with $250K-500K revenue',
+
+      // Listing Quality
+      'recently updated, complete financials': 'Recently updated with comprehensive financial data',
+      'Recently updated, complete financials': 'Fresh listing with full financial information',
+      'updated this month, complete financials': 'Current listing with complete data',
+      'updated this month, good data quality': 'Recent update with solid information',
+      'updated this quarter, good data quality': 'Reasonably current with good information'
     }
 
     // Handle keyword matches
-    if (reason.startsWith('Keyword:')) {
-      const keyword = reason.replace('Keyword: ', '')
-      return `Contains your search term "${keyword}" in the listing details`
+    if (reason.includes('keyword') || reason.includes('Key terms')) {
+      return 'Contains your preferred search terms in the listing'
+    }
+
+    // Handle growth potential
+    if (reason.includes('high-growth industry')) {
+      return 'Operating in a rapidly expanding market sector'
     }
 
     return explanations[reason] || reason
@@ -176,12 +221,17 @@ export default function MyMatches() {
           <div>
             <h4 className="text-white font-medium mb-2">How Match Percentages Work</h4>
             <div className="text-sm text-neutral-400 space-y-1">
-              <p>• <strong className="text-neutral-300">Base Score (15%)</strong>: Foundation score for active listings</p>
-              <p>• <strong className="text-neutral-300">Industry Match (25%)</strong>: Alignment with your industry preferences</p>
-              <p>• <strong className="text-neutral-300">Location Match (12%)</strong>: Geographic preference alignment</p>
-              <p>• <strong className="text-neutral-300">Financial Criteria (27%)</strong>: Revenue, profitability, and pricing factors</p>
-              <p>• <strong className="text-neutral-300">Business Quality (14%)</strong>: Size, competitiveness, and operational factors</p>
-              <p>• <strong className="text-neutral-300">Additional Factors</strong>: Keywords, listing freshness, and owner time commitment</p>
+              <p className="mb-2">Each listing is scored 0-10 points across 10 categories (max 100%):</p>
+              <p>• <strong className="text-neutral-300">Industry Alignment</strong>: How well the industry matches your preferences</p>
+              <p>• <strong className="text-neutral-300">Location Fit</strong>: Geographic alignment with your target areas</p>
+              <p>• <strong className="text-neutral-300">Revenue Alignment</strong>: How revenue compares to your targets</p>
+              <p>• <strong className="text-neutral-300">Price Value</strong>: Deal quality and budget compatibility</p>
+              <p>• <strong className="text-neutral-300">Profitability Strength</strong>: Margins and financial health</p>
+              <p>• <strong className="text-neutral-300">Owner Time Fit</strong>: Time commitment vs. your availability</p>
+              <p>• <strong className="text-neutral-300">Business Maturity</strong>: Size, stability, and establishment</p>
+              <p>• <strong className="text-neutral-300">Listing Quality</strong>: Data completeness and freshness</p>
+              <p>• <strong className="text-neutral-300">Keyword Relevance</strong>: Matches with your search terms</p>
+              <p>• <strong className="text-neutral-300">Growth Potential</strong>: Industry trends and efficiency</p>
             </div>
           </div>
         </div>

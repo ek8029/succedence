@@ -40,6 +40,7 @@ function AdminPageContent() {
     password: ''
   });
   const [betaUserEmail, setBetaUserEmail] = useState('');
+  const [regeneratingMatches, setRegeneratingMatches] = useState(false);
 
   // Filter states
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -397,6 +398,37 @@ function AdminPageContent() {
     }
   };
 
+  const handleRegenerateMatches = async () => {
+    if (!confirm('Regenerate all user matches with the new scoring system? This will update all existing match percentages.')) {
+      return;
+    }
+
+    setRegeneratingMatches(true);
+
+    try {
+      const response = await fetch('/api/admin/regenerate-matches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.error || 'Failed to regenerate matches');
+        return;
+      }
+
+      const data = await response.json();
+      alert(`Success! Regenerated ${data.totalMatches} matches for ${data.usersProcessed} users.`);
+    } catch (error) {
+      console.error('Error regenerating matches:', error);
+      alert('Failed to regenerate matches');
+    } finally {
+      setRegeneratingMatches(false);
+    }
+  };
+
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
@@ -533,13 +565,20 @@ function AdminPageContent() {
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl text-white font-medium">User Management</h2>
-                  <div className="flex gap-4 items-center">
+                  <div className="flex gap-4 items-center flex-wrap">
                     <Link
                       href="/admin/brokers"
                       className="inline-flex items-center px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white border border-purple-600 rounded transition-all h-10"
                     >
                       Manage Brokers
                     </Link>
+                    <button
+                      onClick={handleRegenerateMatches}
+                      disabled={regeneratingMatches}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 text-white border border-green-600 rounded transition-all h-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {regeneratingMatches ? 'Regenerating...' : 'Regenerate Matches'}
+                    </button>
                     <button
                       onClick={() => setShowBetaManagement(true)}
                       className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"

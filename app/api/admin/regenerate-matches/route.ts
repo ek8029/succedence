@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient, createBackgroundServiceClient } from '@/lib/supabase/server'
 import { matchUserToListings } from '@/lib/matchEngine'
+import { requireAdminSync } from '@/lib/admin-check'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,17 +17,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Use service client to check admin role (bypasses RLS)
-    const serviceSupabase = createServiceClient()
-    const { data: userData, error: userError } = await serviceSupabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (userError || !userData || (userData as any).role !== 'admin') {
-      console.error('Admin check failed:', { userError, role: (userData as any)?.role, userId: user.id })
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+    // Check if user is admin (sync check for known admins)
+    const adminError = requireAdminSync(user.email)
+    if (adminError) {
+      return NextResponse.json({ error: adminError.error }, { status: adminError.status })
     }
 
     // Get optional user_id from request body
@@ -45,6 +39,9 @@ export async function POST(request: NextRequest) {
     } else {
       // Regenerate matches for all users
       console.log('Regenerating matches for all users')
+
+      // Use background service client (bypasses RLS completely)
+      const serviceSupabase = createBackgroundServiceClient()
 
       // Get all user IDs
       const { data: users, error: usersError } = await serviceSupabase

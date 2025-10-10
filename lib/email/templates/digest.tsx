@@ -6,8 +6,7 @@
 interface User {
   id: string
   email: string
-  first_name?: string
-  last_name?: string
+  name: string
 }
 
 interface Listing {
@@ -40,13 +39,9 @@ function formatCurrency(amount: number): string {
 
 // Get user display name
 function getUserDisplayName(user: User): string {
-  if (user.first_name && user.last_name) {
-    return `${user.first_name} ${user.last_name}`
-  } else if (user.first_name) {
-    return user.first_name
-  } else {
-    return 'there'
-  }
+  // Extract first name from full name
+  const firstName = user.name?.split(' ')[0]
+  return firstName || 'there'
 }
 
 // Generate HTML email content
@@ -74,25 +69,27 @@ function generateHTMLContent(data: DigestData): string {
     const financialText = financials.length > 0 ? ` • ${financials.join(' • ')}` : ''
 
     return `
-      <tr style="border-bottom: 1px solid #e5e7eb;">
-        <td style="padding: 16px 0;">
-          <div style="margin-bottom: 8px;">
-            <strong style="font-size: 16px; color: #1f2937;">${listing.title}</strong>
-          </div>
-          <div style="margin-bottom: 8px; color: #6b7280; font-size: 14px;">
-            ${listing.industry} • ${listing.state}${financialText}
-          </div>
-          ${topReasons.length > 0 ? `
-          <div style="margin-bottom: 8px;">
-            ${topReasons.map(reason => `
-              <span style="display: inline-block; background-color: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 4px; margin-bottom: 4px;">
-                ✓ ${reason}
-              </span>
-            `).join('')}
-          </div>
-          ` : ''}
-          <div style="color: #6b7280; font-size: 13px; line-height: 1.4;">
-            ${listing.description.length > 120 ? listing.description.substring(0, 120) + '...' : listing.description}
+      <tr style="border-bottom: 1px solid rgba(212, 166, 80, 0.15);">
+        <td style="padding: 20px 0;">
+          <div style="background: rgba(26, 29, 35, 0.5); border: 1px solid rgba(212, 166, 80, 0.2); border-radius: 12px; padding: 20px; backdrop-filter: blur(10px);">
+            <div style="margin-bottom: 12px;">
+              <strong style="font-size: 18px; color: #FFFFFF; font-family: 'Crimson Text', Georgia, serif; font-weight: 600; line-height: 1.4;">${listing.title}</strong>
+            </div>
+            <div style="margin-bottom: 12px; color: #E0E0E0; font-size: 13px; opacity: 0.8;">
+              <span style="color: #D4A650; font-weight: 500;">${listing.industry}</span> • ${listing.state}${financialText}
+            </div>
+            ${topReasons.length > 0 ? `
+            <div style="margin-bottom: 12px;">
+              ${topReasons.map(reason => `
+                <span style="display: inline-block; background: linear-gradient(135deg, rgba(184, 154, 95, 0.2) 0%, rgba(201, 169, 110, 0.2) 100%); color: #D4A650; padding: 4px 12px; border-radius: 12px; font-size: 11px; margin-right: 6px; margin-bottom: 6px; font-weight: 500; border: 1px solid rgba(212, 166, 80, 0.3);">
+                  ✓ ${reason}
+                </span>
+              `).join('')}
+            </div>
+            ` : ''}
+            <div style="color: #E0E0E0; font-size: 14px; line-height: 1.6; opacity: 0.85;">
+              ${listing.description.length > 120 ? listing.description.substring(0, 120) + '...' : listing.description}
+            </div>
           </div>
         </td>
       </tr>
@@ -106,27 +103,30 @@ function generateHTMLContent(data: DigestData): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Daily Business Matches - Succedence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #374151; background-color: #f9fafb;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+<body style="margin: 0; padding: 40px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #E0E0E0; background: linear-gradient(135deg, #0B0E14 0%, #1A1D23 100%);">
+  <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(145deg, #1A1D23 0%, #2F3847 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3); border: 1px solid rgba(212, 166, 80, 0.2);">
 
     <!-- Header -->
-    <div style="background-color: #1e40af; color: white; padding: 24px; text-align: center;">
-      <h1 style="margin: 0; font-size: 24px; font-weight: 600;">Succedence</h1>
-      <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">Your Business Opportunities Digest</p>
+    <div style="background: linear-gradient(135deg, #B89A5F 0%, #C9A96E 100%); color: #0B0E14; padding: 32px 24px; text-align: center; position: relative;">
+      <h1 style="margin: 0; font-size: 28px; font-weight: 700; font-family: 'Crimson Text', Georgia, serif; letter-spacing: 0.025em;">Succedence</h1>
+      <p style="margin: 8px 0 0 0; font-size: 13px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;">Premium Business Opportunities</p>
     </div>
 
     <!-- Content -->
-    <div style="padding: 24px;">
-      <div style="margin-bottom: 24px;">
-        <h2 style="margin: 0 0 8px 0; font-size: 20px; color: #1f2937;">Hi ${userName}!</h2>
-        <p style="margin: 0; color: #6b7280; font-size: 14px;">${today}</p>
+    <div style="padding: 32px 24px;">
+      <div style="margin-bottom: 32px;">
+        <h2 style="margin: 0 0 8px 0; font-size: 24px; color: #FFFFFF; font-family: 'Crimson Text', Georgia, serif; font-weight: 600;">Hi ${userName}!</h2>
+        <p style="margin: 0; color: #E0E0E0; font-size: 14px; opacity: 0.7;">${today}</p>
       </div>
 
       ${listings.length > 0 ? `
-      <div style="margin-bottom: 24px;">
-        <p style="margin: 0 0 16px 0; font-size: 16px;">
-          We found <strong>${listings.length} new business ${listings.length === 1 ? 'opportunity' : 'opportunities'}</strong> matching your criteria:
+      <div style="margin-bottom: 28px;">
+        <p style="margin: 0 0 20px 0; font-size: 17px; color: #F5F5F5; line-height: 1.6;">
+          We found <strong style="color: #D4A650; font-weight: 600;">${listings.length} new premium business ${listings.length === 1 ? 'opportunity' : 'opportunities'}</strong> matching your acquisition criteria:
         </p>
 
         <table style="width: 100%; border-collapse: collapse;">
@@ -137,23 +137,23 @@ function generateHTMLContent(data: DigestData): string {
       </div>
 
       <!-- CTA Buttons -->
-      <div style="text-align: center; margin: 32px 0;">
-        <a href="https://succedence.com/browse?digest=today"
-           style="display: inline-block; background-color: #1e40af; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; margin-right: 12px;">
+      <div style="text-align: center; margin: 36px 0 28px 0;">
+        <a href="https://succedence.com/matches"
+           style="display: inline-block; background: linear-gradient(135deg, #B89A5F 0%, #C9A96E 100%); color: #0B0E14; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-weight: 600; margin-right: 12px; letter-spacing: 0.025em; box-shadow: 0 4px 12px rgba(201, 169, 110, 0.3);">
           View All Matches
         </a>
-        <a href="https://succedence.com/profile"
-           style="display: inline-block; background-color: #6b7280; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500;">
-          View Profile
+        <a href="https://succedence.com/preferences"
+           style="display: inline-block; background: transparent; color: #E0E0E0; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-weight: 500; border: 2px solid rgba(224, 224, 224, 0.3);">
+          Update Preferences
         </a>
       </div>
       ` : `
-      <div style="text-align: center; padding: 32px 0;">
-        <p style="margin: 0 0 16px 0; font-size: 16px; color: #6b7280;">
-          No new matches found today, but we're constantly updating our listings.
+      <div style="text-align: center; padding: 40px 0;">
+        <p style="margin: 0 0 20px 0; font-size: 17px; color: #E0E0E0; opacity: 0.8;">
+          No new matches today, but we're constantly adding premium opportunities.
         </p>
         <a href="https://succedence.com/browse"
-           style="display: inline-block; background-color: #1e40af; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500;">
+           style="display: inline-block; background: linear-gradient(135deg, #B89A5F 0%, #C9A96E 100%); color: #0B0E14; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-weight: 600; letter-spacing: 0.025em; box-shadow: 0 4px 12px rgba(201, 169, 110, 0.3);">
           Browse All Opportunities
         </a>
       </div>
@@ -161,12 +161,12 @@ function generateHTMLContent(data: DigestData): string {
     </div>
 
     <!-- Footer -->
-    <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-      <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280;">
-        <a href="https://succedence.com/preferences" style="color: #1e40af; text-decoration: none;">Manage your preferences</a> •
-        <a href="https://succedence.com/preferences?unsubscribe=true" style="color: #6b7280; text-decoration: none;">Unsubscribe</a>
+    <div style="background: rgba(11, 14, 20, 0.5); padding: 24px; text-align: center; border-top: 1px solid rgba(212, 166, 80, 0.2);">
+      <p style="margin: 0 0 12px 0; font-size: 13px; color: #E0E0E0; opacity: 0.7;">
+        <a href="https://succedence.com/preferences" style="color: #D4A650; text-decoration: none; font-weight: 500;">Manage your preferences</a> •
+        <a href="https://succedence.com/preferences?unsubscribe=true" style="color: #E0E0E0; text-decoration: none; opacity: 0.6;">Unsubscribe</a>
       </p>
-      <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+      <p style="margin: 0; font-size: 11px; color: #E0E0E0; opacity: 0.5; font-style: italic;">
         © ${new Date().getFullYear()} Succedence. Built for ambitious entrepreneurs.
       </p>
     </div>
@@ -217,8 +217,8 @@ function generateTextContent(data: DigestData): string {
       content += `   ${description}\n\n`
     })
 
-    content += `View all matches: https://succedence.com/browse?digest=today\n`
-    content += `Your profile: https://succedence.com/profile\n\n`
+    content += `View all matches: https://succedence.com/matches\n`
+    content += `Update preferences: https://succedence.com/preferences\n\n`
   } else {
     content += `No new matches found today, but we're constantly updating our listings.\n\n`
     content += `Browse all opportunities: https://succedence.com/browse\n\n`

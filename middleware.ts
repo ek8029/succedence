@@ -72,6 +72,19 @@ export async function middleware(request: NextRequest) {
 
   // For admin routes, check database for admin role
   if (pathname.startsWith('/admin')) {
+    // Hardcoded admin emails - bypass database check for known admins
+    const KNOWN_ADMINS = [
+      'evank8029@gmail.com',
+      'succedence@gmail.com',
+      'founder@succedence.com',
+      'clydek627@gmail.com'
+    ]
+
+    if (KNOWN_ADMINS.includes(session.user.email || '')) {
+      console.log('🔒 MIDDLEWARE: Hardcoded admin access granted for:', session.user.email)
+      return NextResponse.next()
+    }
+
     try {
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -79,14 +92,19 @@ export async function middleware(request: NextRequest) {
         .eq('id', session.user.id)
         .single()
 
-      if (userError || !userData || (userData as any).role !== 'admin') {
-        console.log('❌ MIDDLEWARE: Non-admin trying to access admin route:', session.user.email)
+      if (userError) {
+        console.error('❌ MIDDLEWARE: Database error checking admin role:', userError, 'for user:', session.user.email)
         return NextResponse.redirect(new URL('/app', request.url))
       }
 
-      console.log('🔒 MIDDLEWARE: Admin access granted for:', session.user.email)
+      if (!userData || (userData as any).role !== 'admin') {
+        console.log('❌ MIDDLEWARE: Non-admin trying to access admin route:', session.user.email, 'role:', (userData as any)?.role)
+        return NextResponse.redirect(new URL('/app', request.url))
+      }
+
+      console.log('🔒 MIDDLEWARE: Database admin access granted for:', session.user.email)
     } catch (error) {
-      console.error('MIDDLEWARE: Error checking admin role:', error)
+      console.error('MIDDLEWARE: Exception checking admin role:', error)
       return NextResponse.redirect(new URL('/app', request.url))
     }
   }

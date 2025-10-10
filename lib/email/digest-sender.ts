@@ -33,28 +33,18 @@ export async function sendDigestEmails(targetDate: string): Promise<SendDigestsR
         users!inner (
           id,
           email,
-          first_name,
-          last_name
-        ),
-        preferences!inner (
-          alert_frequency
+          name
         )
       `)
       .eq('digest_date', targetDate)
       .eq('type', 'digest')
-      .in('preferences.alert_frequency', ['daily', 'weekly', 'instant'])
-      .neq('preferences.alert_frequency', 'off')
       .returns<{
         user_id: string;
         listing_ids: string[];
         users: {
           id: string;
           email: string;
-          first_name?: string;
-          last_name?: string;
-        };
-        preferences: {
-          alert_frequency: string;
+          name: string;
         };
       }[]>()
 

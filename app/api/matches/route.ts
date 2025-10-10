@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
         console.log('Matches table does not exist for count, using 0')
         const formattedMatches = matches?.map(match => ({
           id: match.id,
-          score: match.score,
+          score: Math.min(match.score, 100), // Cap at 100% to handle legacy data
           reasons: match.reasons_json || [],
           createdAt: match.created_at,
           listing: match.listing
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
     // Format the response
     const formattedMatches = matches?.map(match => ({
       id: match.id,
-      score: match.score,
+      score: Math.min(match.score, 100), // Cap at 100% to handle legacy data
       reasons: match.reasons_json || [],
       createdAt: match.created_at,
       listing: match.listing
