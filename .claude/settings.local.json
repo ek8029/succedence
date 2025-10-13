@@ -96,7 +96,8 @@
       "Bash(npx psql:*)",
       "Bash(git log:*)",
       "Bash(npx dotenv:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []
