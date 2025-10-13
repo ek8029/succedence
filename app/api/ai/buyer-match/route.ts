@@ -232,13 +232,48 @@ export async function POST(request: NextRequest) {
 
     // Generate fresh super enhanced analysis if no cached version exists or forced refresh
     if (!existingAnalysis || forceRefresh) {
+      // Fetch comparable listings for context-rich analysis
+      let comparableListings: any[] = [];
+      try {
+        const { data: comparables } = await supabase
+          .from('listings')
+          .select('id, title, industry, city, state, revenue, ebitda, price, employees, askingPrice, cashFlow')
+          .eq('industry', listing.industry)
+          .neq('id', listingId)
+          .limit(10);
+
+        if (comparables) {
+          comparableListings = comparables;
+          console.log(`✅ Found ${comparableListings.length} comparable listings for buyer match context`);
+        }
+      } catch (error) {
+        console.log('No comparable listings found, proceeding without comparisons');
+      }
+
+      // Calculate industry benchmarks from comparable listings
+      let industryBenchmarks: any = null;
+      if (comparableListings.length > 0) {
+        const revenues = comparableListings.map(l => l.revenue).filter(r => r && r > 0);
+        const ebitdas = comparableListings.map(l => l.ebitda).filter(e => e && e > 0);
+        const prices = comparableListings.map(l => l.price || l.askingPrice).filter(p => p && p > 0);
+
+        industryBenchmarks = {
+          averageRevenue: revenues.length > 0 ? Math.round(revenues.reduce((a, b) => a + b, 0) / revenues.length) : null,
+          averageEBITDA: ebitdas.length > 0 ? Math.round(ebitdas.reduce((a, b) => a + b, 0) / ebitdas.length) : null,
+          averagePrice: prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null,
+          sampleSize: comparableListings.length
+        };
+
+        console.log('📊 Buyer match industry benchmarks:', industryBenchmarks);
+      }
+
       // Use super enhanced buyer matching for comprehensive analysis
       console.log('BUYER MATCH DEBUG: Starting super enhanced buyer match analysis');
       console.log('BUYER MATCH DEBUG: Listing:', listing?.title);
       console.log('BUYER MATCH DEBUG: Buyer Preferences:', buyerPreferences);
 
       try {
-        matchScore = await analyzeBusinessSuperEnhancedBuyerMatch(listing, buyerPreferences);
+        matchScore = await analyzeBusinessSuperEnhancedBuyerMatch(listing, buyerPreferences, comparableListings, industryBenchmarks);
         console.log('BUYER MATCH DEBUG: Analysis completed successfully');
       } catch (error) {
         console.error('BUYER MATCH DEBUG: Error in analysis:', error);

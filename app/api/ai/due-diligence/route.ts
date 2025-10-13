@@ -165,8 +165,26 @@ export async function POST(request: NextRequest) {
 
     // Generate super enhanced due diligence checklist if no cached version exists
     if (!existingAnalysis || forceRefresh) {
+      // Fetch comparable listings for industry-specific context
+      let comparableListings: any[] = [];
+      try {
+        const { data: comparables } = await supabase
+          .from('listings')
+          .select('id, title, industry, city, state, revenue, ebitda, price, employees')
+          .eq('industry', listing.industry)
+          .neq('id', listingId)
+          .limit(5);
+
+        if (comparables) {
+          comparableListings = comparables;
+          console.log(`✅ Found ${comparableListings.length} comparable listings for due diligence context`);
+        }
+      } catch (error) {
+        console.log('No comparable listings found, proceeding without comparisons');
+      }
+
       // Use super enhanced due diligence generator
-      checklist = await generateSuperEnhancedDueDiligence(listing);
+      checklist = await generateSuperEnhancedDueDiligence(listing, comparableListings);
     }
 
     // Skip database saves in development mode

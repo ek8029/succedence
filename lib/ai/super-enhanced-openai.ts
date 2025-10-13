@@ -508,6 +508,8 @@ export async function analyzeBusinessSuperEnhanced(
       industries?: string[];
     };
     analysisDepth?: 'quick' | 'standard' | 'comprehensive';
+    comparableListings?: any[];
+    industryBenchmarks?: any;
   } = {}
 ): Promise<SuperEnhancedBusinessAnalysis> {
   if (!isAIEnabled()) {
@@ -567,13 +569,25 @@ export async function analyzeBusinessSuperEnhanced(
     perspective = 'general',
     focusAreas = [],
     userProfile = {},
-    analysisDepth = 'comprehensive'
+    analysisDepth = 'comprehensive',
+    comparableListings = [],
+    industryBenchmarks = null
   } = analysisOptions;
 
   // Detect business type for enhanced analysis
   const businessType = detectBusinessType(listing);
   console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
   console.log('🔍 MATCHING KEYWORDS:', businessType.matchingKeywords);
+
+  // Calculate this listing's specific metrics for comparison
+  const listingAny = listing as any;
+  const listingMetrics = {
+    ebitdaMargin: listing.revenue && listing.ebitda ? ((listing.ebitda / listing.revenue) * 100).toFixed(1) : null,
+    revenuePerEmployee: listing.revenue && listing.employees ? Math.round(listing.revenue / listing.employees) : null,
+    priceToRevenue: listing.price && listing.revenue ? (listing.price / listing.revenue).toFixed(2) : null,
+    priceToEBITDA: listing.price && listing.ebitda ? (listing.price / listing.ebitda).toFixed(2) : null,
+    cashFlowMargin: listing.revenue && listingAny.cashFlow ? ((listingAny.cashFlow / listing.revenue) * 100).toFixed(1) : null
+  };
 
   const perspectiveContext = {
     strategic_buyer: "You are analyzing for a strategic buyer seeking synergistic acquisitions with operational expertise and industry knowledge.",
@@ -606,9 +620,34 @@ BUSINESS INTELLIGENCE:
 - Location: ${listing.city}, ${listing.state}
 - Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
 - EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
+- Cash Flow: $${listingAny.cashFlow?.toLocaleString() || 'Not disclosed'}
 - Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
 - Employees: ${listing.employees || 'Not specified'}
 - Description: ${listing.description}
+
+CALCULATED FINANCIAL METRICS (use these for specific comparisons):
+- EBITDA Margin: ${listingMetrics.ebitdaMargin ? `${listingMetrics.ebitdaMargin}%` : 'Not calculable'}
+- Revenue Per Employee: ${listingMetrics.revenuePerEmployee ? `$${listingMetrics.revenuePerEmployee.toLocaleString()}` : 'Not calculable'}
+- Price-to-Revenue Multiple: ${listingMetrics.priceToRevenue ? `${listingMetrics.priceToRevenue}x` : 'Not calculable'}
+- Price-to-EBITDA Multiple: ${listingMetrics.priceToEBITDA ? `${listingMetrics.priceToEBITDA}x` : 'Not calculable'}
+- Cash Flow Margin: ${listingMetrics.cashFlowMargin ? `${listingMetrics.cashFlowMargin}%` : 'Not calculable'}
+
+${industryBenchmarks ? `INDUSTRY BENCHMARKS FOR ${listing.industry} (based on ${industryBenchmarks.sampleSize} comparable businesses):
+- Average Revenue: $${industryBenchmarks.averageRevenue?.toLocaleString() || 'N/A'} (This business: ${listing.revenue ? (listing.revenue > industryBenchmarks.averageRevenue ? `${Math.round(((listing.revenue - industryBenchmarks.averageRevenue) / industryBenchmarks.averageRevenue) * 100)}% ABOVE` : `${Math.round(((industryBenchmarks.averageRevenue - listing.revenue) / industryBenchmarks.averageRevenue) * 100)}% BELOW`) : 'N/A'} average)
+- Average EBITDA: $${industryBenchmarks.averageEBITDA?.toLocaleString() || 'N/A'} (This business: ${listing.ebitda && industryBenchmarks.averageEBITDA ? (listing.ebitda > industryBenchmarks.averageEBITDA ? `${Math.round(((listing.ebitda - industryBenchmarks.averageEBITDA) / industryBenchmarks.averageEBITDA) * 100)}% ABOVE` : `${Math.round(((industryBenchmarks.averageEBITDA - listing.ebitda) / industryBenchmarks.averageEBITDA) * 100)}% BELOW`) : 'N/A'} average)
+- Average EBITDA Margin: ${industryBenchmarks.averageEBITDAMargin ? `${industryBenchmarks.averageEBITDAMargin}%` : 'N/A'} (This business: ${listingMetrics.ebitdaMargin && industryBenchmarks.averageEBITDAMargin ? `${listingMetrics.ebitdaMargin}% - ${parseFloat(listingMetrics.ebitdaMargin) > industryBenchmarks.averageEBITDAMargin ? `${(parseFloat(listingMetrics.ebitdaMargin) - industryBenchmarks.averageEBITDAMargin).toFixed(1)}% HIGHER` : `${(industryBenchmarks.averageEBITDAMargin - parseFloat(listingMetrics.ebitdaMargin)).toFixed(1)}% LOWER`}` : 'N/A'})
+- Average Price: $${industryBenchmarks.averagePrice?.toLocaleString() || 'N/A'}
+- Average Employees: ${industryBenchmarks.averageEmployees || 'N/A'}
+- Average Revenue Per Employee: $${industryBenchmarks.averageRevenuePerEmployee?.toLocaleString() || 'N/A'} (This business: ${listingMetrics.revenuePerEmployee && industryBenchmarks.averageRevenuePerEmployee ? `$${listingMetrics.revenuePerEmployee.toLocaleString()} - ${listingMetrics.revenuePerEmployee > industryBenchmarks.averageRevenuePerEmployee ? `${Math.round(((listingMetrics.revenuePerEmployee - industryBenchmarks.averageRevenuePerEmployee) / industryBenchmarks.averageRevenuePerEmployee) * 100)}% HIGHER` : `${Math.round(((industryBenchmarks.averageRevenuePerEmployee - listingMetrics.revenuePerEmployee) / industryBenchmarks.averageRevenuePerEmployee) * 100)}% LOWER`}` : 'N/A'})
+
+CRITICAL: Use these specific comparisons in your analysis. DO NOT say generic things like "risk of economic downturn". Instead say "This ${businessType.subsector} business has an EBITDA margin of ${listingMetrics.ebitdaMargin}%, which is ${parseFloat(listingMetrics.ebitdaMargin || '0') > (industryBenchmarks.averageEBITDAMargin || 0) ? 'above' : 'below'} the industry average of ${industryBenchmarks.averageEBITDAMargin}%, indicating ${parseFloat(listingMetrics.ebitdaMargin || '0') > (industryBenchmarks.averageEBITDAMargin || 0) ? 'strong operational efficiency' : 'potential optimization opportunities'}."
+` : ''}
+
+${comparableListings.length > 0 ? `COMPARABLE BUSINESSES IN ${listing.industry} (for context):
+${comparableListings.slice(0, 5).map((comp: any, i: number) => `${i + 1}. ${comp.title} - ${comp.city}, ${comp.state} | Revenue: $${comp.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${comp.ebitda?.toLocaleString() || 'N/A'} | Price: $${(comp.price || comp.askingPrice)?.toLocaleString() || 'N/A'}`).join('\n')}
+
+CRITICAL: Reference these comparable businesses when discussing market positioning, pricing, and competitive dynamics. Be specific about how THIS business compares to these actual listings.
+` : ''}
 
 REQUIRED SUPER ENHANCED ANALYSIS:
 
@@ -808,7 +847,9 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
     riskTolerance: 'low' | 'medium' | 'high';
     experienceLevel: 'novice' | 'intermediate' | 'expert';
     keywords: string[];
-  }
+  },
+  comparableListings: any[] = [],
+  industryBenchmarks: any = null
 ): Promise<SuperEnhancedBuyerMatch> {
   // Generate dynamic analysis based on actual listing data
   console.log('BUYER MATCH DEBUG: Generating analysis for', listing.title, 'in', listing.industry);
@@ -843,6 +884,20 @@ BUSINESS OPPORTUNITY:
 - EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
 - Employees: ${listing.employees || 'Not specified'}
 - Description: ${listing.description}
+
+${industryBenchmarks ? `INDUSTRY CONTEXT (${industryBenchmarks.sampleSize} comparable ${listing.industry} businesses):
+- Average Revenue: $${industryBenchmarks.averageRevenue?.toLocaleString()} (This business: ${listing.revenue && industryBenchmarks.averageRevenue ? (listing.revenue > industryBenchmarks.averageRevenue ? `${Math.round(((listing.revenue - industryBenchmarks.averageRevenue) / industryBenchmarks.averageRevenue) * 100)}% ABOVE` : `${Math.round(((industryBenchmarks.averageRevenue - listing.revenue) / industryBenchmarks.averageRevenue) * 100)}% BELOW`) : 'N/A'})
+- Average EBITDA: $${industryBenchmarks.averageEBITDA?.toLocaleString()} (This business: ${listing.ebitda && industryBenchmarks.averageEBITDA ? (listing.ebitda > industryBenchmarks.averageEBITDA ? `${Math.round(((listing.ebitda - industryBenchmarks.averageEBITDA) / industryBenchmarks.averageEBITDA) * 100)}% ABOVE` : `${Math.round(((industryBenchmarks.averageEBITDA - listing.ebitda) / industryBenchmarks.averageEBITDA) * 100)}% BELOW`) : 'N/A'})
+- Average Price: $${industryBenchmarks.averagePrice?.toLocaleString()} (This business: ${listing.price && industryBenchmarks.averagePrice ? (listing.price > industryBenchmarks.averagePrice ? `${Math.round(((listing.price - industryBenchmarks.averagePrice) / industryBenchmarks.averagePrice) * 100)}% ABOVE` : `${Math.round(((industryBenchmarks.averagePrice - listing.price) / industryBenchmarks.averagePrice) * 100)}% BELOW`) : 'N/A'})
+
+CRITICAL: Use these comparisons to assess if this business is fairly priced and a good fit relative to market standards.
+` : ''}
+
+${comparableListings.length > 0 ? `COMPARABLE ${listing.industry.toUpperCase()} BUSINESSES:
+${comparableListings.slice(0, 5).map((comp: any, i: number) => `${i + 1}. ${comp.title} | ${comp.city}, ${comp.state} | Rev: $${comp.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${comp.ebitda?.toLocaleString() || 'N/A'} | Price: $${(comp.price || comp.askingPrice)?.toLocaleString() || 'N/A'}`).join('\n')}
+
+CRITICAL: Reference how this business compares to these actual comparable opportunities when assessing buyer fit and strategic value.
+` : ''}
 
 REQUIRED COMPREHENSIVE BUYER MATCH ANALYSIS:
 
@@ -1062,7 +1117,8 @@ Respond in JSON format with this EXACT structure:
 
 // Super Enhanced Due Diligence Generator
 export async function generateSuperEnhancedDueDiligence(
-  listing: Listing
+  listing: Listing,
+  comparableListings: any[] = []
 ): Promise<SuperEnhancedDueDiligence> {
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -1088,6 +1144,12 @@ BUSINESS INTELLIGENCE:
 - Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
 - Employees: ${listing.employees || 'Not specified'}
 - Description: ${listing.description}
+
+${comparableListings.length > 0 ? `COMPARABLE ${listing.industry.toUpperCase()} BUSINESSES FOR CONTEXT:
+${comparableListings.map((comp: any, i: number) => `${i + 1}. ${comp.title} | ${comp.city}, ${comp.state} | Rev: $${comp.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${comp.ebitda?.toLocaleString() || 'N/A'} | Price: $${(comp.price || comp.askingPrice)?.toLocaleString() || 'N/A'}`).join('\n')}
+
+CRITICAL: Use these comparable businesses to identify industry-standard practices, typical risks for ${businessType.subsector} businesses, and red flags that may indicate this business deviates from industry norms.
+` : ''}
 
 REQUIRED COMPREHENSIVE DUE DILIGENCE ANALYSIS:
 
@@ -1283,7 +1345,8 @@ Respond in JSON format with this EXACT structure:
 export async function generateSuperEnhancedMarketIntelligence(
   industry: string,
   geography?: string,
-  dealSize?: number
+  dealSize?: number,
+  marketData?: any
 ): Promise<SuperEnhancedMarketIntelligence> {
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -1306,6 +1369,40 @@ ANALYSIS PARAMETERS:
 - Matching Keywords: ${businessType.matchingKeywords.join(', ')}
 - Geography: ${geography || 'National'}
 - Deal Size: $${dealSize?.toLocaleString() || 'Variable'}
+
+${marketData ? `REAL MARKET DATA FROM OUR DATABASE (${marketData.totalListings} active ${industry} listings):
+
+MARKET STATISTICS:
+- Total Listings Available: ${marketData.totalListings} businesses currently for sale
+${geography ? `- Listings in ${geography}: ${marketData.geoListings} businesses` : ''}
+${dealSize ? `- Listings near $${dealSize.toLocaleString()}: ${marketData.dealSizeListings} businesses within 50%` : ''}
+
+PRICING DATA:
+- Average Asking Price: $${marketData.averagePrice?.toLocaleString() || 'N/A'}
+- Median Asking Price: $${marketData.medianPrice?.toLocaleString() || 'N/A'}
+- Price Distribution:
+  * Under $500K: ${marketData.priceRanges.under500k} listings (${Math.round((marketData.priceRanges.under500k / marketData.totalListings) * 100)}%)
+  * $500K-$1M: ${marketData.priceRanges.range500kTo1m} listings (${Math.round((marketData.priceRanges.range500kTo1m / marketData.totalListings) * 100)}%)
+  * $1M-$2M: ${marketData.priceRanges.range1mTo2m} listings (${Math.round((marketData.priceRanges.range1mTo2m / marketData.totalListings) * 100)}%)
+  * $2M-$5M: ${marketData.priceRanges.range2mTo5m} listings (${Math.round((marketData.priceRanges.range2mTo5m / marketData.totalListings) * 100)}%)
+  * Over $5M: ${marketData.priceRanges.over5m} listings (${Math.round((marketData.priceRanges.over5m / marketData.totalListings) * 100)}%)
+
+FINANCIAL BENCHMARKS:
+- Average Revenue: $${marketData.averageRevenue?.toLocaleString() || 'N/A'}
+- Median Revenue: $${marketData.medianRevenue?.toLocaleString() || 'N/A'}
+- Average EBITDA: $${marketData.averageEBITDA?.toLocaleString() || 'N/A'}
+- Median EBITDA: $${marketData.medianEBITDA?.toLocaleString() || 'N/A'}
+- Average Employees: ${marketData.averageEmployees || 'N/A'}
+
+${marketData.topStates ? `GEOGRAPHIC CONCENTRATION:
+${marketData.topStates.map(([state, count]: [string, number]) => `- ${state}: ${count} listings (${Math.round((count / marketData.totalListings) * 100)}% of market)`).join('\n')}
+` : ''}
+
+SAMPLE ACTIVE LISTINGS:
+${marketData.sampleListings.slice(0, 5).map((l: any, i: number) => `${i + 1}. ${l.title} - ${l.city}, ${l.state} | Revenue: $${l.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${l.ebitda?.toLocaleString() || 'N/A'} | Price: $${l.price?.toLocaleString() || 'N/A'}`).join('\n')}
+
+CRITICAL INSTRUCTION: This is REAL market data from our platform, not generic industry knowledge. Base your analysis on these ACTUAL numbers and trends. Reference specific data points (e.g., "With ${marketData.totalListings} active listings and an average price of $${marketData.averagePrice?.toLocaleString()}, the ${businessType.subsector} market shows..."). DO NOT provide generic analysis - be specific and data-driven.
+` : ''}
 
 REQUIRED COMPREHENSIVE MARKET INTELLIGENCE:
 
