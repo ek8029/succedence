@@ -1295,6 +1295,7 @@ Respond in JSON format with this EXACT structure:
       ],
       temperature: 0.2,
       max_tokens: 3000,
+    }, {
       timeout: 60000, // 60 second timeout
     });
 
