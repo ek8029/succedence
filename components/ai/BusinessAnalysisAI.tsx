@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SubscriptionUpgrade from '@/components/SubscriptionUpgrade';
 import { usePersistedAIAnalysis } from '@/lib/hooks/usePersistedAIAnalysis';
 import ConversationalChatbox from './ConversationalChatbox';
+import * as XLSX from 'xlsx';
 
 interface BusinessAnalysisAIProps {
   listingId: string;
@@ -153,115 +154,70 @@ https://succedence.com
   const exportAnalysis = () => {
     if (!analysis) return;
 
-    // Create comprehensive export data with all fields
-    const exportData = {
-      listing: {
-        id: listingId,
-        title: listingTitle,
-      },
-      analysis: {
-        generatedAt: new Date().toISOString(),
-        overallScore: analysis.overallScore,
-        recommendation: analysis.recommendation,
-        confidence: analysis.overallScoreConfidence,
-        summary: analysis.summary,
-        strengths: analysis.strengths,
-        risks: analysis.riskMatrix,
-        marketTrends: (analysis as any).marketTrends,
-        competitivePosition: (analysis as any).competitivePosition,
-        growthOpportunities: (analysis as any).growthOpportunities,
-        financialHealth: (analysis as any).financialHealth,
-        operationalInsights: (analysis as any).operationalInsights,
-      },
-      metadata: {
-        exportedAt: new Date().toISOString(),
-        exportedBy: 'Succedence AI Platform',
-        version: '1.0'
-      }
-    };
+    // Create Excel workbook with multiple sheets
+    const wb = XLSX.utils.book_new();
 
-    // Create formatted text version for easy reading
-    const formattedText = `
-AI BUSINESS ANALYSIS REPORT
-═══════════════════════════════════════════════════════
+    // Summary Sheet
+    const summaryData = [
+      ['AI BUSINESS ANALYSIS REPORT'],
+      [''],
+      ['Listing', listingTitle],
+      ['Analysis ID', listingId],
+      ['Generated', new Date().toLocaleString()],
+      [''],
+      ['OVERALL ASSESSMENT'],
+      ['Overall Score', `${analysis.overallScore}/100`],
+      ['Recommendation', formatRecommendation(analysis.recommendation)],
+      ...(analysis.overallScoreConfidence ? [
+        ['Confidence Score', `${analysis.overallScoreConfidence.score}%`],
+        ['Methodology', analysis.overallScoreConfidence.methodology]
+      ] : []),
+      [''],
+      ['EXECUTIVE SUMMARY'],
+      [analysis.summary],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    wsSummary['!cols'] = [{ wch: 20 }, { wch: 60 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
-LISTING: ${listingTitle}
-ANALYSIS ID: ${listingId}
-GENERATED: ${new Date(exportData.analysis.generatedAt).toLocaleString()}
+    // Strengths Sheet
+    const strengthsData = [
+      ['#', 'Insight', 'Description', 'Probability %', 'Timeframe', 'Confidence %', 'Reasoning'],
+      ...(analysis.strengths || []).map((s, i) => [
+        i + 1,
+        s.insight || '',
+        s.actionable || '',
+        s.probability || 0,
+        s.timeframe || '',
+        s.confidence?.score || '',
+        s.confidence?.reasoning || ''
+      ])
+    ];
+    const wsStrengths = XLSX.utils.aoa_to_sheet(strengthsData);
+    wsStrengths['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 40 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, wsStrengths, 'Key Strengths');
 
-═══════════════════════════════════════════════════════
-EXECUTIVE SUMMARY
-═══════════════════════════════════════════════════════
+    // Risks Sheet
+    const risksData = [
+      ['#', 'Risk Factor', 'Severity', 'Description', 'Risk Score', 'Impact', 'Mitigation Strategy', 'Timeframe'],
+      ...(analysis.riskMatrix || []).map((r, i) => [
+        i + 1,
+        r.factor || '',
+        r.severity?.toUpperCase() || '',
+        r.description || '',
+        r.riskScore || 0,
+        r.impact || '',
+        r.mitigation || '',
+        r.timeframe || ''
+      ])
+    ];
+    const wsRisks = XLSX.utils.aoa_to_sheet(risksData);
+    wsRisks['!cols'] = [{ wch: 5 }, { wch: 25 }, { wch: 10 }, { wch: 40 }, { wch: 12 }, { wch: 25 }, { wch: 40 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, wsRisks, 'Risk Assessment');
 
-Overall Score: ${analysis.overallScore}/100
-Recommendation: ${formatRecommendation(analysis.recommendation)}
-${analysis.overallScoreConfidence ? `Confidence: ${analysis.overallScoreConfidence.score}% (${analysis.overallScoreConfidence.methodology})` : ''}
-
-${analysis.summary}
-
-───────────────────────────────────────────────────────
-KEY STRENGTHS
-───────────────────────────────────────────────────────
-
-${(analysis.strengths || []).map((s, i) => `
-${i + 1}. ${s.insight}
-
-   Description: ${s.actionable}
-   Probability: ${s.probability}%
-   Timeframe: ${s.timeframe}
-   ${s.confidence ? `Confidence: ${s.confidence.score}% (${s.confidence.reasoning})` : ''}
-`).join('\n')}
-
-───────────────────────────────────────────────────────
-RISK ASSESSMENT
-───────────────────────────────────────────────────────
-
-${(analysis.riskMatrix || []).map((r, i) => `
-${i + 1}. ${r.factor} [${r.severity?.toUpperCase()} SEVERITY]
-
-   Description: ${r.description}
-   Risk Score: ${r.riskScore}/100
-   Impact: ${r.impact || 'Assessment pending'}
-   ${r.mitigation ? `Mitigation Strategy: ${r.mitigation}` : ''}
-   ${r.timeframe ? `Timeframe: ${r.timeframe}` : ''}
-`).join('\n')}
-
-═══════════════════════════════════════════════════════
-REPORT END
-═══════════════════════════════════════════════════════
-
-This analysis was generated by Succedence AI Platform
-For more information, visit https://succedence.com
-
-Exported: ${new Date().toLocaleString()}
-    `.trim();
-
-    // Create downloadable files
+    // Export the workbook
     const timestamp = Date.now();
-
-    // JSON export
-    const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const jsonUrl = URL.createObjectURL(jsonBlob);
-    const jsonLink = document.createElement('a');
-    jsonLink.href = jsonUrl;
-    jsonLink.download = `business-analysis-${listingId}-${timestamp}.json`;
-    document.body.appendChild(jsonLink);
-    jsonLink.click();
-    document.body.removeChild(jsonLink);
-    URL.revokeObjectURL(jsonUrl);
-
-    // Text export
-    setTimeout(() => {
-      const textBlob = new Blob([formattedText], { type: 'text/plain' });
-      const textUrl = URL.createObjectURL(textBlob);
-      const textLink = document.createElement('a');
-      textLink.href = textUrl;
-      textLink.download = `business-analysis-${listingId}-${timestamp}.txt`;
-      document.body.appendChild(textLink);
-      textLink.click();
-      document.body.removeChild(textLink);
-      URL.revokeObjectURL(textUrl);
-    }, 100);
+    XLSX.writeFile(wb, `business-analysis-${listingTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${timestamp}.xlsx`);
   };
 
   const printAnalysis = () => {
