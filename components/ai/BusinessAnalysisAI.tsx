@@ -97,7 +97,52 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
 
   const copyToClipboard = async (text: string, label: string) => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (!analysis) return;
+
+      // Create a formatted text version of the entire analysis
+      const formattedText = `
+═══════════════════════════════════════════════════════
+AI BUSINESS ANALYSIS
+${listingTitle}
+Generated: ${new Date().toLocaleString()}
+═══════════════════════════════════════════════════════
+
+OVERALL SCORE: ${analysis.overallScore}/100
+RECOMMENDATION: ${formatRecommendation(analysis.recommendation)}
+${analysis.overallScoreConfidence ? `CONFIDENCE: ${analysis.overallScoreConfidence.score}% (${analysis.overallScoreConfidence.methodology})` : ''}
+
+───────────────────────────────────────────────────────
+EXECUTIVE SUMMARY
+───────────────────────────────────────────────────────
+${analysis.summary}
+
+───────────────────────────────────────────────────────
+KEY STRENGTHS
+───────────────────────────────────────────────────────
+${(analysis.strengths || []).map((s, i) => `
+${i + 1}. ${s.insight}
+   ${s.actionable}
+   Probability: ${s.probability}% | Timeframe: ${s.timeframe}
+   ${s.confidence ? `Confidence: ${s.confidence.score}%` : ''}
+`).join('\n')}
+
+───────────────────────────────────────────────────────
+RISK FACTORS
+───────────────────────────────────────────────────────
+${(analysis.riskMatrix || []).map((r, i) => `
+${i + 1}. [${r.severity?.toUpperCase()}] ${r.factor}
+   ${r.description}
+   Risk Score: ${r.riskScore}
+   ${r.mitigation ? `Mitigation: ${r.mitigation}` : ''}
+`).join('\n')}
+
+═══════════════════════════════════════════════════════
+Analysis provided by Succedence AI
+https://succedence.com
+═══════════════════════════════════════════════════════
+      `.trim();
+
+      await navigator.clipboard.writeText(formattedText);
       setCopySuccess(label);
       setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
@@ -108,29 +153,303 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
   const exportAnalysis = () => {
     if (!analysis) return;
 
+    // Create comprehensive export data with all fields
     const exportData = {
-      listing: listingTitle,
-      date: new Date().toISOString(),
-      score: analysis.overallScore,
-      recommendation: analysis.recommendation,
-      summary: analysis.summary,
-      strengths: analysis.strengths,
-      risks: analysis.riskMatrix,
+      listing: {
+        id: listingId,
+        title: listingTitle,
+      },
+      analysis: {
+        generatedAt: new Date().toISOString(),
+        overallScore: analysis.overallScore,
+        recommendation: analysis.recommendation,
+        confidence: analysis.overallScoreConfidence,
+        summary: analysis.summary,
+        strengths: analysis.strengths,
+        risks: analysis.riskMatrix,
+        marketTrends: (analysis as any).marketTrends,
+        competitivePosition: (analysis as any).competitivePosition,
+        growthOpportunities: (analysis as any).growthOpportunities,
+        financialHealth: (analysis as any).financialHealth,
+        operationalInsights: (analysis as any).operationalInsights,
+      },
+      metadata: {
+        exportedAt: new Date().toISOString(),
+        exportedBy: 'Succedence AI Platform',
+        version: '1.0'
+      }
     };
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `business-analysis-${listingId}-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Create formatted text version for easy reading
+    const formattedText = `
+AI BUSINESS ANALYSIS REPORT
+═══════════════════════════════════════════════════════
+
+LISTING: ${listingTitle}
+ANALYSIS ID: ${listingId}
+GENERATED: ${new Date(exportData.analysis.generatedAt).toLocaleString()}
+
+═══════════════════════════════════════════════════════
+EXECUTIVE SUMMARY
+═══════════════════════════════════════════════════════
+
+Overall Score: ${analysis.overallScore}/100
+Recommendation: ${formatRecommendation(analysis.recommendation)}
+${analysis.overallScoreConfidence ? `Confidence: ${analysis.overallScoreConfidence.score}% (${analysis.overallScoreConfidence.methodology})` : ''}
+
+${analysis.summary}
+
+───────────────────────────────────────────────────────
+KEY STRENGTHS
+───────────────────────────────────────────────────────
+
+${(analysis.strengths || []).map((s, i) => `
+${i + 1}. ${s.insight}
+
+   Description: ${s.actionable}
+   Probability: ${s.probability}%
+   Timeframe: ${s.timeframe}
+   ${s.confidence ? `Confidence: ${s.confidence.score}% (${s.confidence.reasoning})` : ''}
+`).join('\n')}
+
+───────────────────────────────────────────────────────
+RISK ASSESSMENT
+───────────────────────────────────────────────────────
+
+${(analysis.riskMatrix || []).map((r, i) => `
+${i + 1}. ${r.factor} [${r.severity?.toUpperCase()} SEVERITY]
+
+   Description: ${r.description}
+   Risk Score: ${r.riskScore}/100
+   Impact: ${r.impact || 'Assessment pending'}
+   ${r.mitigation ? `Mitigation Strategy: ${r.mitigation}` : ''}
+   ${r.timeframe ? `Timeframe: ${r.timeframe}` : ''}
+`).join('\n')}
+
+═══════════════════════════════════════════════════════
+REPORT END
+═══════════════════════════════════════════════════════
+
+This analysis was generated by Succedence AI Platform
+For more information, visit https://succedence.com
+
+Exported: ${new Date().toLocaleString()}
+    `.trim();
+
+    // Create downloadable files
+    const timestamp = Date.now();
+
+    // JSON export
+    const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const jsonUrl = URL.createObjectURL(jsonBlob);
+    const jsonLink = document.createElement('a');
+    jsonLink.href = jsonUrl;
+    jsonLink.download = `business-analysis-${listingId}-${timestamp}.json`;
+    document.body.appendChild(jsonLink);
+    jsonLink.click();
+    document.body.removeChild(jsonLink);
+    URL.revokeObjectURL(jsonUrl);
+
+    // Text export
+    setTimeout(() => {
+      const textBlob = new Blob([formattedText], { type: 'text/plain' });
+      const textUrl = URL.createObjectURL(textBlob);
+      const textLink = document.createElement('a');
+      textLink.href = textUrl;
+      textLink.download = `business-analysis-${listingId}-${timestamp}.txt`;
+      document.body.appendChild(textLink);
+      textLink.click();
+      document.body.removeChild(textLink);
+      URL.revokeObjectURL(textUrl);
+    }, 100);
   };
 
   const printAnalysis = () => {
-    window.print();
+    if (!analysis) return;
+
+    // Create a print-friendly version of the analysis
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>AI Business Analysis - ${listingTitle}</title>
+          <style>
+            @media print {
+              @page { margin: 1.5cm; }
+              body { margin: 0; }
+            }
+            body {
+              font-family: 'Georgia', serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            h1 {
+              color: #1a1a1a;
+              border-bottom: 3px solid #d4af37;
+              padding-bottom: 10px;
+              margin-bottom: 20px;
+            }
+            h2 {
+              color: #2a2a2a;
+              border-bottom: 2px solid #e0e0e0;
+              padding-bottom: 5px;
+              margin-top: 30px;
+              margin-bottom: 15px;
+            }
+            h3 {
+              color: #3a3a3a;
+              margin-top: 20px;
+              margin-bottom: 10px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              padding-bottom: 20px;
+              border-bottom: 3px solid #d4af37;
+            }
+            .score-box {
+              background: #f5f5f5;
+              border: 2px solid #d4af37;
+              border-radius: 8px;
+              padding: 20px;
+              margin: 20px 0;
+              text-align: center;
+            }
+            .score {
+              font-size: 48px;
+              font-weight: bold;
+              color: #d4af37;
+              margin: 10px 0;
+            }
+            .recommendation {
+              display: inline-block;
+              padding: 8px 16px;
+              background: #d4af37;
+              color: white;
+              border-radius: 4px;
+              font-weight: bold;
+              text-transform: uppercase;
+              margin: 10px 0;
+            }
+            .strength, .risk {
+              margin: 15px 0;
+              padding: 15px;
+              border-left: 4px solid #ccc;
+              background: #fafafa;
+              page-break-inside: avoid;
+            }
+            .strength {
+              border-left-color: #4caf50;
+            }
+            .risk {
+              border-left-color: #f44336;
+            }
+            .strength h4, .risk h4 {
+              margin-top: 0;
+              margin-bottom: 10px;
+            }
+            .meta {
+              color: #666;
+              font-size: 0.9em;
+              margin-top: 5px;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px solid #e0e0e0;
+              text-align: center;
+              color: #666;
+              font-size: 0.9em;
+            }
+            .summary {
+              background: #f9f9f9;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px 0;
+              font-size: 1.1em;
+              line-height: 1.8;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>AI Business Analysis Report</h1>
+            <h2>${listingTitle}</h2>
+            <p>Generated: ${new Date().toLocaleString()}</p>
+          </div>
+
+          <div class="score-box">
+            <div>
+              <strong>Overall Score</strong>
+              <div class="score">${analysis.overallScore}/100</div>
+            </div>
+            <div>
+              <span class="recommendation">${formatRecommendation(analysis.recommendation)}</span>
+            </div>
+            ${analysis.overallScoreConfidence ? `
+              <div class="meta">
+                Confidence: ${analysis.overallScoreConfidence.score}% (${analysis.overallScoreConfidence.methodology})
+              </div>
+            ` : ''}
+          </div>
+
+          <h2>Executive Summary</h2>
+          <div class="summary">
+            ${analysis.summary}
+          </div>
+
+          <h2>Key Strengths</h2>
+          ${(analysis.strengths || []).map((s, i) => `
+            <div class="strength">
+              <h4>${i + 1}. ${s.insight}</h4>
+              <p>${s.actionable}</p>
+              <div class="meta">
+                Probability: ${s.probability}% | Timeframe: ${s.timeframe}
+                ${s.confidence ? ` | Confidence: ${s.confidence.score}%` : ''}
+              </div>
+            </div>
+          `).join('')}
+
+          <h2>Risk Factors</h2>
+          ${(analysis.riskMatrix || []).map((r, i) => `
+            <div class="risk">
+              <h4>${i + 1}. ${r.factor} <span style="color: ${
+                r.severity === 'critical' ? '#d32f2f' :
+                r.severity === 'high' ? '#f57c00' :
+                r.severity === 'medium' ? '#fbc02d' : '#689f38'
+              }">[${r.severity?.toUpperCase()}]</span></h4>
+              <p>${r.description}</p>
+              <div class="meta">
+                Risk Score: ${r.riskScore}/100
+                ${r.mitigation ? ` | Mitigation: ${r.mitigation}` : ''}
+              </div>
+            </div>
+          `).join('')}
+
+          <div class="footer">
+            <p><strong>Analysis provided by Succedence AI Platform</strong></p>
+            <p>https://succedence.com</p>
+            <p>Printed: ${new Date().toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Open print dialog with the formatted content
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+
+      // Wait for content to load before printing
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
   };
 
   // Show loading while auth is initializing
