@@ -19,7 +19,7 @@ export default function ScrollAnimation({
 
   useEffect(() => {
     const element = elementRef.current;
-    if (!element) return;
+    if (!element || typeof window === 'undefined') return;
 
     // Add a small delay to ensure proper setup for instant loads
     const setupAnimation = () => {
