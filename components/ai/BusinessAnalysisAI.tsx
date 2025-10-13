@@ -134,7 +134,7 @@ ${(analysis.riskMatrix || []).map((r, i) => `
 ${i + 1}. [${r.severity?.toUpperCase()}] ${r.factor}
    ${r.description}
    Risk Score: ${r.riskScore}
-   ${r.mitigation ? `Mitigation: ${r.mitigation}` : ''}
+   ${r.mitigationStrategies && r.mitigationStrategies.length > 0 ? `Mitigation: ${r.mitigationStrategies.join('; ')}` : ''}
 `).join('\n')}
 
 ═══════════════════════════════════════════════════════
@@ -199,20 +199,20 @@ https://succedence.com
 
     // Risks Sheet
     const risksData = [
-      ['#', 'Risk Factor', 'Severity', 'Description', 'Risk Score', 'Impact', 'Mitigation Strategy', 'Timeframe'],
+      ['#', 'Risk Factor', 'Severity', 'Description', 'Risk Score', 'Likelihood', 'Impact', 'Mitigation Strategies'],
       ...(analysis.riskMatrix || []).map((r, i) => [
         i + 1,
         r.factor || '',
         r.severity?.toUpperCase() || '',
         r.description || '',
         r.riskScore || 0,
-        r.impact || '',
-        r.mitigation || '',
-        r.timeframe || ''
+        r.likelihood || 0,
+        r.impact || 0,
+        (r.mitigationStrategies || []).join('; ')
       ])
     ];
     const wsRisks = XLSX.utils.aoa_to_sheet(risksData);
-    wsRisks['!cols'] = [{ wch: 5 }, { wch: 25 }, { wch: 10 }, { wch: 40 }, { wch: 12 }, { wch: 25 }, { wch: 40 }, { wch: 15 }];
+    wsRisks['!cols'] = [{ wch: 5 }, { wch: 25 }, { wch: 10 }, { wch: 40 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 50 }];
     XLSX.utils.book_append_sheet(wb, wsRisks, 'Risk Assessment');
 
     // Export the workbook
@@ -380,7 +380,7 @@ https://succedence.com
               <p>${r.description}</p>
               <div class="meta">
                 Risk Score: ${r.riskScore}/100
-                ${r.mitigation ? ` | Mitigation: ${r.mitigation}` : ''}
+                ${r.mitigationStrategies && r.mitigationStrategies.length > 0 ? ` | Mitigation: ${r.mitigationStrategies.join('; ')}` : ''}
               </div>
             </div>
           `).join('')}
