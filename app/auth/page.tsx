@@ -163,13 +163,32 @@ export default function AuthPage() {
           return;
         }
 
-        // Sign in successful - redirect immediately
-        console.log('Sign in successful - redirecting to home')
+        // Sign in successful - check if user needs onboarding
+        console.log('Sign in successful - checking onboarding status')
         setMessage('Login successful! Redirecting...');
         setMessageType('confirmation');
 
-        // Redirect immediately since auth state is set synchronously
-        router.push('/app');
+        // Check if user has completed onboarding by checking for preferences
+        try {
+          const preferencesResponse = await fetch('/api/preferences');
+          if (preferencesResponse.ok) {
+            const preferencesData = await preferencesResponse.json();
+            const hasPreferences = preferencesData && (
+              (preferencesData.industries && preferencesData.industries.length > 0) ||
+              (preferencesData.states && preferencesData.states.length > 0)
+            );
+
+            // Redirect to onboarding if no preferences, otherwise to app
+            router.push(hasPreferences ? '/app' : '/onboarding');
+          } else {
+            // If we can't check preferences, default to onboarding for safety
+            router.push('/onboarding');
+          }
+        } catch (error) {
+          console.error('Error checking preferences:', error);
+          // Default to app if there's an error
+          router.push('/app');
+        }
       }
     } catch (error) {
       setMessage('Authentication failed. Please try again.');

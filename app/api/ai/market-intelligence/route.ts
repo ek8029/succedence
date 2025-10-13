@@ -157,8 +157,89 @@ export async function POST(request: NextRequest) {
 
     // Generate super enhanced market intelligence if no cached version exists
     if (!existingAnalysis || forceRefresh) {
-      // Use super enhanced market intelligence generator
-      intelligence = await generateSuperEnhancedMarketIntelligence(industry, geography, dealSize);
+      // Fetch real market data from the database for this industry
+      let marketData: any = null;
+      try {
+        const useServiceClient = isDevBypass || effectiveUser?.role === 'admin';
+        const supabase = useServiceClient ? createServiceClient() : createClient();
+
+        // Fetch all listings in this industry
+        const { data: industryListings } = await supabase
+          .from('listings')
+          .select('id, title, industry, city, state, revenue, ebitda, price, askingPrice, employees, cashFlow')
+          .eq('industry', industry) as { data: any[] | null; error: any };
+
+        if (industryListings && industryListings.length > 0) {
+          // Calculate real market statistics
+          const revenues = industryListings.map(l => l.revenue).filter(r => r && r > 0);
+          const ebitdas = industryListings.map(l => l.ebitda).filter(e => e && e > 0);
+          const prices = industryListings.map(l => l.price || l.askingPrice).filter(p => p && p > 0);
+          const employeeCounts = industryListings.map(l => l.employees).filter(e => e && e > 0);
+
+          // Filter by geography if specified
+          const geoListings = geography ? industryListings.filter(l =>
+            l.state?.toLowerCase().includes(geography.toLowerCase()) ||
+            l.city?.toLowerCase().includes(geography.toLowerCase())
+          ) : industryListings;
+
+          // Filter by deal size if specified
+          const dealSizeListings = dealSize ? industryListings.filter(l =>
+            (l.price || l.askingPrice) && Math.abs((l.price || l.askingPrice) - dealSize) < dealSize * 0.5
+          ) : industryListings;
+
+          marketData = {
+            totalListings: industryListings.length,
+            geoListings: geography ? geoListings.length : null,
+            dealSizeListings: dealSize ? dealSizeListings.length : null,
+
+            // Overall market statistics
+            averageRevenue: revenues.length > 0 ? Math.round(revenues.reduce((a, b) => a + b, 0) / revenues.length) : null,
+            medianRevenue: revenues.length > 0 ? revenues.sort((a, b) => a - b)[Math.floor(revenues.length / 2)] : null,
+            averageEBITDA: ebitdas.length > 0 ? Math.round(ebitdas.reduce((a, b) => a + b, 0) / ebitdas.length) : null,
+            medianEBITDA: ebitdas.length > 0 ? ebitdas.sort((a, b) => a - b)[Math.floor(ebitdas.length / 2)] : null,
+            averagePrice: prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null,
+            medianPrice: prices.length > 0 ? prices.sort((a, b) => a - b)[Math.floor(prices.length / 2)] : null,
+            averageEmployees: employeeCounts.length > 0 ? Math.round(employeeCounts.reduce((a, b) => a + b, 0) / employeeCounts.length) : null,
+
+            // Market concentration by geography
+            topStates: geography ? null : Object.entries(
+              industryListings.reduce((acc: any, l) => {
+                if (l.state) acc[l.state] = (acc[l.state] || 0) + 1;
+                return acc;
+              }, {})
+            ).sort(([, a]: any, [, b]: any) => b - a).slice(0, 5),
+
+            // Price range distribution
+            priceRanges: {
+              under500k: prices.filter(p => p < 500000).length,
+              range500kTo1m: prices.filter(p => p >= 500000 && p < 1000000).length,
+              range1mTo2m: prices.filter(p => p >= 1000000 && p < 2000000).length,
+              range2mTo5m: prices.filter(p => p >= 2000000 && p < 5000000).length,
+              over5m: prices.filter(p => p >= 5000000).length,
+            },
+
+            // Sample listings for context
+            sampleListings: industryListings.slice(0, 10).map(l => ({
+              title: l.title,
+              city: l.city,
+              state: l.state,
+              revenue: l.revenue,
+              ebitda: l.ebitda,
+              price: l.price || l.askingPrice
+            }))
+          };
+
+          console.log('📊 Real market data fetched:', {
+            totalListings: marketData.totalListings,
+            averagePrice: marketData.averagePrice
+          });
+        }
+      } catch (error) {
+        console.log('No market data found, proceeding with general analysis');
+      }
+
+      // Use super enhanced market intelligence generator with real market data
+      intelligence = await generateSuperEnhancedMarketIntelligence(industry, geography, dealSize, marketData);
     }
 
     // Skip database saves in development mode

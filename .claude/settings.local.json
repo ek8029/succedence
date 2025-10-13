@@ -97,7 +97,9 @@
       "Bash(git log:*)",
       "Bash(npx dotenv:*)",
       "Bash(timeout:*)",
-      "Bash(git merge:*)"
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

@@ -226,11 +226,61 @@ export async function POST(request: NextRequest) {
         console.log('Using default user preferences');
       }
 
+      // Fetch comparable listings for context-rich analysis
+      let comparableListings: any[] = [];
+      try {
+        const { data: comparables } = await supabase
+          .from('listings')
+          .select('id, title, industry, city, state, revenue, ebitda, price, employees, askingPrice, cashFlow')
+          .eq('industry', (listing as any).industry)
+          .neq('id', listingId)
+          .limit(10);
+
+        if (comparables) {
+          comparableListings = comparables;
+          console.log(`✅ Found ${comparableListings.length} comparable listings for context`);
+        }
+      } catch (error) {
+        console.log('No comparable listings found, proceeding without comparisons');
+      }
+
+      // Calculate industry benchmarks from comparable listings
+      let industryBenchmarks: any = null;
+      if (comparableListings.length > 0) {
+        const revenues = comparableListings.map(l => l.revenue).filter(r => r && r > 0);
+        const ebitdas = comparableListings.map(l => l.ebitda).filter(e => e && e > 0);
+        const prices = comparableListings.map(l => l.price || l.askingPrice).filter(p => p && p > 0);
+        const cashFlows = comparableListings.map(l => l.cashFlow).filter(c => c && c > 0);
+        const employeeCounts = comparableListings.map(l => l.employees).filter(e => e && e > 0);
+
+        industryBenchmarks = {
+          averageRevenue: revenues.length > 0 ? Math.round(revenues.reduce((a, b) => a + b, 0) / revenues.length) : null,
+          medianRevenue: revenues.length > 0 ? revenues.sort((a, b) => a - b)[Math.floor(revenues.length / 2)] : null,
+          averageEBITDA: ebitdas.length > 0 ? Math.round(ebitdas.reduce((a, b) => a + b, 0) / ebitdas.length) : null,
+          averagePrice: prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null,
+          averageCashFlow: cashFlows.length > 0 ? Math.round(cashFlows.reduce((a, b) => a + b, 0) / cashFlows.length) : null,
+          averageEmployees: employeeCounts.length > 0 ? Math.round(employeeCounts.reduce((a, b) => a + b, 0) / employeeCounts.length) : null,
+          sampleSize: comparableListings.length,
+
+          // Calculate margins if we have the data
+          averageEBITDAMargin: revenues.length > 0 && ebitdas.length > 0 ?
+            Math.round((ebitdas.reduce((a, b) => a + b, 0) / revenues.reduce((a, b) => a + b, 0)) * 100) : null,
+
+          // Calculate revenue per employee
+          averageRevenuePerEmployee: revenues.length > 0 && employeeCounts.length > 0 ?
+            Math.round(revenues.reduce((a, b) => a + b, 0) / employeeCounts.reduce((a, b) => a + b, 0)) : null
+        };
+
+        console.log('📊 Industry benchmarks calculated:', industryBenchmarks);
+      }
+
       // Merge analysis options with user preferences
       const enhancedOptions = {
         perspective: 'general' as const,
         focusAreas: [],
         userProfile: userPreferences,
+        comparableListings,
+        industryBenchmarks,
         ...analysisOptions
       };
 

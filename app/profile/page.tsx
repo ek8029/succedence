@@ -10,6 +10,7 @@ import type { ProfileFormData, UserRole } from '@/lib/types';
 import { showNotification } from '@/components/Notification';
 import Footer from '@/components/Footer';
 import MyDrafts from '@/components/MyDrafts';
+import Gamification from '@/components/Gamification';
 
 interface UserStats {
   listingsCreated: number;
@@ -257,24 +258,8 @@ function ProfilePageContent() {
         <ScrollAnimation direction="up" delay={50}>
           <div className="max-w-6xl mx-auto space-y-16">
 
-            {/* Profile Completeness */}
-            {stats && (
-              <div className="glass p-8 border border-gold/30 rounded-luxury">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl text-white font-medium">Profile Completeness</h3>
-                  <span className="text-2xl font-bold text-gold">{stats.profileCompleteness}%</span>
-                </div>
-                <div className="w-full bg-neutral-700 rounded-full h-3">
-                  <div
-                    className="bg-gradient-to-r from-gold to-yellow-400 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${stats.profileCompleteness}%` }}
-                  ></div>
-                </div>
-                <p className="text-neutral-400 text-sm mt-2">
-                  Complete your profile to get better matches and connect with more opportunities
-                </p>
-              </div>
-            )}
+            {/* Gamification - Achievements & Progress */}
+            <Gamification />
 
             {/* Basic Information */}
             <div className="glass p-8 border border-gold/30 rounded-lg">
@@ -519,7 +504,7 @@ function ProfilePageContent() {
             <div className="glass p-8 border border-gold/30 rounded-lg">
               <h2 className="text-2xl text-white font-medium mb-6 text-center">Quick Actions</h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
                 <Link href="/preferences" className="metric-card p-6 hover-lift block">
                   <div className="text-center">
                     <h3 className="text-white font-medium mb-2">Set Preferences</h3>
@@ -531,6 +516,13 @@ function ProfilePageContent() {
                   <div className="text-center">
                     <h3 className="text-white font-medium mb-2">Browse Listings</h3>
                     <p className="text-neutral-400 text-sm">Explore available opportunities</p>
+                  </div>
+                </Link>
+
+                <Link href="/referral" className="metric-card p-6 hover-lift block">
+                  <div className="text-center">
+                    <h3 className="text-white font-medium mb-2">Refer Friends</h3>
+                    <p className="text-neutral-400 text-sm">Earn rewards for referrals</p>
                   </div>
                 </Link>
 

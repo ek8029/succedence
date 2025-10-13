@@ -227,17 +227,102 @@ export default function AIAnalysisHistoryPage() {
                 <div className="text-xl text-white font-medium">Loading AI history...</div>
               </div>
             ) : (viewMode === 'summary' ? listingSummary : aiHistory).length === 0 ? (
-              <div className="text-center py-12">
-                <h2 className="text-2xl text-white font-medium mb-4">No AI Analyses Yet</h2>
-                <p className="text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
-                  Start exploring business opportunities and generate AI insights to see your history here.
+              <div className="text-center py-16 px-6">
+                {/* Icon */}
+                <div className="mb-8 flex justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center">
+                    <svg className="w-12 h-12 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Heading */}
+                <h2 className="text-3xl text-white font-medium mb-4">Unlock AI-Powered Insights</h2>
+
+                {/* Description */}
+                <p className="text-neutral-400 mb-8 max-w-2xl mx-auto leading-relaxed text-lg">
+                  Your AI analysis history will appear here once you start exploring businesses.
+                  Our AI helps you make smarter acquisition decisions faster.
                 </p>
-                <Link
-                  href="/browse"
-                  className="bg-neutral-800/40 backdrop-blur-sm border border-gold/20 rounded-luxury px-6 py-2.5 text-sm text-white text-center font-medium hover:bg-neutral-700/50 transition-all duration-200 whitespace-nowrap min-h-[40px] flex items-center justify-center mx-auto"
-                >
-                  Browse Listings
-                </Link>
+
+                {/* Feature Cards */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-8">
+                  <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-warm-white font-semibold mb-2 text-sm">Business Analysis</h4>
+                    <p className="text-silver/70 text-xs">
+                      SWOT analysis, financial health, and growth potential
+                    </p>
+                  </div>
+
+                  <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-warm-white font-semibold mb-2 text-sm">Buyer Match Scoring</h4>
+                    <p className="text-silver/70 text-xs">
+                      How well each business aligns with your goals
+                    </p>
+                  </div>
+
+                  <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h4 className="text-warm-white font-semibold mb-2 text-sm">Due Diligence</h4>
+                    <p className="text-silver/70 text-xs">
+                      Comprehensive checklists for thorough evaluation
+                    </p>
+                  </div>
+
+                  <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-warm-white font-semibold mb-2 text-sm">Market Intelligence</h4>
+                    <p className="text-silver/70 text-xs">
+                      Industry trends and competitive landscape
+                    </p>
+                  </div>
+                </div>
+
+                {/* CTAs */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                  <Link
+                    href="/browse"
+                    className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all"
+                  >
+                    Browse Listings →
+                  </Link>
+                  <Link
+                    href="/subscribe"
+                    className="px-8 py-4 glass-border text-warm-white font-semibold rounded-luxury hover:border-gold/50 transition-all"
+                  >
+                    View AI Features
+                  </Link>
+                </div>
+
+                {/* Info Box */}
+                <div className="max-w-2xl mx-auto p-6 bg-gold/5 border border-gold/20 rounded-luxury-lg">
+                  <p className="text-silver/80 text-sm mb-3">
+                    <strong className="text-gold">How it works:</strong> Navigate to any listing and click the AI analysis buttons to generate insights.
+                    All your analyses are automatically saved here for easy access.
+                  </p>
+                  <p className="text-silver/70 text-xs">
+                    AI analyses count towards your plan's monthly limit. Upgrade for unlimited insights.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer';
 import OnboardingWizard from '@/components/OnboardingWizard';
+import Gamification from '@/components/Gamification';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -295,6 +296,11 @@ export default function Dashboard() {
                 <div className="text-sm text-silver/70">Per listing</div>
               </div>
             </div>
+          </div>
+
+          {/* Gamification Widget */}
+          <div className="mb-16">
+            <Gamification compact={true} />
           </div>
 
           {/* My Matches - Condensed */}

@@ -28,6 +28,7 @@ export default function BrowsePage() {
 
   const userPlan = (user?.plan as PlanType) || 'free';
   const isAdmin = user?.role === 'admin' || userPlan === 'enterprise';
+  const isDemoMode = !user; // Demo mode for non-authenticated users
 
   // Scroll to top when page loads
   useScrollToTopOnMount();
@@ -134,8 +135,44 @@ export default function BrowsePage() {
         <div className="container mx-auto px-8 pb-24 max-w-7xl page-content">
         <ScrollAnimation direction="fade">
           <div className="text-center mb-20 pt-16">
+            {/* Demo Mode Banner */}
+            {isDemoMode && (
+              <div className="mb-8 mx-auto max-w-4xl">
+                <div className="p-6 rounded-luxury-lg border-2 bg-gradient-to-r from-gold/20 to-accent-gold/20 border-gold/50">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <h3 className="text-xl font-semibold text-warm-white">
+                        Browsing in Demo Mode
+                      </h3>
+                    </div>
+                    <p className="text-silver/90 text-sm max-w-2xl">
+                      You're viewing a limited preview of our marketplace. Create a free account to unlock full access, save listings, get AI-powered match scores, and receive personalized recommendations.
+                    </p>
+                    <div className="flex gap-3 mt-2">
+                      <Link
+                        href="/auth"
+                        className="px-8 py-3 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all min-h-[48px] flex items-center"
+                      >
+                        Sign Up Free
+                      </Link>
+                      <Link
+                        href="/pricing"
+                        className="px-6 py-3 glass-border text-warm-white font-medium rounded-luxury hover:border-gold/50 transition-all min-h-[48px] flex items-center"
+                      >
+                        View Plans
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Subscription Status Banner */}
-            {!isAdmin && (
+            {!isAdmin && user && (
               <div className="mb-8 mx-auto max-w-4xl">
                 <div className={`p-6 rounded-luxury-lg border-2 ${
                   userPlan === 'free'
@@ -349,8 +386,20 @@ export default function BrowsePage() {
         <div className="mb-12">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-warm-white">
-              {user ? `${listings.length} Opportunities Found` : `${listings.length} Potential Opportunities`}
+              {isDemoMode
+                ? `Showing ${Math.min(5, listings.length)} of ${listings.length} Opportunities`
+                : user
+                  ? `${listings.length} Opportunities Found`
+                  : `${listings.length} Potential Opportunities`}
             </h2>
+            {isDemoMode && listings.length > 5 && (
+              <Link
+                href="/auth"
+                className="text-gold hover:text-warm-white transition-colors font-medium text-sm"
+              >
+                Sign up to view all →
+              </Link>
+            )}
           </div>
         </div>
 
@@ -487,18 +536,314 @@ export default function BrowsePage() {
         {/* Add proper spacing before listings */}
         <div className="mb-12"></div>
 
-        {/* Subscription Gate for Free Users - Always Visible */}
-        <SubscriptionGate requiredPlan="starter" requiredFeature="Browse business opportunities">
-          {/* Listings Grid */}
+        {/* Subscription Gate for Free Users - Skip for Demo Mode */}
+        {isDemoMode ? (
+          /* Demo Mode - Show limited listings without subscription gate */
+          <>
           {listings.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-6 text-gold">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+            <div className="text-center py-16 px-6">
+              {/* Icon */}
+              <div className="mb-8 flex justify-center">
+                <div className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center">
+                  <svg className="w-12 h-12 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
               </div>
-              <h3 className="text-2xl font-semibold text-warm-white mb-4">No listings found</h3>
-              <p className="text-platinum/80">Try adjusting your search criteria or check back later for new opportunities.</p>
+
+              {/* Heading */}
+              <h3 className="text-3xl font-semibold text-warm-white mb-4">
+                No matches for those filters
+              </h3>
+
+              {/* Description */}
+              <p className="text-platinum/80 mb-8 max-w-2xl mx-auto text-lg">
+                Don't worry—this happens! Our marketplace is constantly growing with new opportunities.
+                Here's what you can do:
+              </p>
+
+              {/* Action Cards */}
+              <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+                <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-warm-white font-semibold mb-2">Adjust Filters</h4>
+                  <p className="text-silver/70 text-sm">
+                    Try broadening your search by removing some filters or adjusting your criteria
+                  </p>
+                </div>
+
+                <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  </div>
+                  <h4 className="text-warm-white font-semibold mb-2">Set Up Alerts</h4>
+                  <p className="text-silver/70 text-sm">
+                    Save your search preferences and we'll notify you when matching businesses are listed
+                  </p>
+                </div>
+
+                <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-warm-white font-semibold mb-2">Explore All Listings</h4>
+                  <p className="text-silver/70 text-sm">
+                    Browse our full marketplace to discover businesses you might not have considered
+                  </p>
+                </div>
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    setFilters({industry: '', minRevenue: '', minPrice: '', maxPrice: '', state: '', sortBy: 'newest'})
+                    setSearchTerm('')
+                  }}
+                  className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all"
+                >
+                  Clear All Filters
+                </button>
+                <Link
+                  href="/preferences"
+                  className="px-8 py-4 glass-border text-warm-white font-semibold rounded-luxury hover:border-gold/50 transition-all"
+                >
+                  Update My Preferences
+                </Link>
+              </div>
+
+              {/* Encouragement */}
+              <div className="mt-12 p-6 bg-gold/5 border border-gold/20 rounded-luxury-lg max-w-2xl mx-auto">
+                <p className="text-silver/80 text-sm">
+                  <strong className="text-gold">New opportunities daily:</strong> We add fresh listings every week.
+                  Set up your preferences and we'll send you personalized matches as soon as they're available.
+                </p>
+              </div>
+            </div>
+          ) : (
+          <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-12">
+            {listings.slice(0, 5).map((listing, index) => (
+              <ScrollAnimation key={listing.id} direction="up" delay={index * 50} className="h-full">
+                <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300 h-full flex flex-col">
+                  {/* Header Section */}
+                  <div className="mb-6">
+                    {/* Location - Prominent */}
+                    <div className="flex items-center justify-center mb-4 p-2 bg-charcoal/30 rounded-lg border border-platinum/10">
+                      <svg className="w-4 h-4 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-warm-white">
+                        {listing.city}, {listing.state}
+                      </span>
+                    </div>
+
+                    {/* Industry and AI Badges */}
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <span className="px-3 py-2 text-xs font-semibold rounded-lg bg-accent-gradient text-midnight leading-tight">
+                        {listing.industry}
+                      </span>
+                      <span className="px-2 py-1 text-xs font-medium rounded-lg bg-gold/20 text-gold border border-gold/30">
+                        AI
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Title and Description */}
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold text-warm-white mb-3 line-clamp-2">
+                      {listing.title}
+                    </h3>
+                    <p className="text-platinum/80 text-sm line-clamp-3">
+                      {listing.description}
+                    </p>
+                  </div>
+
+                  {/* Source */}
+                  <div className="mb-4">
+                    <span className="font-sans text-sm text-warm-white font-semibold">Source: {listing.source}</span>
+                  </div>
+
+                  {/* Financials */}
+                  <div className="space-y-3 mb-6 flex-grow">
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">Revenue</span>
+                      <span className="text-warm-white font-bold">
+                        {formatCurrency(listing.revenue)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">EBITDA</span>
+                      <span className="text-warm-white font-bold">
+                        {listing.ebitda ? formatCurrency(listing.ebitda) : 'N/A'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">Asking Price</span>
+                      <span className="text-warm-white font-bold">
+                        {listing.price ? formatCurrency(listing.price) : 'N/A'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-platinum/70 text-sm">Employees</span>
+                      <span className="text-warm-white font-bold">
+                        {listing.employees || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="pt-4 border-t border-white/10 mt-auto">
+                    <Link
+                      href={`/listings/${listing.id}`}
+                      className="btn-secondary w-full py-2 text-center hover-lift text-sm"
+                      style={{ fontFamily: "'Crimson Text', Georgia, serif", fontWeight: 400 }}
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                </div>
+              </ScrollAnimation>
+            ))}
+          </div>
+
+          {/* Demo Mode Signup CTA - Show after first 5 listings */}
+          {listings.length > 5 && (
+            <div className="mt-16 text-center">
+              <div className="glass p-12 rounded-luxury-lg border-2 border-gold/40 bg-gradient-to-br from-gold/10 to-transparent max-w-3xl mx-auto">
+                <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h3 className="text-3xl font-semibold text-warm-white mb-4">
+                  Unlock {listings.length - 5} More Opportunities
+                </h3>
+                <p className="text-silver/90 mb-8 max-w-xl mx-auto text-lg">
+                  Create a free account to view the full marketplace, save your favorites, and get AI-powered insights on every listing.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/auth"
+                    className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all text-lg min-h-[48px] flex items-center justify-center"
+                  >
+                    Sign Up - It's Free
+                  </Link>
+                  <Link
+                    href="/pricing"
+                    className="px-8 py-4 glass-border text-warm-white font-medium rounded-luxury hover:border-gold/50 transition-all min-h-[48px] flex items-center justify-center"
+                  >
+                    View Pricing Plans
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+          </>
+          )}
+        </>
+        ) : (
+          /* Authenticated Users - Show with subscription gate */
+          <SubscriptionGate requiredPlan="starter" requiredFeature="Browse business opportunities">
+          {listings.length === 0 ? (
+            <div className="text-center py-16 px-6">
+              {/* Icon */}
+              <div className="mb-8 flex justify-center">
+                <div className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center">
+                  <svg className="w-12 h-12 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Heading */}
+              <h3 className="text-3xl font-semibold text-warm-white mb-4">
+                No matches for those filters
+              </h3>
+
+              {/* Description */}
+              <p className="text-platinum/80 mb-8 max-w-2xl mx-auto text-lg">
+                Don't worry—this happens! Our marketplace is constantly growing with new opportunities.
+                Here's what you can do:
+              </p>
+
+              {/* Action Cards */}
+              <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+                <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-warm-white font-semibold mb-2">Adjust Filters</h4>
+                  <p className="text-silver/70 text-sm">
+                    Try broadening your search by removing some filters or adjusting your criteria
+                  </p>
+                </div>
+
+                <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  </div>
+                  <h4 className="text-warm-white font-semibold mb-2">Set Up Alerts</h4>
+                  <p className="text-silver/70 text-sm">
+                    Save your search preferences and we'll notify you when matching businesses are listed
+                  </p>
+                </div>
+
+                <div className="glass p-6 rounded-luxury-lg border border-gold/20">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-warm-white font-semibold mb-2">Explore All Listings</h4>
+                  <p className="text-silver/70 text-sm">
+                    Browse our full marketplace to discover businesses you might not have considered
+                  </p>
+                </div>
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    setFilters({industry: '', minRevenue: '', minPrice: '', maxPrice: '', state: '', sortBy: 'newest'})
+                    setSearchTerm('')
+                  }}
+                  className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all"
+                >
+                  Clear All Filters
+                </button>
+                <Link
+                  href="/preferences"
+                  className="px-8 py-4 glass-border text-warm-white font-semibold rounded-luxury hover:border-gold/50 transition-all"
+                >
+                  Update My Preferences
+                </Link>
+              </div>
+
+              {/* Encouragement */}
+              <div className="mt-12 p-6 bg-gold/5 border border-gold/20 rounded-luxury-lg max-w-2xl mx-auto">
+                <p className="text-silver/80 text-sm">
+                  <strong className="text-gold">New opportunities daily:</strong> We add fresh listings every week.
+                  Set up your preferences and we'll send you personalized matches as soon as they're available.
+                </p>
+              </div>
             </div>
           ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-12">
@@ -591,6 +936,7 @@ export default function BrowsePage() {
           </div>
           )}
         </SubscriptionGate>
+        )}
 
         </div>
       </div>
