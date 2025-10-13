@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import ScrollAnimation from '@/components/ScrollAnimation';
 
+// Force dynamic rendering to avoid SSR issues with authentication
+export const dynamic = 'force-dynamic';
+
 type UserGoal = 'buyer' | 'seller' | 'broker';
 type OnboardingStep = 'welcome' | 'goal' | 'buyer-preferences' | 'seller-profile' | 'broker-profile' | 'complete';
 
