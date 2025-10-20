@@ -29,6 +29,9 @@ export default function OnboardingPage() {
 
   // Check if user has already completed onboarding
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const checkOnboardingStatus = async () => {
       if (!user) return;
 
@@ -156,7 +159,10 @@ export default function OnboardingPage() {
   }
 
   if (!user) {
-    router.push('/auth');
+    // Only redirect on client side
+    if (typeof window !== 'undefined') {
+      router.push('/auth');
+    }
     return null;
   }
 
