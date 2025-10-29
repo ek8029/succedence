@@ -6,6 +6,9 @@ import { canRunAnalysis, incrementUsage } from '@/lib/utils/database-usage-track
 // Import the analysis worker to ensure it starts
 import '@/lib/services/analysis-worker'
 
+// Force dynamic rendering to prevent build-time execution
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     console.log('Starting analysis request...')
