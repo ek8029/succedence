@@ -1,15 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/match/run",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/alerts/digest",
-      "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron/upgrade-expired-trials",
+      "path": "/api/cron/daily-tasks",
       "schedule": "0 6 * * *"
     }
   ]
