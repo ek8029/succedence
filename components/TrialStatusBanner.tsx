@@ -118,7 +118,7 @@ export default function TrialStatusBanner() {
 
       <div className="mt-3 pt-3 border-t border-silver/10">
         <p className="text-xs text-silver/60">
-          After your trial ends, you'll be automatically subscribed to the <span className="font-medium text-warm-white">Starter Plan</span> at $49.99/month to continue accessing the platform.
+          After your trial ends, you'll be automatically subscribed to the <span className="font-medium text-warm-white">Starter Plan</span> at $19.99/month to continue accessing the platform.
         </p>
       </div>
     </div>
