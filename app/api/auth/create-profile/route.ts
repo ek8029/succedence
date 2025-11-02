@@ -53,7 +53,11 @@ export async function POST(request: NextRequest) {
       // Continue anyway - metadata is not critical for basic functionality
     }
 
-    // Create user record
+    // Calculate trial end date (3 days from now)
+    const trialEndsAt = new Date()
+    trialEndsAt.setDate(trialEndsAt.getDate() + 3)
+
+    // Create user record with free trial
     const { error: userError } = await (supabase
       .from('users') as any)
       .insert({
@@ -62,7 +66,8 @@ export async function POST(request: NextRequest) {
         name: name || email.split('@')[0], // Default name to email prefix
         role: userRole,
         plan: 'free',
-        status: 'active'
+        status: 'active',
+        trial_ends_at: trialEndsAt.toISOString()
       })
 
     if (userError) {

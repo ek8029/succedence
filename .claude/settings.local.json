@@ -99,7 +99,8 @@
       "Bash(timeout:*)",
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

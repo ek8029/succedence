@@ -216,6 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               role: 'admin', // Always admin for known admins
               plan: (adminData as any).plan || 'enterprise',
               status: (adminData as any).status || 'active',
+              trialEndsAt: (adminData as any).trial_ends_at ? new Date((adminData as any).trial_ends_at) : null,
             }
             setUser(adminUser)
             setIsLoading(false)
@@ -320,6 +321,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: 'admin', // Always hardcoded for known admins
           plan: userData.plan || 'enterprise',
           status: userData.status || 'active',
+          trialEndsAt: userData.trial_ends_at ? new Date(userData.trial_ends_at) : null,
         }
         console.log('✅ Final admin user set:', finalAdminUser)
         setUser(finalAdminUser)
@@ -333,6 +335,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: userData.role,
           plan: userData.plan || 'free',
           status: userData.status || 'active',
+          trialEndsAt: userData.trial_ends_at ? new Date(userData.trial_ends_at) : null,
         }
 
         console.log('Setting authenticated user:', authUser)
@@ -673,6 +676,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: (userData as any).role,
             plan: (userData as any).plan || 'free',
             status: (userData as any).status || 'active',
+            trialEndsAt: (userData as any).trial_ends_at ? new Date((userData as any).trial_ends_at) : null,
           })
         } else {
           console.log('User refresh failed, keeping existing user data:', error)

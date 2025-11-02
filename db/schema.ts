@@ -28,6 +28,7 @@ export const users = pgTable('users', {
   status: userStatusEnum('status').notNull(),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
+  trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 

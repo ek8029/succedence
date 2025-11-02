@@ -230,6 +230,7 @@ export interface AuthUser {
   role: UserRole
   plan: PlanType
   status: UserStatus
+  trialEndsAt?: Date | null
 }
 
 // Billing types for Stripe integration

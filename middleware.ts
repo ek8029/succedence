@@ -113,8 +113,45 @@ export async function middleware(request: NextRequest) {
   // This prevents the subscription gate from appearing on tab switches
   console.log('✅ MIDDLEWARE: Valid session found, allowing access to:', pathname)
 
-  // Skip subscription checks for now to prevent tab switching issues
-  // TODO: Move subscription enforcement to specific pages/API routes instead of middleware
+  // Check if user needs subscription (for non-admin routes)
+  // Exempt certain routes from subscription checks
+  const subscriptionExemptRoutes = ['/onboarding', '/subscription', '/subscribe', '/profile', '/preferences']
+  const isSubscriptionExempt = subscriptionExemptRoutes.some(route => pathname.startsWith(route))
+
+  if (!isSubscriptionExempt && !pathname.startsWith('/admin')) {
+    try {
+      // Check user's plan and trial status
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('plan, trial_ends_at')
+        .eq('id', session.user.id)
+        .single()
+
+      if (!userError && userData) {
+        const user = userData as any
+        const now = new Date()
+        const trialEndsAt = user.trial_ends_at ? new Date(user.trial_ends_at) : null
+
+        // Check if user is on free plan
+        if (user.plan === 'free') {
+          // If they have a trial and it hasn't expired, allow access
+          if (trialEndsAt && trialEndsAt > now) {
+            console.log('✅ MIDDLEWARE: User has active trial, allowing access')
+            return NextResponse.next()
+          } else {
+            // Trial expired or no trial, redirect to subscription page
+            console.log('❌ MIDDLEWARE: User trial expired or no trial, redirecting to subscription')
+            return NextResponse.redirect(new URL('/subscription', request.url))
+          }
+        }
+        // If user has a paid plan (starter, professional, enterprise, beta), allow access
+        console.log('✅ MIDDLEWARE: User has paid plan, allowing access')
+      }
+    } catch (error) {
+      console.error('MIDDLEWARE: Error checking subscription status:', error)
+      // On error, allow access to prevent blocking legitimate users
+    }
+  }
 
   return NextResponse.next()
 }
