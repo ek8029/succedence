@@ -28,6 +28,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# test accounts (may contain sensitive info)
+TEST_ACCOUNTS.md
+
 # vercel
 .vercel
 

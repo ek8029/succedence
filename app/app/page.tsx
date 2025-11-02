@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import Gamification from '@/components/Gamification';
+import TrialStatusBanner from '@/components/TrialStatusBanner';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -27,6 +28,18 @@ export default function Dashboard() {
 
   const userPlan = (authUser?.plan as PlanType) || 'free';
   const isAdmin = authUser?.role === 'admin';
+
+  // Calculate trial days remaining
+  const getTrialDaysRemaining = () => {
+    if (!authUser?.trialEndsAt || userPlan !== 'free') return null;
+    const now = new Date();
+    const trialEnd = new Date(authUser.trialEndsAt);
+    const diffMs = trialEnd.getTime() - now.getTime();
+    if (diffMs <= 0) return 0;
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  };
+
+  const trialDaysRemaining = getTrialDaysRemaining();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -176,11 +189,18 @@ export default function Dashboard() {
             </p>
           </div>
 
+          {/* Trial Status Banner */}
+          {!isAdmin && (
+            <TrialStatusBanner />
+          )}
+
           {/* Subscription Status */}
           {!isAdmin && (
             <div className="mb-8">
               <div className={`glass p-6 rounded-luxury-lg border-2 ${
-                userPlan === 'free'
+                userPlan === 'free' && trialDaysRemaining !== null && trialDaysRemaining > 0
+                  ? 'border-blue-400/40 bg-gradient-to-r from-blue-900/20 to-blue-800/10'
+                  : userPlan === 'free'
                   ? 'border-red-400/40 bg-gradient-to-r from-red-900/20 to-red-800/10'
                   : userPlan === 'starter'
                   ? 'border-yellow-400/40 bg-gradient-to-r from-yellow-900/20 to-yellow-800/10'
@@ -191,10 +211,16 @@ export default function Dashboard() {
                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-serif font-semibold text-warm-white mb-2">
-                      Current Subscription: {SUBSCRIPTION_PLANS[userPlan].name}
+                      Current Subscription: {
+                        userPlan === 'free' && trialDaysRemaining !== null && trialDaysRemaining > 0
+                          ? `3-Day Free Trial (${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} remaining)`
+                          : SUBSCRIPTION_PLANS[userPlan].name
+                      }
                     </h3>
                     <p className="text-silver/80 mb-3">
-                      {userPlan === 'free'
+                      {userPlan === 'free' && trialDaysRemaining !== null && trialDaysRemaining > 0
+                        ? `Full platform access during your trial. After ${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''}, you'll be automatically upgraded to Starter at $19.99/month.`
+                        : userPlan === 'free'
                         ? 'Subscription required to access platform features.'
                         : `${SUBSCRIPTION_PLANS[userPlan].description} - $${SUBSCRIPTION_PLANS[userPlan].price}/month`
                       }
@@ -212,14 +238,21 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {userPlan === 'free' && (
+                    {userPlan === 'free' && trialDaysRemaining !== null && trialDaysRemaining > 0 ? (
+                      <Link
+                        href="/subscribe"
+                        className="px-6 py-3 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-luxury hover:bg-blue-500/30 transition-all duration-300 text-base text-center font-medium"
+                      >
+                        Subscribe Early & Save
+                      </Link>
+                    ) : userPlan === 'free' ? (
                       <Link
                         href="/subscribe"
                         className="px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300 text-center text-base"
                       >
                         Subscribe Now
                       </Link>
-                    )}
+                    ) : null}
                     {userPlan !== 'free' && userPlan !== 'enterprise' && (
                       <Link
                         href="/subscribe"
@@ -232,7 +265,7 @@ export default function Dashboard() {
                       href="/subscribe"
                       className="px-6 py-3 bg-charcoal/50 text-silver border border-silver/30 rounded-luxury hover:bg-charcoal/70 transition-all duration-300 text-base text-center font-medium"
                     >
-                      Manage Subscription
+                      View Plans
                     </Link>
                   </div>
                 </div>
