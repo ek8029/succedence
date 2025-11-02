@@ -215,7 +215,7 @@ export default function Dashboard() {
                     {userPlan === 'free' && (
                       <Link
                         href="/subscribe"
-                        className="px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300 text-center"
+                        className="px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300 text-center text-base"
                       >
                         Subscribe Now
                       </Link>
@@ -223,14 +223,14 @@ export default function Dashboard() {
                     {userPlan !== 'free' && userPlan !== 'enterprise' && (
                       <Link
                         href="/subscribe"
-                        className="px-4 py-2 bg-gold/20 text-gold border border-gold/30 rounded-luxury hover:bg-gold/30 transition-all duration-300 text-sm text-center"
+                        className="px-6 py-3 bg-gold/20 text-gold border border-gold/30 rounded-luxury hover:bg-gold/30 transition-all duration-300 text-base text-center font-medium"
                       >
                         Upgrade Plan
                       </Link>
                     )}
                     <Link
                       href="/subscribe"
-                      className="px-4 py-2 bg-charcoal/50 text-silver border border-silver/30 rounded-luxury hover:bg-charcoal/70 transition-all duration-300 text-sm text-center"
+                      className="px-6 py-3 bg-charcoal/50 text-silver border border-silver/30 rounded-luxury hover:bg-charcoal/70 transition-all duration-300 text-base text-center font-medium"
                     >
                       Manage Subscription
                     </Link>
