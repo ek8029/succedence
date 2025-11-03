@@ -495,7 +495,7 @@ export default function SuccessPage() {
                 <Link href="/browse" className="btn-primary px-12 py-4 text-lg font-medium focus-ring hover-lift">
                   Browse Opportunities
                 </Link>
-                <Link href="/auth" className="btn-success px-12 py-4 text-lg font-medium focus-ring hover-lift">
+                <Link href="/login" className="btn-success px-12 py-4 text-lg font-medium focus-ring hover-lift">
                   Get Started
                 </Link>
               </div>

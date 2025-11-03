@@ -101,7 +101,9 @@
       "Bash(git merge:*)",
       "Bash(git pull:*)",
       "Bash(rm:*)",
-      "Read(//c/**)"
+      "Read(//c/**)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

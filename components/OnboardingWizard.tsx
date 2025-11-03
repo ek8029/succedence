@@ -172,7 +172,7 @@ export default function OnboardingWizard({ onComplete, userRole }: OnboardingWiz
             </div>
           </Link>
           <Link
-            href="/app"
+            href="/dashboard"
             onClick={onComplete}
             className="block glass p-4 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 group"
           >
@@ -330,7 +330,7 @@ export default function OnboardingWizard({ onComplete, userRole }: OnboardingWiz
             </div>
           </Link>
           <Link
-            href="/app"
+            href="/dashboard"
             onClick={onComplete}
             className="block glass p-4 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 group"
           >

@@ -65,7 +65,7 @@ export default function BetaSignupPage() {
 
     if (password === 'Succedence123!') {
       // Redirect to /auth on success
-      window.location.href = '/auth';
+      window.location.href = '/login';
     } else {
       setPasswordError('Incorrect password');
       setPassword('');

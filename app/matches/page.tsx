@@ -38,7 +38,7 @@ export default function MatchesPage() {
               Please sign in to view your personalized business matches.
             </p>
             <Link
-              href="/auth"
+              href="/login"
               className="btn-primary btn-lg font-semibold focus-ring hover-lift"
             >
               Sign In

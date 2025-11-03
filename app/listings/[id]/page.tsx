@@ -490,7 +490,7 @@ export default function ListingDetailPage() {
                 )}
                 {!user && (
                   <Link
-                    href="/auth"
+                    href="/login"
                     className="btn-primary px-8 py-4 text-lg font-medium hover-lift inline-block"
                   >
                     Authenticate to Access Details

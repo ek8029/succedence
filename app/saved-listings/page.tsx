@@ -126,7 +126,7 @@ export default function SavedListingsPage() {
         <div className="absolute inset-0 bg-noise opacity-10"></div>
         <div className="relative z-10 text-center">
           <h1 className="text-2xl text-white font-medium mb-4">Authentication Required</h1>
-          <Link href="/auth" className="btn-primary px-8 py-3 font-medium hover-lift">
+          <Link href="/login" className="btn-primary px-8 py-3 font-medium hover-lift">
             Sign In
           </Link>
         </div>

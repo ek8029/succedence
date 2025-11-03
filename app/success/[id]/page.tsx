@@ -364,7 +364,7 @@ export default function SuccessStoryDetailPage() {
               <Link href="/browse" className="btn-primary px-8 py-3 font-medium hover-lift">
                 Browse Opportunities
               </Link>
-              <Link href="/auth" className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600">
+              <Link href="/login" className="glass px-8 py-3 font-medium text-white hover-lift border border-neutral-600">
                 Get Started Today
               </Link>
             </div>

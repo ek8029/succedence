@@ -238,7 +238,7 @@ export function SubscriptionGate({
       <div className="glass p-8 rounded-luxury border-2 border-red-400/40 bg-red-900/20 text-center">
         <h3 className="text-xl font-semibold text-red-200 mb-4">Authentication Required</h3>
         <p className="text-silver/80 mb-6">Please sign in to access this feature</p>
-        <Link href="/auth" className="btn-primary">
+        <Link href="/login" className="btn-primary">
           Sign In
         </Link>
       </div>

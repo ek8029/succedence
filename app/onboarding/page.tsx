@@ -161,7 +161,7 @@ export default function OnboardingPage() {
   if (!user) {
     // Only redirect on client side
     if (typeof window !== 'undefined') {
-      router.push('/auth');
+      router.push('/login');
     }
     return null;
   }

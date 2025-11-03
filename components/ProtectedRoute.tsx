@@ -67,7 +67,7 @@ export default function ProtectedRoute({
         <div className="text-center">
           <h1 className="text-2xl text-white font-medium mb-4">Authentication Required</h1>
           <p className="text-neutral-400 mb-8">Please sign in to access this page.</p>
-          <Link href="/auth" className="btn-primary px-8 py-3 font-medium hover-lift">
+          <Link href="/login" className="btn-primary px-8 py-3 font-medium hover-lift">
             Sign In
           </Link>
         </div>

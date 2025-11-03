@@ -91,7 +91,7 @@ export default function PricingPage() {
 
   const handleSelectPlan = (planName: string) => {
     if (planName === 'Free') {
-      router.push('/auth')
+      router.push('/login')
     } else if (planName === 'Enterprise') {
       // TODO: Add contact sales link
       window.location.href = 'mailto:founder@succedence.com?subject=Enterprise Plan Inquiry'
@@ -402,7 +402,7 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push('/auth')}
+              onClick={() => router.push('/login')}
               className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury-lg hover:bg-gold/90 transition-all shadow-lg shadow-gold/20 min-h-[48px] text-base"
             >
               Start Free Trial →

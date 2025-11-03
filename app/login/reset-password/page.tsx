@@ -84,7 +84,7 @@ function ResetPasswordContent() {
 
       // Redirect to auth page after success
       setTimeout(() => {
-        router.push('/auth');
+        router.push('/login');
       }, 3000);
 
     } catch (error: any) {
@@ -118,7 +118,7 @@ function ResetPasswordContent() {
               </p>
 
               <Link
-                href="/auth"
+                href="/login"
                 className="inline-flex items-center px-6 py-3 bg-accent-gradient text-midnight rounded-luxury font-medium hover:transform hover:scale-105 transition-all duration-300"
               >
                 Go to Sign In
@@ -287,7 +287,7 @@ function ResetPasswordContent() {
 
                   <div className="text-center">
                     <Link
-                      href="/auth"
+                      href="/login"
                       className="text-neutral-400 hover:text-white transition-colors duration-200 font-medium text-lg"
                     >
                       Back to Sign In

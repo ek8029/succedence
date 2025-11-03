@@ -68,7 +68,7 @@ export default function PublicLandingPage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <Link
-                    href="/auth"
+                    href="/login"
                     className="group inline-flex items-center justify-center px-8 py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-base sm:text-lg w-full sm:w-auto max-w-sm min-h-[48px]"
                   >
                     Start Free Trial
@@ -201,7 +201,7 @@ export default function PublicLandingPage() {
                       <h3 className="text-xl font-semibold text-warm-white mb-2">Premium Listings Inside</h3>
                       <p className="text-silver/80 mb-4">Unlock 56 verified business opportunities</p>
                       <Link
-                        href="/auth"
+                        href="/login"
                         className="inline-flex items-center px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300"
                       >
                         Start Free Trial →
@@ -434,7 +434,7 @@ export default function PublicLandingPage() {
 
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-8">
                     <Link
-                      href="/auth"
+                      href="/login"
                       className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-base sm:text-lg min-h-[48px]"
                     >
                       Start Free Trial →

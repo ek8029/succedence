@@ -89,9 +89,9 @@ export default function Navbar() {
             <div className="absolute left-0 right-0 top-full bg-midnight border-t border-gold/20 shadow-lg py-4 px-4 space-y-3">
               {user && (
                 <Link
-                  href="/app"
+                  href="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={getLinkClasses('/app', 'block py-2')}
+                  className={getLinkClasses('/dashboard', 'block py-2')}
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >
                   Dashboard
@@ -182,7 +182,7 @@ export default function Navbar() {
               )}
               {!user && (
                 <Link
-                  href="/auth"
+                  href="/login"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-center bg-gold/20 border border-gold/40 text-gold hover:bg-gold hover:text-midnight px-4 py-3 font-semibold rounded transition-all duration-200 mt-4"
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
@@ -205,7 +205,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-6">
               {user && (
-                <Link href="/app" className={getLinkClasses('/app')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                <Link href="/dashboard" className={getLinkClasses('/dashboard')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                   Dashboard
                 </Link>
               )}
@@ -282,7 +282,7 @@ export default function Navbar() {
                 </div>
               ) : (
                 <Link
-                  href="/auth"
+                  href="/login"
                   className="text-sm bg-gold/20 border border-gold/40 text-gold hover:bg-gold hover:text-midnight px-4 py-2 font-semibold rounded transition-all duration-200 flex items-center"
                   style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
                 >

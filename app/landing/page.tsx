@@ -87,13 +87,13 @@ export default function PublicLandingPage() {
             </div>
             <div className="flex items-center space-x-4">
               <Link
-                href="/auth"
+                href="/login"
                 className="text-silver hover:text-warm-white transition-colors font-medium"
               >
                 Sign In
               </Link>
               <Link
-                href="/auth"
+                href="/login"
                 className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300"
               >
                 Get Started
@@ -135,7 +135,7 @@ export default function PublicLandingPage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <Link
-                    href="/auth"
+                    href="/login"
                     className="group inline-flex items-center justify-center px-6 py-3 bg-accent-gradient text-midnight font-semibold rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-base w-auto"
                   >
                     Get Started
@@ -182,7 +182,7 @@ export default function PublicLandingPage() {
                       <h3 className="text-xl font-semibold text-warm-white mb-2">Premium Listings Inside</h3>
                       <p className="text-silver/80 mb-4">Unlock 500+ verified business opportunities</p>
                       <Link
-                        href="/auth"
+                        href="/login"
                         className="inline-flex items-center px-6 py-3 bg-accent-gradient text-midnight font-medium rounded-luxury hover:transform hover:scale-105 transition-all duration-300"
                       >
                         Get Access Now
@@ -341,7 +341,7 @@ export default function PublicLandingPage() {
 
                   <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
                     <Link
-                      href="/auth"
+                      href="/login"
                       className="inline-flex items-center px-10 py-5 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-lg"
                     >
                       Get Started

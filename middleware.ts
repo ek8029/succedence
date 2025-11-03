@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Public routes (no auth needed)
-  const publicRoutes = ['/beta', '/auth', '/auth/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms', '/pricing', '/brokers', '/browse', '/landing']
+  const publicRoutes = ['/beta', '/login', '/login/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms', '/pricing', '/brokers', '/browse', '/landing']
 
   // Check if the current path is public (no auth needed)
   const isPublicRoute = publicRoutes.some(route => {
@@ -49,9 +49,9 @@ export async function middleware(request: NextRequest) {
   // Get the user session
   const { data: { session }, error } = await supabase.auth.getSession()
 
-  // If no session and trying to access protected route, redirect to auth
+  // If no session and trying to access protected route, redirect to login
   if (!session) {
-    const redirectUrl = new URL('/auth', request.url)
+    const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(redirectUrl)
   }
@@ -82,18 +82,18 @@ export async function middleware(request: NextRequest) {
 
       if (userError) {
         console.error('❌ MIDDLEWARE: Database error checking admin role:', userError, 'for user:', session.user.email)
-        return NextResponse.redirect(new URL('/app', request.url))
+        return NextResponse.redirect(new URL('/dashboard', request.url))
       }
 
       if (!userData || (userData as any).role !== 'admin') {
         console.log('❌ MIDDLEWARE: Non-admin trying to access admin route:', session.user.email, 'role:', (userData as any)?.role)
-        return NextResponse.redirect(new URL('/app', request.url))
+        return NextResponse.redirect(new URL('/dashboard', request.url))
       }
 
       console.log('🔒 MIDDLEWARE: Database admin access granted for:', session.user.email)
     } catch (error) {
       console.error('MIDDLEWARE: Exception checking admin role:', error)
-      return NextResponse.redirect(new URL('/app', request.url))
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 

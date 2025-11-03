@@ -154,7 +154,7 @@ export default function BrowsePage() {
                     </p>
                     <div className="flex gap-3 mt-2">
                       <Link
-                        href="/auth"
+                        href="/login"
                         className="px-8 py-3 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all min-h-[48px] flex items-center"
                       >
                         Sign Up Free
@@ -394,7 +394,7 @@ export default function BrowsePage() {
             </h2>
             {isDemoMode && listings.length > 5 && (
               <Link
-                href="/auth"
+                href="/login"
                 className="text-gold hover:text-warm-white transition-colors font-medium text-sm"
               >
                 Sign up to view all →
@@ -736,7 +736,7 @@ export default function BrowsePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="/auth"
+                    href="/login"
                     className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury hover:bg-gold/90 transition-all text-lg min-h-[48px] flex items-center justify-center"
                   >
                     Sign Up - It's Free
