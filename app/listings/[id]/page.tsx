@@ -544,7 +544,7 @@ export default function ListingDetailPage() {
 
                 <div>
                   <h3 className="text-xl text-white font-medium mb-4">Financial Metrics</h3>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {listing.price && (
                       <div className="p-6 bg-neutral-900/50 border border-neutral-600">
                         <div className="text-neutral-400 font-medium mb-2">Asking Price</div>
@@ -557,18 +557,18 @@ export default function ListingDetailPage() {
                       <div className="text-neutral-400 font-medium mb-2">Annual Revenue</div>
                       <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.revenue)}</div>
                     </div>
-                    {listing.ebitda && (
-                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
-                        <div className="text-neutral-400 font-medium mb-2">EBITDA</div>
-                        <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.ebitda)}</div>
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                      <div className="text-neutral-400 font-medium mb-2">EBITDA</div>
+                      <div className="text-white font-bold text-financial text-2xl">
+                        {listing.ebitda ? formatCurrency(listing.ebitda) : 'N/A'}
                       </div>
-                    )}
-                    {listing.cashFlow && (
-                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
-                        <div className="text-neutral-400 font-medium mb-2">Cash Flow</div>
-                        <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.cashFlow)}</div>
+                    </div>
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                      <div className="text-neutral-400 font-medium mb-2">Cash Flow</div>
+                      <div className="text-white font-bold text-financial text-2xl">
+                        {listing.cashFlow ? formatCurrency(listing.cashFlow) : 'N/A'}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
