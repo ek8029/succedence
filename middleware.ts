@@ -4,13 +4,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Redirect homepage to beta signup gate
+  // Redirect homepage to beta signup page
   if (pathname === '/') {
-    return NextResponse.redirect(new URL('/gate', request.url))
+    return NextResponse.redirect(new URL('/beta', request.url))
   }
 
   // Public routes (no auth needed)
-  const publicRoutes = ['/gate', '/auth', '/auth/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms', '/pricing', '/brokers', '/browse', '/landing']
+  const publicRoutes = ['/beta', '/auth', '/auth/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms', '/pricing', '/brokers', '/browse', '/landing']
 
   // Check if the current path is public (no auth needed)
   const isPublicRoute = publicRoutes.some(route => {

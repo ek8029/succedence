@@ -48,8 +48,8 @@ export default function Navbar() {
     }, 200);
   };
 
-  // Hide navbar on /gate route
-  if (pathname === '/gate') {
+  // Hide navbar on /beta route
+  if (pathname === '/beta') {
     return null;
   }
 
