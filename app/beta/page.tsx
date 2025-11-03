@@ -1,9 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+const CORRECT_PASSWORD = 'Succedence123!';
+const REMEMBER_KEY = 'beta_gate_remember';
+const REMEMBER_DAYS = 30;
 
 export default function BetaSignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,6 +23,30 @@ export default function BetaSignupPage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Check for remembered password on mount
+  useEffect(() => {
+    const remembered = localStorage.getItem(REMEMBER_KEY);
+    if (remembered) {
+      try {
+        const { timestamp } = JSON.parse(remembered);
+        const daysAgo = (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
+
+        if (daysAgo < REMEMBER_DAYS) {
+          // Still valid, auto-redirect
+          console.log('Valid remembered password found, redirecting...');
+          router.push('/login');
+        } else {
+          // Expired, remove it
+          localStorage.removeItem(REMEMBER_KEY);
+        }
+      } catch (e) {
+        // Invalid format, remove it
+        localStorage.removeItem(REMEMBER_KEY);
+      }
+    }
+  }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -63,8 +93,15 @@ export default function BetaSignupPage() {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password === 'Succedence123!') {
-      // Redirect to /auth on success
+    if (password === CORRECT_PASSWORD) {
+      // Save to localStorage if remember me is checked
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_KEY, JSON.stringify({
+          timestamp: Date.now()
+        }));
+      }
+
+      // Redirect to /login on success
       window.location.href = '/login';
     } else {
       setPasswordError('Incorrect password');
@@ -275,6 +312,19 @@ export default function BetaSignupPage() {
                   {passwordError && (
                     <p className="text-red-400 text-sm mt-2">{passwordError}</p>
                   )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-gold/30 bg-midnight/50 text-gold focus:ring-gold focus:ring-offset-0"
+                  />
+                  <label htmlFor="rememberMe" className="text-silver/80 text-sm cursor-pointer">
+                    Remember me for 30 days
+                  </label>
                 </div>
 
                 <button
