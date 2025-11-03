@@ -2,6 +2,43 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { ListingCreateInput, ListingDraftInput } from '@/lib/validation/listings'
 
+// Helper function to convert database snake_case to frontend camelCase
+function mapListingFromDb(dbListing: any) {
+  return {
+    id: dbListing.id,
+    ownerUserId: dbListing.owner_user_id,
+    source: dbListing.source,
+    title: dbListing.title,
+    description: dbListing.description,
+    industry: dbListing.industry,
+    city: dbListing.city,
+    state: dbListing.state,
+    revenue: dbListing.revenue,
+    ebitda: dbListing.ebitda,
+    cashFlow: dbListing.cash_flow,
+    metricType: dbListing.metric_type,
+    ownerHours: dbListing.owner_hours,
+    employees: dbListing.employees,
+    yearEstablished: dbListing.year_established,
+    reasonForSelling: dbListing.reason_for_selling,
+    price: dbListing.price,
+    contactPhone: dbListing.contact_phone,
+    contactEmail: dbListing.contact_email,
+    contactOther: dbListing.contact_other,
+    sourceUrl: dbListing.source_url,
+    sourceWebsite: dbListing.source_website,
+    sourceId: dbListing.source_id,
+    brokerName: dbListing.broker_name,
+    brokerCompany: dbListing.broker_company,
+    brokerPhone: dbListing.broker_phone,
+    brokerEmail: dbListing.broker_email,
+    status: dbListing.status,
+    brokerProfileId: dbListing.broker_profile_id,
+    createdAt: dbListing.created_at,
+    updatedAt: dbListing.updated_at,
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Use service client for public listings to bypass RLS for testing
@@ -53,7 +90,7 @@ export async function GET(request: NextRequest) {
       }
 
       return NextResponse.json({
-        listings: listings || [],
+        listings: (listings || []).map(mapListingFromDb),
         pagination: {
           page: 1,
           pageSize: listings?.length || 0,
@@ -113,7 +150,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      listings: listings || [],
+      listings: (listings || []).map(mapListingFromDb),
       pagination: {
         page,
         pageSize,
