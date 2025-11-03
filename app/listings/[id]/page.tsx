@@ -105,13 +105,23 @@ export default function ListingDetailPage() {
                     state: authData.listing.state,
                     revenue: authData.listing.revenue,
                     ebitda: authData.listing.ebitda,
+                    cashFlow: authData.listing.cash_flow,
                     metricType: authData.listing.metric_type,
                     ownerHours: authData.listing.owner_hours,
                     employees: authData.listing.employees,
+                    yearEstablished: authData.listing.year_established,
+                    reasonForSelling: authData.listing.reason_for_selling,
                     price: authData.listing.price,
                     contactPhone: authData.listing.contact_phone,
                     contactEmail: authData.listing.contact_email,
                     contactOther: authData.listing.contact_other,
+                    sourceUrl: authData.listing.source_url,
+                    sourceWebsite: authData.listing.source_website,
+                    sourceId: authData.listing.source_id,
+                    brokerName: authData.listing.broker_name,
+                    brokerCompany: authData.listing.broker_company,
+                    brokerPhone: authData.listing.broker_phone,
+                    brokerEmail: authData.listing.broker_email,
                     status: authData.listing.status,
                     brokerProfileId: authData.listing.broker_profile_id,
                     createdAt: authData.listing.created_at,
@@ -505,9 +515,23 @@ export default function ListingDetailPage() {
               <div className="space-y-8">
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-xl text-white font-medium mb-4">Contact Information</h3>
+                    <h3 className="text-xl text-white font-medium mb-4">Source</h3>
                     <div className="p-4 bg-neutral-900/50 border border-neutral-600">
-                      <span className="text-white font-semibold text-lg">{listing.source}</span>
+                      {listing.sourceUrl ? (
+                        <a
+                          href={listing.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gold hover:text-gold-light font-semibold text-lg flex items-center gap-2 transition-colors"
+                        >
+                          {listing.sourceWebsite || listing.source}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      ) : (
+                        <span className="text-white font-semibold text-lg">{listing.sourceWebsite || listing.source}</span>
+                      )}
                     </div>
                   </div>
                   <div>
@@ -519,18 +543,54 @@ export default function ListingDetailPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-white font-medium mb-4">Detailed Financial Metrics</h3>
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
-                      <div className="text-neutral-400 font-medium mb-2">Annual Revenue</div>
-                      <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.revenue)}</div>
-                    </div>
+                  <h3 className="text-xl text-white font-medium mb-4">Financial Metrics</h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {listing.price && (
                       <div className="p-6 bg-neutral-900/50 border border-neutral-600">
                         <div className="text-neutral-400 font-medium mb-2">Asking Price</div>
                         <div className="text-white font-bold text-financial text-2xl">
                           {formatCurrency(listing.price)}
                         </div>
+                      </div>
+                    )}
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                      <div className="text-neutral-400 font-medium mb-2">Annual Revenue</div>
+                      <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.revenue)}</div>
+                    </div>
+                    {listing.ebitda && (
+                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                        <div className="text-neutral-400 font-medium mb-2">EBITDA</div>
+                        <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.ebitda)}</div>
+                      </div>
+                    )}
+                    {listing.cashFlow && (
+                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                        <div className="text-neutral-400 font-medium mb-2">Cash Flow</div>
+                        <div className="text-white font-bold text-financial text-2xl">{formatCurrency(listing.cashFlow)}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-white font-medium mb-4">Business Details</h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listing.yearEstablished && (
+                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                        <div className="text-neutral-400 font-medium mb-2">Year Established</div>
+                        <div className="text-white font-semibold text-lg">{listing.yearEstablished}</div>
+                      </div>
+                    )}
+                    {listing.employees && (
+                      <div className="p-6 bg-neutral-900/50 border border-neutral-600">
+                        <div className="text-neutral-400 font-medium mb-2">Employees</div>
+                        <div className="text-white font-semibold text-lg">{listing.employees}</div>
+                      </div>
+                    )}
+                    {listing.reasonForSelling && (
+                      <div className="p-6 bg-neutral-900/50 border border-neutral-600 sm:col-span-2 lg:col-span-1">
+                        <div className="text-neutral-400 font-medium mb-2">Reason for Selling</div>
+                        <div className="text-white font-medium">{listing.reasonForSelling}</div>
                       </div>
                     )}
                   </div>
@@ -638,46 +698,105 @@ export default function ListingDetailPage() {
                   </div>
                 ) : (
                   <div className="bg-gradient-to-r from-gold/5 to-accent-gold/5 border border-gold/30 rounded-lg p-6">
-                    <h3 className="text-xl text-white font-medium mb-4 flex items-center">
-                      <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Listing Contact
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div>
-                          <div className="text-neutral-400 font-medium mb-2">Source</div>
-                          <div className="text-white font-semibold text-lg">{listing.source}</div>
-                        </div>
-                        <div>
-                          <div className="text-neutral-400 font-medium mb-2">Location</div>
-                          <div className="text-white font-medium">{listing.city}, {listing.state}</div>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="text-neutral-400 font-medium mb-2">Phone</div>
-                          <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
-                            {listing.contactPhone || 'Not provided'}
+                    {/* Show broker info from CSV if available */}
+                    {(listing.brokerName || listing.brokerCompany || listing.brokerPhone || listing.brokerEmail) ? (
+                      <>
+                        <h3 className="text-xl text-white font-medium mb-4 flex items-center">
+                          <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          Broker/Agent Contact
+                        </h3>
+
+                        <div className="space-y-6">
+                          {(listing.brokerName || listing.brokerCompany) && (
+                            <div>
+                              {listing.brokerName && (
+                                <div className="text-2xl text-white font-semibold mb-1">{listing.brokerName}</div>
+                              )}
+                              {listing.brokerCompany && (
+                                <div className="text-gold font-medium mb-2">{listing.brokerCompany}</div>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="grid md:grid-cols-2 gap-6">
+                            {listing.brokerPhone && (
+                              <div>
+                                <div className="text-neutral-400 font-medium mb-2">Phone</div>
+                                <a href={`tel:${listing.brokerPhone}`} className="text-white hover:text-gold font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded block transition-colors">
+                                  {listing.brokerPhone}
+                                </a>
+                              </div>
+                            )}
+                            {listing.brokerEmail && (
+                              <div>
+                                <div className="text-neutral-400 font-medium mb-2">Email</div>
+                                <a href={`mailto:${listing.brokerEmail}`} className="text-white hover:text-gold font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded block truncate transition-colors">
+                                  {listing.brokerEmail}
+                                </a>
+                              </div>
+                            )}
                           </div>
+
+                          {listing.sourceUrl && (
+                            <div>
+                              <a
+                                href={listing.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center px-4 py-2 text-sm bg-gold hover:bg-gold-light text-midnight rounded transition-all"
+                              >
+                                View Original Listing →
+                              </a>
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <div className="text-neutral-400 font-medium mb-2">Email</div>
-                          <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
-                            {listing.contactEmail || 'Not provided'}
-                          </div>
-                        </div>
-                        {listing.contactOther && (
-                          <div>
-                            <div className="text-neutral-400 font-medium mb-2">Other Contact</div>
-                            <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
-                              {listing.contactOther}
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="text-xl text-white font-medium mb-4 flex items-center">
+                          <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          Listing Contact
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div>
+                              <div className="text-neutral-400 font-medium mb-2">Source</div>
+                              <div className="text-white font-semibold text-lg">{listing.sourceWebsite || listing.source}</div>
+                            </div>
+                            <div>
+                              <div className="text-neutral-400 font-medium mb-2">Location</div>
+                              <div className="text-white font-medium">{listing.city}, {listing.state}</div>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
+                          <div className="space-y-4">
+                            <div>
+                              <div className="text-neutral-400 font-medium mb-2">Phone</div>
+                              <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                                {listing.contactPhone || 'Not provided'}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-neutral-400 font-medium mb-2">Email</div>
+                              <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                                {listing.contactEmail || 'Not provided'}
+                              </div>
+                            </div>
+                            {listing.contactOther && (
+                              <div>
+                                <div className="text-neutral-400 font-medium mb-2">Other Contact</div>
+                                <div className="text-white font-medium p-3 bg-neutral-900/50 border border-neutral-600 rounded">
+                                  {listing.contactOther}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
