@@ -184,7 +184,12 @@ export async function POST(request: NextRequest) {
       }
 
       // Use super enhanced due diligence generator
-      checklist = await generateSuperEnhancedDueDiligence(listing, comparableListings);
+      checklist = await generateSuperEnhancedDueDiligence(
+        listing.title,
+        listing.description,
+        listing,
+        comparableListings
+      );
     }
 
     // Skip database saves in development mode
