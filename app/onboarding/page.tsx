@@ -41,7 +41,7 @@ export default function OnboardingPage() {
           const data = await response.json();
           // If user has preferences, they've likely completed onboarding
           if (data && (data.industries?.length > 0 || data.states?.length > 0)) {
-            router.push('/app');
+            router.push('/dashboard');
           }
         }
       } catch (error) {
@@ -130,7 +130,7 @@ export default function OnboardingPage() {
   };
 
   const handleComplete = () => {
-    router.push('/app');
+    router.push('/dashboard');
   };
 
   const formatCurrency = (value: number | undefined) => {

@@ -33,7 +33,7 @@ export default function AuthPage() {
   useEffect(() => {
     if (user) {
       console.log('User authenticated, redirecting...', user)
-      router.push('/app');
+      router.push('/dashboard');
     }
   }, [user, router]);
 
@@ -178,16 +178,16 @@ export default function AuthPage() {
               (preferencesData.states && preferencesData.states.length > 0)
             );
 
-            // Redirect to onboarding if no preferences, otherwise to app
-            router.push(hasPreferences ? '/app' : '/onboarding');
+            // Redirect to onboarding if no preferences, otherwise to dashboard
+            router.push(hasPreferences ? '/dashboard' : '/onboarding');
           } else {
             // If we can't check preferences, default to onboarding for safety
             router.push('/onboarding');
           }
         } catch (error) {
           console.error('Error checking preferences:', error);
-          // Default to app if there's an error
-          router.push('/app');
+          // Default to dashboard if there's an error
+          router.push('/dashboard');
         }
       }
     } catch (error) {
