@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
     const signupData = betaSignupSchema.parse(body)
 
     // Insert into beta_signups table
-    const { data, error } = await supabase
-      .from('beta_signups')
+    const { data, error } = await (supabase
+      .from('beta_signups') as any)
       .insert({
         name: signupData.name,
         email: signupData.email,
