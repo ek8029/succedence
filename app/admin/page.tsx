@@ -572,6 +572,12 @@ function AdminPageContent() {
                     >
                       Manage Brokers
                     </Link>
+                    <Link
+                      href="/admin/import-listings"
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-600 rounded transition-all h-10"
+                    >
+                      Import Listings
+                    </Link>
                     <button
                       onClick={handleRegenerateMatches}
                       disabled={regeneratingMatches}
