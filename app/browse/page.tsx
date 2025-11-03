@@ -632,7 +632,7 @@ export default function BrowsePage() {
           <>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-12">
             {listings.slice(0, 5).map((listing, index) => (
-              <ScrollAnimation key={listing.id} direction="up" delay={index * 50} className="h-full">
+              <ScrollAnimation key={listing.id} direction="up" delay={index * 20} className="h-full">
                 <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300 h-full flex flex-col">
                   {/* Header Section */}
                   <div className="mb-6">
@@ -668,10 +668,22 @@ export default function BrowsePage() {
                     </p>
                   </div>
 
-                  {/* Source */}
-                  <div className="mb-4">
-                    <span className="font-sans text-sm text-warm-white font-semibold">Source: {listing.source}</span>
-                  </div>
+                  {/* Source and Aggregated Badge */}
+                  {(listing.sourceWebsite || listing.source !== 'csv_import') && (
+                    <div className="mb-4 space-y-2">
+                      {listing.sourceWebsite && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-sans text-xs text-silver/70">Source:</span>
+                          <span className="font-sans text-sm text-warm-white font-medium">{listing.sourceWebsite}</span>
+                        </div>
+                      )}
+                      {listing.sourceWebsite && (
+                        <div className="inline-block px-2 py-1 text-xs bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded">
+                          Aggregated Listing
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Financials */}
                   <div className="space-y-3 mb-6 flex-grow">
@@ -848,7 +860,7 @@ export default function BrowsePage() {
           ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-12">
             {listings.map((listing, index) => (
-              <ScrollAnimation key={listing.id} direction="up" delay={index * 50} className="h-full">
+              <ScrollAnimation key={listing.id} direction="up" delay={index * 20} className="h-full">
                 <div className="glass p-8 rounded-lg hover-lift border-2 border-gold/20 hover:border-gold/40 transition-all duration-300 h-full flex flex-col">
                   {/* Header Section */}
                   <div className="mb-6">
@@ -884,10 +896,22 @@ export default function BrowsePage() {
                     </p>
                   </div>
 
-                  {/* Source */}
-                  <div className="mb-4">
-                    <span className="font-sans text-sm text-warm-white font-semibold">Source: {listing.source}</span>
-                  </div>
+                  {/* Source and Aggregated Badge */}
+                  {(listing.sourceWebsite || listing.source !== 'csv_import') && (
+                    <div className="mb-4 space-y-2">
+                      {listing.sourceWebsite && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-sans text-xs text-silver/70">Source:</span>
+                          <span className="font-sans text-sm text-warm-white font-medium">{listing.sourceWebsite}</span>
+                        </div>
+                      )}
+                      {listing.sourceWebsite && (
+                        <div className="inline-block px-2 py-1 text-xs bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded">
+                          Aggregated Listing
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Financials */}
                   <div className="space-y-3 mb-6 flex-grow">

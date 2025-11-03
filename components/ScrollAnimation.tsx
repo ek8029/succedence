@@ -23,9 +23,9 @@ export default function ScrollAnimation({
 
     // Add a small delay to ensure proper setup for instant loads
     const setupAnimation = () => {
-      // Set initial state with smoother animation
+      // Set initial state with faster animation
       element.style.opacity = '0';
-      element.style.transition = `opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms, transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms`;
+      element.style.transition = `opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}ms`;
       element.style.willChange = 'opacity, transform';
 
       // Set initial transform based on direction with smoother values
@@ -59,13 +59,13 @@ export default function ScrollAnimation({
             // Clean up will-change after animation
             setTimeout(() => {
               element.style.willChange = 'auto';
-            }, 700 + delay);
+            }, 400 + delay);
           }
         });
       },
       {
-        threshold: 0.1,
-        rootMargin: '0px 0px 50px 0px'
+        threshold: 0.05,
+        rootMargin: '0px 0px 150px 0px'
       }
     );
 
