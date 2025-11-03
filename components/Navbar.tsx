@@ -12,11 +12,6 @@ export default function Navbar() {
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
 
-  // Hide navbar on /gate route
-  if (pathname === '/gate') {
-    return null;
-  }
-
   // Determine which nav items are active based on current page
   const isActivePage = (path: string) => pathname === path;
 
@@ -52,6 +47,11 @@ export default function Navbar() {
       setActiveDropdown(null);
     }, 200);
   };
+
+  // Hide navbar on /gate route
+  if (pathname === '/gate') {
+    return null;
+  }
 
   return (
     <nav className="header-professional px-3 sm:px-6 py-2 sm:py-3 sticky top-0 z-50">
