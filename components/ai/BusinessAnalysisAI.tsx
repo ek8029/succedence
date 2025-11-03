@@ -18,7 +18,7 @@ interface BusinessAnalysisAIProps {
 export default function BusinessAnalysisAI({ listingId, listingTitle }: BusinessAnalysisAIProps) {
   const { user, isLoading: authLoading } = useAuth();
 
-  // Use the enhanced hook - it handles everything internally
+  // Use the enhanced hook with auto-start (priority #1 - immediate)
   const {
     analysis,
     isLoading,
@@ -27,7 +27,11 @@ export default function BusinessAnalysisAI({ listingId, listingTitle }: Business
     clearAnalysis,
   } = usePersistedAIAnalysis<SuperEnhancedBusinessAnalysis>(
     listingId,
-    'business_analysis'
+    'business_analysis',
+    {
+      autoStart: true,
+      initialDelay: 0, // Start immediately - most important analysis
+    }
   );
 
   // Check if user has access

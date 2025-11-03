@@ -19,7 +19,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
   const { user, isLoading: authLoading } = useAuth();
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
-  // Use the enhanced hook - it handles everything internally
+  // Use the enhanced hook with auto-start (priority #3 - delayed 6s)
   const {
     analysis,
     isLoading,
@@ -28,7 +28,11 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     clearAnalysis,
   } = usePersistedAIAnalysis<SuperEnhancedBuyerMatch>(
     listingId,
-    'buyer_match'
+    'buyer_match',
+    {
+      autoStart: true,
+      initialDelay: 6000, // Start after 6s - priority #3, uses GPT-4o-mini
+    }
   );
 
   // Check if user has access

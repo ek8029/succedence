@@ -916,7 +916,8 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
     keywords: string[];
   },
   comparableListings: any[] = [],
-  industryBenchmarks: any = null
+  industryBenchmarks: any = null,
+  useEconomyModel: boolean = true // Use GPT-4o-mini by default for speed/cost
 ): Promise<SuperEnhancedBuyerMatch> {
   // Generate dynamic analysis based on actual listing data
   console.log('BUYER MATCH DEBUG: Generating analysis for', listing.title, 'in', listing.industry);
@@ -1118,7 +1119,7 @@ Respond in JSON format with this EXACT structure:
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4o",
+      model: useEconomyModel ? "gpt-4o-mini" : "gpt-4o", // Use mini for 10x cost savings, 2x speed
       messages: [
         {
           role: "system",
@@ -1425,7 +1426,8 @@ export async function generateSuperEnhancedMarketIntelligence(
   industry: string,
   geography?: string,
   dealSize?: number,
-  marketData?: any
+  marketData?: any,
+  useEconomyModel: boolean = true // Use GPT-4o-mini by default for speed/cost
 ): Promise<SuperEnhancedMarketIntelligence> {
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -1642,7 +1644,7 @@ Respond in JSON format with this EXACT structure:
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4o",
+      model: useEconomyModel ? "gpt-4o-mini" : "gpt-4o", // Use mini for 10x cost savings, 2x speed
       messages: [
         {
           role: "system",

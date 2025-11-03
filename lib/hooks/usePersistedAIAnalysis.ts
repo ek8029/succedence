@@ -25,14 +25,19 @@ interface PersistedAnalysisState<T> {
   error?: string;
 }
 
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours - aggressive caching for one-off usage
 const POLL_INTERVAL = 2000; // 2 seconds
 const POLL_MAX_ATTEMPTS = 180; // 6 minutes max
 
 export function usePersistedAIAnalysis<T = any>(
   listingId: string,
   analysisType: string,
+  options: {
+    autoStart?: boolean;
+    initialDelay?: number; // Delay before auto-starting in ms
+  } = {}
 ) {
+  const { autoStart = false, initialDelay = 0 } = options;
   const cacheKey = `ai-analysis-${analysisType}-${listingId}`;
 
   // State
@@ -249,8 +254,24 @@ export function usePersistedAIAnalysis<T = any>(
       }
     };
 
-    // Small delay to let cache load first
-    const timeoutId = setTimeout(checkExistingAnalysis, 100);
+    // Small delay to let cache load first, then check for auto-start
+    const timeoutId = setTimeout(async () => {
+      await checkExistingAnalysis();
+
+      // Auto-start if enabled and no existing analysis
+      if (autoStart && !analysisRef.current && !isLoadingRef.current) {
+        console.log(`⏲️ Auto-starting ${analysisType} in ${initialDelay}ms`);
+        if (initialDelay > 0) {
+          setTimeout(() => {
+            if (mountedRef.current && !analysisRef.current && !isLoadingRef.current) {
+              startAnalysis(false);
+            }
+          }, initialDelay);
+        } else {
+          startAnalysis(false);
+        }
+      }
+    }, 100);
     return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasInitializedRef.current]); // Only runs once after initialization
