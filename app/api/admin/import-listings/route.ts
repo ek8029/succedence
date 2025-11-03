@@ -119,7 +119,6 @@ export async function POST(request: NextRequest) {
       try {
         // Build listing object
         const listing: any = {
-          user_id: user.id,
           status: 'active',
         };
 
