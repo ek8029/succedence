@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
         // Build listing object
         const listing: any = {
           status: 'active',
+          source: 'csv_import', // Default source for bulk imports
         };
 
         // Map CSV columns to database fields
@@ -164,6 +165,9 @@ export async function POST(request: NextRequest) {
               break;
             case 'reason_for_selling':
               listing.reason_for_selling = value;
+              break;
+            case 'source':
+              listing.source = value; // Override default if provided in CSV
               break;
             case 'source_url':
               listing.source_url = value;
