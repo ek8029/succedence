@@ -149,8 +149,15 @@ const BUSINESS_CATEGORIES: BusinessCategory[] = [
   {
     sector: "Healthcare",
     subsectors: ["Medical Practice", "Dental Practice", "Veterinary", "Medical Device Distribution", "Pharmacy", "Home Healthcare", "Mental Health", "Physical Therapy"],
-    keywords: ["medical", "healthcare", "dental", "veterinary", "pharmacy", "clinic", "hospital", "therapy", "counseling", "mental health", "device", "equipment"],
-    industryIdentifiers: ["healthcare", "medical", "dental", "veterinary"]
+    keywords: [
+      "medical", "healthcare", "health", "dental", "dentist", "dentistry", "veterinary", "pharmacy", "clinic", "hospital", "therapy", "counseling", "mental health", "device", "equipment",
+      // Medical specialties
+      "dermatology", "dermatologist", "cardiology", "cardiologist", "orthopedic", "orthopedics", "pediatric", "pediatrics", "obgyn", "obstetrics", "gynecology",
+      "ophthalmology", "optometry", "radiology", "oncology", "neurology", "psychiatry", "psychology", "chiropractic", "chiropractor",
+      "surgery", "surgical", "primary care", "family practice", "internal medicine", "urgent care", "emergency medicine",
+      "plastic surgery", "cosmetic surgery", "aesthetic", "med spa", "medical spa"
+    ],
+    industryIdentifiers: ["healthcare", "medical", "dental", "veterinary", "health services"]
   },
   {
     sector: "Technology",
