@@ -21,7 +21,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
-  // Use the enhanced hook with auto-start (priority #2 - delayed 3s)
+  // Use the enhanced hook - manual trigger only
   const {
     analysis,
     isLoading,
@@ -30,11 +30,7 @@ export default function DueDiligenceAI({ listingId, listingTitle, industry }: Du
     clearAnalysis,
   } = usePersistedAIAnalysis<SuperEnhancedDueDiligence>(
     listingId,
-    'due_diligence',
-    {
-      autoStart: true,
-      initialDelay: 3000, // Start after 3s - priority #2
-    }
+    'due_diligence'
   );
 
   // Check if user has access

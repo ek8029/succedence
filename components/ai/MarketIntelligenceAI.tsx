@@ -27,7 +27,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     dealSize: dealSize || 0
   });
 
-  // Use the enhanced hook with auto-start (priority #4 - delayed 9s)
+  // Use the enhanced hook - manual trigger only
   const {
     analysis: intelligence,
     isLoading,
@@ -36,11 +36,7 @@ export default function MarketIntelligenceAI({ industry, geography, dealSize, li
     clearAnalysis,
   } = usePersistedAIAnalysis<SuperEnhancedMarketIntelligence>(
     listingId || 'market-intelligence-general',
-    'market_intelligence',
-    {
-      autoStart: true,
-      initialDelay: 9000, // Start after 9s - priority #4, uses GPT-4o-mini
-    }
+    'market_intelligence'
   );
 
   // Check if user has access to market intelligence feature

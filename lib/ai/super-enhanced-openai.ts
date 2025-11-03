@@ -549,8 +549,10 @@ export async function analyzeBusinessSuperEnhanced(
     comparableListings?: any[];
     industryBenchmarks?: any;
     stream?: boolean;
+    useEconomyModel?: boolean; // Use GPT-4o-mini for speed
   } = {}
 ): Promise<SuperEnhancedBusinessAnalysis | ReadableStream> {
+  const { useEconomyModel = true } = analysisOptions; // Default to mini for speed
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
   }
@@ -812,7 +814,7 @@ Respond in JSON format with this EXACT structure:
     // Enable streaming if requested
     if (analysisOptions.stream) {
       const stream = await getOpenAIClient().chat.completions.create({
-        model: "gpt-4o",
+        model: useEconomyModel ? "gpt-4o-mini" : "gpt-4o", // Use mini for 2x speed
         messages: [
           {
             role: "system",
@@ -824,17 +826,17 @@ Respond in JSON format with this EXACT structure:
           }
         ],
         temperature: 0.3,
-        max_tokens: 3000,
+        max_tokens: 2500, // Reduced for faster generation
         stream: true,
       }, {
-        timeout: 45000, // 45 second timeout
+        timeout: 60000, // 60 second timeout to prevent failures
       });
 
       return createStreamingResponse(stream);
     }
 
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4o",
+      model: useEconomyModel ? "gpt-4o-mini" : "gpt-4o", // Use mini for 2x speed, 10x cost savings
       messages: [
         {
           role: "system",
@@ -846,9 +848,9 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.3,
-      max_tokens: 3000,
+      max_tokens: 2500, // Reduced for faster generation
     }, {
-      timeout: 45000, // 45 second timeout
+      timeout: 60000, // 60 second timeout to prevent failures
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -1131,9 +1133,9 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.3,
-      max_tokens: 3000,
+      max_tokens: 2500, // Reduced for faster generation
     }, {
-      timeout: 45000, // 45 second timeout
+      timeout: 60000, // 60 second timeout to prevent failures
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -1190,7 +1192,8 @@ export async function generateSuperEnhancedDueDiligence(
   title: string,
   description: string,
   listing: Listing,
-  comparableListings: any[] = []
+  comparableListings: any[] = [],
+  useEconomyModel: boolean = true // Use GPT-4o-mini by default for speed
 ): Promise<SuperEnhancedDueDiligence> {
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
@@ -1358,7 +1361,7 @@ Respond in JSON format with this EXACT structure:
 
   try {
     const completion = await getOpenAIClient().chat.completions.create({
-      model: "gpt-4o",
+      model: useEconomyModel ? "gpt-4o-mini" : "gpt-4o", // Use mini for 2x speed, 10x cost savings
       messages: [
         {
           role: "system",
@@ -1370,9 +1373,9 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.3,
-      max_tokens: 3000,
+      max_tokens: 2500, // Reduced for faster generation
     }, {
-      timeout: 45000, // 45 second timeout
+      timeout: 60000, // 60 second timeout to prevent failures
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -1656,9 +1659,9 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.3,
-      max_tokens: 3000,
+      max_tokens: 2500, // Reduced for faster generation
     }, {
-      timeout: 45000, // 45 second timeout
+      timeout: 60000, // 60 second timeout to prevent failures
     });
 
     const response = completion.choices[0]?.message?.content;
