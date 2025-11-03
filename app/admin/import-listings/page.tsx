@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 
 interface ImportResult {
   success: number;
@@ -12,90 +10,11 @@ interface ImportResult {
   duplicates: number;
 }
 
-// Known admin emails
-const KNOWN_ADMIN_EMAILS = [
-  'evank8029@gmail.com',
-  'succedence@gmail.com',
-  'founder@succedence.com',
-  'clydek627@gmail.com'
-];
-
-function ImportListingsPageContent() {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
+export default function ImportListingsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [preview, setPreview] = useState<any[]>([]);
-
-  // Admin access check with detailed logging
-  useEffect(() => {
-    console.log('🔍 Import Listings - Auth Check:');
-    console.log('  isLoading:', isLoading);
-    console.log('  user:', user);
-    console.log('  user.email:', user?.email);
-    console.log('  user.role:', user?.role);
-
-    const isAdmin = user && (
-      user.role === 'admin' ||
-      (user.email && KNOWN_ADMIN_EMAILS.includes(user.email))
-    );
-
-    console.log('  isAdmin:', isAdmin);
-    console.log('  KNOWN_ADMIN_EMAILS:', KNOWN_ADMIN_EMAILS);
-  }, [user, isLoading]);
-
-  // Check if user is admin
-  const isAdmin = user && (
-    user.role === 'admin' ||
-    (user.email && KNOWN_ADMIN_EMAILS.includes(user.email))
-  );
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-brand-darker text-white p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-xl text-white font-medium">Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Not logged in
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-brand-darker text-white p-8">
-        <div className="max-w-2xl mx-auto text-center mt-20">
-          <h1 className="text-3xl font-bold mb-4">Authentication Required</h1>
-          <p className="text-neutral-400 mb-8">Please sign in to access this page.</p>
-          <Link href="/login" className="btn-primary px-8 py-3 font-medium hover-lift">
-            Sign In
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Not admin
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-brand-darker text-white p-8">
-        <div className="max-w-2xl mx-auto text-center mt-20">
-          <h1 className="text-3xl font-bold mb-4">Admin Access Required</h1>
-          <p className="text-neutral-400 mb-4">You need admin privileges to access this page.</p>
-          <p className="text-neutral-500 text-sm mb-8">
-            Current role: {user.role || 'none'}<br/>
-            Email: {user.email || 'none'}
-          </p>
-          <Link href="/dashboard" className="btn-primary px-8 py-3 font-medium hover-lift">
-            Return to Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -346,8 +265,4 @@ Example Restaurant,Food & Beverage,Dallas,TX,"Popular family restaurant with exc
       </div>
     </div>
   );
-}
-
-export default function ImportListingsPage() {
-  return <ImportListingsPageContent />;
 }
