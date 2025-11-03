@@ -598,6 +598,141 @@ export default function ListingDetailPage() {
               </div>
             </AccordionSection>
 
+            {/* Detailed Financial Metrics */}
+            <AccordionSection id="financials" title="Detailed Financial Metrics">
+              <div className="space-y-6">
+                <p className="text-silver/80 mb-6">
+                  Complete financial breakdown for {listing.title}
+                </p>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Asking Price */}
+                  {listing.price && (
+                    <div className="p-6 bg-gradient-to-br from-gold/10 to-accent-gold/5 border-2 border-gold/30 rounded-lg">
+                      <div className="text-gold font-medium mb-2 uppercase text-xs tracking-wider">Asking Price</div>
+                      <div className="text-white font-bold text-3xl mb-1">{formatCurrency(listing.price)}</div>
+                      <div className="text-silver/70 text-sm">Negotiable</div>
+                    </div>
+                  )}
+
+                  {/* Annual Revenue */}
+                  <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                    <div className="text-neutral-400 font-medium mb-2">Annual Revenue</div>
+                    <div className="text-white font-bold text-2xl">{formatCurrency(listing.revenue)}</div>
+                  </div>
+
+                  {/* EBITDA */}
+                  {listing.ebitda && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">EBITDA</div>
+                      <div className="text-white font-bold text-2xl">{formatCurrency(listing.ebitda)}</div>
+                      {listing.revenue && (
+                        <div className="text-silver/70 text-sm mt-1">
+                          {((listing.ebitda / listing.revenue) * 100).toFixed(1)}% margin
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Cash Flow */}
+                  {listing.cashFlow && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">Annual Cash Flow</div>
+                      <div className="text-white font-bold text-2xl">{formatCurrency(listing.cashFlow)}</div>
+                      {listing.revenue && (
+                        <div className="text-silver/70 text-sm mt-1">
+                          {((listing.cashFlow / listing.revenue) * 100).toFixed(1)}% of revenue
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Revenue Multiple */}
+                  {listing.price && listing.revenue && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">Revenue Multiple</div>
+                      <div className="text-white font-bold text-2xl">
+                        {(listing.price / listing.revenue).toFixed(2)}x
+                      </div>
+                      <div className="text-silver/70 text-sm mt-1">Price / Annual Revenue</div>
+                    </div>
+                  )}
+
+                  {/* EBITDA Multiple */}
+                  {listing.price && listing.ebitda && listing.ebitda > 0 && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">EBITDA Multiple</div>
+                      <div className="text-white font-bold text-2xl">
+                        {(listing.price / listing.ebitda).toFixed(2)}x
+                      </div>
+                      <div className="text-silver/70 text-sm mt-1">Price / EBITDA</div>
+                    </div>
+                  )}
+
+                  {/* Cash Flow Multiple */}
+                  {listing.price && listing.cashFlow && listing.cashFlow > 0 && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">Cash Flow Multiple</div>
+                      <div className="text-white font-bold text-2xl">
+                        {(listing.price / listing.cashFlow).toFixed(2)}x
+                      </div>
+                      <div className="text-silver/70 text-sm mt-1">Price / Cash Flow</div>
+                    </div>
+                  )}
+
+                  {/* Owner Hours */}
+                  {listing.ownerHours && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">Owner Hours/Week</div>
+                      <div className="text-white font-bold text-2xl">{listing.ownerHours}</div>
+                      <div className="text-silver/70 text-sm mt-1">Average per week</div>
+                    </div>
+                  )}
+
+                  {/* Metric Type */}
+                  {listing.metricType && (
+                    <div className="p-6 bg-neutral-900/50 border border-neutral-600 rounded-lg">
+                      <div className="text-neutral-400 font-medium mb-2">Metric Type</div>
+                      <div className="text-white font-semibold text-lg">{listing.metricType}</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Financial Summary */}
+                {listing.price && listing.revenue && (
+                  <div className="mt-8 p-6 bg-gradient-to-r from-midnight/50 to-charcoal/50 border border-gold/20 rounded-lg">
+                    <h4 className="text-white font-semibold mb-4 flex items-center">
+                      <svg className="w-5 h-5 text-gold mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      Financial Summary
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-6 text-sm">
+                      <div>
+                        <div className="text-neutral-400 mb-1">Estimated ROI (if EBITDA = Annual Profit)</div>
+                        {listing.ebitda && listing.price && (
+                          <div className="text-white font-medium">
+                            {((listing.ebitda / listing.price) * 100).toFixed(1)}% annually
+                            <span className="text-silver/70 ml-2">
+                              (~{(listing.price / listing.ebitda).toFixed(1)} year payback)
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-neutral-400 mb-1">Price per Employee</div>
+                        {listing.employees && listing.price && (
+                          <div className="text-white font-medium">
+                            {formatCurrency(listing.price / listing.employees)} per employee
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AccordionSection>
+
             {/* Owner/Broker Contact Information */}
             <AccordionSection id="contact" title="Owner/Broker Contact Information">
               <div className="space-y-6">
