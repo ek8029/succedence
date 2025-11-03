@@ -21,6 +21,37 @@ export const isAIEnabled = () => {
   return isEnabled && !!process.env.OPENAI_API_KEY;
 };
 
+// Helper function to create streaming response
+export async function createStreamingResponse(
+  stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>
+): Promise<ReadableStream> {
+  const encoder = new TextEncoder();
+
+  return new ReadableStream({
+    async start(controller) {
+      try {
+        let fullContent = '';
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            fullContent += content;
+            // Send the chunk to the client
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content, done: false })}\n\n`));
+          }
+        }
+
+        // Send completion signal
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: '', done: true, fullContent })}\n\n`));
+        controller.close();
+      } catch (error) {
+        console.error('Streaming error:', error);
+        controller.error(error);
+      }
+    },
+  });
+}
+
 function parseAIResponse(response: string): any {
   console.log('AI RAW RESPONSE PREVIEW:', response.substring(0, 300) + '...');
 
@@ -517,8 +548,9 @@ export async function analyzeBusinessSuperEnhanced(
     analysisDepth?: 'quick' | 'standard' | 'comprehensive';
     comparableListings?: any[];
     industryBenchmarks?: any;
+    stream?: boolean;
   } = {}
-): Promise<SuperEnhancedBusinessAnalysis> {
+): Promise<SuperEnhancedBusinessAnalysis | ReadableStream> {
   if (!isAIEnabled()) {
     throw new Error('AI features are not enabled');
   }
@@ -538,8 +570,10 @@ export async function analyzeBusinessSuperEnhanced(
             content: listing.followUpPrompt
           }
         ],
-        temperature: 0.1,
+        temperature: 0.3,
         max_tokens: 1000,
+      }, {
+        timeout: 30000, // 30 second timeout for quick follow-ups
       });
 
       const response = completion.choices[0]?.message?.content;
@@ -775,6 +809,30 @@ Respond in JSON format with this EXACT structure:
 `;
 
   try {
+    // Enable streaming if requested
+    if (analysisOptions.stream) {
+      const stream = await getOpenAIClient().chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an elite M&A advisor and AI analysis expert. Provide the most sophisticated, data-driven analysis possible with quantified confidence metrics and actionable insights. Every insight must include confidence scoring and supporting methodology."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 3000,
+        stream: true,
+      }, {
+        timeout: 45000, // 45 second timeout
+      });
+
+      return createStreamingResponse(stream);
+    }
+
     const completion = await getOpenAIClient().chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -787,8 +845,10 @@ Respond in JSON format with this EXACT structure:
           content: prompt
         }
       ],
-      temperature: 0.1,
-      max_tokens: 4000,
+      temperature: 0.3,
+      max_tokens: 3000,
+    }, {
+      timeout: 45000, // 45 second timeout
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -1069,8 +1129,10 @@ Respond in JSON format with this EXACT structure:
           content: prompt
         }
       ],
-      temperature: 0.2,
-      max_tokens: 4000,
+      temperature: 0.3,
+      max_tokens: 3000,
+    }, {
+      timeout: 45000, // 45 second timeout
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -1306,10 +1368,10 @@ Respond in JSON format with this EXACT structure:
           content: prompt
         }
       ],
-      temperature: 0.2,
+      temperature: 0.3,
       max_tokens: 3000,
     }, {
-      timeout: 60000, // 60 second timeout
+      timeout: 45000, // 45 second timeout
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -1591,8 +1653,10 @@ Respond in JSON format with this EXACT structure:
           content: prompt
         }
       ],
-      temperature: 0.2,
-      max_tokens: 4000,
+      temperature: 0.3,
+      max_tokens: 3000,
+    }, {
+      timeout: 45000, // 45 second timeout
     });
 
     const response = completion.choices[0]?.message?.content;
