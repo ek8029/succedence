@@ -566,25 +566,6 @@ function AdminPageContent() {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl text-white font-medium">User Management</h2>
                   <div className="flex gap-4 items-center flex-wrap">
-                    <Link
-                      href="/admin/brokers"
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white border border-purple-600 rounded transition-all h-10"
-                    >
-                      Manage Brokers
-                    </Link>
-                    <Link
-                      href="/admin/import-listings"
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-600 rounded transition-all h-10"
-                    >
-                      Import Listings
-                    </Link>
-                    <button
-                      onClick={handleRegenerateMatches}
-                      disabled={regeneratingMatches}
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 text-white border border-green-600 rounded transition-all h-10 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {regeneratingMatches ? 'Regenerating...' : 'Regenerate Matches'}
-                    </button>
                     <button
                       onClick={() => setShowBetaManagement(true)}
                       className="inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 rounded transition-all h-10"
@@ -906,11 +887,62 @@ function AdminPageContent() {
           </div>
         </ScrollAnimation>
 
+        {/* Broker Management */}
+        <ScrollAnimation direction="up" delay={137}>
+          <div className="max-w-6xl mx-auto mb-16">
+          <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.675s'}}>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl text-white font-medium">Broker Management</h2>
+              <div className="flex gap-4 items-center flex-wrap">
+                <Link
+                  href="/admin/brokers"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white border border-purple-600 rounded transition-all h-10"
+                >
+                  Manage Brokers
+                </Link>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-purple-900/20 border border-purple-400/30 rounded-lg p-6">
+                <div className="text-4xl font-bold text-purple-200 mb-2 text-financial">{brokerCount}</div>
+                <div className="text-neutral-400">Active Brokers</div>
+              </div>
+              <div className="bg-charcoal/30 border border-silver/20 rounded-lg p-6">
+                <div className="text-neutral-400 text-sm mb-2">View Full Details</div>
+                <Link
+                  href="/admin/brokers"
+                  className="text-purple-300 hover:text-purple-200 text-sm font-medium underline"
+                >
+                  Go to Broker Management →
+                </Link>
+              </div>
+            </div>
+          </div>
+          </div>
+        </ScrollAnimation>
+
         {/* Listing Management */}
         <ScrollAnimation direction="up" delay={150}>
           <div className="max-w-7xl mx-auto px-4">
           <div className="glass p-8 border border-gold/30 rounded-luxury slide-up" style={{animationDelay: '0.7s'}}>
-            <h2 className="text-2xl text-white font-medium mb-8">Listing Management</h2>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl text-white font-medium">Listing Management</h2>
+              <div className="flex gap-4 items-center flex-wrap">
+                <Link
+                  href="/admin/import-listings"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-600 rounded transition-all h-10"
+                >
+                  Import Listings
+                </Link>
+                <button
+                  onClick={handleRegenerateMatches}
+                  disabled={regeneratingMatches}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 text-white border border-green-600 rounded transition-all h-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {regeneratingMatches ? 'Regenerating...' : 'Regenerate Matches'}
+                </button>
+              </div>
+            </div>
             <div className="overflow-x-auto">
               <table className="data-table w-full">
                 <thead>
