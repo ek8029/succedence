@@ -40,24 +40,38 @@ function parseCSV(text: string): string[][] {
   return result;
 }
 
+// Known admin emails - must match middleware and AuthContext
+const KNOWN_ADMIN_EMAILS = [
+  'evank8029@gmail.com',
+  'succedence@gmail.com',
+  'founder@succedence.com',
+  'clydek627@gmail.com'
+];
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
 
-    // Check if user is admin
+    // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: userData, error: userError } = await (supabase
-      .from('users') as any)
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    // Check if user is admin (either by email or database role)
+    const isKnownAdmin = KNOWN_ADMIN_EMAILS.includes(user.email || '');
 
-    if (userError || userData?.role !== 'admin') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!isKnownAdmin) {
+      // If not in known admin list, check database role
+      const { data: userData, error: userError } = await (supabase
+        .from('users') as any)
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (userError || userData?.role !== 'admin') {
+        return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      }
     }
 
     // Get the file from the request
