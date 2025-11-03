@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface ImportResult {
   success: number;
@@ -11,8 +11,7 @@ interface ImportResult {
   duplicates: number;
 }
 
-export default function ImportListingsPage() {
-  const { user } = useAuth();
+function ImportListingsPageContent() {
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -76,17 +75,6 @@ Example Restaurant,Food & Beverage,Dallas,TX,500000,400000,80000,80000,"Popular 
     a.download = 'listings_template.csv';
     a.click();
   };
-
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-brand-darker text-white p-8">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-          <p className="text-neutral-400">Admin access required</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-brand-darker text-white p-8">
@@ -260,5 +248,13 @@ Example Restaurant,Food & Beverage,Dallas,TX,500000,400000,80000,80000,"Popular 
         )}
       </div>
     </div>
+  );
+}
+
+export default function ImportListingsPage() {
+  return (
+    <ProtectedRoute requiredRole="admin">
+      <ImportListingsPageContent />
+    </ProtectedRoute>
   );
 }
