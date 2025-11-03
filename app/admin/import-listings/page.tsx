@@ -64,9 +64,9 @@ function ImportListingsPageContent() {
   };
 
   const downloadTemplate = () => {
-    const template = `title,industry,city,state,price,revenue,ebitda,cash_flow,description,asking_price,year_established,employees,reason_for_selling
-Example Coffee Shop,Food & Beverage,Austin,TX,250000,180000,50000,50000,"Established coffee shop in downtown area",250000,2018,5,Retirement
-Example Restaurant,Food & Beverage,Dallas,TX,500000,400000,80000,80000,"Popular restaurant with loyal customer base",500000,2015,12,Relocation`;
+    const template = `title,industry,city,state,description,price,revenue,ebitda,cash_flow,year_established,employees,reason_for_selling,source_url,source_website,source_id,broker_name,broker_company,broker_phone,broker_email
+Example Coffee Shop,Food & Beverage,Austin,TX,"Established coffee shop in downtown area with loyal customer base and prime location",250000,180000,50000,50000,2018,5,Retirement,https://example.com/listing/12345,BizBuySell,12345,John Smith,Premier Business Brokers,512-555-0123,john@premierbrokers.com
+Example Restaurant,Food & Beverage,Dallas,TX,"Popular family restaurant with excellent reputation and growth potential",500000,400000,80000,80000,2015,12,Relocation,https://example.com/listing/67890,LoopNet,67890,Jane Doe,Texas Business Sales,214-555-0456,jane@txbizsales.com`;
 
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -112,8 +112,8 @@ Example Restaurant,Food & Beverage,Dallas,TX,500000,400000,80000,80000,"Popular 
 
         {/* CSV Format Reference */}
         <div className="glass p-6 rounded-lg mb-6">
-          <h2 className="text-xl font-semibold mb-4">Required CSV Columns</h2>
-          <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <h2 className="text-xl font-semibold mb-4">CSV Column Reference</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
             <div>
               <h3 className="font-semibold text-gold mb-2">Required Fields:</h3>
               <ul className="space-y-1 text-neutral-300">
@@ -125,7 +125,7 @@ Example Restaurant,Food & Beverage,Dallas,TX,500000,400000,80000,80000,"Popular 
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-gold mb-2">Optional Fields:</h3>
+              <h3 className="font-semibold text-gold mb-2">Optional - Financial:</h3>
               <ul className="space-y-1 text-neutral-300">
                 <li>• price (asking price)</li>
                 <li>• revenue (annual)</li>
@@ -134,6 +134,23 @@ Example Restaurant,Food & Beverage,Dallas,TX,500000,400000,80000,80000,"Popular 
                 <li>• year_established</li>
                 <li>• employees</li>
                 <li>• reason_for_selling</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gold mb-2">Optional - Source Info:</h3>
+              <ul className="space-y-1 text-neutral-300">
+                <li>• source_url (link to original)</li>
+                <li>• source_website (e.g. BizBuySell)</li>
+                <li>• source_id (original listing ID)</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gold mb-2">Optional - Contact Info:</h3>
+              <ul className="space-y-1 text-neutral-300">
+                <li>• broker_name</li>
+                <li>• broker_company</li>
+                <li>• broker_phone</li>
+                <li>• broker_email</li>
               </ul>
             </div>
           </div>

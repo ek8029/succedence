@@ -152,6 +152,27 @@ export async function POST(request: NextRequest) {
             case 'reason_for_selling':
               listing.reason_for_selling = value;
               break;
+            case 'source_url':
+              listing.source_url = value;
+              break;
+            case 'source_website':
+              listing.source_website = value;
+              break;
+            case 'source_id':
+              listing.source_id = value;
+              break;
+            case 'broker_name':
+              listing.broker_name = value;
+              break;
+            case 'broker_company':
+              listing.broker_company = value;
+              break;
+            case 'broker_phone':
+              listing.broker_phone = value;
+              break;
+            case 'broker_email':
+              listing.broker_email = value;
+              break;
           }
         });
 
@@ -165,14 +186,31 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // Check for duplicates (same title, city, state)
-        const { data: existing } = await (supabase
-          .from('listings') as any)
-          .select('id')
-          .eq('title', listing.title)
-          .eq('city', listing.city)
-          .eq('state', listing.state)
-          .limit(1);
+        // Check for duplicates
+        let existing = null;
+
+        // First check by source_website + source_id (more accurate for aggregated listings)
+        if (listing.source_website && listing.source_id) {
+          const { data } = await (supabase
+            .from('listings') as any)
+            .select('id')
+            .eq('source_website', listing.source_website)
+            .eq('source_id', listing.source_id)
+            .limit(1);
+          existing = data;
+        }
+
+        // If no source match, check by title + city + state
+        if (!existing || existing.length === 0) {
+          const { data } = await (supabase
+            .from('listings') as any)
+            .select('id')
+            .eq('title', listing.title)
+            .eq('city', listing.city)
+            .eq('state', listing.state)
+            .limit(1);
+          existing = data;
+        }
 
         if (existing && existing.length > 0) {
           result.duplicates++;
