@@ -12,6 +12,13 @@ export default function SubscribePage() {
   const { user } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('starter');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<'trial' | 'subscribe' | null>(null);
+
+  // Check if user has active trial
+  const hasActiveTrial = user && user.plan === 'free' && user.trialEndsAt && new Date(user.trialEndsAt) > new Date();
+  const trialDaysRemaining = hasActiveTrial && user.trialEndsAt
+    ? Math.ceil((new Date(user.trialEndsAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   // Redirect if user is already authenticated with a paid plan
   React.useEffect(() => {
@@ -51,47 +58,45 @@ export default function SubscribePage() {
     };
   }, []);
 
-  const handlePlanSelection = async (planType: PlanType) => {
+  const handlePlanSelection = async (planType: PlanType, withTrial: boolean = false) => {
     if (planType === 'free') {
-      // No longer allow free plan selection - show upgrade message
       alert('No access available. Please select a paid plan to access the platform.');
       return;
     } else if (planType === 'beta') {
-      // Beta access is invite-only
       alert('Beta access is invite-only. Please contact support or select a paid plan.');
       return;
-    } else {
-      // For paid plans, create Stripe checkout session
-      setSelectedPlan(planType);
-      setIsLoading(true);
+    }
 
-      try {
-        const response = await fetch('/api/stripe/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ planType }),
-        });
+    setSelectedPlan(planType);
+    setIsLoading(true);
+    setLoadingAction(withTrial ? 'trial' : 'subscribe');
 
-        const data = await response.json();
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planType, useTrial: withTrial }),
+      });
 
-        if (response.ok && data.success) {
-          // Set a timeout to reset loading state if user doesn't complete checkout
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 30000); // Reset after 30 seconds as a fallback
+      const data = await response.json();
 
-          // Redirect to Stripe checkout
-          window.location.href = data.checkoutUrl;
-        } else {
-          throw new Error(data.error || 'Failed to create checkout session');
-        }
-      } catch (error) {
-        console.error('Error creating checkout session:', error);
-        alert('Payment processing failed. Please try again.');
-        setIsLoading(false);
+      if (response.ok && data.success) {
+        setTimeout(() => {
+          setIsLoading(false);
+          setLoadingAction(null);
+        }, 30000);
+
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error(data.error || 'Failed to create checkout session');
       }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Payment processing failed. Please try again.');
+      setIsLoading(false);
+      setLoadingAction(null);
     }
   };
 
@@ -131,15 +136,40 @@ export default function SubscribePage() {
           </div>
         )}
 
+        {/* Trial Banner */}
+        {hasActiveTrial && (
+          <div className="mb-8">
+            <div className="glass p-6 rounded-luxury border-2 border-blue-400/40 bg-gradient-to-r from-blue-900/20 to-blue-800/10 max-w-4xl mx-auto text-center">
+              <h3 className="text-xl font-semibold text-blue-200 mb-2">
+                🎉 Your Free Trial is Active!
+              </h3>
+              <p className="text-silver/80">
+                You have <span className="font-bold text-blue-300">{trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''}</span> remaining.
+                Subscribe now to continue access after your trial ends.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-12 mt-8">
           <h1 className="text-4xl md:text-5xl font-serif font-semibold text-warm-white mb-6">
             Choose Your Plan
           </h1>
           <p className="text-xl text-platinum/90 max-w-3xl mx-auto leading-relaxed">
-            Select the perfect plan to access our AI-powered acquisition intelligence platform.
-            Start building your portfolio with professional tools and insights.
+            {hasActiveTrial
+              ? 'Subscribe to continue access after your trial ends'
+              : 'Start with a 3-day free trial, then continue with the plan that fits your needs'
+            }
           </p>
+          {!hasActiveTrial && (
+            <div className="mt-6 inline-flex items-center px-6 py-3 bg-blue-500/20 text-blue-300 rounded-luxury border border-blue-400/30">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-medium">3-Day Free Trial • No Credit Card Required</span>
+            </div>
+          )}
         </div>
 
         {/* Pricing Cards - New Horizontal Layout */}
@@ -184,27 +214,53 @@ export default function SubscribePage() {
                         {plan.description}
                       </p>
 
-                      {/* CTA Button */}
-                      <button
-                        onClick={() => handlePlanSelection(planType)}
-                        disabled={isLoading}
-                        className={`w-full py-3 px-6 rounded-luxury font-medium transition-all duration-300 disabled:opacity-50 ${
-                          isPopular
-                            ? 'bg-gold text-midnight hover:bg-gold/90 hover:transform hover:scale-105'
-                            : planType === 'free'
-                            ? 'bg-transparent border-2 border-silver/30 text-silver hover:border-silver hover:text-warm-white'
-                            : 'bg-accent-gradient text-midnight hover:transform hover:scale-105 hover:shadow-gold-glow'
-                        }`}
-                      >
-                        {isLoading && selectedPlan === planType ? (
-                          <div className="flex items-center justify-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                            <span>Processing...</span>
-                          </div>
-                        ) : (
-                          `Select ${plan.name}`
+                      {/* CTA Buttons */}
+                      <div className="space-y-3">
+                        {!hasActiveTrial && (
+                          <button
+                            onClick={() => handlePlanSelection(planType, true)}
+                            disabled={isLoading}
+                            className={`w-full py-3 px-6 rounded-luxury font-medium transition-all duration-300 disabled:opacity-50 ${
+                              isPopular
+                                ? 'bg-blue-500 text-white hover:bg-blue-600 hover:transform hover:scale-105'
+                                : 'bg-blue-500/80 text-white hover:bg-blue-500 hover:transform hover:scale-105'
+                            }`}
+                          >
+                            {isLoading && selectedPlan === planType && loadingAction === 'trial' ? (
+                              <div className="flex items-center justify-center space-x-2">
+                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                <span>Starting Trial...</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center">
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Start 3-Day Free Trial
+                              </div>
+                            )}
+                          </button>
                         )}
-                      </button>
+
+                        <button
+                          onClick={() => handlePlanSelection(planType, false)}
+                          disabled={isLoading}
+                          className={`w-full py-3 px-6 rounded-luxury font-medium transition-all duration-300 disabled:opacity-50 ${
+                            isPopular
+                              ? 'bg-gold text-midnight hover:bg-gold/90 hover:transform hover:scale-105'
+                              : 'bg-accent-gradient text-midnight hover:transform hover:scale-105 hover:shadow-gold-glow'
+                          }`}
+                        >
+                          {isLoading && selectedPlan === planType && loadingAction === 'subscribe' ? (
+                            <div className="flex items-center justify-center space-x-2">
+                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                              <span>Processing...</span>
+                            </div>
+                          ) : (
+                            hasActiveTrial ? `Subscribe to ${plan.name}` : `Subscribe Now - ${formatPrice(plan.price)}/mo`
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Features */}

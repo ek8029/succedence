@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { planType }: { planType: PlanType } = await request.json();
+    const { planType, useTrial }: { planType: PlanType; useTrial?: boolean } = await request.json();
 
     if (!planType || planType === 'free' || planType === 'beta') {
       return NextResponse.json(
@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
+    // Create Stripe checkout session with optional trial
+    const sessionConfig: any = {
       customer_email: user.email,
       client_reference_id: user.id,
       line_items: [
@@ -50,14 +50,28 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: user.id,
         planType: planType,
+        withTrial: useTrial ? 'true' : 'false',
       },
       subscription_data: {
         metadata: {
           userId: user.id,
           planType: planType,
+          withTrial: useTrial ? 'true' : 'false',
         },
       },
-    });
+    };
+
+    // Add 3-day trial if requested
+    if (useTrial) {
+      sessionConfig.subscription_data.trial_period_days = 3;
+      sessionConfig.subscription_data.trial_settings = {
+        end_behavior: {
+          missing_payment_method: 'cancel',
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({
       success: true,
