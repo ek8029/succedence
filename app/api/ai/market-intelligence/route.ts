@@ -67,6 +67,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch listing if listingId is provided to get title and description
+    let listingTitle = '';
+    let listingDescription = '';
+    if (listingId) {
+      try {
+        const useServiceClient = isDevBypass || effectiveUser?.role === 'admin';
+        const supabase = useServiceClient ? createServiceClient() : createClient();
+        const { data: listing } = await supabase
+          .from('listings')
+          .select('title, description')
+          .eq('id', listingId)
+          .single() as { data: any | null, error: any };
+        if (listing) {
+          listingTitle = listing.title || '';
+          listingDescription = listing.description || '';
+        }
+      } catch (error) {
+        console.log('Could not fetch listing details, proceeding with generic analysis');
+      }
+    }
+
     // Handle follow-up queries
     if (followUpQuery) {
       try {
@@ -239,7 +260,14 @@ export async function POST(request: NextRequest) {
       }
 
       // Use super enhanced market intelligence generator with real market data
-      intelligence = await generateSuperEnhancedMarketIntelligence(industry, geography, dealSize, marketData);
+      intelligence = await generateSuperEnhancedMarketIntelligence(
+        listingTitle,
+        listingDescription,
+        industry,
+        geography,
+        dealSize,
+        marketData
+      );
     }
 
     // Skip database saves in development mode

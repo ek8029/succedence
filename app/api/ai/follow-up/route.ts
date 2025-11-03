@@ -331,6 +331,8 @@ async function generateMarketIntelligenceFollowUp(
   try {
     // Use the existing market intelligence function to generate a contextual response
     const response = await generateSuperEnhancedMarketIntelligence(
+      listing.title || 'Business Opportunity',
+      listing.description || '',
       listing.industry || previousAnalysis?.parameters?.industry || 'General',
       previousAnalysis?.parameters?.geography,
       previousAnalysis?.parameters?.dealSize
@@ -393,10 +395,14 @@ async function generateDueDiligenceFollowUp(
 ): Promise<string> {
   try {
     // Use the existing due diligence function to generate a contextual response
-    const response = await generateSuperEnhancedDueDiligence({
-      ...listing,
-      industry: listing.industry || previousAnalysis?.industry || 'General'
-    });
+    const response = await generateSuperEnhancedDueDiligence(
+      listing.title || 'Business Opportunity',
+      listing.description || '',
+      {
+        ...listing,
+        industry: listing.industry || previousAnalysis?.industry || 'General'
+      }
+    );
 
     // Build user context for personalization
     let experienceLevel = 'intermediate'
