@@ -1117,6 +1117,8 @@ Respond in JSON format with this EXACT structure:
 
 // Super Enhanced Due Diligence Generator
 export async function generateSuperEnhancedDueDiligence(
+  title: string,
+  description: string,
   listing: Listing,
   comparableListings: any[] = []
 ): Promise<SuperEnhancedDueDiligence> {
@@ -1124,17 +1126,22 @@ export async function generateSuperEnhancedDueDiligence(
     throw new Error('AI features are not enabled');
   }
 
+  // Use provided title/description or fall back to listing properties
+  const businessTitle = title || listing.title;
+  const businessDescription = description || listing.description;
+
   // Generate industry-specific due diligence based on actual listing
-  console.log('DUE DILIGENCE DEBUG: Generating checklist for', listing.title, 'in', listing.industry);
+  console.log('DUE DILIGENCE DEBUG: Generating checklist for', businessTitle, 'in', listing.industry);
 
   const businessType = detectBusinessType(listing);
   console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
 
   const prompt = `
-As a world-class due diligence expert with deep expertise in ${businessType.sector} sector and ${businessType.subsector} businesses, create a comprehensive, risk-prioritized due diligence checklist for this acquisition.
+As a world-class due diligence expert with deep expertise in ${businessType.sector} sector and ${businessType.subsector} businesses, create a comprehensive, risk-prioritized due diligence checklist for this specific acquisition opportunity.
 
 BUSINESS INTELLIGENCE:
-- Title: ${listing.title}
+- Title: ${businessTitle}
+- Description: ${businessDescription}
 - Industry: ${listing.industry}
 - Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
 - Matching Keywords: ${businessType.matchingKeywords.join(', ')}
@@ -1143,7 +1150,6 @@ BUSINESS INTELLIGENCE:
 - EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
 - Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
 - Employees: ${listing.employees || 'Not specified'}
-- Description: ${listing.description}
 
 ${comparableListings.length > 0 ? `COMPARABLE ${listing.industry.toUpperCase()} BUSINESSES FOR CONTEXT:
 ${comparableListings.map((comp: any, i: number) => `${i + 1}. ${comp.title} | ${comp.city}, ${comp.state} | Rev: $${comp.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${comp.ebitda?.toLocaleString() || 'N/A'} | Price: $${(comp.price || comp.askingPrice)?.toLocaleString() || 'N/A'}`).join('\n')}
@@ -1345,6 +1351,8 @@ Respond in JSON format with this EXACT structure:
 
 // Super Enhanced Market Intelligence
 export async function generateSuperEnhancedMarketIntelligence(
+  title: string,
+  description: string,
   industry: string,
   geography?: string,
   dealSize?: number,
@@ -1354,18 +1362,20 @@ export async function generateSuperEnhancedMarketIntelligence(
     throw new Error('AI features are not enabled');
   }
 
-  // Generate market intelligence based on actual industry and geography
-  console.log('MARKET INTELLIGENCE DEBUG: Analyzing', industry, 'market in', geography || 'general market');
+  // Generate market intelligence based on actual listing details
+  console.log('MARKET INTELLIGENCE DEBUG: Analyzing', title, '(', industry, ') in', geography || 'general market');
 
-  // Create a fake listing to detect business type from industry
-  const fakeListing = { title: '', industry: industry, description: '', city: '', state: '' } as Listing;
-  const businessType = detectBusinessType(fakeListing);
+  // Create listing object with actual details to detect business type
+  const listingForDetection = { title, industry, description, city: '', state: '' } as Listing;
+  const businessType = detectBusinessType(listingForDetection);
   console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
 
   const prompt = `
-As a top-tier market intelligence analyst with deep expertise in ${businessType.sector} industry and ${businessType.subsector} businesses, provide comprehensive market analysis for potential acquisitions.
+As a top-tier market intelligence analyst with deep expertise in ${businessType.sector} industry and ${businessType.subsector} businesses, provide comprehensive market analysis for this specific business acquisition opportunity.
 
-ANALYSIS PARAMETERS:
+BUSINESS BEING ANALYZED:
+- Title: ${title}
+- Description: ${description}
 - Industry: ${industry}
 - Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
 - Matching Keywords: ${businessType.matchingKeywords.join(', ')}

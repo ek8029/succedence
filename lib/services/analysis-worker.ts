@@ -207,16 +207,19 @@ export class AnalysisWorker {
   private async runAnalysis(job: AnalysisJob, listing: any): Promise<any> {
     const listingContext = {
       ...listing,
+      title: listing.title || 'Business Opportunity',
+      description: listing.description || 'No description available',
       industry: listing.industry || 'General Business',
       location: `${listing.city || 'Unknown'}, ${listing.state || ''}`.trim(),
       askingPrice: listing.price || 0,
       revenue: listing.revenue || 0,
       ebitda: listing.ebitda || 0,
+      cashFlow: listing.cash_flow || 0,
       employees: listing.employees || 0,
       yearEstablished: listing.year_established || listing.created_at?.substring(0, 4) || null,
       businessType: listing.industry || 'Unknown',
       ownerInvolvement: listing.owner_hours ? `${listing.owner_hours} hours/week` : 'Full-time',
-      reasonForSelling: 'Not specified',
+      reasonForSelling: listing.reason_for_selling || 'Not specified',
       parameters: job.parameters || {}
     }
 
@@ -230,6 +233,8 @@ export class AnalysisWorker {
       case 'market_intelligence':
         await this.jobQueue.updateProgress(job.id, 50, 'Analyzing market conditions...')
         const marketResult = await generateSuperEnhancedMarketIntelligence(
+          listingContext.title,
+          listingContext.description,
           listingContext.industry,
           listingContext.location,
           listingContext.askingPrice
@@ -239,7 +244,11 @@ export class AnalysisWorker {
 
       case 'due_diligence':
         await this.jobQueue.updateProgress(job.id, 50, 'Creating due diligence checklist...')
-        const dueDiligenceResult = await generateSuperEnhancedDueDiligence(listingContext as any)
+        const dueDiligenceResult = await generateSuperEnhancedDueDiligence(
+          listingContext.title,
+          listingContext.description,
+          listingContext as any
+        )
         await this.jobQueue.updateProgress(job.id, 90, 'Finalizing due diligence checklist...')
         return dueDiligenceResult
 
