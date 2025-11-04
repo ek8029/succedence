@@ -139,10 +139,10 @@ export class AnalysisWorker {
       const { error } = await supabase
         .from('ai_analyses')
         .insert({
-          userId: job.user_id,
-          listingId: job.listing_id,
-          analysisType: job.analysis_type,
-          analysisData: result
+          user_id: job.user_id,
+          listing_id: job.listing_id,
+          analysis_type: job.analysis_type,
+          analysis_data: result
         } as any);
 
       if (error) {

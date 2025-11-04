@@ -25,6 +25,7 @@ export default function BuyerMatchAI({ listingId, listingTitle }: BuyerMatchAIPr
     isLoading,
     error,
     startAnalysis,
+    cancelAnalysis,
     clearAnalysis,
   } = usePersistedAIAnalysis<SuperEnhancedBuyerMatch>(
     listingId,
@@ -465,20 +466,30 @@ https://succedence.com
           Buyer Compatibility Score
         </h3>
         {!analysis && (
-          <button
-            onClick={() => startAnalysis(false)}
-            disabled={isLoading}
-            className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                <span>Calculating...</span>
-              </div>
-            ) : (
-              'Calculate Match'
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => startAnalysis(false)}
+              disabled={isLoading}
+              className="px-4 py-2 bg-accent-gradient text-midnight font-medium rounded-luxury border-2 border-gold/30 hover:border-gold hover:transform hover:scale-105 hover:shadow-gold-glow transition-all duration-300 font-primary tracking-luxury text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <span>Calculating...</span>
+                </div>
+              ) : (
+                'Calculate Match'
+              )}
+            </button>
+            {isLoading && (
+              <button
+                onClick={cancelAnalysis}
+                className="px-4 py-2 bg-transparent border-2 border-red-400/30 text-red-400 font-medium rounded-luxury hover:border-red-400 hover:bg-red-400/10 transition-all duration-300 text-sm"
+              >
+                Cancel
+              </button>
             )}
-          </button>
+          </div>
         )}
         {analysis && (
           <button

@@ -853,7 +853,7 @@ Respond in JSON format with this EXACT structure:
           }
         ],
         temperature: 0.4, // Optimized for faster generation while maintaining consistency
-        max_tokens: 2000, // Optimized for speed while maintaining quality
+        max_tokens: 4500, // Increased for comprehensive responses
         stream: true,
       }, {
         timeout: 60000, // 60 second timeout to prevent failures
@@ -875,7 +875,7 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.4, // Optimized for faster generation while maintaining consistency
-      max_tokens: 2000, // Optimized for speed while maintaining quality
+      max_tokens: 4500, // Increased for comprehensive responses
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
@@ -1186,7 +1186,7 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.4, // Optimized for faster generation while maintaining consistency
-      max_tokens: 2000, // Optimized for speed while maintaining quality
+      max_tokens: 4500, // Increased for comprehensive responses
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
@@ -1452,7 +1452,7 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.4, // Optimized for faster generation while maintaining consistency
-      max_tokens: 2000, // Optimized for speed while maintaining quality
+      max_tokens: 4500, // Increased for comprehensive responses
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
@@ -1764,7 +1764,7 @@ Respond in JSON format with this EXACT structure:
         }
       ],
       temperature: 0.4, // Optimized for faster generation while maintaining consistency
-      max_tokens: 2000, // Optimized for speed while maintaining quality
+      max_tokens: 4500, // Increased for comprehensive responses
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });

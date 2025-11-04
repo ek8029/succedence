@@ -207,6 +207,18 @@ export class JobQueue {
   }
 
   /**
+   * Cancel a job
+   */
+  async cancelJob(jobId: string): Promise<void> {
+    console.log('🚫 Cancelling job:', jobId)
+    await this.updateJob(jobId, {
+      status: 'cancelled',
+      completed_at: new Date().toISOString(),
+      current_step: 'Analysis cancelled by user'
+    })
+  }
+
+  /**
    * Update job progress
    */
   async updateProgress(jobId: string, progress: number, currentStep: string): Promise<void> {

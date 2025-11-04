@@ -326,6 +326,45 @@ export function usePersistedAIAnalysis<T = any>(
     }
   }, [listingId, analysisType, pollForResult, safeSetLoading, safeSetError, safeSetAnalysis, safeSetJobId]);
 
+  // Cancel ongoing analysis
+  const cancelAnalysis = useCallback(async () => {
+    if (!jobId) {
+      console.warn('No active job to cancel');
+      return;
+    }
+
+    try {
+      console.log('🚫 Cancelling analysis job:', jobId);
+
+      // Stop polling immediately
+      pollingAbortRef.current = true;
+
+      // Call API to cancel the job
+      const response = await fetch('/api/ai/cancel-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel analysis');
+      }
+
+      // Clear state
+      localStorage.removeItem(cacheKey);
+      safeSetAnalysis(null);
+      safeSetError(null);
+      safeSetJobId(null);
+      safeSetLoading(false);
+      isFetchingRef.current = false;
+
+      console.log('✅ Analysis cancelled successfully');
+    } catch (err) {
+      console.error('❌ Error cancelling analysis:', err);
+      safeSetError('Failed to cancel analysis');
+    }
+  }, [jobId, cacheKey, safeSetAnalysis, safeSetError, safeSetJobId, safeSetLoading]);
+
   // Clear cache and reset
   const clearAnalysis = useCallback(() => {
     pollingAbortRef.current = true;
@@ -352,6 +391,7 @@ export function usePersistedAIAnalysis<T = any>(
     error,
     jobId,
     startAnalysis,
+    cancelAnalysis,
     clearAnalysis,
     // For backward compatibility
     analysisInProgressRef: isLoadingRef,
