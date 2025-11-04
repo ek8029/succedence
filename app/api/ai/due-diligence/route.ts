@@ -195,16 +195,14 @@ export async function POST(request: NextRequest) {
     // Skip database saves in development mode
     if (!isDevBypass) {
       // Store the analysis in the database
-      const { error: insertError } = await supabase
+      const { error: insertError} = await (supabase as any)
         .from('ai_analyses')
-        .upsert({
+        .insert({
           listing_id: listingId,
           user_id: effectiveUser.id,
           analysis_type: 'due_diligence',
-          analysis_data: checklist,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        } as any);
+          analysis_data: checklist
+        });
 
       if (insertError) {
         console.error('Error storing due diligence analysis:', insertError);
