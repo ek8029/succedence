@@ -276,9 +276,9 @@ export async function POST(request: NextRequest) {
       // Use service client for development bypass or when user exists
       const useServiceClient = isDevBypass || effectiveUser?.role === 'admin';
       const supabase = useServiceClient ? createServiceClient() : createClient();
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from('ai_analyses')
-        .upsert({
+        .insert({
           user_id: effectiveUser.id,
           listing_id: listingId || null,
           analysis_type: 'market_intelligence',
@@ -289,10 +289,8 @@ export async function POST(request: NextRequest) {
               geography,
               dealSize
             }
-          },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        } as any);
+          }
+        });
 
       if (insertError) {
         console.error('Error storing market intelligence:', insertError);
