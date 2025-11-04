@@ -27,11 +27,13 @@ export async function GET(request: NextRequest) {
 
     try {
       // Build query for AI history
+      // Using left join (listings without !inner) to show ALL analyses
+      // even if the listing was deleted or doesn't exist
       let historyQuery = (serviceSupabase as any)
         .from('ai_analyses')
         .select(`
           *,
-          listings!inner (
+          listings (
             id,
             title,
             industry,
@@ -84,13 +86,14 @@ export async function GET(request: NextRequest) {
       }
 
       // Get listing summary (grouped by listing)
+      // Using left join to include all analyses
       const { data: listingSummary, error: summaryError } = await (serviceSupabase as any)
         .from('ai_analyses')
         .select(`
           listing_id,
           analysis_type,
           created_at,
-          listings!inner (
+          listings (
             id,
             title,
             industry,
@@ -199,11 +202,12 @@ export async function POST(request: NextRequest) {
     const serviceSupabase = createServiceClient();
 
     // Get specific analysis
+    // Using left join to show analysis even if listing was deleted
     const { data: analysis, error } = await (serviceSupabase as any)
       .from('ai_analyses')
       .select(`
         *,
-        listings!inner (
+        listings (
           id,
           title,
           industry,

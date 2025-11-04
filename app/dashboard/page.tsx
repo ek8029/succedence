@@ -428,17 +428,11 @@ export default function Dashboard() {
               {aiHistory && aiHistory.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {aiHistory.map((analysis: any, index: number) => {
-                    console.log(`📄 Rendering analysis ${index}:`, analysis);
-                    console.log(`   - analysis_type:`, analysis.analysis_type);
-                    console.log(`   - created_at:`, analysis.created_at);
-                    console.log(`   - listing_id:`, analysis.listing_id);
-                    console.log(`   - listings object:`, analysis.listings);
-                    console.log(`   - listings.title:`, analysis.listings?.title);
+                    const hasListing = analysis.listings && analysis.listings.id;
                     return (
-                    <Link
+                    <div
                       key={analysis.id}
-                      href={`/listings/${analysis.listing_id}`}
-                      className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
+                      className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <span className="px-2 py-1 bg-gold/20 text-gold rounded text-xs font-medium">
@@ -448,18 +442,32 @@ export default function Dashboard() {
                           {formatDate(analysis.created_at)}
                         </span>
                       </div>
-                      <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
-                        {analysis.listings?.title || 'Listing'}
-                      </h3>
-                      <div className="text-silver/70 text-xs mb-2">
-                        {analysis.listings?.industry} • {analysis.listings?.city}, {analysis.listings?.state}
-                      </div>
-                      {analysis.listings?.price && (
-                        <div className="text-gold text-xs">
-                          {formatCurrency(analysis.listings.price)}
-                        </div>
+
+                      {hasListing ? (
+                        <Link href={`/listings/${analysis.listing_id}`} className="block hover:text-gold transition-colors">
+                          <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
+                            {analysis.listings.title}
+                          </h3>
+                          <div className="text-silver/70 text-xs mb-2">
+                            {analysis.listings.industry} • {analysis.listings.city}, {analysis.listings.state}
+                          </div>
+                          {analysis.listings.price && (
+                            <div className="text-gold text-xs">
+                              {formatCurrency(analysis.listings.price)}
+                            </div>
+                          )}
+                        </Link>
+                      ) : (
+                        <>
+                          <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
+                            Listing No Longer Available
+                          </h3>
+                          <div className="text-silver/70 text-xs mb-2">
+                            This listing has been removed
+                          </div>
+                        </>
                       )}
-                    </Link>
+                    </div>
                     );
                   })}
                 </div>
