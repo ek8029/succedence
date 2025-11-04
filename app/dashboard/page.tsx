@@ -78,14 +78,24 @@ export default function Dashboard() {
             setTopMatches(matchesData.matches?.slice(0, 3) || []);
           }
 
-          // Fetch recent AI history (grouped by listing)
+          // Fetch recent AI history
           const aiResponse = await fetch('/api/ai/history?page=1&limit=6');
           if (aiResponse.ok) {
             const aiData = await aiResponse.json();
-            console.log('AI Data Response:', aiData);
-            console.log('Listing Summary:', aiData.listingSummary);
-            setAiHistory(aiData.aiHistory?.slice(0, 6) || []);
+            console.log('✅ AI Data Response:', aiData);
+            console.log('📊 AI History Items:', aiData.aiHistory);
+            console.log('📋 Listing Summary:', aiData.listingSummary);
+
+            if (aiData.aiHistory && aiData.aiHistory.length > 0) {
+              console.log('✅ Setting AI History with', aiData.aiHistory.length, 'items');
+              setAiHistory(aiData.aiHistory.slice(0, 6));
+            } else {
+              console.log('⚠️ No AI history found in response');
+              setAiHistory([]);
+            }
             setAiListingSummary(aiData.listingSummary?.slice(0, 6) || []);
+          } else {
+            console.error('❌ AI history fetch failed:', aiResponse.status, aiResponse.statusText);
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -410,9 +420,16 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="glass p-6 border border-gold/30 rounded-luxury">
+              {(() => {
+                console.log('🔍 Rendering AI History. aiHistory:', aiHistory);
+                console.log('🔍 aiHistory length:', aiHistory?.length);
+                return null;
+              })()}
               {aiHistory && aiHistory.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {aiHistory.map((analysis: any) => (
+                  {aiHistory.map((analysis: any, index: number) => {
+                    console.log(`📄 Rendering analysis ${index}:`, analysis);
+                    return (
                     <Link
                       key={analysis.id}
                       href={`/listings/${analysis.listing_id}`}
@@ -438,7 +455,8 @@ export default function Dashboard() {
                         </div>
                       )}
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-8">
