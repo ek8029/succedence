@@ -180,7 +180,7 @@ export class AnalysisWorker {
         has_data: !!insertData.analysis_data
       });
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ai_analyses')
         .insert(insertData)
         .select();
