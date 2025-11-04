@@ -92,12 +92,26 @@ export class AnalysisWorker {
    */
   private async processJob(job: AnalysisJob): Promise<void> {
     try {
+      // Check if job was cancelled before starting
+      const currentJob = await this.jobQueue.getJob(job.id)
+      if (currentJob?.status === 'cancelled') {
+        console.log('🚫 Job was cancelled before processing:', job.id)
+        return
+      }
+
       // Mark as processing
       await this.jobQueue.startProcessing(job.id)
 
       // Get listing data
       await this.jobQueue.updateProgress(job.id, 10, 'Fetching listing data...')
       const listing = await this.fetchListingData(job.listing_id)
+
+      // Check for cancellation after fetch
+      const jobAfterFetch = await this.jobQueue.getJob(job.id)
+      if (jobAfterFetch?.status === 'cancelled') {
+        console.log('🚫 Job was cancelled during fetch:', job.id)
+        return
+      }
 
       if (!listing) {
         // Use fallback demo data
@@ -111,6 +125,13 @@ export class AnalysisWorker {
       // Run the analysis
       await this.jobQueue.updateProgress(job.id, 30, 'Running AI analysis...')
       const result = await this.runAnalysis(job, listing)
+
+      // Check for cancellation after analysis
+      const jobAfterAnalysis = await this.jobQueue.getJob(job.id)
+      if (jobAfterAnalysis?.status === 'cancelled') {
+        console.log('🚫 Job was cancelled after analysis:', job.id)
+        return
+      }
 
       // Save analysis to ai_analyses table for history/dashboard
       await this.saveAnalysisToHistory(job, result)
@@ -135,23 +156,60 @@ export class AnalysisWorker {
         return;
       }
 
+      console.log('💾 Attempting to save analysis to history:', {
+        user_id: job.user_id,
+        listing_id: job.listing_id,
+        analysis_type: job.analysis_type,
+        result_keys: Object.keys(result || {})
+      });
+
       const supabase = createBackgroundServiceClient();
-      const { error } = await supabase
+
+      // Prepare data for insertion
+      const insertData = {
+        user_id: job.user_id,
+        listing_id: job.listing_id,
+        analysis_type: job.analysis_type,
+        analysis_data: result
+      };
+
+      console.log('💾 Insert data prepared:', {
+        user_id: insertData.user_id,
+        listing_id: insertData.listing_id,
+        analysis_type: insertData.analysis_type,
+        has_data: !!insertData.analysis_data
+      });
+
+      const { data, error } = await supabase
         .from('ai_analyses')
-        .insert({
-          user_id: job.user_id,
-          listing_id: job.listing_id,
-          analysis_type: job.analysis_type,
-          analysis_data: result
-        } as any);
+        .insert(insertData)
+        .select();
 
       if (error) {
-        console.error('❌ Failed to save analysis to history:', error);
+        console.error('❌ Failed to save analysis to history:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        // Log the full error for debugging
+        console.error('Full error object:', JSON.stringify(error, null, 2));
       } else {
-        console.log('✅ Analysis saved to history table');
+        console.log('✅ Analysis saved to history table successfully!', {
+          saved_id: data?.[0]?.id,
+          user_id: insertData.user_id
+        });
       }
     } catch (error) {
-      console.error('❌ Error saving analysis to history:', error);
+      console.error('❌ Exception while saving analysis to history:', error);
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+      }
     }
   }
 
