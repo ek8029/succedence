@@ -91,9 +91,27 @@ export interface Database {
         Update: Partial<Omit<AuditLog, 'id' | 'createdAt'>>
       }
       ai_analyses: {
-        Row: AIAnalysis
-        Insert: Omit<AIAnalysis, 'id' | 'createdAt' | 'updatedAt'>
-        Update: Partial<Omit<AIAnalysis, 'id' | 'createdAt' | 'updatedAt'>>
+        Row: {
+          id: string
+          user_id: string
+          listing_id: string | null
+          analysis_type: string
+          analysis_data: any
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          listing_id?: string | null
+          analysis_type: string
+          analysis_data: any
+        }
+        Update: Partial<{
+          user_id: string
+          listing_id: string | null
+          analysis_type: string
+          analysis_data: any
+        }>
       }
       saved_listings: {
         Row: SavedListing
