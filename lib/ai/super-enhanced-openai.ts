@@ -192,9 +192,9 @@ const BUSINESS_CATEGORIES: BusinessCategory[] = [
   },
   {
     sector: "Technology",
-    subsectors: ["Software Development", "IT Services", "Cybersecurity", "Data Analytics", "E-commerce", "Digital Marketing", "Cloud Services", "Hardware"],
-    keywords: ["software", "technology", "IT", "cybersecurity", "data", "analytics", "e-commerce", "digital", "marketing", "cloud", "hardware", "programming", "development"],
-    industryIdentifiers: ["technology", "software", "IT", "digital"]
+    subsectors: ["Software Development", "IT Services", "Cybersecurity", "Data Analytics", "E-commerce Platform", "SaaS Products", "Cloud Services", "Hardware Manufacturing"],
+    keywords: ["software development", "technology company", "IT services", "cybersecurity", "SaaS", "platform", "API", "cloud computing", "hardware manufacturer", "programming services", "app development", "tech support"],
+    industryIdentifiers: ["technology company", "software company", "IT company", "tech startup", "software as a service"]
   },
   {
     sector: "Manufacturing",
@@ -572,7 +572,7 @@ export async function analyzeBusinessSuperEnhanced(
             content: listing.followUpPrompt
           }
         ],
-        temperature: 0.3,
+        temperature: 0.4, // Optimized for faster generation while maintaining consistency
         max_tokens: 1000,
       }, {
         timeout: 30000, // 30 second timeout for quick follow-ups
@@ -646,7 +646,38 @@ export async function analyzeBusinessSuperEnhanced(
   };
 
   const prompt = `
-As a world-class M&A advisor with 30+ years of experience and expertise in AI-driven analysis, conduct a SUPER ENHANCED analysis of this business acquisition opportunity.
+As a world-class M&A advisor with 30+ years of experience and expertise in AI-driven analysis, conduct a SUPER ENHANCED analysis of this SPECIFIC business acquisition opportunity.
+
+⚠️ CRITICAL: This analysis MUST be for the specific business described below. DO NOT provide generic industry analysis.
+
+=== THE BUSINESS YOU ARE ANALYZING ===
+BUSINESS NAME: "${listing.title}"
+
+INDUSTRY CLASSIFICATION: ${listing.industry}
+
+FULL DESCRIPTION: ${listing.description}
+
+AUTO-DETECTED BUSINESS TYPE (USE AS HINT ONLY - VERIFY AGAINST DESCRIPTION):
+Suggested: ${businessType.subsector} in ${businessType.sector} sector
+Detection keywords: ${businessType.matchingKeywords.join(', ')}
+Detection confidence: ${businessType.confidence}%
+
+⚠️ IMPORTANT: The auto-detection above may be INCORRECT. You MUST:
+1. Read the full description carefully and determine the ACTUAL business type
+2. If the description clearly indicates a different sector than detected, USE THE CORRECT SECTOR from the description
+3. Base your entire analysis on what the business ACTUALLY does, not the auto-detected type
+4. If this is clearly NOT a ${businessType.sector} business, identify and use the correct sector throughout your analysis
+
+=== ANALYSIS REQUIREMENTS ===
+MANDATORY: Every insight, risk, and recommendation MUST specifically reference "${listing.title}" and its ACTUAL business operations as described above.
+DO NOT blindly use the auto-detected type. ANALYZE the description first to determine what this business truly does.
+Reference the business by its actual operations (e.g., "This restaurant", "This HVAC company", "This dental practice", etc.)
+
+RESPONSE QUALITY OVER QUANTITY:
+- Prioritize TOP 3-5 most impactful insights per category over exhaustive lists
+- Each insight must be highly specific and actionable
+- Focus on what matters most for this acquisition decision
+- Be concise but comprehensive - quality beats length
 
 ANALYSIS PARAMETERS:
 - Perspective: ${perspectiveContext[perspective]}
@@ -655,18 +686,14 @@ ANALYSIS PARAMETERS:
 - Risk Tolerance: ${userProfile.riskTolerance || 'medium'}
 - Focus Areas: ${focusAreas.length > 0 ? focusAreas.join(', ') : 'Comprehensive analysis'}
 
-BUSINESS INTELLIGENCE:
-- Title: ${listing.title}
-- Industry: ${listing.industry}
-- Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
-- Matching Keywords: ${businessType.matchingKeywords.join(', ')}
+BUSINESS FINANCIALS & DETAILS:
+- Industry Classification: ${listing.industry}
 - Location: ${listing.city}, ${listing.state}
 - Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
 - EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
 - Cash Flow: $${listingAny.cashFlow?.toLocaleString() || 'Not disclosed'}
-- Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
+- Asking Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
 - Employees: ${listing.employees || 'Not specified'}
-- Description: ${listing.description}
 
 CALCULATED FINANCIAL METRICS (use these for specific comparisons):
 - EBITDA Margin: ${listingMetrics.ebitdaMargin ? `${listingMetrics.ebitdaMargin}%` : 'Not calculable'}
@@ -700,9 +727,9 @@ REQUIRED SUPER ENHANCED ANALYSIS:
    - Data quality assessment and reliability factors
 
 2. SUPER INSIGHTS (each with enhanced confidence metrics):
-   - 5-8 key strengths with probability scoring and timeframes
-   - 5-8 areas of concern with risk quantification
-   - 5-8 growth opportunities with feasibility analysis
+   - Top 3-5 key strengths with probability scoring and timeframes
+   - Top 3-5 areas of concern with risk quantification
+   - Top 3-5 growth opportunities with feasibility analysis
 
 3. COMPREHENSIVE RISK MATRIX:
    - Detailed risk factors with likelihood×impact scoring (IMPORTANT: Use 1-10 scale only)
@@ -825,8 +852,8 @@ Respond in JSON format with this EXACT structure:
             content: prompt
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2500, // Reduced for faster generation
+        temperature: 0.4, // Optimized for faster generation while maintaining consistency
+        max_tokens: 2000, // Optimized for speed while maintaining quality
         stream: true,
       }, {
         timeout: 60000, // 60 second timeout to prevent failures
@@ -847,8 +874,8 @@ Respond in JSON format with this EXACT structure:
           content: prompt
         }
       ],
-      temperature: 0.3,
-      max_tokens: 2500, // Reduced for faster generation
+      temperature: 0.4, // Optimized for faster generation while maintaining consistency
+      max_tokens: 2000, // Optimized for speed while maintaining quality
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
@@ -933,9 +960,36 @@ export async function analyzeBusinessSuperEnhancedBuyerMatch(
   }
 
   const prompt = `
-As an expert buyer-seller matching AI with deep expertise in ${businessType.sector} industry and ${businessType.subsector} businesses, analyze the compatibility between this buyer profile and business opportunity.
+As an expert buyer-seller matching AI, analyze the compatibility between this buyer profile and business opportunity based on the ACTUAL business description.
 
-BUYER PROFILE:
+⚠️ CRITICAL: This buyer match analysis MUST be for the specific business described below. DO NOT provide generic industry matching analysis.
+
+=== THE BUSINESS YOU ARE ANALYZING ===
+BUSINESS NAME: "${listing.title}"
+
+INDUSTRY CLASSIFICATION: ${listing.industry}
+
+FULL DESCRIPTION: ${listing.description}
+
+BUSINESS DETAILS:
+- Industry: ${listing.industry}
+- Location: ${listing.city}, ${listing.state}
+- Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
+- Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
+- EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
+- Employees: ${listing.employees || 'Not specified'}
+
+AUTO-DETECTED BUSINESS TYPE (USE AS HINT ONLY - VERIFY AGAINST DESCRIPTION):
+Suggested: ${businessType.subsector} in ${businessType.sector} sector
+Detection keywords: ${businessType.matchingKeywords.join(', ')}
+Detection confidence: ${businessType.confidence}%
+
+⚠️ IMPORTANT: The auto-detection may be INCORRECT. You MUST:
+1. Read the full description carefully and determine the ACTUAL business type
+2. If the description clearly indicates a different sector than detected, USE THE CORRECT SECTOR
+3. Base your compatibility analysis on what the business ACTUALLY does, not the auto-detected type
+
+=== BUYER PROFILE ===
 - Industries: ${buyerPreferences.industries.join(', ') || 'Open to all'}
 - Deal Size: $${buyerPreferences.dealSizeMin.toLocaleString()} - $${buyerPreferences.dealSizeMax.toLocaleString()}
 - Geography: ${buyerPreferences.geographicPreferences.join(', ') || 'No preference'}
@@ -943,17 +997,16 @@ BUYER PROFILE:
 - Experience: ${buyerPreferences.experienceLevel}
 - Keywords: ${buyerPreferences.keywords.join(', ') || 'None specified'}
 
-BUSINESS OPPORTUNITY:
-- Title: ${listing.title}
-- Industry: ${listing.industry}
-- Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
-- Matching Keywords: ${businessType.matchingKeywords.join(', ')}
-- Location: ${listing.city}, ${listing.state}
-- Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
-- Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
-- EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
-- Employees: ${listing.employees || 'Not specified'}
-- Description: ${listing.description}
+=== MANDATORY REQUIREMENTS ===
+Every compatibility analysis, risk assessment, and recommendation MUST specifically reference "${listing.title}" and its ACTUAL business operations as described.
+DO NOT blindly use the auto-detected type. ANALYZE the description first to determine what this business truly does.
+Reference the business by its actual operations (e.g., "This restaurant", "This HVAC company", etc.)
+
+RESPONSE QUALITY OVER QUANTITY:
+- Prioritize TOP 3-5 most important factors per category over exhaustive lists
+- Each compatibility factor must be specific, quantified, and actionable
+- Focus on what determines match quality for this buyer-business pairing
+- Be concise but comprehensive - quality beats length
 
 ${industryBenchmarks ? `INDUSTRY CONTEXT (${industryBenchmarks.sampleSize} comparable ${listing.industry} businesses):
 - Average Revenue: $${industryBenchmarks.averageRevenue?.toLocaleString()} (This business: ${listing.revenue && industryBenchmarks.averageRevenue ? (listing.revenue > industryBenchmarks.averageRevenue ? `${Math.round(((listing.revenue - industryBenchmarks.averageRevenue) / industryBenchmarks.averageRevenue) * 100)}% ABOVE` : `${Math.round(((industryBenchmarks.averageRevenue - listing.revenue) / industryBenchmarks.averageRevenue) * 100)}% BELOW`) : 'N/A'})
@@ -971,32 +1024,32 @@ CRITICAL: Reference how this business compares to these actual comparable opport
 
 REQUIRED COMPREHENSIVE BUYER MATCH ANALYSIS:
 
-Analyze the buyer-business compatibility and provide a comprehensive match score with detailed insights specific to ${businessType.subsector} businesses.
+First, determine what this business ACTUALLY does based on the description, then analyze the buyer-business compatibility and provide a comprehensive match score with detailed insights specific to the actual business type.
 
 Provide detailed analysis covering:
 
 1. OVERALL MATCH SCORE (0-100) with confidence metrics
 2. DETAILED COMPATIBILITY ANALYSIS:
-   - Industry Experience fit for ${businessType.subsector}
+   - Industry Experience fit for this business type
    - Financial Capacity alignment
-   - Operational Fit for ${businessType.subsector} operations
+   - Operational Fit for this business's actual operations
    - Cultural Alignment considerations
    - Strategic Value potential
 
 3. COMPREHENSIVE RISK ASSESSMENT:
-   - ${businessType.subsector}-specific risks
-   - Risk mitigation strategies
-   - Monitoring metrics
+   - Top 3-5 risks specific to this business type
+   - Top 3-5 risk mitigation strategies
+   - Key monitoring metrics
 
 4. OPPORTUNITY ANALYSIS:
-   - Synergy opportunities specific to ${businessType.subsector}
-   - Growth opportunities in ${businessType.sector}
+   - Top 3-5 synergy opportunities specific to this business type
+   - Top 3-5 growth opportunities in this sector
    - Strategic expansion potential
 
 5. STRATEGIC RECOMMENDATIONS:
    - Match recommendation (excellent_match, good_match, moderate_match, poor_match)
    - Detailed reasoning
-   - Next steps for ${businessType.subsector} acquisition
+   - Next steps for this acquisition
 
 Respond in JSON format with this EXACT structure:
 {
@@ -1005,19 +1058,19 @@ Respond in JSON format with this EXACT structure:
     "score": number,
     "level": "high|medium|low",
     "percentage": number,
-    "reasoning": "string explaining confidence in ${businessType.subsector} match analysis",
+    "reasoning": "string explaining confidence in this match analysis",
     "factors": {
       "dataQuality": number,
       "sampleSize": number,
       "marketStability": number,
       "historicalAccuracy": number
     },
-    "methodology": "string describing analysis approach for ${businessType.sector}",
+    "methodology": "string describing analysis approach",
     "limitations": ["limitation1", "limitation2"]
   },
   "compatibility": {
     "industryExperience": {
-      "insight": "string - industry experience analysis for ${businessType.subsector}",
+      "insight": "string - industry experience analysis for this business type",
       "actionable": "string - actionable recommendation",
       "confidence": {confidence_structure},
       "supportingData": ["data1", "data2"],
@@ -1037,7 +1090,7 @@ Respond in JSON format with this EXACT structure:
       "probability": number
     },
     "operationalFit": {
-      "insight": "string - operational fit for ${businessType.subsector}",
+      "insight": "string - operational fit for this business type",
       "actionable": "string - actionable recommendation",
       "confidence": {confidence_structure},
       "supportingData": ["data1", "data2"],
@@ -1057,7 +1110,7 @@ Respond in JSON format with this EXACT structure:
       "probability": number
     },
     "strategicValue": {
-      "insight": "string - strategic value for ${businessType.subsector}",
+      "insight": "string - strategic value for this business type",
       "actionable": "string - actionable recommendation",
       "confidence": {confidence_structure},
       "supportingData": ["data1", "data2"],
@@ -1069,7 +1122,7 @@ Respond in JSON format with this EXACT structure:
   },
   "risks": [
     {
-      "factor": "string - ${businessType.subsector} specific risk",
+      "factor": "string - specific risk for this business type",
       "description": "string - detailed risk description",
       "severity": "low|medium|high|critical",
       "likelihood": number,
@@ -1084,7 +1137,7 @@ Respond in JSON format with this EXACT structure:
   "riskMitigation": ["mitigation1", "mitigation2"],
   "synergies": [
     {
-      "insight": "string - synergy opportunity for ${businessType.subsector}",
+      "insight": "string - synergy opportunity for this business type",
       "actionable": "string - actionable recommendation",
       "confidence": {confidence_structure},
       "supportingData": ["data1"],
@@ -1096,7 +1149,7 @@ Respond in JSON format with this EXACT structure:
   ],
   "growthOpportunities": [
     {
-      "insight": "string - growth opportunity in ${businessType.sector}",
+      "insight": "string - growth opportunity in this sector",
       "actionable": "string - actionable recommendation",
       "confidence": {confidence_structure},
       "supportingData": ["data1"],
@@ -1125,15 +1178,15 @@ Respond in JSON format with this EXACT structure:
       messages: [
         {
           role: "system",
-          content: `You are an elite buyer-seller matching expert with deep knowledge of ${businessType.sector} industry, specifically ${businessType.subsector} businesses. You have 25+ years of experience in M&A matchmaking, buyer profiling, and strategic fit analysis. You understand the unique operational requirements, financial characteristics, and strategic considerations of ${businessType.subsector} businesses.`
+          content: `You are an elite buyer-seller matching expert with 25+ years of experience in M&A matchmaking, buyer profiling, and strategic fit analysis across multiple industries. You have deep expertise in identifying the true nature of businesses and assessing compatibility based on each business's actual operations. You understand the unique operational requirements, financial characteristics, and strategic considerations of different business types.`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.3,
-      max_tokens: 2500, // Reduced for faster generation
+      temperature: 0.4, // Optimized for faster generation while maintaining consistency
+      max_tokens: 2000, // Optimized for speed while maintaining quality
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
@@ -1210,40 +1263,66 @@ export async function generateSuperEnhancedDueDiligence(
   console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
 
   const prompt = `
-As a world-class due diligence expert with deep expertise in ${businessType.sector} sector and ${businessType.subsector} businesses, create a comprehensive, risk-prioritized due diligence checklist for this specific acquisition opportunity.
+As a world-class due diligence expert, create a comprehensive, risk-prioritized due diligence checklist for this specific acquisition opportunity based on the ACTUAL business description.
 
-BUSINESS INTELLIGENCE:
-- Title: ${businessTitle}
-- Description: ${businessDescription}
-- Industry: ${listing.industry}
-- Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
-- Matching Keywords: ${businessType.matchingKeywords.join(', ')}
+⚠️ CRITICAL: This due diligence checklist MUST be for the specific business described below. DO NOT provide generic industry checklists.
+
+=== THE BUSINESS YOU ARE ANALYZING ===
+BUSINESS NAME: "${businessTitle}"
+
+INDUSTRY CLASSIFICATION: ${listing.industry}
+
+FULL DESCRIPTION: ${businessDescription}
+
+BUSINESS DETAILS:
+- Industry Classification: ${listing.industry}
 - Location: ${listing.city}, ${listing.state}
 - Revenue: $${listing.revenue?.toLocaleString() || 'Not disclosed'}
 - EBITDA: $${listing.ebitda?.toLocaleString() || 'Not disclosed'}
-- Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
+- Asking Price: $${listing.price?.toLocaleString() || 'Not disclosed'}
 - Employees: ${listing.employees || 'Not specified'}
+
+AUTO-DETECTED BUSINESS TYPE (USE AS HINT ONLY - VERIFY AGAINST DESCRIPTION):
+Suggested: ${businessType.subsector} in ${businessType.sector} sector
+Detection keywords: ${businessType.matchingKeywords.join(', ')}
+Detection confidence: ${businessType.confidence}%
+
+⚠️ IMPORTANT: The auto-detection may be INCORRECT. You MUST:
+1. Read the full description carefully and determine the ACTUAL business type
+2. If the description clearly indicates a different sector than detected, USE THE CORRECT SECTOR
+3. Create due diligence items based on what the business ACTUALLY does, not the auto-detected type
+
+=== MANDATORY REQUIREMENTS ===
+Every due diligence item MUST specifically reference "${businessTitle}" and its ACTUAL business operations as described.
+DO NOT create generic checklists. CREATE specific tasks relevant to what this business actually does.
+Reference the business by its actual operations when creating checklist items.
+
+RESPONSE QUALITY OVER QUANTITY:
+- Prioritize TOP 3-5 most critical items per category over exhaustive checklists
+- Each item must be specific, actionable, and directly relevant to this acquisition
+- Focus on what could make or break this deal
+- Be concise but thorough - quality beats length
 
 ${comparableListings.length > 0 ? `COMPARABLE ${listing.industry.toUpperCase()} BUSINESSES FOR CONTEXT:
 ${comparableListings.map((comp: any, i: number) => `${i + 1}. ${comp.title} | ${comp.city}, ${comp.state} | Rev: $${comp.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${comp.ebitda?.toLocaleString() || 'N/A'} | Price: $${(comp.price || comp.askingPrice)?.toLocaleString() || 'N/A'}`).join('\n')}
 
-CRITICAL: Use these comparable businesses to identify industry-standard practices, typical risks for ${businessType.subsector} businesses, and red flags that may indicate this business deviates from industry norms.
+CRITICAL: Use these comparable businesses to identify industry-standard practices, typical risks for this type of business, and red flags that may indicate this business deviates from industry norms.
 ` : ''}
 
 REQUIRED COMPREHENSIVE DUE DILIGENCE ANALYSIS:
 
-Create a detailed, industry-specific due diligence plan covering:
+First, determine what this business ACTUALLY does based on the description, then create a detailed, industry-specific due diligence plan covering:
 
 1. CRITICAL ITEMS BY CATEGORY:
-   - Financial Verification (3-5 critical tasks)
-   - Legal & Regulatory (industry-specific requirements)
-   - Technical & Operational (sector-specific assessments)
-   - Market & Competitive (positioning analysis)
-   - Human Resources (talent assessment)
-   - Technology & Systems (infrastructure review)
+   - Financial Verification (top 3-5 critical tasks specific to this business type)
+   - Legal & Regulatory (top 3-5 industry-specific requirements based on what this business does)
+   - Technical & Operational (top 3-5 assessments specific to this business's operations)
+   - Market & Competitive (top 3-5 positioning analyses relevant to this industry)
+   - Human Resources (top 3-5 talent assessments for this type of operation)
+   - Technology & Systems (top 3-5 infrastructure reviews appropriate for this business)
 
 Each task must include:
-- Specific task description tailored to ${businessType.subsector}
+- Specific task description tailored to what this business ACTUALLY does
 - Priority level (critical/high/medium/low)
 - Risk level assessment
 - Time/effort estimation
@@ -1252,16 +1331,16 @@ Each task must include:
 - Industry-specific red flags to watch for
 
 2. COMPREHENSIVE RISK MATRIX:
-   - Industry-specific risk factors with quantified likelihood and impact (IMPORTANT: Use 1-10 scale only)
-   - Risk mitigation strategies tailored to ${businessType.sector}
-   - Monitoring metrics specific to ${businessType.subsector}
+   - Industry-specific risk factors based on the ACTUAL business type with quantified likelihood and impact (IMPORTANT: Use 1-10 scale only)
+   - Risk mitigation strategies tailored to the correct industry sector
+   - Monitoring metrics specific to this type of business
    - Confidence scoring with methodology
    - CRITICAL: Likelihood and Impact must be integers from 1-10, where 1=very low and 10=very high
 
 3. INDUSTRY-SPECIFIC REQUIREMENTS:
-   - Regulations specific to ${businessType.subsector}
-   - Compliance requirements for ${listing.city}, ${listing.state}
-   - Required certifications and licenses
+   - Regulations specific to this business's actual operations
+   - Compliance requirements for ${listing.city}, ${listing.state} and this industry
+   - Required certifications and licenses for this type of business
    - Special considerations unique to this business type
 
 4. DETAILED TIMELINE AND RESOURCES:
@@ -1271,8 +1350,8 @@ Each task must include:
    - Milestone tracking
 
 5. STRATEGIC RECOMMENDATIONS:
-   - Priority actions based on business type and risk profile
-   - Expert recommendations for ${businessType.sector} acquisitions
+   - Priority actions based on this business's actual type and risk profile
+   - Expert recommendations for acquisitions in this sector
    - Industry-specific due diligence best practices
 
 Respond in JSON format with this EXACT structure:
@@ -1282,20 +1361,20 @@ Respond in JSON format with this EXACT structure:
       "category": "string",
       "items": [
         {
-          "task": "string - specific to ${businessType.subsector}",
+          "task": "string - specific to this business's actual operations",
           "priority": "critical|high|medium|low",
           "riskLevel": "high|medium|low",
           "effort": "string - time estimation",
           "expertise": "string - required specialist type",
           "timeline": "string - completion timeframe",
-          "redFlags": ["flag1 specific to ${businessType.subsector}", "flag2"]
+          "redFlags": ["flag1 specific to this business type", "flag2"]
         }
       ]
     }
   ],
   "riskMatrix": [
     {
-      "factor": "string - ${businessType.subsector} specific risk",
+      "factor": "string - specific risk for this business type",
       "description": "string - detailed risk description",
       "severity": "low|medium|high|critical",
       "likelihood": number_1_to_10,
@@ -1320,11 +1399,11 @@ Respond in JSON format with this EXACT structure:
       "category": "financial|operational|market|strategic|regulatory"
     }
   ],
-  "priorityActions": ["action1 for ${businessType.subsector}", "action2"],
+  "priorityActions": ["action1 for this business type", "action2"],
   "industrySpecific": {
-    "regulations": ["regulation1 for ${businessType.subsector}", "regulation2"],
+    "regulations": ["regulation1 for this business type", "regulation2"],
     "compliance": ["compliance1 for ${listing.state}", "compliance2"],
-    "certifications": ["cert1 for ${businessType.subsector}", "cert2"],
+    "certifications": ["cert1 for this business type", "cert2"],
     "specialConsiderations": ["consideration1", "consideration2"]
   },
   "timeline": [
@@ -1345,17 +1424,17 @@ Respond in JSON format with this EXACT structure:
     "score": number,
     "level": "high|medium|low",
     "percentage": number,
-    "reasoning": "string explaining confidence in ${businessType.subsector} analysis",
+    "reasoning": "string explaining confidence in this analysis",
     "factors": {
       "dataQuality": number,
       "sampleSize": number,
       "marketStability": number,
       "historicalAccuracy": number
     },
-    "methodology": "string describing analysis approach for ${businessType.sector}",
+    "methodology": "string describing analysis approach",
     "limitations": ["limitation1", "limitation2"]
   },
-  "recommendations": ["recommendation1 for ${businessType.subsector}", "recommendation2"]
+  "recommendations": ["recommendation1 for this business type", "recommendation2"]
 }
 `;
 
@@ -1365,15 +1444,15 @@ Respond in JSON format with this EXACT structure:
       messages: [
         {
           role: "system",
-          content: `You are an elite due diligence expert with deep knowledge of ${businessType.sector} industry, specifically ${businessType.subsector} businesses. You have 25+ years of experience in M&A transactions, risk assessment, and comprehensive investigation methodologies. You understand the unique challenges, regulations, and operational complexities of ${businessType.subsector} businesses in ${listing.city}, ${listing.state}.`
+          content: `You are an elite due diligence expert with 25+ years of experience in M&A transactions, risk assessment, and comprehensive investigation methodologies across multiple industries. You have deep expertise in identifying the true nature of businesses and creating industry-specific due diligence plans tailored to each business's actual operations. You understand the unique challenges, regulations, and operational complexities of different business types.`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.3,
-      max_tokens: 2500, // Reduced for faster generation
+      temperature: 0.4, // Optimized for faster generation while maintaining consistency
+      max_tokens: 2000, // Optimized for speed while maintaining quality
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
@@ -1445,16 +1524,42 @@ export async function generateSuperEnhancedMarketIntelligence(
   console.log('🔍 DETECTED BUSINESS TYPE:', businessType.sector, '->', businessType.subsector, `(${businessType.confidence}% confidence)`);
 
   const prompt = `
-As a top-tier market intelligence analyst with deep expertise in ${businessType.sector} industry and ${businessType.subsector} businesses, provide comprehensive market analysis for this specific business acquisition opportunity.
+As a top-tier market intelligence analyst, provide comprehensive market analysis for this specific business acquisition opportunity based on the ACTUAL business description.
 
-BUSINESS BEING ANALYZED:
-- Title: ${title}
-- Description: ${description}
+⚠️ CRITICAL: This market intelligence MUST be for the specific business described below. DO NOT provide generic industry market analysis.
+
+=== THE BUSINESS YOU ARE ANALYZING ===
+BUSINESS NAME: "${title}"
+
+INDUSTRY CLASSIFICATION: ${industry}
+
+FULL DESCRIPTION: ${description}
+
+BUSINESS DETAILS:
 - Industry: ${industry}
-- Business Type: ${businessType.sector} → ${businessType.subsector} (${businessType.confidence}% confidence)
-- Matching Keywords: ${businessType.matchingKeywords.join(', ')}
 - Geography: ${geography || 'National'}
 - Deal Size: $${dealSize?.toLocaleString() || 'Variable'}
+
+AUTO-DETECTED BUSINESS TYPE (USE AS HINT ONLY - VERIFY AGAINST DESCRIPTION):
+Suggested: ${businessType.subsector} in ${businessType.sector} sector
+Detection keywords: ${businessType.matchingKeywords.join(', ')}
+Detection confidence: ${businessType.confidence}%
+
+⚠️ IMPORTANT: The auto-detection may be INCORRECT. You MUST:
+1. Read the full description carefully and determine the ACTUAL business type
+2. If the description clearly indicates a different sector than detected, USE THE CORRECT SECTOR
+3. Base your market analysis on what the business ACTUALLY does, not the auto-detected type
+
+=== MANDATORY REQUIREMENTS ===
+Every market insight, competitive analysis, and recommendation MUST specifically reference "${title}" and its ACTUAL business operations as described.
+DO NOT create generic market analysis. CREATE specific insights relevant to what this business actually does.
+When discussing market trends, explicitly connect them to how they affect this specific business based on its actual operations.
+
+RESPONSE QUALITY OVER QUANTITY:
+- Prioritize TOP 3-5 most impactful insights per category over exhaustive analysis
+- Each insight must be data-driven, specific, and actionable for this acquisition
+- Focus on market factors that directly impact acquisition success
+- Be concise but comprehensive - quality beats length
 
 ${marketData ? `REAL MARKET DATA FROM OUR DATABASE (${marketData.totalListings} active ${industry} listings):
 
@@ -1487,30 +1592,30 @@ ${marketData.topStates.map(([state, count]: [string, number]) => `- ${state}: ${
 SAMPLE ACTIVE LISTINGS:
 ${marketData.sampleListings.slice(0, 5).map((l: any, i: number) => `${i + 1}. ${l.title} - ${l.city}, ${l.state} | Revenue: $${l.revenue?.toLocaleString() || 'N/A'} | EBITDA: $${l.ebitda?.toLocaleString() || 'N/A'} | Price: $${l.price?.toLocaleString() || 'N/A'}`).join('\n')}
 
-CRITICAL INSTRUCTION: This is REAL market data from our platform, not generic industry knowledge. Base your analysis on these ACTUAL numbers and trends. Reference specific data points (e.g., "With ${marketData.totalListings} active listings and an average price of $${marketData.averagePrice?.toLocaleString()}, the ${businessType.subsector} market shows..."). DO NOT provide generic analysis - be specific and data-driven.
+CRITICAL INSTRUCTION: This is REAL market data from our platform, not generic industry knowledge. Base your analysis on these ACTUAL numbers and trends. Reference specific data points and be data-driven, not generic.
 ` : ''}
 
 REQUIRED COMPREHENSIVE MARKET INTELLIGENCE:
 
-Provide detailed market intelligence covering:
+First, determine what this business ACTUALLY does based on the description, then provide detailed market intelligence covering:
 
 1. MARKET OVERVIEW:
-   - Market size analysis specific to ${businessType.subsector} in ${geography || 'the target region'}
+   - Market size analysis specific to this business type in ${geography || 'the target region'}
    - Growth projections with confidence intervals and supporting data
-   - Key market trends affecting ${businessType.subsector} businesses
-   - Primary market drivers and their impact on ${businessType.subsector}
+   - Top 3-5 key market trends affecting this type of business
+   - Top 3-5 primary market drivers and their impact on this business type
 
 2. COMPETITIVE LANDSCAPE:
-   - Competition intensity analysis for ${businessType.subsector} in ${geography || 'the market'}
-   - Key players and market positioning in ${businessType.subsector}
-   - Entry barriers specific to ${businessType.subsector}
-   - Market opportunities and underserved segments
+   - Competition intensity analysis for this business type in ${geography || 'the market'}
+   - Top 3-5 key players and market positioning in this industry
+   - Top 3-5 entry barriers specific to this business type
+   - Top 3-5 market opportunities and underserved segments
 
 3. ECONOMIC ANALYSIS:
-   - Economic outlook for ${businessType.sector} sector
+   - Economic outlook for the correct sector this business operates in
    - Industry-specific economic risks and opportunities
    - DETAILED MARKET TIMING ANALYSIS: Provide comprehensive timing insights including:
-     * Current market cycle phase for ${businessType.subsector}
+     * Current market cycle phase for this business type
      * Optimal acquisition timing factors
      * Economic indicators supporting timing decisions
      * Risk factors that could affect timing
@@ -1518,67 +1623,67 @@ Provide detailed market intelligence covering:
      * Forward-looking timing considerations (6-18 months)
 
 4. INVESTMENT CLIMATE:
-   - M&A activity levels in ${businessType.subsector}
-   - Valuation trends and multiples for ${businessType.subsector} businesses
-   - Investment trends and capital availability
-   - Market outlook for ${businessType.subsector} investments
+   - M&A activity levels in this business sector
+   - Valuation trends and multiples for this type of business
+   - Top 3-5 investment trends and capital availability factors
+   - Market outlook for investments in this sector
 
 5. STRATEGIC RECOMMENDATIONS:
-   - Industry-specific acquisition recommendations
+   - Top 3-5 industry-specific acquisition recommendations
    - Market timing guidance with detailed reasoning
-   - Strategic considerations for ${businessType.subsector} investments
+   - Key strategic considerations for this type of investment
 
 Respond in JSON format with this EXACT structure:
 {
   "marketOverview": {
     "size": {
-      "insight": "string - detailed ${businessType.subsector} market size analysis",
+      "insight": "string - detailed market size analysis for this business type",
       "confidence": {confidence_structure}
     },
     "growth": {
-      "insight": "string - growth projections for ${businessType.subsector}",
+      "insight": "string - growth projections for this business type",
       "confidence": {confidence_structure}
     },
     "trends": [
       {
-        "insight": "string - trend affecting ${businessType.subsector}",
+        "insight": "string - trend affecting this business type",
         "confidence": {confidence_structure}
       }
     ],
     "drivers": [
       {
-        "insight": "string - market driver for ${businessType.subsector}",
+        "insight": "string - market driver for this business type",
         "confidence": {confidence_structure}
       }
     ]
   },
   "competitive": {
     "intensity": {
-      "insight": "string - competition analysis for ${businessType.subsector}",
+      "insight": "string - competition analysis for this business type",
       "confidence": {confidence_structure}
     },
     "keyPlayers": [
       {
-        "insight": "string - key players in ${businessType.subsector}",
+        "insight": "string - key players in this industry",
         "confidence": {confidence_structure}
       }
     ],
     "barriers": [
       {
-        "insight": "string - barriers in ${businessType.subsector}",
+        "insight": "string - barriers in this industry",
         "confidence": {confidence_structure}
       }
     ],
     "opportunities": [
       {
-        "insight": "string - opportunities in ${businessType.subsector}",
+        "insight": "string - opportunities in this industry",
         "confidence": {confidence_structure}
       }
     ]
   },
   "economic": {
     "outlook": {
-      "insight": "string - economic outlook for ${businessType.sector}",
+      "insight": "string - economic outlook for this sector",
       "confidence": {confidence_structure}
     },
     "risks": [
@@ -1602,17 +1707,17 @@ Respond in JSON format with this EXACT structure:
       }
     ],
     "timing": {
-      "insight": "string - COMPREHENSIVE market timing analysis including cycle phase, acquisition timing factors, economic indicators, risk factors, historical comparison, and 6-18 month outlook for ${businessType.subsector}",
+      "insight": "string - COMPREHENSIVE market timing analysis including cycle phase, acquisition timing factors, economic indicators, risk factors, historical comparison, and 6-18 month outlook",
       "confidence": {confidence_structure}
     }
   },
   "investment": {
     "activity": {
-      "insight": "string - M&A activity in ${businessType.subsector}",
+      "insight": "string - M&A activity in this sector",
       "confidence": {confidence_structure}
     },
     "valuations": {
-      "insight": "string - valuation trends for ${businessType.subsector}",
+      "insight": "string - valuation trends for this business type",
       "confidence": {confidence_structure}
     },
     "trends": [
@@ -1622,24 +1727,24 @@ Respond in JSON format with this EXACT structure:
       }
     ],
     "outlook": {
-      "insight": "string - investment outlook for ${businessType.subsector}",
+      "insight": "string - investment outlook for this sector",
       "confidence": {confidence_structure}
     }
   },
-  "recommendations": ["recommendation1 for ${businessType.subsector}", "recommendation2"],
+  "recommendations": ["recommendation1 for this business type", "recommendation2"],
   "timing": "excellent|good|moderate|poor",
   "confidence": {
     "score": number,
     "level": "high|medium|low",
     "percentage": number,
-    "reasoning": "string explaining confidence in ${businessType.subsector} analysis",
+    "reasoning": "string explaining confidence in this analysis",
     "factors": {
       "dataQuality": number,
       "sampleSize": number,
       "marketStability": number,
       "historicalAccuracy": number
     },
-    "methodology": "string describing analysis approach for ${businessType.sector}",
+    "methodology": "string describing analysis approach",
     "limitations": ["limitation1", "limitation2"]
   }
 }
@@ -1651,15 +1756,15 @@ Respond in JSON format with this EXACT structure:
       messages: [
         {
           role: "system",
-          content: `You are an elite market intelligence analyst with deep expertise in ${businessType.sector} industry, specifically ${businessType.subsector} businesses. You have 20+ years of experience in market analysis, competitive intelligence, and investment timing. You understand the unique market dynamics, economic cycles, and strategic considerations affecting ${businessType.subsector} businesses in ${geography || 'various markets'}.`
+          content: `You are an elite market intelligence analyst with 20+ years of experience in market analysis, competitive intelligence, and investment timing across multiple industries. You have deep expertise in identifying the true nature of businesses and providing sector-specific market intelligence tailored to each business's actual operations. You understand the unique market dynamics, economic cycles, and strategic considerations affecting different business types.`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.3,
-      max_tokens: 2500, // Reduced for faster generation
+      temperature: 0.4, // Optimized for faster generation while maintaining consistency
+      max_tokens: 2000, // Optimized for speed while maintaining quality
     }, {
       timeout: 60000, // 60 second timeout to prevent failures
     });
