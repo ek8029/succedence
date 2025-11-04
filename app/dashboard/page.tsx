@@ -406,53 +406,39 @@ export default function Dashboard() {
                 href="/ai-analysis-history"
                 className="text-gold hover:text-warm-white transition-colors font-medium text-sm"
               >
-                View All →
+                View All History →
               </Link>
             </div>
             <div className="glass p-6 border border-gold/30 rounded-luxury">
-              {aiListingSummary.filter((summary) => summary.listing && summary.listing.id).length > 0 ? (
+              {aiHistory && aiHistory.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {aiListingSummary
-                    .filter((summary) => summary.listing && summary.listing.id)
-                    .map((summary, index) => {
-                      console.log('Rendering summary:', summary);
-                      console.log('Listing ID:', summary.listing.id);
-                      console.log('Link href:', `/listings/${summary.listing.id}`);
-                      return (
+                  {aiHistory.map((analysis: any) => (
                     <Link
-                      key={summary.listing.id}
-                      href={`/listings/${summary.listing.id}`}
+                      key={analysis.id}
+                      href={`/listings/${analysis.listing_id}`}
                       className="block p-4 bg-charcoal/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:transform hover:-translate-y-1"
-                      onClick={(e) => {
-                        console.log('Link clicked!', summary.listing.id);
-                        console.log('Target href:', `/listings/${summary.listing.id}`);
-                      }}
                     >
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="px-2 py-1 bg-gold/20 text-gold rounded text-xs font-medium">
+                          {getAnalysisTypeName(analysis.analysis_type)}
+                        </span>
+                        <span className="text-silver/60 text-xs">
+                          {formatDate(analysis.created_at)}
+                        </span>
+                      </div>
                       <h3 className="text-warm-white font-medium text-sm line-clamp-2 mb-2">
-                        {summary.listing.title}
+                        {analysis.listings?.title || 'Listing'}
                       </h3>
-                      <div className="text-silver/70 text-xs mb-3">
-                        {summary.listing.industry} • {summary.listing.city}, {summary.listing.state}
+                      <div className="text-silver/70 text-xs mb-2">
+                        {analysis.listings?.industry} • {analysis.listings?.city}, {analysis.listings?.state}
                       </div>
-                      <div className="text-gold text-xs mb-3">
-                        {formatCurrency(summary.listing.price)}
-                      </div>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {summary.analysisTypes.map((type: string, typeIndex: number) => (
-                          <span
-                            key={typeIndex}
-                            className="px-2 py-1 bg-gold/20 text-gold rounded text-xs font-medium"
-                          >
-                            {getAnalysisTypeName(type)}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="text-silver/60 text-xs">
-                        {summary.totalAnalyses} {summary.totalAnalyses === 1 ? 'analysis' : 'analyses'} • {formatDate(summary.lastAnalysisAt)}
-                      </div>
+                      {analysis.listings?.price && (
+                        <div className="text-gold text-xs">
+                          {formatCurrency(analysis.listings.price)}
+                        </div>
+                      )}
                     </Link>
-                      );
-                    })}
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-8">

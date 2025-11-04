@@ -34,11 +34,12 @@ export default function MyMatches() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null)
+  const [generatingMatches, setGeneratingMatches] = useState(false)
 
   useEffect(() => {
     async function fetchMatches() {
       try {
-        const response = await fetch('/api/matches?limit=10')
+        const response = await fetch('/api/matches?limit=100')
 
         if (!response.ok) {
           const errorData = await response.json()
@@ -55,7 +56,31 @@ export default function MyMatches() {
         }
 
         const data: MatchesResponse = await response.json()
-        setMatches(data.matches || [])
+        const matchesList = data.matches || []
+        setMatches(matchesList)
+
+        // If no matches found, automatically generate them
+        if (matchesList.length === 0 && !generatingMatches) {
+          console.log('No matches found, generating matches...')
+          setGeneratingMatches(true)
+          try {
+            const generateResponse = await fetch('/api/matches/generate', {
+              method: 'POST'
+            })
+            if (generateResponse.ok) {
+              // Refetch matches after generation
+              const refreshResponse = await fetch('/api/matches?limit=100')
+              if (refreshResponse.ok) {
+                const refreshData: MatchesResponse = await refreshResponse.json()
+                setMatches(refreshData.matches || [])
+              }
+            }
+          } catch (genErr) {
+            console.error('Error generating matches:', genErr)
+          } finally {
+            setGeneratingMatches(false)
+          }
+        }
       } catch (err) {
         console.error('Error fetching matches:', err)
         setError(err instanceof Error ? err.message : 'Failed to load matches')
@@ -177,10 +202,17 @@ export default function MyMatches() {
     return explanations[reason] || reason
   }
 
-  if (loading) {
+  if (loading || generatingMatches) {
     return (
       <div className="glass p-6">
-        <h3 className="text-xl font-medium text-white mb-4">My Matches</h3>
+        <h3 className="text-xl font-medium text-white mb-4">
+          {generatingMatches ? 'Generating Your Matches...' : 'My Matches'}
+        </h3>
+        {generatingMatches && (
+          <div className="text-sm text-neutral-400 mb-4">
+            Analyzing all active listings to find your best matches. This may take a moment...
+          </div>
+        )}
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="animate-pulse">

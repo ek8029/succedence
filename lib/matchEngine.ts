@@ -24,7 +24,8 @@ const SCORING_CATEGORIES = {
 } as const
 
 // Minimum score threshold for storing matches (out of 100)
-export const MATCH_THRESHOLD = 30
+// Set to 0 to show all matches regardless of score
+export const MATCH_THRESHOLD = 0
 
 // ===================================================================
 // TYPES
