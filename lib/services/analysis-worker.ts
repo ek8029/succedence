@@ -165,19 +165,19 @@ export class AnalysisWorker {
 
       const supabase = createBackgroundServiceClient();
 
-      // Prepare data for insertion
+      // Prepare data for insertion (using camelCase to match Drizzle schema)
       const insertData = {
-        user_id: job.user_id,
-        listing_id: job.listing_id,
-        analysis_type: job.analysis_type,
-        analysis_data: result
+        userId: job.user_id,
+        listingId: job.listing_id,
+        analysisType: job.analysis_type,
+        analysisData: result
       };
 
       console.log('💾 Insert data prepared:', {
-        user_id: insertData.user_id,
-        listing_id: insertData.listing_id,
-        analysis_type: insertData.analysis_type,
-        has_data: !!insertData.analysis_data
+        userId: insertData.userId,
+        listingId: insertData.listingId,
+        analysisType: insertData.analysisType,
+        has_data: !!insertData.analysisData
       });
 
       const { data, error } = await supabase
@@ -198,7 +198,7 @@ export class AnalysisWorker {
       } else {
         console.log('✅ Analysis saved to history table successfully!', {
           saved_id: data?.[0]?.id,
-          user_id: insertData.user_id
+          userId: insertData.userId
         });
       }
     } catch (error) {
