@@ -429,6 +429,11 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {aiHistory.map((analysis: any, index: number) => {
                     console.log(`📄 Rendering analysis ${index}:`, analysis);
+                    console.log(`   - analysis_type:`, analysis.analysis_type);
+                    console.log(`   - created_at:`, analysis.created_at);
+                    console.log(`   - listing_id:`, analysis.listing_id);
+                    console.log(`   - listings object:`, analysis.listings);
+                    console.log(`   - listings.title:`, analysis.listings?.title);
                     return (
                     <Link
                       key={analysis.id}
