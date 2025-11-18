@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const signupData = betaSignupSchema.parse(body)
 
     // Insert into beta_signups table
-    const { data, error } = await (supabase
+    const { error } = await (supabase
       .from('beta_signups') as any)
       .insert({
         name: signupData.name,
@@ -30,8 +30,6 @@ export async function POST(request: NextRequest) {
         role: signupData.role,
         interests: signupData.interests || null,
       })
-      .select()
-      .single()
 
     if (error) {
       // Check for duplicate email
@@ -51,8 +49,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Successfully signed up for beta access',
-      data
+      message: 'Successfully signed up for beta access'
     })
 
   } catch (error) {
