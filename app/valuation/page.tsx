@@ -8,6 +8,7 @@ import { ValuationForm } from '@/components/valuation/ValuationForm';
 import { ValuationResults } from '@/components/valuation/ValuationResults';
 import { FreeTierGate } from '@/components/valuation/FreeTierGate';
 import { getAllIndustryOptions, ValuationInput, ValuationOutput } from '@/lib/valuation';
+import Footer from '@/components/Footer';
 
 // Wrapper component to handle Suspense boundary for useSearchParams
 export default function ValuationPage() {
@@ -20,23 +21,26 @@ export default function ValuationPage() {
 
 function ValuationPageLoading() {
   return (
-    <div className="min-h-screen bg-primary-gradient">
-      <div className="container mx-auto px-4 pt-24 pb-16 max-w-5xl">
-        <div className="text-center mb-12">
-          <div className="inline-block mb-4">
-            <span className="px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm font-medium">
-              AI-POWERED VALUATION
-            </span>
+    <>
+      <div className="min-h-screen bg-primary-gradient">
+        <div className="container mx-auto px-4 pb-16 max-w-5xl page-content">
+          <div className="text-center mb-12">
+            <div className="inline-block mb-4">
+              <span className="px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm font-medium">
+                AI-POWERED VALUATION
+              </span>
+            </div>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-warm-white mb-4">
+              Business Valuation Tool
+            </h1>
+            <p className="text-lg text-silver/80 max-w-2xl mx-auto">
+              Loading...
+            </p>
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-warm-white mb-4">
-            Business Valuation Tool
-          </h1>
-          <p className="text-lg text-silver/80 max-w-2xl mx-auto">
-            Loading...
-          </p>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
 
@@ -157,10 +161,11 @@ function ValuationPageContent() {
   const industryOptions = getAllIndustryOptions();
 
   return (
-    <div className="min-h-screen bg-primary-gradient">
-      <div className="container mx-auto px-4 pt-24 pb-16 max-w-5xl">
-        {/* Header */}
-        <div className="text-center mb-12">
+    <>
+      <div className="min-h-screen bg-primary-gradient">
+        <div className="container mx-auto px-4 pb-16 max-w-5xl page-content">
+          {/* Header */}
+          <div className="text-center mb-12">
           <div className="inline-block mb-4">
             <span className="px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm font-medium">
               AI-POWERED VALUATION
@@ -306,7 +311,9 @@ function ValuationPageContent() {
             )}
           </>
         )}
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
