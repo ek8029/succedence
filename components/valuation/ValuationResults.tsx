@@ -73,16 +73,16 @@ export function ValuationResults({ valuation }: ValuationResultsProps) {
         )}
 
         {/* Deal Quality Score */}
-        <div className="flex items-center justify-center gap-6">
-          <div className={`w-24 h-24 rounded-full ${qualityColor.bg} ${qualityColor.border} border-2 flex flex-col items-center justify-center`}>
-            <span className={`text-3xl font-bold ${qualityColor.text}`}>{dealQualityScore}</span>
-            <span className="text-silver/60 text-xs">/ 100</span>
+        <div className="flex items-center justify-center gap-4">
+          <div className={`w-16 h-16 rounded-full ${qualityColor.bg} ${qualityColor.border} border-2 flex flex-col items-center justify-center`}>
+            <span className={`text-xl font-bold ${qualityColor.text}`}>{dealQualityScore}</span>
+            <span className="text-silver/60 text-[10px]">/ 100</span>
           </div>
           <div>
-            <div className={`text-lg font-semibold ${qualityColor.text}`}>
+            <div className={`text-base font-semibold ${qualityColor.text}`}>
               {qualityColor.label} Deal
             </div>
-            <div className="text-silver/70 text-sm">Deal Quality Score</div>
+            <div className="text-silver/70 text-xs">Deal Quality Score</div>
           </div>
         </div>
       </div>
