@@ -467,7 +467,7 @@ export default function ListingDetailPage() {
               </div>
 
               {/* Primary CTAs */}
-              <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start items-center">
                 {user && (
                   <button
                     onClick={handleSaveListing}
@@ -508,11 +508,8 @@ export default function ListingDetailPage() {
                 )}
                 <Link
                   href={`/valuation?listingId=${listing.id}&industry=${encodeURIComponent(listing.industry)}&revenue=${listing.revenue || ''}&ebitda=${listing.ebitda || ''}&cashFlow=${listing.cashFlow || ''}&price=${listing.price || ''}&employees=${listing.employees || ''}&yearEstablished=${listing.yearEstablished || ''}&ownerHours=${listing.ownerHours || ''}&city=${encodeURIComponent(listing.city || '')}&state=${encodeURIComponent(listing.state || '')}&businessName=${encodeURIComponent(listing.title || '')}`}
-                  className="glass px-8 py-4 text-lg font-medium text-gold hover-lift border border-gold/50 hover:bg-gold/10 hover:border-gold inline-flex items-center gap-2 transition-all"
+                  className="glass px-8 py-4 text-lg font-medium text-gold hover-lift border border-gold/50 hover:bg-gold/10 hover:border-gold transition-all"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
                   Get AI Valuation
                 </Link>
               </div>
