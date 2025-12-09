@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
@@ -9,7 +9,38 @@ import { ValuationResults } from '@/components/valuation/ValuationResults';
 import { FreeTierGate } from '@/components/valuation/FreeTierGate';
 import { getAllIndustryOptions, ValuationInput, ValuationOutput } from '@/lib/valuation';
 
+// Wrapper component to handle Suspense boundary for useSearchParams
 export default function ValuationPage() {
+  return (
+    <Suspense fallback={<ValuationPageLoading />}>
+      <ValuationPageContent />
+    </Suspense>
+  );
+}
+
+function ValuationPageLoading() {
+  return (
+    <div className="min-h-screen bg-primary-gradient">
+      <div className="container mx-auto px-4 pt-24 pb-16 max-w-5xl">
+        <div className="text-center mb-12">
+          <div className="inline-block mb-4">
+            <span className="px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm font-medium">
+              AI-POWERED VALUATION
+            </span>
+          </div>
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-warm-white mb-4">
+            Business Valuation Tool
+          </h1>
+          <p className="text-lg text-silver/80 max-w-2xl mx-auto">
+            Loading...
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ValuationPageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'url' | 'manual' | 'listing'>('manual');
