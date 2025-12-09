@@ -472,7 +472,7 @@ export default function ListingDetailPage() {
                   <button
                     onClick={handleSaveListing}
                     disabled={savingListing}
-                    className={`px-8 py-4 text-lg font-medium hover-lift border-2 transition-all duration-300 ${
+                    className={`px-8 py-4 text-lg font-medium hover-lift border-2 transition-all duration-300 inline-flex items-center ${
                       isSaved
                         ? 'bg-gold text-midnight border-gold hover:bg-gold/90'
                         : 'glass text-white border-gold/30 hover:border-gold hover:bg-gold/10'
