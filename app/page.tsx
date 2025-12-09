@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import ConnectCTA from '@/components/ConnectCTA';
+import ValuationCTA from '@/components/ValuationCTA';
 
 export default function PublicLandingPage() {
   return (
@@ -172,6 +173,13 @@ export default function PublicLandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </ScrollAnimation>
+
+          {/* Valuation Tool CTA */}
+          <ScrollAnimation direction="up" delay={35}>
+            <div className="mb-24 sm:mb-32 max-w-5xl mx-auto">
+              <ValuationCTA />
             </div>
           </ScrollAnimation>
 

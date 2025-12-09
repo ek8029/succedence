@@ -121,6 +121,14 @@ export default function Navbar() {
               >
                 Saved Listings
               </Link>
+              <Link
+                href="/valuation"
+                onClick={() => setMobileMenuOpen(false)}
+                className={getLinkClasses('/valuation', 'block py-2')}
+                style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}
+              >
+                AI Valuation
+              </Link>
               {user && (
                 <>
                   <Link
@@ -222,6 +230,9 @@ export default function Navbar() {
               )}
               <Link href="/saved-listings" className={getLinkClasses('/saved-listings')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
                 Saved Listings
+              </Link>
+              <Link href="/valuation" className={getLinkClasses('/valuation')} style={{fontFamily: 'Source Serif Pro, Georgia, serif'}}>
+                AI Valuation
               </Link>
             </div>
 

@@ -1,4 +1,4 @@
-import type { User as DrizzleUser, Profile, BrokerProfile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses, SavedListing } from '../db/schema'
+import type { User as DrizzleUser, Profile, BrokerProfile, Preferences, Listing, ListingMedia, Match, Alert, BillingEvent, Message, AuditLog, aiAnalyses, SavedListing, valuations, industryMultiples, freeValuationTracking } from '../db/schema'
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 
 // Database types from Drizzle
@@ -19,6 +19,11 @@ export type {
 
 // AI Analysis type from table
 export type AIAnalysis = InferSelectModel<typeof aiAnalyses>
+
+// Valuation types from table
+export type Valuation = InferSelectModel<typeof valuations>
+export type IndustryMultiple = InferSelectModel<typeof industryMultiples>
+export type FreeValuationTracking = InferSelectModel<typeof freeValuationTracking>
 
 // Enum types
 export type UserRole = 'buyer' | 'seller' | 'admin' | 'broker'
@@ -99,6 +104,21 @@ export interface Database {
         Row: SavedListing
         Insert: Omit<SavedListing, 'id' | 'createdAt' | 'updatedAt'>
         Update: Partial<Omit<SavedListing, 'id' | 'createdAt' | 'updatedAt'>>
+      }
+      valuations: {
+        Row: Valuation
+        Insert: Omit<Valuation, 'id' | 'createdAt' | 'updatedAt'>
+        Update: Partial<Omit<Valuation, 'id' | 'createdAt' | 'updatedAt'>>
+      }
+      industry_multiples: {
+        Row: IndustryMultiple
+        Insert: Omit<IndustryMultiple, 'id' | 'updatedAt'>
+        Update: Partial<Omit<IndustryMultiple, 'id' | 'updatedAt'>>
+      }
+      free_valuation_tracking: {
+        Row: FreeValuationTracking
+        Insert: Omit<FreeValuationTracking, 'id' | 'createdAt' | 'updatedAt'>
+        Update: Partial<Omit<FreeValuationTracking, 'id' | 'createdAt' | 'updatedAt'>>
       }
     }
     Views: {

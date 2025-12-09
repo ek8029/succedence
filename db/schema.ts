@@ -222,6 +222,130 @@ export const savedListings = pgTable('saved_listings', {
   uniqueUserListing: index('saved_listings_user_listing_unique').on(table.userId, table.listingId),
 }));
 
+// Valuations table - stores AI-powered business valuations
+export const valuations = pgTable('valuations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id), // NULL for anonymous valuations
+  listingId: uuid('listing_id').references(() => listings.id), // NULL for external/manual valuations
+
+  // Source tracking
+  sourceType: text('source_type').notNull(), // 'url_parse', 'manual_entry', 'existing_listing'
+  sourceUrl: text('source_url'),
+  sourcePlatform: text('source_platform'), // 'bizbuysell', 'businessesforsale', 'loopnet', etc.
+
+  // Raw financial inputs
+  rawRevenue: integer('raw_revenue'),
+  rawSde: integer('raw_sde'),
+  rawEbitda: integer('raw_ebitda'),
+  rawCashFlow: integer('raw_cash_flow'),
+  rawAskingPrice: integer('raw_asking_price'),
+  rawInventory: integer('raw_inventory'),
+  rawFfe: integer('raw_ffe'), // Furniture, Fixtures, Equipment
+
+  // Normalized financials
+  normalizedSde: integer('normalized_sde'),
+  normalizedEbitda: integer('normalized_ebitda'),
+  normalizationAdjustments: jsonb('normalization_adjustments'), // {owner_salary: X, addbacks: [...]}
+
+  // Business details
+  businessName: text('business_name'),
+  industry: text('industry').notNull(),
+  naicsCode: text('naics_code'),
+  city: text('city'),
+  state: text('state'),
+  yearEstablished: integer('year_established'),
+  employees: integer('employees'),
+  ownerHours: integer('owner_hours'),
+
+  // Risk factors stored for transparency
+  riskFactors: jsonb('risk_factors'),
+
+  // Valuation results
+  valuationLow: integer('valuation_low').notNull(),
+  valuationMid: integer('valuation_mid').notNull(),
+  valuationHigh: integer('valuation_high').notNull(),
+
+  // Multiples used
+  sdeMultipleLow: text('sde_multiple_low'),
+  sdeMultipleMid: text('sde_multiple_mid'),
+  sdeMultipleHigh: text('sde_multiple_high'),
+  ebitdaMultipleLow: text('ebitda_multiple_low'),
+  ebitdaMultipleMid: text('ebitda_multiple_mid'),
+  ebitdaMultipleHigh: text('ebitda_multiple_high'),
+
+  // Deal quality score (0-100)
+  dealQualityScore: integer('deal_quality_score'),
+  dealQualityBreakdown: jsonb('deal_quality_breakdown'),
+
+  // AI analysis results
+  aiAnalysis: jsonb('ai_analysis'), // Full structured analysis
+  keyStrengths: text('key_strengths').array(),
+  redFlags: text('red_flags').array(),
+  negotiationRecommendations: text('negotiation_recommendations').array(),
+  methodologyExplanation: text('methodology_explanation'),
+
+  // Mispricing analysis
+  mispricingPercent: text('mispricing_percent'), // e.g., "-15%" or "+20%"
+  mispricingAnalysis: text('mispricing_analysis'),
+
+  // Anonymous tracking for free tier
+  anonymousId: text('anonymous_id'),
+  capturedEmail: text('captured_email'),
+
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index('valuations_user_id_idx').on(table.userId),
+  listingIdIdx: index('valuations_listing_id_idx').on(table.listingId),
+  anonymousIdIdx: index('valuations_anonymous_id_idx').on(table.anonymousId),
+  industryIdx: index('valuations_industry_idx').on(table.industry),
+  createdAtIdx: index('valuations_created_at_idx').on(table.createdAt),
+}));
+
+// Industry multiples reference table
+export const industryMultiples = pgTable('industry_multiples', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  industryKey: text('industry_key').notNull().unique(), // e.g., 'hvac', 'saas', 'restaurant_full_service'
+  industryName: text('industry_name').notNull(), // Display name
+  naicsCode: text('naics_code'),
+  // SDE multiples
+  sdeMultipleLow: text('sde_multiple_low').notNull(),
+  sdeMultipleMid: text('sde_multiple_mid').notNull(),
+  sdeMultipleHigh: text('sde_multiple_high').notNull(),
+  // EBITDA multiples
+  ebitdaMultipleLow: text('ebitda_multiple_low').notNull(),
+  ebitdaMultipleMid: text('ebitda_multiple_mid').notNull(),
+  ebitdaMultipleHigh: text('ebitda_multiple_high').notNull(),
+  // Revenue multiples
+  revenueMultipleLow: text('revenue_multiple_low').notNull(),
+  revenueMultipleMid: text('revenue_multiple_mid').notNull(),
+  revenueMultipleHigh: text('revenue_multiple_high').notNull(),
+  // Industry characteristics
+  typicalOwnerHours: integer('typical_owner_hours'),
+  industryVolatility: text('industry_volatility'), // 'low', 'medium', 'high'
+  notes: text('notes'),
+  source: text('source'), // 'BizBuySell', 'IBBA', 'internal'
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Free valuation tracking for anonymous users
+export const freeValuationTracking = pgTable('free_valuation_tracking', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  anonymousId: text('anonymous_id').notNull().unique(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  valuationsUsed: integer('valuations_used').default(0).notNull(),
+  firstValuationAt: timestamp('first_valuation_at', { withTimezone: true }),
+  lastValuationAt: timestamp('last_valuation_at', { withTimezone: true }),
+  // Conversion tracking
+  convertedToUserId: uuid('converted_to_user_id').references(() => users.id),
+  convertedAt: timestamp('converted_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  ipAddressIdx: index('free_valuation_tracking_ip_idx').on(table.ipAddress),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles),
@@ -237,6 +361,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   auditLogs: many(auditLogs),
   aiAnalyses: many(aiAnalyses),
   savedListings: many(savedListings),
+  valuations: many(valuations),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -276,6 +401,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   ndas: many(ndas),
   aiAnalyses: many(aiAnalyses),
   savedByUsers: many(savedListings),
+  valuations: many(valuations),
 }));
 
 export const listingMediaRelations = relations(listingMedia, ({ one }) => ({
@@ -367,6 +493,24 @@ export const savedListingsRelations = relations(savedListings, ({ one }) => ({
   }),
 }));
 
+export const valuationsRelations = relations(valuations, ({ one }) => ({
+  user: one(users, {
+    fields: [valuations.userId],
+    references: [users.id],
+  }),
+  listing: one(listings, {
+    fields: [valuations.listingId],
+    references: [listings.id],
+  }),
+}));
+
+export const freeValuationTrackingRelations = relations(freeValuationTracking, ({ one }) => ({
+  convertedUser: one(users, {
+    fields: [freeValuationTracking.convertedToUserId],
+    references: [users.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -396,3 +540,9 @@ export type AIAnalysis = typeof aiAnalyses.$inferSelect;
 export type NewAIAnalysis = typeof aiAnalyses.$inferInsert;
 export type SavedListing = typeof savedListings.$inferSelect;
 export type NewSavedListing = typeof savedListings.$inferInsert;
+export type Valuation = typeof valuations.$inferSelect;
+export type NewValuation = typeof valuations.$inferInsert;
+export type IndustryMultiple = typeof industryMultiples.$inferSelect;
+export type NewIndustryMultiple = typeof industryMultiples.$inferInsert;
+export type FreeValuationTracking = typeof freeValuationTracking.$inferSelect;
+export type NewFreeValuationTracking = typeof freeValuationTracking.$inferInsert;
