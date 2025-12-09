@@ -508,7 +508,7 @@ export default function ListingDetailPage() {
                 )}
                 <Link
                   href={`/valuation?listingId=${listing.id}&industry=${encodeURIComponent(listing.industry)}&revenue=${listing.revenue || ''}&ebitda=${listing.ebitda || ''}&cashFlow=${listing.cashFlow || ''}&price=${listing.price || ''}&employees=${listing.employees || ''}&yearEstablished=${listing.yearEstablished || ''}&ownerHours=${listing.ownerHours || ''}&city=${encodeURIComponent(listing.city || '')}&state=${encodeURIComponent(listing.state || '')}&businessName=${encodeURIComponent(listing.title || '')}`}
-                  className="glass px-8 py-4 text-lg font-medium text-gold hover-lift border border-gold/50 hover:bg-gold/10 hover:border-gold transition-all"
+                  className="glass px-8 py-4 text-lg font-medium text-gold hover-lift border-2 border-gold/50 hover:bg-gold/10 hover:border-gold transition-all inline-flex items-center"
                 >
                   Get AI Valuation
                 </Link>
