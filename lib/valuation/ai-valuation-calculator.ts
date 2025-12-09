@@ -55,13 +55,13 @@ export interface ValuationCalculatorOutput {
 
 // ============= ADJUSTMENT TYPES =============
 
-interface AdjustmentResult {
+export interface AdjustmentResult {
   adjustedMultiple: number;
   totalAdjustment: number;
   appliedAdjustments: string[];
 }
 
-interface AdjustmentContext {
+export interface AdjustmentContext {
   dealQuality?: number;
   ownerHours?: number;
   volatility?: 'low' | 'medium' | 'high';
@@ -426,6 +426,4 @@ export function generateFallbackCommentary(result: ValuationCalculatorOutput): s
   return parts.join(' ');
 }
 
-// ============= EXPORTS =============
-
-export type { ValuationCalculatorInput, ValuationCalculatorOutput, AdjustmentResult, AdjustmentContext };
+// Types are exported inline with their definitions above
