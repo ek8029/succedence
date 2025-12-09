@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Public routes (no auth needed)
-  const publicRoutes = ['/beta', '/login', '/login/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms', '/pricing', '/brokers', '/browse', '/landing']
+  const publicRoutes = ['/beta', '/login', '/login/reset-password', '/signin', '/signin-test', '/success', '/subscribe', '/terms', '/pricing', '/brokers', '/browse', '/landing', '/valuation']
 
   // Check if the current path is public (no auth needed)
   const isPublicRoute = publicRoutes.some(route => {
