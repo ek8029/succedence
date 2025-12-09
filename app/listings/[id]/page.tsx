@@ -467,12 +467,12 @@ export default function ListingDetailPage() {
               </div>
 
               {/* Primary CTAs */}
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start items-center">
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start items-stretch">
                 {user && (
                   <button
                     onClick={handleSaveListing}
                     disabled={savingListing}
-                    className={`px-8 py-4 text-lg font-medium hover-lift border-2 transition-all duration-300 inline-flex items-center ${
+                    className={`h-14 px-8 text-lg font-medium hover-lift border-2 transition-all duration-300 inline-flex items-center justify-center ${
                       isSaved
                         ? 'bg-gold text-midnight border-gold hover:bg-gold/90'
                         : 'glass text-white border-gold/30 hover:border-gold hover:bg-gold/10'
@@ -493,7 +493,7 @@ export default function ListingDetailPage() {
                 {user && canMessage && (
                   <button
                     onClick={() => toggleAccordion('messages')}
-                    className="glass px-8 py-4 text-lg font-medium text-white hover-lift border border-neutral-600"
+                    className="h-14 px-8 text-lg font-medium text-white hover-lift border border-neutral-600 glass inline-flex items-center justify-center"
                   >
                     View Messages
                   </button>
@@ -501,14 +501,14 @@ export default function ListingDetailPage() {
                 {!user && (
                   <Link
                     href="/login"
-                    className="btn-primary px-8 py-4 text-lg font-medium hover-lift inline-block"
+                    className="h-14 px-8 text-lg font-medium hover-lift inline-flex items-center justify-center btn-primary"
                   >
                     Authenticate to Access Details
                   </Link>
                 )}
                 <Link
                   href={`/valuation?listingId=${listing.id}&industry=${encodeURIComponent(listing.industry)}&revenue=${listing.revenue || ''}&ebitda=${listing.ebitda || ''}&cashFlow=${listing.cashFlow || ''}&price=${listing.price || ''}&employees=${listing.employees || ''}&yearEstablished=${listing.yearEstablished || ''}&ownerHours=${listing.ownerHours || ''}&city=${encodeURIComponent(listing.city || '')}&state=${encodeURIComponent(listing.state || '')}&businessName=${encodeURIComponent(listing.title || '')}`}
-                  className="glass px-8 py-4 text-lg font-medium text-gold hover-lift border-2 border-gold/50 hover:bg-gold/10 hover:border-gold transition-all inline-flex items-center"
+                  className="h-14 px-8 text-lg font-medium text-gold hover-lift border-2 border-gold/50 hover:bg-gold/10 hover:border-gold transition-all inline-flex items-center justify-center glass"
                 >
                   Get AI Valuation
                 </Link>
