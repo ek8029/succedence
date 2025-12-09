@@ -59,19 +59,27 @@ function ValuationPageContent() {
     const industry = searchParams.get('industry') || '';
     const revenue = searchParams.get('revenue');
     const ebitda = searchParams.get('ebitda');
+    const cashFlow = searchParams.get('cashFlow');
     const price = searchParams.get('price');
     const employees = searchParams.get('employees');
     const yearEstablished = searchParams.get('yearEstablished');
     const ownerHours = searchParams.get('ownerHours');
+    const city = searchParams.get('city') || '';
+    const state = searchParams.get('state') || '';
+    const businessName = searchParams.get('businessName') || '';
 
     return {
       industry,
       revenue: revenue ? parseInt(revenue) : undefined,
       ebitda: ebitda ? parseInt(ebitda) : undefined,
+      cashFlow: cashFlow ? parseInt(cashFlow) : undefined,
       askingPrice: price ? parseInt(price) : undefined,
       employees: employees ? parseInt(employees) : undefined,
       yearEstablished: yearEstablished ? parseInt(yearEstablished) : undefined,
       ownerHoursPerWeek: ownerHours ? parseInt(ownerHours) : undefined,
+      city,
+      state,
+      businessName,
     };
   }, [searchParams]);
 

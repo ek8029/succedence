@@ -27,6 +27,7 @@ export function ValuationForm({
     revenue: initialValues?.revenue,
     sde: initialValues?.sde,
     ebitda: initialValues?.ebitda,
+    cashFlow: initialValues?.cashFlow,
     askingPrice: initialValues?.askingPrice,
     employees: initialValues?.employees,
     yearEstablished: initialValues?.yearEstablished,

@@ -507,7 +507,7 @@ export default function ListingDetailPage() {
                   </Link>
                 )}
                 <Link
-                  href={`/valuation?listingId=${listing.id}&industry=${encodeURIComponent(listing.industry)}&revenue=${listing.revenue || ''}&ebitda=${listing.ebitda || ''}&price=${listing.price || ''}&employees=${listing.employees || ''}&yearEstablished=${listing.yearEstablished || ''}&ownerHours=${listing.ownerHours || ''}`}
+                  href={`/valuation?listingId=${listing.id}&industry=${encodeURIComponent(listing.industry)}&revenue=${listing.revenue || ''}&ebitda=${listing.ebitda || ''}&cashFlow=${listing.cashFlow || ''}&price=${listing.price || ''}&employees=${listing.employees || ''}&yearEstablished=${listing.yearEstablished || ''}&ownerHours=${listing.ownerHours || ''}&city=${encodeURIComponent(listing.city || '')}&state=${encodeURIComponent(listing.state || '')}&businessName=${encodeURIComponent(listing.title || '')}`}
                   className="glass px-6 py-3 text-base font-medium text-gold hover-lift border border-gold/50 hover:bg-gold/10 hover:border-gold inline-flex items-center gap-2 transition-all"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
