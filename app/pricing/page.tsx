@@ -42,7 +42,7 @@ export default function PricingPage() {
         'Priority in seller responses'
       ],
       cta: 'Start 14-Day Free Trial',
-      highlighted: false,
+      highlighted: true,
       popular: true,
       savings: '20% off with annual'
     },
@@ -104,35 +104,44 @@ export default function PricingPage() {
     <div className="min-h-screen bg-midnight pt-24 pb-16">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
+        <div className="inline-block mb-6">
+          <span className="px-6 py-2 bg-blue-600/10 border border-blue-500/30 text-blue-400 rounded-full text-sm font-medium tracking-wide">
+            VALUATIONS ALWAYS FREE
+          </span>
+        </div>
         <h1 className="text-4xl md:text-5xl font-serif font-bold text-warm-white mb-4">
           Simple, Transparent Pricing
         </h1>
         <p className="text-lg md:text-xl text-silver/80 max-w-2xl mx-auto mb-8">
-          Start free, upgrade when you&apos;re ready. All plans include 14-day free trial.
+          Run unlimited valuations for free. Upgrade for PDF exports, advanced features, and buyer matching.
         </p>
 
         {/* Billing Toggle - Mobile optimized touch targets */}
-        <div className="inline-flex items-center gap-2 sm:gap-4 glass rounded-luxury-lg p-1.5">
+        <div className="inline-flex items-stretch gap-2 sm:gap-4 glass rounded-luxury-lg p-1.5">
           <button
             onClick={() => setBillingCycle('monthly')}
-            className={`px-4 sm:px-6 py-3 rounded-lg transition-all min-h-[44px] ${
+            className={`px-4 sm:px-6 py-3 rounded-lg transition-all flex items-center justify-center ${
               billingCycle === 'monthly'
                 ? 'bg-gold text-midnight font-semibold'
                 : 'text-silver/70 hover:text-warm-white'
             }`}
           >
-            Monthly
+            <span className="leading-none">Monthly</span>
           </button>
           <button
             onClick={() => setBillingCycle('annual')}
-            className={`px-4 sm:px-6 py-3 rounded-lg transition-all min-h-[44px] ${
+            className={`px-4 sm:px-6 py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${
               billingCycle === 'annual'
                 ? 'bg-gold text-midnight font-semibold'
                 : 'text-silver/70 hover:text-warm-white'
             }`}
           >
-            Annual
-            <span className="ml-2 text-xs px-2 py-0.5 bg-gold/20 text-gold rounded-full whitespace-nowrap">
+            <span className="leading-none">Annual</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap leading-none ${
+              billingCycle === 'annual'
+                ? 'bg-midnight/20 text-midnight font-semibold'
+                : 'bg-gold/20 text-gold'
+            }`}>
               Save 20%
             </span>
           </button>
@@ -141,13 +150,13 @@ export default function PricingPage() {
 
       {/* Pricing Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16 lg:auto-rows-fr pt-16">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative glass rounded-luxury-lg p-6 sm:p-8 flex flex-col ${
+              className={`relative glass rounded-luxury-lg p-6 sm:p-8 flex flex-col h-full ${
                 plan.highlighted
-                  ? 'border-2 border-gold shadow-2xl shadow-gold/20 lg:scale-105'
+                  ? 'border-2 border-gold shadow-2xl shadow-gold/20'
                   : 'border border-warm-white/10'
               }`}
             >
@@ -321,9 +330,9 @@ export default function PricingPage() {
         </div>
 
         {/* Trust Signals & FAQ */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 gap-8 mb-16 md:auto-rows-fr">
           {/* Trust Signals */}
-          <div className="glass rounded-luxury-lg p-8">
+          <div className="glass rounded-luxury-lg p-8 flex flex-col h-full">
             <h3 className="text-xl font-serif font-bold text-warm-white mb-6">
               Risk-Free Trial
             </h3>
@@ -365,7 +374,7 @@ export default function PricingPage() {
           </div>
 
           {/* FAQ */}
-          <div className="glass rounded-luxury-lg p-8">
+          <div className="glass rounded-luxury-lg p-8 flex flex-col h-full">
             <h3 className="text-xl font-serif font-bold text-warm-white mb-6">
               Common Questions
             </h3>
@@ -395,27 +404,27 @@ export default function PricingPage() {
         {/* Final CTA */}
         <div className="glass rounded-luxury-lg p-6 sm:p-12 text-center">
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-warm-white mb-4">
-            Ready to find your next acquisition?
+            Start with a Free Valuation
           </h2>
           <p className="text-base sm:text-lg text-silver/80 mb-8 max-w-2xl mx-auto">
-            Join hundreds of buyers who use Succedence to discover and analyze Main Street businesses.
+            See what your business is worth or price a listing. No signup required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push('/login')}
-              className="px-8 py-4 bg-gold text-midnight font-semibold rounded-luxury-lg hover:bg-gold/90 transition-all shadow-lg shadow-gold/20 min-h-[48px] text-base"
+              onClick={() => router.push('/valuation')}
+              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-lg min-h-[48px] text-base"
             >
-              Start Free Trial →
+              Get Free Valuation →
             </button>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/login')}
               className="px-8 py-4 glass-border text-warm-white font-semibold rounded-luxury-lg hover:border-gold/50 transition-all min-h-[48px] text-base"
             >
-              Learn More
+              Sign Up for More Features
             </button>
           </div>
           <p className="text-xs sm:text-sm text-silver/60 mt-6">
-            No credit card required • 14-day free trial • Cancel anytime
+            Unlimited free valuations • Upgrade for PDF exports and advanced features
           </p>
         </div>
       </div>
