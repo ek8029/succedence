@@ -15,7 +15,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { planType, useTrial }: { planType: PlanType; useTrial?: boolean } = await request.json();
+    const { planType, billingCycle }: {
+      planType: PlanType;
+      billingCycle?: 'monthly' | 'annual';
+    } = await request.json();
 
     if (!planType || planType === 'free' || planType === 'beta') {
       return NextResponse.json(
@@ -24,17 +27,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the price ID for the selected plan
-    const priceId = STRIPE_CONFIG.prices[planType as keyof typeof STRIPE_CONFIG.prices];
+    // Default to monthly if not specified
+    const cycle = billingCycle || 'monthly';
+
+    // Get the price ID for the selected plan and billing cycle
+    const planPrices = STRIPE_CONFIG.prices[planType as keyof typeof STRIPE_CONFIG.prices];
+    const priceId = typeof planPrices === 'object' ? planPrices[cycle] : planPrices;
 
     if (!priceId) {
       return NextResponse.json(
-        { error: 'Invalid plan type' },
+        { error: 'Invalid plan type or billing cycle' },
         { status: 400 }
       );
     }
 
-    // Create Stripe checkout session with optional trial
+    // Create Stripe checkout session
     const sessionConfig: any = {
       customer_email: user.email,
       client_reference_id: user.id,
@@ -50,26 +57,16 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: user.id,
         planType: planType,
-        withTrial: useTrial ? 'true' : 'false',
+        billingCycle: cycle,
       },
       subscription_data: {
         metadata: {
           userId: user.id,
           planType: planType,
-          withTrial: useTrial ? 'true' : 'false',
+          billingCycle: cycle,
         },
       },
     };
-
-    // Add 3-day trial if requested
-    if (useTrial) {
-      sessionConfig.subscription_data.trial_period_days = 3;
-      sessionConfig.subscription_data.trial_settings = {
-        end_behavior: {
-          missing_payment_method: 'cancel',
-        },
-      };
-    }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
 

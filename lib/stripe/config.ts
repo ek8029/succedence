@@ -15,8 +15,17 @@ export const STRIPE_CONFIG = {
   webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
   // Product price IDs - update these with your actual Stripe price IDs
   prices: {
-    starter: process.env.STRIPE_STARTER_PRICE_ID || 'price_1234567890abcdef',
-    professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_abcdef1234567890',
-    enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_fedcba0987654321',
+    starter: {
+      monthly: process.env.STRIPE_STARTER_PRICE_ID_MONTHLY || 'price_starter_monthly',
+      annual: process.env.STRIPE_STARTER_PRICE_ID_ANNUAL || 'price_starter_annual',
+    },
+    professional: {
+      monthly: process.env.STRIPE_PROFESSIONAL_PRICE_ID_MONTHLY || 'price_professional_monthly',
+      annual: process.env.STRIPE_PROFESSIONAL_PRICE_ID_ANNUAL || 'price_professional_annual',
+    },
+    enterprise: {
+      monthly: process.env.STRIPE_ENTERPRISE_PRICE_ID_MONTHLY || 'price_enterprise_monthly',
+      annual: process.env.STRIPE_ENTERPRISE_PRICE_ID_ANNUAL || 'price_enterprise_annual',
+    },
   }
 } as const;

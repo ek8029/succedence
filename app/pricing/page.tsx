@@ -2,11 +2,27 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 
 export default function PricingPage() {
   const router = useRouter()
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
+
+  // Feature comparison structure (excludes Enterprise-only features)
+  const features = [
+    { name: 'Browse all active listings', tiers: ['Free', 'Starter', 'Professional'] },
+    { name: 'Basic search and filters', tiers: ['Free', 'Starter', 'Professional'] },
+    { name: 'AI match reports', free: '3/month', starter: 'Unlimited', pro: 'Unlimited' },
+    { name: 'Save favorites', free: 'Up to 5', starter: 'Unlimited', pro: 'Unlimited' },
+    { name: 'Direct messaging with sellers', tiers: ['Starter', 'Professional'] },
+    { name: 'Weekly digest of new matches', tiers: ['Starter', 'Professional'] },
+    { name: 'Due diligence tools', free: false, starter: 'Basic', pro: 'Advanced' },
+    { name: 'Email support', free: '48hr', starter: '24hr', pro: '4hr' },
+    { name: 'Advanced AI business analysis', tiers: ['Professional'] },
+    { name: 'Market intelligence reports', tiers: ['Professional'] },
+    { name: 'Deal pipeline management', tiers: ['Professional'] },
+    { name: 'Pre-launch listings', tiers: ['Professional'] },
+  ]
 
   const plans = [
     {
@@ -14,14 +30,6 @@ export default function PricingPage() {
       tagline: 'Perfect for exploring',
       price: { monthly: 0, annual: 0 },
       description: 'Start browsing deals and get a feel for the platform',
-      features: [
-        'Browse all active listings',
-        'Basic search and filters',
-        '3 AI match reports per month',
-        'Save up to 5 favorites',
-        'Community forum access',
-        'Email support (48hr response)'
-      ],
       cta: 'Start Free',
       highlighted: false,
       popular: false
@@ -29,19 +37,9 @@ export default function PricingPage() {
     {
       name: 'Starter',
       tagline: 'For serious buyers',
-      price: { monthly: 99, annual: 79 },
+      price: { monthly: 19.99, annual: 15.99 },
       description: 'Get matched with opportunities automatically',
-      features: [
-        'Everything in Free, plus:',
-        'Unlimited AI match reports',
-        'Save unlimited favorites',
-        'Weekly digest of new matches',
-        'Direct messaging with sellers',
-        'Basic due diligence tools',
-        'Email support (24hr response)',
-        'Priority in seller responses'
-      ],
-      cta: 'Start 14-Day Free Trial',
+      cta: 'Get Started',
       highlighted: true,
       popular: true,
       savings: '20% off with annual'
@@ -49,20 +47,9 @@ export default function PricingPage() {
     {
       name: 'Professional',
       tagline: 'For active dealmakers',
-      price: { monthly: 299, annual: 239 },
+      price: { monthly: 49.99, annual: 39.99 },
       description: 'Full suite of AI-powered analysis and insights',
-      features: [
-        'Everything in Starter, plus:',
-        'Advanced AI business analysis',
-        'Market intelligence reports',
-        'Competitive landscape analysis',
-        'Due diligence checklists',
-        'Deal pipeline management',
-        'Priority support (4hr response)',
-        'Exclusive "pre-launch" listings',
-        'Seller introduction support'
-      ],
-      cta: 'Start 14-Day Free Trial',
+      cta: 'Get Started',
       highlighted: true,
       popular: false,
       savings: '20% off with annual'
@@ -72,8 +59,10 @@ export default function PricingPage() {
       tagline: 'For funds & groups',
       price: { monthly: null, annual: null },
       description: 'Custom solutions for teams and investment groups',
-      features: [
-        'Everything in Professional, plus:',
+      cta: 'Contact Sales',
+      highlighted: false,
+      popular: false,
+      enterpriseFeatures: [
         'Multi-user team accounts',
         'Custom matching algorithms',
         'White-glove deal sourcing',
@@ -82,10 +71,7 @@ export default function PricingPage() {
         'Dedicated account manager',
         'Custom integrations',
         'Quarterly strategy reviews'
-      ],
-      cta: 'Contact Sales',
-      highlighted: false,
-      popular: false
+      ]
     }
   ]
 
@@ -98,6 +84,22 @@ export default function PricingPage() {
     } else {
       router.push('/auth?plan=' + planName.toLowerCase())
     }
+  }
+
+  const getFeatureValue = (feature: any, planName: string) => {
+    const tierMap: any = {
+      'Free': 'free',
+      'Starter': 'starter',
+      'Professional': 'pro',
+      'Enterprise': 'enterprise'
+    }
+
+    if (feature.tiers) {
+      return feature.tiers.includes(planName)
+    }
+
+    const tierKey = tierMap[planName]
+    return feature[tierKey] || false
   }
 
   return (
@@ -150,11 +152,13 @@ export default function PricingPage() {
 
       {/* Pricing Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16 lg:auto-rows-fr pt-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16 items-stretch">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative glass rounded-luxury-lg p-6 sm:p-8 flex flex-col h-full ${
+              className={`relative glass rounded-luxury-lg flex flex-col h-full ${
+                plan.popular ? 'p-8 sm:p-10 lg:scale-[1.05]' : 'p-6 sm:p-8'
+              } ${
                 plan.highlighted
                   ? 'border-2 border-gold shadow-2xl shadow-gold/20'
                   : 'border border-warm-white/10'
@@ -162,8 +166,8 @@ export default function PricingPage() {
             >
               {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1 bg-gold text-midnight text-sm font-semibold rounded-full">
+                <div className="mb-4 -mt-2">
+                  <span className="inline-block px-4 py-1.5 bg-gold text-midnight text-sm font-semibold rounded-full">
                     Most Popular
                   </span>
                 </div>
@@ -201,25 +205,46 @@ export default function PricingPage() {
               </div>
 
               {/* Features */}
-              <ul className="space-y-3 mb-8 flex-grow">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm">
-                    {feature.startsWith('Everything in') ? (
-                      <span className="text-silver/80 font-medium">{feature}</span>
-                    ) : (
-                      <>
-                        <Check className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+              <ul className="space-y-2.5 mb-8 flex-grow">
+                {plan.name === 'Enterprise' ? (
+                  <>
+                    <li className="text-silver/70 text-sm mb-4 italic">
+                      Everything in Professional, plus:
+                    </li>
+                    {(plan as any).enterpriseFeatures?.map((feature: string, idx: number) => (
+                      <li key={`ent-${idx}`} className="flex items-start gap-2.5 text-sm">
+                        <Check className="w-4 h-4 text-gold shrink-0 mt-0.5" />
                         <span className="text-silver/80">{feature}</span>
-                      </>
-                    )}
-                  </li>
-                ))}
+                      </li>
+                    ))}
+                  </>
+                ) : (
+                  features.map((feature, idx) => {
+                    const featureValue = getFeatureValue(feature, plan.name)
+                    const isIncluded = featureValue !== false
+                    const hasCustomValue = typeof featureValue === 'string'
+
+                    return (
+                      <li key={idx} className="flex items-start gap-2.5 text-sm">
+                        {isIncluded ? (
+                          <Check className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                        ) : (
+                          <X className="w-4 h-4 text-silver/30 shrink-0 mt-0.5" />
+                        )}
+                        <span className={isIncluded ? 'text-silver/80' : 'text-silver/40'}>
+                          {feature.name}
+                          {hasCustomValue && <span className="text-gold ml-1">({featureValue})</span>}
+                        </span>
+                      </li>
+                    )
+                  })
+                )}
               </ul>
 
               {/* CTA - Mobile optimized */}
               <button
                 onClick={() => handleSelectPlan(plan.name)}
-                className={`w-full py-4 px-6 rounded-luxury-lg font-semibold transition-all min-h-[48px] text-base ${
+                className={`w-full py-4 px-6 rounded-luxury-lg font-semibold transition-all min-h-[48px] text-base mt-auto ${
                   plan.highlighted
                     ? 'bg-gold text-midnight hover:bg-gold/90 shadow-lg shadow-gold/20'
                     : 'glass-border hover:border-gold/50 text-warm-white'
@@ -334,7 +359,7 @@ export default function PricingPage() {
           {/* Trust Signals */}
           <div className="glass rounded-luxury-lg p-8 flex flex-col h-full">
             <h3 className="text-xl font-serif font-bold text-warm-white mb-6">
-              Risk-Free Trial
+              Why Succedence?
             </h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
@@ -342,9 +367,9 @@ export default function PricingPage() {
                   <Check className="w-5 h-5 text-gold" />
                 </div>
                 <div>
-                  <h4 className="text-warm-white font-semibold mb-1">14-Day Free Trial</h4>
+                  <h4 className="text-warm-white font-semibold mb-1">Instant Access</h4>
                   <p className="text-sm text-silver/70">
-                    Full access to all features. No credit card required to start.
+                    Start browsing and analyzing deals immediately after signup.
                   </p>
                 </div>
               </div>
@@ -386,9 +411,9 @@ export default function PricingPage() {
                 </p>
               </div>
               <div>
-                <h4 className="text-warm-white font-semibold mb-1">Do I need a credit card for the trial?</h4>
+                <h4 className="text-warm-white font-semibold mb-1">What happens after I subscribe?</h4>
                 <p className="text-sm text-silver/70">
-                  No. We only ask for payment when you&apos;re ready to continue after your trial.
+                  You&apos;ll get instant access to all features in your selected plan.
                 </p>
               </div>
               <div>
