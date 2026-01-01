@@ -82,7 +82,8 @@ export default function PricingPage() {
       // TODO: Add contact sales link
       window.location.href = 'mailto:founder@succedence.com?subject=Enterprise Plan Inquiry'
     } else {
-      router.push('/auth?plan=' + planName.toLowerCase())
+      // Redirect to signup/subscribe page
+      router.push('/subscribe')
     }
   }
 
