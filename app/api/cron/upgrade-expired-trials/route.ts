@@ -84,17 +84,18 @@ export async function POST(request: NextRequest) {
           customerId = customer.id;
         }
 
-        // Create Stripe subscription for starter plan
+        // Create Stripe subscription for starter plan (default to monthly)
         const subscription = await stripe.subscriptions.create({
           customer: customerId,
           items: [
             {
-              price: STRIPE_CONFIG.prices.starter,
+              price: STRIPE_CONFIG.prices.starter.monthly,
             },
           ],
           metadata: {
             userId: user.id,
             planType: 'starter',
+            billingCycle: 'monthly',
             source: 'trial_upgrade'
           },
           // Trial period is already over, so start billing immediately
