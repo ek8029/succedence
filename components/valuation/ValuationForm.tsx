@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { ValuationInput } from '@/lib/valuation';
+import { CurrencyInput } from '@/components/CurrencyInput';
+import Tooltip, { InfoIcon } from '@/components/Tooltip';
 
 interface ValuationFormProps {
   activeTab: 'url' | 'manual' | 'listing';
@@ -80,7 +82,7 @@ export function ValuationForm({
   };
 
   return (
-    <div className="glass rounded-luxury-lg border border-white/10 p-6 md:p-8">
+    <div className="glass rounded-luxury-lg border border-white/10 p-8 md:p-12">
       {activeTab === 'url' && (
         <div className="space-y-6">
           <div>
@@ -173,65 +175,56 @@ export function ValuationForm({
                 <label className="block text-warm-white font-medium mb-2">
                   Annual Revenue <span className="text-red-400">*</span>
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-silver/50">$</span>
-                  <input
-                    type="text"
-                    value={formatCurrency(formData.revenue)}
-                    onChange={(e) => handleInputChange('revenue', parseCurrency(e.target.value))}
-                    placeholder="500,000"
-                    className="w-full pl-8 pr-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
-                  />
-                </div>
+                <CurrencyInput
+                  value={formData.revenue}
+                  onChange={(value) => handleInputChange('revenue', value)}
+                  placeholder="500,000"
+                  required
+                  aria-label="Annual Revenue"
+                />
               </div>
 
               <div>
-                <label className="block text-warm-white font-medium mb-2">
+                <label className="block text-warm-white font-medium mb-2 flex items-center gap-2">
                   SDE (Seller&apos;s Discretionary Earnings)
+                  <Tooltip content="SDE = Net profit + owner compensation + discretionary expenses. Primary metric for small business valuations. Enter either SDE or EBITDA, SDE is preferred for businesses under $5M." position="top">
+                    <InfoIcon />
+                  </Tooltip>
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-silver/50">$</span>
-                  <input
-                    type="text"
-                    value={formatCurrency(formData.sde)}
-                    onChange={(e) => handleInputChange('sde', parseCurrency(e.target.value))}
-                    placeholder="100,000"
-                    className="w-full pl-8 pr-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
-                  />
-                </div>
-                <p className="text-silver/50 text-xs mt-1">Net profit + owner salary + benefits + discretionary</p>
+                <CurrencyInput
+                  value={formData.sde}
+                  onChange={(value) => handleInputChange('sde', value)}
+                  placeholder="100,000"
+                  aria-label="Seller's Discretionary Earnings (SDE)"
+                />
+                <p className="text-silver/50 text-xs mt-1">Primary valuation metric for small businesses</p>
               </div>
 
               <div>
-                <label className="block text-warm-white font-medium mb-2">
+                <label className="block text-warm-white font-medium mb-2 flex items-center gap-2">
                   EBITDA
+                  <Tooltip content="EBITDA = Net profit + interest + taxes + depreciation + amortization. Used for larger businesses. If you have SDE, enter that instead." position="top">
+                    <InfoIcon />
+                  </Tooltip>
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-silver/50">$</span>
-                  <input
-                    type="text"
-                    value={formatCurrency(formData.ebitda)}
-                    onChange={(e) => handleInputChange('ebitda', parseCurrency(e.target.value))}
-                    placeholder="75,000"
-                    className="w-full pl-8 pr-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
-                  />
-                </div>
+                <CurrencyInput
+                  value={formData.ebitda}
+                  onChange={(value) => handleInputChange('ebitda', value)}
+                  placeholder="75,000"
+                  aria-label="EBITDA"
+                />
               </div>
 
               <div>
                 <label className="block text-warm-white font-medium mb-2">
                   Asking Price
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-silver/50">$</span>
-                  <input
-                    type="text"
-                    value={formatCurrency(formData.askingPrice)}
-                    onChange={(e) => handleInputChange('askingPrice', parseCurrency(e.target.value))}
-                    placeholder="250,000"
-                    className="w-full pl-8 pr-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
-                  />
-                </div>
+                <CurrencyInput
+                  value={formData.askingPrice}
+                  onChange={(value) => handleInputChange('askingPrice', value)}
+                  placeholder="250,000"
+                  aria-label="Asking Price"
+                />
                 <p className="text-silver/50 text-xs mt-1">We&apos;ll compare this to our valuation</p>
               </div>
             </div>
@@ -268,15 +261,21 @@ export function ValuationForm({
               </div>
 
               <div>
-                <label className="block text-warm-white font-medium mb-2">
+                <label className="block text-warm-white font-medium mb-2 flex items-center gap-2">
                   Owner Hours/Week
+                  <Tooltip content="Hours the owner works per week. 60+ hours indicates high owner dependency (increases risk). 20- hours suggests good systems and management in place." position="top">
+                    <InfoIcon />
+                  </Tooltip>
                 </label>
                 <input
                   type="number"
                   value={formData.ownerHoursPerWeek || ''}
                   onChange={(e) => handleInputChange('ownerHoursPerWeek', parseInt(e.target.value) || undefined)}
                   placeholder="40"
-                  className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
+                  min="0"
+                  max="168"
+                  className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  aria-label="Owner Hours Per Week"
                 />
               </div>
             </div>
@@ -321,8 +320,11 @@ export function ValuationForm({
                 </div>
 
                 <div>
-                  <label className="block text-warm-white font-medium mb-2">
+                  <label className="block text-warm-white font-medium mb-2 flex items-center gap-2">
                     Customer Concentration (%)
+                    <Tooltip content="Percentage of revenue from the largest customer. Under 10% is ideal, 10-25% is moderate risk, over 25% is high risk. High concentration makes the business vulnerable." position="top">
+                      <InfoIcon />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -334,14 +336,18 @@ export function ValuationForm({
                     placeholder="20"
                     min="0"
                     max="100"
-                    className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
+                    className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    aria-label="Customer Concentration Percentage"
                   />
-                  <p className="text-silver/50 text-xs mt-1">Largest customer % of revenue</p>
+                  <p className="text-silver/50 text-xs mt-1">Revenue from single largest customer</p>
                 </div>
 
                 <div>
-                  <label className="block text-warm-white font-medium mb-2">
+                  <label className="block text-warm-white font-medium mb-2 flex items-center gap-2">
                     Recurring Revenue (%)
+                    <Tooltip content="Percentage of revenue that repeats (subscriptions, contracts, retainers). Higher is better. 50%+ is excellent, 20-50% is good, under 20% increases risk. Recurring revenue increases predictability and value." position="top">
+                      <InfoIcon />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
@@ -353,20 +359,27 @@ export function ValuationForm({
                     placeholder="30"
                     min="0"
                     max="100"
-                    className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
+                    className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    aria-label="Recurring Revenue Percentage"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-warm-white font-medium mb-2">
+                  <label className="block text-warm-white font-medium mb-2 flex items-center gap-2">
                     Lease Years Remaining
+                    <Tooltip content="Years remaining on the facility lease. 3+ years is ideal, 1-3 years is acceptable, under 1 year is a red flag. Short leases create uncertainty and can block financing." position="top">
+                      <InfoIcon />
+                    </Tooltip>
                   </label>
                   <input
                     type="number"
                     value={formData.leaseYearsRemaining || ''}
                     onChange={(e) => handleInputChange('leaseYearsRemaining', parseInt(e.target.value) || undefined)}
                     placeholder="5"
-                    className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none"
+                    min="0"
+                    max="99"
+                    className="w-full px-4 py-3 bg-charcoal/50 border border-white/10 rounded-luxury text-warm-white placeholder-silver/50 focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    aria-label="Lease Years Remaining"
                   />
                 </div>
               </div>

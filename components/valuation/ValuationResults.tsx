@@ -1,13 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { ValuationOutput } from '@/lib/valuation';
 import { getDealQualityColor } from '@/lib/valuation/deal-quality';
+import { generateBrokerSummary, generateSellerRationale, copyToClipboard } from '@/lib/valuation/export-utils';
+import Tooltip, { InfoIcon } from '@/components/Tooltip';
 
 interface ValuationResultsProps {
   valuation: ValuationOutput;
+  input?: any; // ValuationInput - optional for backwards compatibility
 }
 
-export function ValuationResults({ valuation }: ValuationResultsProps) {
+export function ValuationResults({ valuation, input = {} }: ValuationResultsProps) {
   const {
     valuationRange,
     dealQualityScore,
@@ -25,6 +29,33 @@ export function ValuationResults({ valuation }: ValuationResultsProps) {
 
   const qualityColor = getDealQualityColor(dealQualityScore);
 
+  // Copy state
+  const [copiedSummary, setCopiedSummary] = useState(false);
+  const [copiedRationale, setCopiedRationale] = useState(false);
+
+  const handleCopySummary = async () => {
+    const summary = generateBrokerSummary(valuation, input);
+    const success = await copyToClipboard(summary);
+    if (success) {
+      setCopiedSummary(true);
+      setTimeout(() => setCopiedSummary(false), 2000);
+    }
+  };
+
+  const handleCopyRationale = async () => {
+    const rationale = generateSellerRationale(valuation, input);
+    const success = await copyToClipboard(rationale);
+    if (success) {
+      setCopiedRationale(true);
+      setTimeout(() => setCopiedRationale(false), 2000);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    // TODO: Implement PDF generation or show upgrade modal
+    alert('PDF download feature coming soon! Sign up for early access.');
+  };
+
   const formatCurrency = (value: number): string => {
     if (value >= 1000000) {
       return `$${(value / 1000000).toFixed(1)}M`;
@@ -36,6 +67,62 @@ export function ValuationResults({ valuation }: ValuationResultsProps) {
 
   return (
     <div className="space-y-8">
+      {/* Broker Action Buttons */}
+      <div className="flex flex-wrap gap-3 justify-center">
+        <button
+          onClick={handleCopySummary}
+          className="flex items-center gap-2 px-4 py-2 bg-gold/20 text-gold border border-gold/30 rounded-luxury hover:bg-gold/30 transition-colors"
+          aria-label="Copy Broker Summary"
+        >
+          {copiedSummary ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+              Copy Summary
+            </>
+          )}
+        </button>
+        <button
+          onClick={handleCopyRationale}
+          className="flex items-center gap-2 px-4 py-2 bg-gold/20 text-gold border border-gold/30 rounded-luxury hover:bg-gold/30 transition-colors"
+          aria-label="Copy Seller Rationale"
+        >
+          {copiedRationale ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Copy Rationale
+            </>
+          )}
+        </button>
+        <button
+          onClick={handleDownloadPDF}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-luxury hover:bg-blue-600/30 transition-colors"
+          aria-label="Download PDF Report"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download PDF
+        </button>
+      </div>
+
       {/* Main Valuation Card */}
       <div className="glass rounded-luxury-lg border border-gold/30 p-8">
         <div className="text-center mb-8">
@@ -49,6 +136,35 @@ export function ValuationResults({ valuation }: ValuationResultsProps) {
             Range: {formatCurrency(valuationRange.low)} - {formatCurrency(valuationRange.high)}
           </div>
         </div>
+
+        {/* Asking Price vs Valuation Comparison */}
+        {input.askingPrice && (
+          <div className="mb-6 p-4 bg-charcoal/30 rounded-luxury border border-white/10">
+            <div className="text-center mb-3">
+              <div className="text-silver/70 text-sm mb-1">Asking Price</div>
+              <div className="text-warm-white text-2xl font-bold font-mono">
+                {formatCurrency(input.askingPrice)}
+              </div>
+            </div>
+            {mispricing && (
+              <div className="flex items-center justify-center gap-3">
+                <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  mispricing.recommendation === 'strong_buy' || mispricing.recommendation === 'buy'
+                    ? 'bg-green-500/20 text-green-400'
+                    : mispricing.recommendation === 'fair'
+                    ? 'bg-yellow-500/20 text-yellow-400'
+                    : 'bg-red-500/20 text-red-400'
+                }`}>
+                  {mispricing.recommendation === 'strong_buy' || mispricing.recommendation === 'buy' ? 'Underpriced' :
+                   mispricing.recommendation === 'fair' ? 'Within Range' : 'Overpriced'}
+                </div>
+                <div className="text-silver/80 text-sm">
+                  {mispricing.percent > 0 ? '+' : ''}{mispricing.percent.toFixed(1)}% vs midpoint
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Mispricing Analysis */}
         {mispricing && (
@@ -138,28 +254,42 @@ export function ValuationResults({ valuation }: ValuationResultsProps) {
       <div className="glass rounded-luxury border border-white/10 p-6">
         <h3 className="text-warm-white font-semibold mb-4">Deal Quality Breakdown</h3>
         <div className="grid md:grid-cols-3 gap-4">
-          {Object.entries(dealQualityBreakdown).map(([key, value]) => (
-            <div key={key} className="bg-charcoal/30 p-4 rounded-luxury">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-silver/70 text-sm capitalize">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                </span>
-                <span className={`font-mono font-bold ${
-                  value >= 70 ? 'text-green-400' : value >= 50 ? 'text-yellow-400' : 'text-red-400'
-                }`}>
-                  {value}
-                </span>
+          {Object.entries(dealQualityBreakdown).map(([key, value]) => {
+            const tooltips: Record<string, string> = {
+              pricingFairness: "How reasonable the asking price is vs our valuation. Higher scores indicate better value for buyers.",
+              financialTrajectory: "Revenue trend and growth trajectory. Increasing revenue improves this score.",
+              concentrationRisk: "Customer and revenue diversification. Lower concentration = higher score.",
+              operationalRisk: "Owner dependency and business systems. Lower owner hours and good lease terms improve this.",
+              documentationQuality: "Completeness of financial data provided. More data = higher score.",
+              valuationAlignment: "How well the business fits standard valuation multiples for its industry."
+            };
+
+            return (
+              <div key={key} className="bg-charcoal/30 p-4 rounded-luxury">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-silver/70 text-sm capitalize flex items-center gap-1">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                    <Tooltip content={tooltips[key] || "Component of overall deal quality score"} position="top">
+                      <InfoIcon className="w-3 h-3" />
+                    </Tooltip>
+                  </span>
+                  <span className={`font-mono font-bold ${
+                    value >= 70 ? 'text-green-400' : value >= 50 ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                    {value}
+                  </span>
+                </div>
+                <div className="w-full bg-charcoal/50 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full ${
+                      value >= 70 ? 'bg-green-500' : value >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${value}%` }}
+                  />
+                </div>
               </div>
-              <div className="w-full bg-charcoal/50 rounded-full h-2">
-                <div
-                  className={`h-2 rounded-full ${
-                    value >= 70 ? 'bg-green-500' : value >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}
-                  style={{ width: `${value}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -249,6 +379,35 @@ export function ValuationResults({ valuation }: ValuationResultsProps) {
               })}
             </div>
           ))}
+        </div>
+
+        {/* Data Sources */}
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <h4 className="text-warm-white font-semibold text-sm mb-3">Data Sources</h4>
+          <div className="text-silver/70 text-xs space-y-2">
+            <p>• Industry multiples based on IBBA Market Pulse reports and industry transaction databases</p>
+            <p>• Risk adjustment framework aligned with business brokerage best practices</p>
+            <p>• Deal quality scoring methodology developed from thousands of valuations</p>
+            <p>• Financial normalization follows standard SDE and EBITDA calculation methods</p>
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-luxury p-4">
+            <h4 className="text-yellow-400 font-semibold text-sm mb-2 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Important Disclaimer
+            </h4>
+            <p className="text-silver/70 text-xs leading-relaxed">
+              This valuation is an estimate based on provided data and market comparables. It is not a certified business appraisal.
+              Actual value may vary based on factors not captured in this analysis. We recommend verifying all financial statements
+              and conducting proper due diligence, including a Quality of Earnings (QoE) analysis for transactions over $500K.
+              Consult with qualified professionals for major financial decisions.
+            </p>
+          </div>
         </div>
       </div>
 

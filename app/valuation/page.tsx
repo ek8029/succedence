@@ -49,6 +49,7 @@ function ValuationPageContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'url' | 'manual' | 'listing'>('manual');
   const [valuation, setValuation] = useState<ValuationOutput | null>(null);
+  const [valuationInput, setValuationInput] = useState<ValuationInput | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [canUseFree, setCanUseFree] = useState(true);
@@ -146,6 +147,7 @@ function ValuationPageContent() {
       }
 
       setValuation(data.valuation);
+      setValuationInput(input); // Store input for export functions
       setShowResults(true);
 
       // Update free tier status
@@ -214,7 +216,7 @@ function ValuationPageContent() {
                 </Link>
               )}
             </div>
-            <ValuationResults valuation={valuation} />
+            <ValuationResults valuation={valuation} input={valuationInput || undefined} />
           </div>
         ) : (
           <>
