@@ -76,10 +76,13 @@ export async function POST(request: NextRequest) {
       sessionId: session.id,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating checkout session:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }
