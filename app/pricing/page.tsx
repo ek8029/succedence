@@ -7,6 +7,8 @@ import { Check, X } from 'lucide-react'
 export default function PricingPage() {
   const router = useRouter()
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
+  const [isLoading, setIsLoading] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
 
   // Feature comparison structure (excludes Enterprise-only features)
   const features = [
@@ -75,15 +77,53 @@ export default function PricingPage() {
     }
   ]
 
-  const handleSelectPlan = (planName: string) => {
+  const handleSelectPlan = async (planName: string) => {
     if (planName === 'Free') {
       router.push('/login')
-    } else if (planName === 'Enterprise') {
-      // TODO: Add contact sales link
+      return
+    }
+
+    if (planName === 'Enterprise') {
       window.location.href = 'mailto:founder@succedence.com?subject=Enterprise Plan Inquiry'
-    } else {
-      // Redirect to signup/subscribe page
-      router.push('/subscribe')
+      return
+    }
+
+    // Handle paid plans - create Stripe checkout session
+    setIsLoading(true)
+    setSelectedPlan(planName)
+
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planType: planName.toLowerCase(),
+          billingCycle: billingCycle,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        // Redirect to Stripe checkout
+        window.location.href = data.checkoutUrl
+      } else {
+        // If unauthorized, redirect to login
+        if (response.status === 401) {
+          router.push('/login?redirect=/pricing')
+        } else {
+          alert(data.error || 'Failed to start checkout. Please try again.')
+          setIsLoading(false)
+          setSelectedPlan(null)
+        }
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error)
+      alert('Something went wrong. Please try again.')
+      setIsLoading(false)
+      setSelectedPlan(null)
     }
   }
 
@@ -245,13 +285,21 @@ export default function PricingPage() {
               {/* CTA - Mobile optimized */}
               <button
                 onClick={() => handleSelectPlan(plan.name)}
-                className={`w-full py-4 px-6 rounded-luxury-lg font-semibold transition-all min-h-[48px] text-base mt-auto ${
+                disabled={isLoading}
+                className={`w-full py-4 px-6 rounded-luxury-lg font-semibold transition-all min-h-[48px] text-base mt-auto disabled:opacity-50 disabled:cursor-not-allowed ${
                   plan.highlighted
                     ? 'bg-gold text-midnight hover:bg-gold/90 shadow-lg shadow-gold/20'
                     : 'glass-border hover:border-gold/50 text-warm-white'
                 }`}
               >
-                {plan.cta}
+                {isLoading && selectedPlan === plan.name ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  plan.cta
+                )}
               </button>
 
               {plan.name !== 'Free' && plan.name !== 'Enterprise' && (
