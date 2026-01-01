@@ -963,12 +963,12 @@ export default function BrowsePage() {
         )}
 
         </div>
+
+        {/* Additional spacing before footer */}
+        <div className="mb-16"></div>
+
+        <Footer />
       </div>
-
-      {/* Additional spacing before footer */}
-      <div className="mb-16"></div>
-
-      <Footer />
     </div>
   );
 }

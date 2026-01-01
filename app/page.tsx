@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 export default function HomePage() {
   return (
@@ -78,8 +79,8 @@ export default function HomePage() {
             <p className="text-xs text-silver/60">No credit card • No signup • Just your numbers</p>
 
             {/* 3-Step Visual */}
-            <div className="mt-16 grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              <div className="glass p-6 rounded-lg border border-blue-500/20 text-center">
+            <div className="mt-16 grid md:grid-cols-3 gap-6 max-w-4xl mx-auto items-start">
+              <div className="glass p-6 rounded-lg border border-blue-500/20 text-center flex flex-col h-full">
                 <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-blue-400 font-bold text-xl">1</span>
                 </div>
@@ -88,7 +89,7 @@ export default function HomePage() {
                   Industry, revenue, SDE. Takes 30 seconds.
                 </p>
               </div>
-              <div className="glass p-6 rounded-lg border border-blue-500/20 text-center">
+              <div className="glass p-6 rounded-lg border border-blue-500/20 text-center flex flex-col h-full">
                 <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-blue-400 font-bold text-xl">2</span>
                 </div>
@@ -97,7 +98,7 @@ export default function HomePage() {
                   Low/mid/high valuation with reasoning.
                 </p>
               </div>
-              <div className="glass p-6 rounded-lg border border-blue-500/20 text-center">
+              <div className="glass p-6 rounded-lg border border-blue-500/20 text-center flex flex-col h-full">
                 <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-blue-400 font-bold text-xl">3</span>
                 </div>
@@ -121,8 +122,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="glass p-8 rounded-lg border border-gold/20 hover:border-gold/40 transition-all">
+          <div className="grid md:grid-cols-3 gap-8 items-start">
+            <div className="glass p-8 rounded-lg border border-gold/20 hover:border-gold/40 transition-all flex flex-col h-full">
               <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -134,7 +135,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="glass p-8 rounded-lg border border-gold/20 hover:border-gold/40 transition-all">
+            <div className="glass p-8 rounded-lg border border-gold/20 hover:border-gold/40 transition-all flex flex-col h-full">
               <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -146,7 +147,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="glass p-8 rounded-lg border border-gold/20 hover:border-gold/40 transition-all">
+            <div className="glass p-8 rounded-lg border border-gold/20 hover:border-gold/40 transition-all flex flex-col h-full">
               <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -259,20 +260,20 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="glass p-6 rounded-lg border border-gold/10 text-center">
+          <div className="grid md:grid-cols-3 gap-6 items-start">
+            <div className="glass p-6 rounded-lg border border-gold/10 text-center flex flex-col h-full">
               <div className="text-silver/80 text-sm mb-2">Compare your valuation to</div>
               <div className="text-warm-white font-semibold text-lg mb-3">Live Market Listings</div>
               <p className="text-silver/70 text-sm">See how your pricing stacks up against businesses currently for sale</p>
             </div>
 
-            <div className="glass p-6 rounded-lg border border-gold/10 text-center">
+            <div className="glass p-6 rounded-lg border border-gold/10 text-center flex flex-col h-full">
               <div className="text-silver/80 text-sm mb-2">Find buyers in</div>
               <div className="text-warm-white font-semibold text-lg mb-3">Your Valuation Range</div>
               <p className="text-silver/70 text-sm">Connect with qualified buyers searching for businesses at your price point</p>
             </div>
 
-            <div className="glass p-6 rounded-lg border border-gold/10 text-center">
+            <div className="glass p-6 rounded-lg border border-gold/10 text-center flex flex-col h-full">
               <div className="text-silver/80 text-sm mb-2">Track valuations</div>
               <div className="text-warm-white font-semibold text-lg mb-3">Over Time</div>
               <p className="text-silver/70 text-sm">Save and compare valuations to see how businesses evolve</p>
@@ -291,20 +292,20 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <div className="glass p-6 rounded-lg border border-gold/20 text-center">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8 items-start">
+            <div className="glass p-6 rounded-lg border border-gold/20 text-center flex flex-col h-full">
               <div className="text-3xl font-bold text-blue-400 mb-2">50+</div>
               <div className="text-sm text-silver/80">Industries covered</div>
             </div>
-            <div className="glass p-6 rounded-lg border border-gold/20 text-center">
+            <div className="glass p-6 rounded-lg border border-gold/20 text-center flex flex-col h-full">
               <div className="text-3xl font-bold text-blue-400 mb-2">IBBA</div>
               <div className="text-sm text-silver/80">Data sourced</div>
             </div>
-            <div className="glass p-6 rounded-lg border border-gold/20 text-center">
+            <div className="glass p-6 rounded-lg border border-gold/20 text-center flex flex-col h-full">
               <div className="text-3xl font-bold text-blue-400 mb-2">SDE</div>
               <div className="text-sm text-silver/80">Based valuations</div>
             </div>
-            <div className="glass p-6 rounded-lg border border-gold/20 text-center">
+            <div className="glass p-6 rounded-lg border border-gold/20 text-center flex flex-col h-full">
               <div className="text-3xl font-bold text-blue-400 mb-2">Q4</div>
               <div className="text-sm text-silver/80">Updated quarterly</div>
             </div>
@@ -341,6 +342,9 @@ export default function HomePage() {
             </p>
           </div>
         </section>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );
