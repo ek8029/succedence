@@ -63,8 +63,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`px-3 sm:px-6 py-3 sticky top-0 z-50 transition-all duration-200 ${
-        isScrolled ? 'bg-surface-color/95 backdrop-blur-sm border-b border-text-secondary/20' : 'bg-surface-color'
+      className={`px-3 sm:px-6 py-3 sticky top-0 z-50 border-b transition-all duration-200 ${
+        isScrolled ? 'bg-surface-color/95 backdrop-blur-sm border-text-secondary/20' : 'bg-surface-color border-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto">
