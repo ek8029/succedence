@@ -15,7 +15,9 @@ export function ValuationResults({ valuation, input = {} }: ValuationResultsProp
   const {
     valuationRange,
     dealQualityScore,
+    dealQualityGrade,
     dealQualityBreakdown,
+    confidence,
     mispricing,
     multiplesUsed,
     normalizedFinancials,
@@ -124,7 +126,7 @@ export function ValuationResults({ valuation, input = {} }: ValuationResultsProp
       </div>
 
       {/* Main Valuation Card */}
-      <div className="glass rounded-luxury-lg border border-gold/30 p-8">
+      <div className="glass rounded-luxury-lg border border-gold/30 p-5 sm:p-8">
         <div className="text-center mb-8">
           <h2 className="text-silver/80 text-sm font-medium uppercase tracking-wider mb-2">
             Estimated Business Value
@@ -188,19 +190,59 @@ export function ValuationResults({ valuation, input = {} }: ValuationResultsProp
           </div>
         )}
 
-        {/* Deal Quality Score */}
-        <div className="flex items-center justify-center gap-3">
-          <div className={`w-14 h-14 rounded-full ${qualityColor.bg} ${qualityColor.border} border-2 flex flex-col items-center justify-center`}>
-            <span className={`text-lg font-bold ${qualityColor.text}`}>{dealQualityScore}</span>
-            <span className="text-silver/60 text-[9px]">/ 100</span>
-          </div>
-          <div>
-            <div className={`text-sm font-semibold ${qualityColor.text}`}>
-              {qualityColor.label} Deal
+        {/* Deal Quality Score + Confidence */}
+        <div className="flex flex-wrap items-center justify-center gap-6 mt-2">
+          {/* Score */}
+          <div className="flex items-center gap-3">
+            <div className={`w-14 h-14 rounded-full ${qualityColor.bg} ${qualityColor.border} border-2 flex flex-col items-center justify-center`}>
+              <span className={`text-lg font-bold ${qualityColor.text}`}>{dealQualityScore}</span>
+              <span className="text-silver/60 text-[9px]">/ 100</span>
             </div>
-            <div className="text-silver/70 text-xs">Deal Quality Score</div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-semibold ${qualityColor.text}`}>
+                  {qualityColor.label} Deal
+                </span>
+                {dealQualityGrade && (
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${qualityColor.bg} ${qualityColor.text} border ${qualityColor.border}`}>
+                    Grade: {dealQualityGrade}
+                  </span>
+                )}
+              </div>
+              <div className="text-silver/70 text-xs">Deal Quality Score</div>
+            </div>
           </div>
+
+          {/* Confidence indicator */}
+          {confidence && (
+            <div className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${
+                confidence.label === 'High' ? 'bg-green-400' :
+                confidence.label === 'Medium' ? 'bg-yellow-400' : 'bg-red-400'
+              }`} />
+              <div>
+                <div className={`text-sm font-semibold ${
+                  confidence.label === 'High' ? 'text-green-400' :
+                  confidence.label === 'Medium' ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  {confidence.label} Confidence
+                </div>
+                <div className="text-silver/70 text-xs">Data quality score: {confidence.score}/100</div>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Confidence notes */}
+        {confidence?.notes && confidence.notes.length > 0 && (
+          <div className="mt-4 space-y-1">
+            {confidence.notes.map((note, i) => (
+              <p key={i} className="text-silver/60 text-xs text-center">
+                ⚠ {note}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Two Column Layout */}
@@ -408,6 +450,32 @@ export function ValuationResults({ valuation, input = {} }: ValuationResultsProp
               Consult with qualified professionals for major financial decisions.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Broker Rationale — inline copy-paste section */}
+      <div className="glass rounded-luxury border border-gold/20 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-warm-white font-semibold flex items-center gap-2">
+            <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Broker Rationale
+          </h3>
+          <button
+            onClick={handleCopyRationale}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 text-gold border border-gold/20 rounded-luxury hover:bg-gold/20 transition-colors text-xs font-medium"
+          >
+            {copiedRationale ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+        <p className="text-silver/70 text-xs mb-3 italic">
+          Ready to copy-paste into a listing presentation or seller email.
+        </p>
+        <div className="bg-charcoal/40 rounded-luxury p-4 border border-white/5">
+          <p className="text-silver/85 text-sm leading-relaxed whitespace-pre-wrap">
+            {generateSellerRationale(valuation, input)}
+          </p>
         </div>
       </div>
 

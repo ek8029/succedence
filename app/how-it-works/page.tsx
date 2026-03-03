@@ -1,237 +1,176 @@
-'use client';
-
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import PageContainer from '@/components/layout/PageContainer';
+import Section from '@/components/layout/Section';
+import Stack from '@/components/layout/Stack';
+
+export const metadata: Metadata = {
+  title: 'How It Works | SDE Business Valuation Method | Succedence',
+  description:
+    'See how Succedence calculates business valuations using the SDE method, IBBA transaction data, and risk-adjusted multiples. Transparent, defensible pricing for brokers.',
+};
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-primary-gradient relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-midnight via-charcoal to-navy opacity-90"></div>
-      <div className="absolute inset-0 bg-noise opacity-10"></div>
-
-      <div className="relative z-10">
-        {/* Header */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 max-w-5xl">
-          <div className="text-center">
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-warm-white mb-4">
-              How It Works
+    <div className="min-h-screen bg-deep-navy">
+      {/* Header */}
+      <Section variant="hero">
+        <PageContainer>
+          <Stack gap="md" className="max-w-3xl">
+            <h1 className="font-serif text-5xl md:text-6xl text-warm-white leading-tight">
+              Valuation methodology
             </h1>
-            <p className="text-lg text-platinum/80 max-w-2xl mx-auto">
-              A simple, consistent approach to business valuation that brokers can rely on.
+            <p className="text-xl text-off-white/80 leading-relaxed">
+              SDE multiples from IBBA market data, adjusted for the risk factors banks and buyers actually evaluate.
             </p>
-          </div>
-        </section>
+          </Stack>
+        </PageContainer>
+      </Section>
 
-        {/* Three Steps */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 max-w-5xl">
-          <div className="grid md:grid-cols-3 gap-8 md:auto-rows-fr">
-            <div className="glass p-8 rounded-lg border border-gold/20 text-center flex flex-col h-full">
-              <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-blue-400 font-bold text-2xl">1</span>
-              </div>
-              <h3 className="text-xl font-semibold text-warm-white mb-3">Enter the Basics</h3>
-              <p className="text-silver/80 leading-relaxed">
-                Select industry, enter revenue and SDE. Add optional details like employees, year established, or asking price.
+      {/* Methodology Section */}
+      <Section variant="default" withBorder="top">
+        <PageContainer>
+          <div className="grid lg:grid-cols-2 gap-16">
+            <Stack gap="xs">
+              <h2 className="text-sm font-semibold text-amber uppercase tracking-wide">Calculation basis</h2>
+              <h3 className="font-serif text-3xl text-warm-white">Seller's Discretionary Earnings</h3>
+              <p className="text-off-white/80 leading-relaxed">
+                SDE represents total financial benefit to a working owner: net profit plus owner compensation, benefits, and discretionary expenses. Industry standard for main street businesses under $5M.
               </p>
-            </div>
-            <div className="glass p-8 rounded-lg border border-gold/20 text-center flex flex-col h-full">
-              <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-blue-400 font-bold text-2xl">2</span>
-              </div>
-              <h3 className="text-xl font-semibold text-warm-white mb-3">Get Your Valuation</h3>
-              <p className="text-silver/80 leading-relaxed">
-                Receive a valuation range with applied SDE multiples, risk adjustments, and a deal quality score.
+              <p className="text-off-white/80 leading-relaxed">
+                <span className="text-amber font-mono">Valuation = SDE × Industry Multiple × Risk Adjustment</span>
               </p>
-            </div>
-            <div className="glass p-8 rounded-lg border border-gold/20 text-center flex flex-col h-full">
-              <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-blue-400 font-bold text-2xl">3</span>
-              </div>
-              <h3 className="text-xl font-semibold text-warm-white mb-3">Share with Sellers</h3>
-              <p className="text-silver/80 leading-relaxed">
-                Copy the broker rationale directly or download a professional PDF report to use in listing presentations.
+            </Stack>
+
+            <Stack gap="xs">
+              <h2 className="text-sm font-semibold text-amber uppercase tracking-wide">Industry multiples</h2>
+              <h3 className="font-serif text-3xl text-warm-white">Transaction-backed ranges</h3>
+              <p className="text-off-white/80 leading-relaxed">
+                50+ industry categories with multiple ranges derived from IBBA market data and DealStats closed transactions. Updated quarterly.
               </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Methodology Section */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 max-w-5xl">
-          <div className="glass rounded-lg border border-gold/20 overflow-hidden">
-            <div className="bg-charcoal/50 border-b border-gold/20 px-8 py-6">
-              <h2 className="text-2xl font-serif font-semibold text-warm-white">Our Methodology</h2>
-            </div>
-            <div className="p-10 space-y-10">
-              <div>
-                <h3 className="text-xl font-semibold text-warm-white mb-3">SDE-Based Valuation</h3>
-                <p className="text-silver/80 leading-relaxed">
-                  We use Seller's Discretionary Earnings (SDE) as the primary valuation metric for Main Street businesses.
-                  SDE represents the total financial benefit to a working owner: net profit plus owner salary, benefits,
-                  and discretionary expenses. This is the industry standard for businesses under $5M in value.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-warm-white mb-3">Industry-Specific Multiples</h3>
-                <p className="text-silver/80 leading-relaxed">
-                  We maintain SDE multiple ranges for 50+ industries based on actual transaction data. Multiples vary
-                  by industry due to factors like growth potential, capital requirements, owner dependency, and
-                  recurring revenue characteristics.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-warm-white mb-3">Risk Adjustments</h3>
-                <p className="text-silver/80 leading-relaxed mb-4">
-                  We adjust base multiples for business-specific risk factors including:
-                </p>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3 text-silver/80">
-                    <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span>Customer concentration (top customer &gt;30% of revenue)</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-silver/80">
-                    <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span>Owner dependency (hours worked, specialized skills)</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-silver/80">
-                    <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span>Revenue trends (growing, stable, or declining)</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-silver/80">
-                    <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span>Recurring revenue percentage</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-silver/80">
-                    <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span>Business age and lease terms</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-warm-white mb-3">Valuation Range</h3>
-                <p className="text-silver/80 leading-relaxed">
-                  We provide a low-mid-high range rather than a single number. This accounts for negotiation dynamics,
-                  deal structure variations (asset sale vs. stock sale, seller financing terms), and inherent
-                  uncertainty in small business valuations.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Data Sources */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 max-w-5xl">
-          <div className="glass rounded-lg border border-gold/20 overflow-hidden">
-            <div className="bg-charcoal/50 border-b border-gold/20 px-8 py-6">
-              <h2 className="text-2xl font-serif font-semibold text-warm-white">Data Sources</h2>
-            </div>
-            <div className="p-10">
-              <p className="text-silver/80 leading-relaxed mb-6">
-                Our industry multiples are derived from:
+              <p className="text-sm text-gray">
+                Example: Professional services (2.5-3.5×), SaaS businesses (3.0-4.5×), restaurants (1.5-2.5×)
               </p>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="bg-charcoal/30 rounded-lg p-6 border border-gold/10">
-                  <h4 className="font-semibold text-warm-white mb-2">IBBA Transaction Data</h4>
-                  <p className="text-silver/70 text-sm">
-                    International Business Brokers Association market pulse surveys
-                  </p>
+            </Stack>
+
+            <div>
+              <Stack gap="xs" className="mb-6">
+                <h2 className="text-sm font-semibold text-amber uppercase tracking-wide">Risk adjustments</h2>
+                <h3 className="font-serif text-3xl text-warm-white">Six evaluation dimensions</h3>
+              </Stack>
+              <Stack gap="sm">
+                <div className="border-l-2 border-slate/40 pl-4">
+                  <p className="text-off-white font-medium">Customer concentration</p>
+                  <p className="text-sm text-gray">Top customer revenue dependency</p>
                 </div>
-                <div className="bg-charcoal/30 rounded-lg p-6 border border-gold/10">
-                  <h4 className="font-semibold text-warm-white mb-2">DealStats</h4>
-                  <p className="text-silver/70 text-sm">
-                    Transaction database with 40,000+ completed deals
-                  </p>
+                <div className="border-l-2 border-slate/40 pl-4">
+                  <p className="text-off-white font-medium">Owner involvement</p>
+                  <p className="text-sm text-gray">Hours worked, specialized skills required</p>
                 </div>
-                <div className="bg-charcoal/30 rounded-lg p-6 border border-gold/10">
-                  <h4 className="font-semibold text-warm-white mb-2">Industry Surveys</h4>
-                  <p className="text-silver/70 text-sm">
-                    Sector-specific multiple studies and benchmarks
-                  </p>
+                <div className="border-l-2 border-slate/40 pl-4">
+                  <p className="text-off-white font-medium">Revenue trajectory</p>
+                  <p className="text-sm text-gray">Growth, stability, or decline trends</p>
                 </div>
-                <div className="bg-charcoal/30 rounded-lg p-6 border border-gold/10">
-                  <h4 className="font-semibold text-warm-white mb-2">Quarterly Updates</h4>
-                  <p className="text-silver/70 text-sm">
-                    Multiples refreshed each quarter to reflect market conditions
-                  </p>
+                <div className="border-l-2 border-slate/40 pl-4">
+                  <p className="text-off-white font-medium">Recurring revenue mix</p>
+                  <p className="text-sm text-gray">Contracts, subscriptions, retention rates</p>
                 </div>
-              </div>
+                <div className="border-l-2 border-slate/40 pl-4">
+                  <p className="text-off-white font-medium">Business maturity</p>
+                  <p className="text-sm text-gray">Years established, market position</p>
+                </div>
+                <div className="border-l-2 border-slate/40 pl-4">
+                  <p className="text-off-white font-medium">Asset/lease structure</p>
+                  <p className="text-sm text-gray">Real estate, equipment, lease terms</p>
+                </div>
+              </Stack>
             </div>
-          </div>
-        </section>
 
-        {/* Important Notes */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 max-w-5xl">
-          <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-10">
-            <h3 className="text-xl font-semibold text-amber-400 mb-4 flex items-center gap-3">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              Important Notes
-            </h3>
-            <ul className="space-y-3 text-amber-200/90">
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span>This tool provides decision support for pricing discussions, not formal business appraisals.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span>Actual transaction prices depend on deal structure, financing terms, and negotiation outcomes.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span>For SBA loans or formal valuations, buyers may require a certified appraisal.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span>Valuations are based on normalized financials - garbage in, garbage out.</span>
-              </li>
-            </ul>
+            <Stack gap="xs">
+              <h2 className="text-sm font-semibold text-amber uppercase tracking-wide">Output format</h2>
+              <h3 className="font-serif text-3xl text-warm-white">Ranges, not point estimates</h3>
+              <p className="text-off-white/80 leading-relaxed">
+                Low/mid/high valuation range accounts for negotiation dynamics, deal structure variables (asset vs. stock sale), and financing terms (seller note, earnout provisions).
+              </p>
+              <p className="text-sm text-gray">
+                Single-number valuations create false precision. Ranges reflect market reality.
+              </p>
+            </Stack>
           </div>
-        </section>
+        </PageContainer>
+      </Section>
 
-        {/* CTA */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 pb-16 max-w-5xl">
-          <div className="glass p-12 rounded-lg border border-gold/20 text-center">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-warm-white mb-4">
-              Ready to try it?
+      {/* Data Sources */}
+      <Section variant="default" withBorder="top">
+        <PageContainer>
+          <Stack gap="lg">
+            <h2 className="font-serif text-4xl text-warm-white">
+              Data sources and update cadence
             </h2>
-            <p className="text-lg text-platinum/80 mb-8 max-w-xl mx-auto">
-              Run your first valuation in under 60 seconds. No signup required.
-            </p>
-            <Link
-              href="/valuation"
-              className="inline-flex items-center justify-center px-10 py-5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-xl hover:shadow-2xl text-lg"
-            >
-              Run a Free Valuation
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-          </div>
-        </section>
 
-        <Footer />
-      </div>
+            <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
+              <Stack gap="xs">
+                <h3 className="text-lg font-semibold text-warm-white">IBBA Market Pulse Reports</h3>
+                <p className="text-off-white/80 text-sm leading-relaxed">
+                  International Business Brokers Association quarterly transaction surveys covering main street deal activity
+                </p>
+                <p className="text-xs text-gray">Published quarterly • Last update: Q4 2024</p>
+              </Stack>
+
+              <Stack gap="xs">
+                <h3 className="text-lg font-semibold text-warm-white">DealStats Database</h3>
+                <p className="text-off-white/80 text-sm leading-relaxed">
+                  Transaction comps database with 40,000+ closed deals, filterable by industry and size
+                </p>
+                <p className="text-xs text-gray">Continuous updates • Subscription access</p>
+              </Stack>
+
+              <Stack gap="xs">
+                <h3 className="text-lg font-semibold text-warm-white">Industry-specific surveys</h3>
+                <p className="text-off-white/80 text-sm leading-relaxed">
+                  Sector benchmarking studies from trade associations and private equity research
+                </p>
+                <p className="text-xs text-gray">Varies by industry</p>
+              </Stack>
+
+              <Stack gap="xs">
+                <h3 className="text-lg font-semibold text-warm-white">Multiple refresh cycle</h3>
+                <p className="text-off-white/80 text-sm leading-relaxed">
+                  Industry multiples updated quarterly to reflect current market conditions and deal flow
+                </p>
+                <p className="text-xs text-gray">Next scheduled update: April 2025</p>
+              </Stack>
+            </div>
+          </Stack>
+        </PageContainer>
+      </Section>
+
+      {/* CTA */}
+      <Section variant="default">
+        <PageContainer>
+          <div className="border-t border-slate/40 pt-16">
+            <Stack gap="md" className="max-w-2xl">
+              <h2 className="font-serif text-4xl text-warm-white">
+                Test the methodology on your pipeline
+              </h2>
+              <p className="text-lg text-off-white/80 leading-relaxed">
+                See how your current listings compare to IBBA multiples. Run valuations for businesses you're actively pricing.
+              </p>
+              <div>
+                <Link
+                  href="/valuation"
+                  className="inline-block px-8 py-4 bg-amber text-navy-dark font-medium transition-all hover:bg-amber-light"
+                >
+                  Price a Business
+                </Link>
+              </div>
+            </Stack>
+          </div>
+        </PageContainer>
+      </Section>
+
+      <Footer />
     </div>
   );
 }

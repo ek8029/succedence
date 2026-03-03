@@ -4,12 +4,14 @@
 import {
   ValuationInput,
   ValuationOutput,
+  ValuationConfidence,
+  DealQualityGrade,
   MultiplesUsed,
   MispricingAnalysis,
   IndustryMultipleData,
 } from './types';
 import { getIndustryMultiples } from './industry-multiples';
-import { calculateRiskAdjustments, extractStrengths, extractRedFlags } from './risk-adjustments';
+import { calculateRiskAdjustments, calculateSdeSizeAdjustment, extractStrengths, extractRedFlags } from './risk-adjustments';
 import { calculateDealQualityScore } from './deal-quality';
 import { normalizeFinancials, determinePrimaryMethod } from './financial-normalization';
 
@@ -25,9 +27,16 @@ export function calculateValuation(input: ValuationInput): ValuationOutput {
   const normalization = normalizeFinancials(input);
   const { normalizedSde, normalizedEbitda } = normalization;
 
-  // 3. Calculate risk adjustments
+  // 3. Calculate risk adjustments (including SDE-size premium/discount)
   const riskResult = calculateRiskAdjustments(input);
-  const { adjustments: riskAdjustments, netMultipleChange } = riskResult;
+  const sizeAdj = calculateSdeSizeAdjustment(normalization.normalizedSde);
+  const riskAdjustments = sizeAdj
+    ? [...riskResult.adjustments, sizeAdj]
+    : riskResult.adjustments;
+  const netMultipleChange = Math.max(
+    -1.0,
+    Math.min(1.0, riskResult.totalAdjustment + (sizeAdj?.impact ?? 0)),
+  );
 
   // 4. Determine primary valuation method
   const hasSde = !!(input.sde || input.ebitda || input.cashFlow);
@@ -77,6 +86,9 @@ export function calculateValuation(input: ValuationInput): ValuationOutput {
     riskAdjustments
   );
 
+  const dealQualityGrade = scoreToDealGrade(dealQuality.score);
+  const confidence = calculateConfidence(input, industryData, primaryMethod);
+
   return {
     valuationRange,
     multiplesUsed: adjustedMultiples,
@@ -88,7 +100,9 @@ export function calculateValuation(input: ValuationInput): ValuationOutput {
     riskAdjustments,
     totalRiskAdjustment: netMultipleChange,
     dealQualityScore: dealQuality.score,
+    dealQualityGrade,
     dealQualityBreakdown: dealQuality.breakdown,
+    confidence,
     mispricing,
     methodology,
     keyStrengths,
@@ -96,6 +110,74 @@ export function calculateValuation(input: ValuationInput): ValuationOutput {
     negotiationRecommendations,
     industryData,
   };
+}
+
+/**
+ * Convert numeric deal quality score (0-100) to letter grade
+ */
+function scoreToDealGrade(score: number): DealQualityGrade {
+  if (score >= 80) return 'A';
+  if (score >= 65) return 'B';
+  if (score >= 50) return 'C';
+  if (score >= 30) return 'D';
+  return 'F';
+}
+
+/**
+ * Calculate valuation confidence based on data completeness and industry coverage
+ */
+function calculateConfidence(
+  input: ValuationInput,
+  industryData: IndustryMultipleData,
+  primaryMethod: 'sde' | 'ebitda' | 'revenue',
+): ValuationConfidence {
+  const notes: string[] = [];
+  let score = 100;
+
+  // Primary method penalty
+  if (primaryMethod === 'revenue') {
+    score -= 25;
+    notes.push('Revenue-only valuation — provide SDE or EBITDA for higher accuracy');
+  } else if (primaryMethod === 'ebitda') {
+    score -= 5;
+  }
+
+  // Missing risk factors reduce confidence
+  const riskFieldsProvided = [
+    input.customerConcentration !== undefined,
+    input.revenueGrowthTrend !== undefined,
+    input.ownerHoursPerWeek !== undefined,
+    input.recurringRevenuePct !== undefined,
+    input.yearEstablished !== undefined,
+  ].filter(Boolean).length;
+
+  if (riskFieldsProvided < 2) {
+    score -= 20;
+    notes.push('Few risk factors provided — add details for a more precise valuation');
+  } else if (riskFieldsProvided < 4) {
+    score -= 10;
+  }
+
+  // Generic industry fallback
+  if (industryData.industryKey === 'general_business') {
+    score -= 15;
+    notes.push('Industry not specifically matched — using general business multiples');
+  }
+
+  // High-volatility industries
+  if (industryData.volatility === 'high') {
+    score -= 10;
+    notes.push(`${industryData.industryName} has high transaction variance — range may be wider than typical`);
+  }
+
+  score = Math.max(10, Math.min(100, score));
+
+  let label: ValuationConfidence['label'];
+  if (score >= 75) label = 'High';
+  else if (score >= 50) label = 'Medium';
+  else label = 'Low';
+
+  return { score, label, notes };
 }
 
 /**

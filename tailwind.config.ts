@@ -9,62 +9,56 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        'serif': ['Crimson Text', 'Georgia', 'serif'],
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'serif': ['DM Serif Display', 'Georgia', 'serif'],
+        'sans': ['Instrument Sans', 'system-ui', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Monaco', 'Consolas', 'monospace'],
-        'primary': ['Source Serif Pro', 'Crimson Text', 'Georgia', 'serif'],
       },
       colors: {
-        'midnight': '#0B0E14',
-        'charcoal': {
-          DEFAULT: '#1A1D23',
-          light: '#252A34',
+        'deep-navy': '#0D1B2A',
+        'navy-dark': '#08141E',
+        'navy-light': '#1B2A3E',
+        'charcoal': '#2C3E50',
+        'slate': '#465A6F',
+        'amber': {
+          DEFAULT: '#D4880F',
+          light: '#E6A238',
+          dark: '#B87308',
+          subtle: 'rgba(212, 136, 15, 0.12)',
         },
-        'slate': {
-          DEFAULT: '#2F3847',
-          light: '#3D4757',
-        },
-        'navy': {
-          DEFAULT: '#1B2332',
-          light: '#263042',
-        },
-        'gold': {
-          DEFAULT: '#D4A650',
-          light: '#E6C687',
-          muted: '#B8944A',
-          dark: '#A0812C',
-          subtle: 'rgba(212, 166, 80, 0.1)',
-        },
-        'warm': {
-          white: '#FFFFFF',
-          gray: '#4B5563',
-        },
-        'cool': {
-          gray: '#6B7280',
-        },
-        'platinum': '#F5F5F5',
-        'silver': '#E0E0E0',
+        'off-white': '#F5F0E8',
+        'warm-white': '#FDFBF7',
+        'silver': '#CBD5E0',
+        'gray': '#8895A7',
       },
       backgroundImage: {
-        'primary-gradient': 'linear-gradient(135deg, #0B0E14 0%, #1A1D23 100%)',
-        'secondary-gradient': 'linear-gradient(135deg, #1B2332 0%, #2F3847 100%)',
-        'card-gradient': 'linear-gradient(145deg, #1A1D23 0%, #2F3847 100%)',
-        'hero-gradient': 'linear-gradient(135deg, #0B0E14 0%, #1B2332 50%, #1A1D23 100%)',
-        'accent-gradient': 'linear-gradient(135deg, #B89A5F 0%, #C9A96E 100%)',
+        'primary-gradient': '#0D1B2A',
+        'accent-gradient': '#D4880F',
       },
       boxShadow: {
-        'card': '0 4px 24px rgba(0, 0, 0, 0.12)',
-        'card-hover': '0 8px 40px rgba(0, 0, 0, 0.16)',
-        'subtle': '0 2px 8px rgba(0, 0, 0, 0.08)',
-        'inset': 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
-        'gold-glow': '0 0 20px rgba(201, 169, 110, 0.2)',
+        'card': '0 1px 3px rgba(0, 0, 0, 0.3)',
+        'card-hover': '0 2px 8px rgba(0, 0, 0, 0.4)',
+        'subtle': '0 1px 2px rgba(0, 0, 0, 0.2)',
       },
       borderRadius: {
         'luxury': '12px',
         'luxury-lg': '16px',
       },
       spacing: {
-        'section': '6rem',
+        // Layout System Design Tokens
+        // Section vertical spacing (py-*)
+        'section-hero': '6rem',      // 96px - py-24
+        'section-hero-md': '8rem',   // 128px - md:py-32
+        'section': '4rem',           // 64px - py-16
+        'section-md': '5rem',        // 80px - md:py-20
+        'section-tight': '3rem',     // 48px - py-12
+        'section-tight-md': '4rem',  // 64px - md:py-16
+
+        // Component spacing (gap-*)
+        'component-xs': '1rem',      // 16px - gap-4
+        'component-sm': '1.5rem',    // 24px - gap-6
+        'component-md': '2rem',      // 32px - gap-8
+        'component-lg': '3rem',      // 48px - gap-12
+        'component-xl': '4rem',      // 64px - gap-16
       },
       letterSpacing: {
         'refined': '-0.015em',

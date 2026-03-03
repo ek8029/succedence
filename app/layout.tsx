@@ -4,8 +4,17 @@ import Navbar from '@/components/Navbar'
 import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata: Metadata = {
-  title: 'Succedence - Sophisticated Business Marketplace',
-  description: 'A refined platform for sophisticated business transactions and acquisitions',
+  title: 'Succedence | Free Business Valuation Tool for Brokers',
+  description: 'Free SDE-based business valuation calculator. 50+ industries, IBBA transaction data, risk-adjusted multiples. Built for business brokers.',
+  metadataBase: new URL('https://www.succedence.com'),
+  openGraph: {
+    siteName: 'Succedence',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default function RootLayout({

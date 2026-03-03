@@ -5,7 +5,20 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(cd:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(npx supabase --help:*)",
+      "Bash(npm run build:*)",
+      "Bash(git config:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(git checkout:*)",
+      "Bash(rm:*)",
+      "Bash(powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\")",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

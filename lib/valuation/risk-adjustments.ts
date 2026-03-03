@@ -322,6 +322,61 @@ export function calculateRiskAdjustments(input: ValuationInput): RiskAdjustmentR
 }
 
 /**
+ * Apply a size-based premium/discount based on normalized SDE
+ * Larger SDE businesses attract more buyers and institutional capital,
+ * commanding higher multiples. This reflects IBBA transaction data.
+ */
+export function calculateSdeSizeAdjustment(normalizedSde: number): RiskAdjustment | null {
+  if (normalizedSde <= 0) return null;
+
+  if (normalizedSde < 50000) {
+    return {
+      factor: 'deal_size_micro',
+      description: `Micro-business SDE (${formatSde(normalizedSde)}). Very limited buyer pool and higher execution risk compress multiples at this size.`,
+      impact: -0.4,
+      severity: 'negative',
+    };
+  } else if (normalizedSde < 100000) {
+    return {
+      factor: 'deal_size_small',
+      description: `Small business SDE (${formatSde(normalizedSde)}). Limited pool of qualified buyers at this size range.`,
+      impact: -0.2,
+      severity: 'negative',
+    };
+  } else if (normalizedSde <= 250000) {
+    // Base case — no adjustment
+    return null;
+  } else if (normalizedSde <= 500000) {
+    return {
+      factor: 'deal_size_medium',
+      description: `Mid-market SDE (${formatSde(normalizedSde)}). Strong buyer pool including financial buyers and search funds. Size premium applies.`,
+      impact: 0.2,
+      severity: 'positive',
+    };
+  } else if (normalizedSde <= 1000000) {
+    return {
+      factor: 'deal_size_large',
+      description: `Larger business SDE (${formatSde(normalizedSde)}). Attracts financial buyers and PE-backed platforms. Meaningful size premium.`,
+      impact: 0.35,
+      severity: 'positive',
+    };
+  } else {
+    return {
+      factor: 'deal_size_institutional',
+      description: `Institutional-quality SDE (${formatSde(normalizedSde)}). Broad institutional buyer market. Premium multiples apply.`,
+      impact: 0.5,
+      severity: 'positive',
+    };
+  }
+}
+
+function formatSde(value: number): string {
+  if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `$${Math.round(value / 1000)}K`;
+  return `$${value.toLocaleString()}`;
+}
+
+/**
  * Generate key strengths from positive adjustments
  */
 export function extractStrengths(adjustments: RiskAdjustment[]): string[] {

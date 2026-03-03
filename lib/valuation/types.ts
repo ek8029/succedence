@@ -87,6 +87,14 @@ export interface MispricingAnalysis {
   recommendation: 'strong_buy' | 'buy' | 'fair' | 'overpriced' | 'avoid';
 }
 
+export type DealQualityGrade = 'A' | 'B' | 'C' | 'D' | 'F';
+
+export interface ValuationConfidence {
+  score: number; // 0-100
+  label: 'High' | 'Medium' | 'Low';
+  notes: string[]; // What limited confidence, if anything
+}
+
 export interface ValuationOutput {
   // Core valuation
   valuationRange: {
@@ -111,7 +119,11 @@ export interface ValuationOutput {
 
   // Deal quality
   dealQualityScore: number;
+  dealQualityGrade: DealQualityGrade;
   dealQualityBreakdown: DealQualityBreakdown;
+
+  // Confidence
+  confidence: ValuationConfidence;
 
   // Mispricing
   mispricing?: MispricingAnalysis;

@@ -82,7 +82,7 @@ export function ValuationForm({
   };
 
   return (
-    <div className="glass rounded-luxury-lg border border-white/10 p-8 md:p-12">
+    <div className="glass rounded-luxury-lg border border-white/10 p-5 sm:p-8 md:p-12">
       {activeTab === 'url' && (
         <div className="space-y-6">
           <div>
@@ -123,7 +123,7 @@ export function ValuationForm({
           <button
             onClick={handleSubmit}
             disabled={isCalculating || !url}
-            className="w-full py-4 bg-accent-gradient text-midnight font-semibold rounded-luxury hover:shadow-gold-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-amber text-navy-dark font-semibold hover:bg-amber-light transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isCalculating ? 'Analyzing...' : 'Parse & Valuate'}
           </button>

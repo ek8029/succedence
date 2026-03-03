@@ -1,326 +1,156 @@
-'use client';
-
-import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
-import { ValuationForm } from '@/components/valuation/ValuationForm';
-import { ValuationResults } from '@/components/valuation/ValuationResults';
-import { FreeTierGate } from '@/components/valuation/FreeTierGate';
-import { getAllIndustryOptions, ValuationInput, ValuationOutput } from '@/lib/valuation';
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Footer from '@/components/Footer';
+import ValuationPageClient from './ValuationPageClient';
 
-// Wrapper component to handle Suspense boundary for useSearchParams
-export default function ValuationPage() {
+export const metadata: Metadata = {
+  title: 'Free Business Valuation Calculator | SDE Tool for Brokers | Succedence',
+  description:
+    'Get a defensible valuation range for any small business in under 60 seconds. SDE-based methodology, 50+ industries, IBBA-sourced transaction data. Free for brokers and business owners.',
+  keywords: [
+    'free business valuation calculator',
+    'SDE valuation tool',
+    'what is my business worth',
+    'small business valuation',
+    'business broker valuation tool',
+    'seller discretionary earnings calculator',
+    'business valuation multiples',
+  ],
+  openGraph: {
+    title: 'Free Business Valuation Calculator | Succedence',
+    description:
+      'Instant SDE-based valuation with risk adjustments, deal quality scoring, and broker rationale. Free, no signup required.',
+    type: 'website',
+  },
+};
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'HowTo',
+      name: 'How to Value a Small Business Using the SDE Method',
+      description:
+        'Use the Succedence free valuation tool to get a defensible, SDE-based business valuation with risk adjustments in under 60 seconds.',
+      estimatedCost: { '@type': 'MonetaryAmount', currency: 'USD', value: '0' },
+      step: [
+        {
+          '@type': 'HowToStep',
+          name: 'Select your industry and enter financials',
+          text: "Choose your business industry from 50+ categories and enter annual revenue and SDE (Seller's Discretionary Earnings). SDE is your net profit plus owner salary and any one-time expenses.",
+        },
+        {
+          '@type': 'HowToStep',
+          name: 'Add optional risk factors',
+          text: 'Optionally provide risk context: customer concentration, owner hours per week, revenue growth trend, recurring revenue percentage, and lease terms remaining.',
+        },
+        {
+          '@type': 'HowToStep',
+          name: 'Review your valuation range',
+          text: 'Receive a low, mid, and high valuation range with the applied SDE multiple, a deal quality score (0-100), risk factor breakdown, and a broker rationale paragraph you can copy directly.',
+        },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is SDE and why is it used for small business valuation?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "SDE (Seller's Discretionary Earnings) is the total financial benefit to a working owner-operator. It equals net profit plus owner salary, owner benefits, depreciation, amortization, and any one-time non-recurring expenses. SDE is the standard metric for valuing Main Street businesses under $5M because it captures the true economic value to a full-time owner.",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How accurate is this free business valuation tool?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'The tool uses industry multiples sourced from IBBA transaction data and applies risk adjustments based on your specific business characteristics. It provides a strong starting point for pricing conversations. For formal transactions, we recommend verifying with a Quality of Earnings analysis and consulting a certified business appraiser.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What industries does the valuation tool cover?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'The tool covers 50+ industries including HVAC, landscaping, restaurants, retail, healthcare practices, SaaS, professional services, manufacturing, construction, e-commerce, and more. Each industry has its own set of transaction-based multiples.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do I need to sign up to use the valuation tool?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'No signup is required for your first valuation. Create a free account to run unlimited valuations and save your results.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is a typical SDE multiple for a small business?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'SDE multiples for Main Street businesses typically range from 1.5x to 4.5x depending on industry, size, and risk profile. Service businesses with recurring revenue and low owner dependency command higher multiples. Restaurants and retail typically trade at 1.5x-2.5x SDE, while home services trade at 2.5x-4x SDE.',
+          },
+        },
+      ],
+    },
+  ],
+};
+
+function ValuationLoadingFallback() {
   return (
-    <Suspense fallback={<ValuationPageLoading />}>
-      <ValuationPageContent />
-    </Suspense>
+    <div className="text-center py-12 text-silver/60">
+      Loading valuation tool...
+    </div>
   );
 }
 
-function ValuationPageLoading() {
+export default function ValuationPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      <noscript>
+        <div style={{ padding: '2rem', textAlign: 'center', background: '#0f172a', color: '#94a3b8' }}>
+          <h1 style={{ color: '#f8fafc', marginBottom: '1rem' }}>Free Business Valuation Calculator</h1>
+          <p style={{ marginBottom: '0.5rem' }}>
+            Succedence provides a free SDE-based business valuation tool for brokers and business owners.
+          </p>
+          <p style={{ marginBottom: '0.5rem' }}>
+            Covers 50+ industries with IBBA-sourced transaction data. Provides low, mid, and high valuation
+            range with risk adjustments, deal quality score, and broker rationale.
+          </p>
+          <p>Please enable JavaScript to use the interactive valuation calculator.</p>
+        </div>
+      </noscript>
+
       <div className="min-h-screen bg-primary-gradient">
         <div className="container mx-auto px-4 pb-16 max-w-5xl page-content">
+          {/* Server-rendered header — always present in HTML for crawlers */}
           <div className="text-center mb-12">
             <div className="inline-block mb-4">
               <span className="px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm font-medium">
-                AI-POWERED VALUATION
+                FREE VALUATION TOOL
               </span>
             </div>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-warm-white mb-4">
-              Business Valuation Tool
+              Free Business Valuation Calculator
             </h1>
             <p className="text-lg text-silver/80 max-w-2xl mx-auto">
-              Loading...
+              Get a defensible valuation range for any small business in under 60 seconds.
+              SDE-based methodology with IBBA transaction data across 50+ industries.
             </p>
           </div>
-        </div>
-      </div>
-      <Footer />
-    </>
-  );
-}
 
-function ValuationPageContent() {
-  const { user } = useAuth();
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'url' | 'manual' | 'listing'>('manual');
-  const [valuation, setValuation] = useState<ValuationOutput | null>(null);
-  const [valuationInput, setValuationInput] = useState<ValuationInput | null>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [canUseFree, setCanUseFree] = useState(true);
-  const [showResults, setShowResults] = useState(false);
-
-  // Parse initial values from URL query params (from listing pages)
-  const initialValues = useMemo((): Partial<ValuationInput> => {
-    const industry = searchParams.get('industry') || '';
-    const revenue = searchParams.get('revenue');
-    const ebitda = searchParams.get('ebitda');
-    const cashFlow = searchParams.get('cashFlow');
-    const price = searchParams.get('price');
-    const employees = searchParams.get('employees');
-    const yearEstablished = searchParams.get('yearEstablished');
-    const ownerHours = searchParams.get('ownerHours');
-    const city = searchParams.get('city') || '';
-    const state = searchParams.get('state') || '';
-    const businessName = searchParams.get('businessName') || '';
-
-    return {
-      industry,
-      revenue: revenue ? parseInt(revenue) : undefined,
-      ebitda: ebitda ? parseInt(ebitda) : undefined,
-      cashFlow: cashFlow ? parseInt(cashFlow) : undefined,
-      askingPrice: price ? parseInt(price) : undefined,
-      employees: employees ? parseInt(employees) : undefined,
-      yearEstablished: yearEstablished ? parseInt(yearEstablished) : undefined,
-      ownerHoursPerWeek: ownerHours ? parseInt(ownerHours) : undefined,
-      city,
-      state,
-      businessName,
-    };
-  }, [searchParams]);
-
-  // Generate anonymous ID for free tier tracking
-  const [anonymousId] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    let id = localStorage.getItem('succedence_anon_id');
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem('succedence_anon_id', id);
-    }
-    return id;
-  });
-
-  // Check free tier status on mount
-  useEffect(() => {
-    if (!user && anonymousId) {
-      checkFreeTier();
-    }
-  }, [user, anonymousId]);
-
-  const checkFreeTier = async () => {
-    try {
-      const res = await fetch('/api/valuation/check-free-tier', {
-        headers: {
-          'x-anonymous-id': anonymousId,
-        },
-      });
-      const data = await res.json();
-      setCanUseFree(data.canUse);
-    } catch (err) {
-      console.error('Free tier check failed:', err);
-    }
-  };
-
-  const handleCalculate = async (input: ValuationInput, sourceType: 'url_parse' | 'manual_entry' | 'existing_listing', sourceUrl?: string) => {
-    setIsCalculating(true);
-    setError(null);
-
-    try {
-      const res = await fetch('/api/valuation/calculate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sourceType,
-          sourceUrl,
-          input,
-          anonymousId: !user ? anonymousId : undefined,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.requiresSignup) {
-          setCanUseFree(false);
-          setError('You\'ve used your free valuation. Sign up to continue!');
-        } else {
-          setError(data.error || 'Failed to calculate valuation');
-        }
-        return;
-      }
-
-      setValuation(data.valuation);
-      setValuationInput(input); // Store input for export functions
-      setShowResults(true);
-
-      // Update free tier status
-      if (!user) {
-        setCanUseFree(false);
-      }
-    } catch (err) {
-      console.error('Valuation error:', err);
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setIsCalculating(false);
-    }
-  };
-
-  const handleReset = () => {
-    setValuation(null);
-    setShowResults(false);
-    setError(null);
-  };
-
-  const industryOptions = getAllIndustryOptions();
-
-  return (
-    <>
-      <div className="min-h-screen bg-primary-gradient">
-        <div className="container mx-auto px-4 pb-16 max-w-5xl page-content">
-          {/* Header */}
-          <div className="text-center mb-12">
-          <div className="inline-block mb-4">
-            <span className="px-4 py-1.5 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm font-medium">
-              AI-POWERED VALUATION
-            </span>
-          </div>
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-warm-white mb-4">
-            Business Valuation Tool
-          </h1>
-          <p className="text-lg text-silver/80 max-w-2xl mx-auto">
-            Get an instant, data-driven valuation with industry-specific multiples, risk analysis, and deal quality scoring.
-            {!user && canUseFree && (
-              <span className="block mt-2 text-gold">
-                Try one free valuation - no signup required!
-              </span>
-            )}
-          </p>
-        </div>
-
-        {/* Show results or form */}
-        {showResults && valuation ? (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <button
-                onClick={handleReset}
-                className="flex items-center gap-2 text-silver/80 hover:text-gold transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Run Another Valuation
-              </button>
-              {!user && (
-                <Link
-                  href="/login"
-                  className="px-4 py-2 bg-gold/20 text-gold border border-gold/30 rounded-luxury hover:bg-gold/30 transition-colors"
-                >
-                  Sign Up to Save
-                </Link>
-              )}
-            </div>
-            <ValuationResults valuation={valuation} input={valuationInput || undefined} />
-          </div>
-        ) : (
-          <>
-            {/* Free tier gate */}
-            {!user && !canUseFree ? (
-              <FreeTierGate />
-            ) : (
-              <>
-                {/* Tab Navigation */}
-                <div className="flex justify-center mb-8">
-                  <div className="inline-flex bg-charcoal/50 rounded-luxury p-1 border border-white/5">
-                    <button
-                      onClick={() => setActiveTab('manual')}
-                      className={`px-6 py-2.5 rounded-luxury text-sm font-medium transition-all ${
-                        activeTab === 'manual'
-                          ? 'bg-gold text-midnight'
-                          : 'text-silver hover:text-warm-white'
-                      }`}
-                    >
-                      Enter Details
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('url')}
-                      className={`px-6 py-2.5 rounded-luxury text-sm font-medium transition-all ${
-                        activeTab === 'url'
-                          ? 'bg-gold text-midnight'
-                          : 'text-silver hover:text-warm-white'
-                      }`}
-                    >
-                      Paste URL
-                    </button>
-                    {user && (
-                      <button
-                        onClick={() => setActiveTab('listing')}
-                        className={`px-6 py-2.5 rounded-luxury text-sm font-medium transition-all ${
-                          activeTab === 'listing'
-                            ? 'bg-gold text-midnight'
-                            : 'text-silver hover:text-warm-white'
-                        }`}
-                      >
-                        From Listing
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Error display */}
-                {error && (
-                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-luxury text-red-400 text-center">
-                    {error}
-                  </div>
-                )}
-
-                {/* Form */}
-                <ValuationForm
-                  activeTab={activeTab}
-                  industryOptions={industryOptions}
-                  onCalculate={handleCalculate}
-                  isCalculating={isCalculating}
-                  initialValues={initialValues}
-                />
-
-                {/* Info section */}
-                <div className="mt-12 grid md:grid-cols-3 gap-4 items-start">
-                  <div className="glass p-4 rounded-luxury border border-white/5 h-full">
-                    <div className="w-8 h-8 bg-gold/20 rounded-full flex items-center justify-center mb-3">
-                      <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-warm-white font-semibold mb-2">Industry Multiples</h3>
-                    <p className="text-silver/70 text-sm">
-                      50+ industry-specific multiples based on transaction data.
-                    </p>
-                  </div>
-
-                  <div className="glass p-4 rounded-luxury border border-white/5 h-full">
-                    <div className="w-8 h-8 bg-gold/20 rounded-full flex items-center justify-center mb-3">
-                      <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-warm-white font-semibold mb-2">Risk Analysis</h3>
-                    <p className="text-silver/70 text-sm">
-                      Adjustments for concentration, owner dependency, and more.
-                    </p>
-                  </div>
-
-                  <div className="glass p-4 rounded-luxury border border-white/5 h-full">
-                    <div className="w-8 h-8 bg-gold/20 rounded-full flex items-center justify-center mb-3">
-                      <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-warm-white font-semibold mb-2">Deal Quality Score</h3>
-                    <p className="text-silver/70 text-sm">
-                      0-100 score for pricing, financials, and operations.
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-          </>
-        )}
+          {/* Interactive client component — wrapped in Suspense for useSearchParams */}
+          <Suspense fallback={<ValuationLoadingFallback />}>
+            <ValuationPageClient />
+          </Suspense>
         </div>
       </div>
       <Footer />
