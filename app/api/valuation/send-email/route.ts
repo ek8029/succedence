@@ -169,9 +169,10 @@ export async function POST(request: NextRequest) {
         // Best-effort: update capturedEmail on the most recent valuation for this anonymousId
         const { createClient } = await import('@/lib/supabase/server');
         const supabase = await createClient();
+        const updateData: Record<string, unknown> = { captured_email: email };
         await supabase
           .from('valuations')
-          .update({ captured_email: email } as any)
+          .update(updateData as never)
           .eq('anonymous_id', anonymousId)
           .is('captured_email', null)
           .order('created_at', { ascending: false })

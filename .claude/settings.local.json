@@ -18,7 +18,10 @@
       "Bash(rm:*)",
       "Bash(powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\")",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx tsc:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

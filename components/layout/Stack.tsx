@@ -21,7 +21,7 @@ interface StackProps {
   children: ReactNode;
   gap?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
-  as?: 'div' | 'section' | 'article' | 'aside';
+  as?: 'div' | 'section' | 'article' | 'aside' | 'ul';
 }
 
 const gapClasses = {
