@@ -9,22 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'], // Unified sans-only system
-        mono: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],  // Numbers use same sans font
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        // Unified Modern Typography Scale - Inter Variable Font
-        'hero': ['2.625rem', { lineHeight: '1.1', letterSpacing: '-0.01em', fontWeight: '700' }],       // 42px desktop
-        'hero-mobile': ['2.25rem', { lineHeight: '1.1', letterSpacing: '-0.01em', fontWeight: '700' }], // 36px mobile
-        'h1': ['2.625rem', { lineHeight: '1.1', letterSpacing: '-0.01em', fontWeight: '700' }],         // 42px
-        'h2': ['1.875rem', { lineHeight: '1.15', letterSpacing: '-0.01em', fontWeight: '600' }],        // 30px
-        'h3': ['1.5rem', { lineHeight: '1.3', letterSpacing: '-0.005em', fontWeight: '600' }],          // 24px
-        'h4': ['1.25rem', { lineHeight: '1.3', letterSpacing: '0', fontWeight: '600' }],                // 20px
-        'body-lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],          // 18px
-        'body': ['1rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],                 // 16px
-        'label': ['0.875rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '500' }],            // 14px
-        'micro': ['0.8125rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],           // 13px
+        'hero': ['2.625rem', { lineHeight: '1.15', letterSpacing: '-0.01em', fontWeight: '700' }],       // 42px
+        'hero-mobile': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.01em', fontWeight: '700' }], // 36px
+        'h2': ['1.875rem', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '600' }],          // 30px
+        'h3': ['1.5rem', { lineHeight: '1.3', letterSpacing: '0', fontWeight: '600' }],                  // 24px
+        'h4': ['1.25rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '600' }],                 // 20px
+        'body-lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],           // 18px
+        'body': ['1rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],                  // 16px
+        'label': ['0.875rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '500' }],             // 14px
+        'micro': ['0.8125rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],            // 13px
       },
       fontWeight: {
         normal: '400',
@@ -84,15 +80,14 @@ const config: Config = {
         'component-xl': '4rem',      // 64px - gap-16
       },
       letterSpacing: {
-        tighter: '-0.01em',     // Headlines (modern, clean)
-        tight: '-0.005em',      // Subheadlines
+        tight: '-0.01em',       // Headlines
         normal: '0',            // Body text
-        wide: '0.01em',         // Uppercase labels (reduced tracking)
+        wide: '0.01em',         // Uppercase labels
       },
       lineHeight: {
-        tight: '1.1',           // Hero headlines
-        snug: '1.15',           // Section headlines
-        normal: '1.3',          // Subheadings
+        tight: '1.15',          // Headlines
+        snug: '1.2',            // Section headers
+        normal: '1.4',          // Subheadings
         relaxed: '1.6',         // Body text
       },
     },
