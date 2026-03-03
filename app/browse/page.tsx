@@ -578,17 +578,18 @@ export default function BrowsePage() {
                     <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
                       <Stack gap="sm" className="items-center">
                         <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center">
-                    <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-warm-white font-semibold mb-2">Adjust Filters</h4>
-                  <p className="text-silver/70 text-sm">
-                    Try broadening your search by removing some filters or adjusting your criteria
-                  </p>
-                </div>
+                          <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                          </svg>
+                        </div>
+                        <h4 className="text-warm-white font-semibold mb-2">Adjust Filters</h4>
+                        <p className="text-silver/70 text-sm">
+                          Try broadening your search by removing some filters or adjusting your criteria
+                        </p>
+                      </Stack>
+                    </div>
 
-                <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
+                    <div className="glass p-6 rounded-luxury-lg border border-gold/20 h-full flex flex-col">
                   <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
                     <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -776,9 +777,9 @@ export default function BrowsePage() {
                     </div>
                   </Stack>
                 )}
+              )
+              }
               </>
-              )}
-        </>
         ) : (
           /* Authenticated Users - Show with subscription gate */
           <SubscriptionGate requiredPlan="starter" requiredFeature="Browse business opportunities">
@@ -869,7 +870,7 @@ export default function BrowsePage() {
                       Set up your preferences and we'll send you personalized matches as soon as they're available.
                     </p>
                   </div>
-                </Stack>
+            </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12">
             {listings.map((listing, index) => (
@@ -974,6 +975,8 @@ export default function BrowsePage() {
           )}
         </SubscriptionGate>
         )}
+          </PageContainer>
+        </Section>
 
         </div>
 
