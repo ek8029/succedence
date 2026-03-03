@@ -83,7 +83,7 @@ export default function HomePage() {
                   <span className="text-sm font-medium text-accent-color">Powered by IBBA transaction data</span>
                 </div>
 
-                <h1 className="font-serif text-hero-mobile lg:text-hero text-text-primary">
+                <h1 className="text-hero-mobile lg:text-hero text-text-primary">
                   Standardize SMB valuations with transaction‑backed, defensible multiples
                 </h1>
 
@@ -239,7 +239,7 @@ export default function HomePage() {
         <PageContainer>
           <Stack gap="xl">
             <Stack gap="xs" className="text-center max-w-3xl mx-auto">
-              <h2 className="font-serif text-h2 text-text-primary">
+              <h2 className="text-h2 text-text-primary">
                 Institutional-grade infrastructure
               </h2>
               <p className="text-body-lg text-text-secondary leading-body-relaxed">
@@ -401,7 +401,7 @@ export default function HomePage() {
         <PageContainer>
           <Stack gap="xl">
             <Stack gap="sm">
-              <h2 className="font-serif text-h2 text-text-primary max-w-2xl">
+              <h2 className="text-h2 text-text-primary max-w-2xl">
                 Risk factors banks and buyers actually evaluate
               </h2>
               <p className="text-body-lg text-text-secondary/90 max-w-2xl leading-body-relaxed">
@@ -463,7 +463,7 @@ export default function HomePage() {
         <PageContainer>
           <div className="border-y border-text-secondary/20 py-16">
             <Stack gap="lg" className="max-w-3xl mx-auto text-center">
-              <h2 className="font-serif text-h2 text-text-primary">
+              <h2 className="text-h2 text-text-primary">
                 Stop defending arbitrary numbers in listing conversations
               </h2>
               <p className="text-body-lg text-text-secondary leading-body-relaxed">

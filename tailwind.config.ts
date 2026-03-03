@@ -9,27 +9,27 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        'serif': ['var(--font-serif)', 'Georgia', 'serif'],
         'sans': ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        'mono': ['IBM Plex Mono', 'Monaco', 'Consolas', 'monospace'],
+        'serif': ['var(--font-sans)', 'system-ui', 'sans-serif'], // Sans-only system
+        'mono': ['JetBrains Mono', 'Monaco', 'Consolas', 'monospace'],
       },
       fontSize: {
-        // Institutional Typography Scale
-        'hero': ['3.5rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '600' }],      // 56px
-        'hero-mobile': ['2.5rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '600' }], // 40px
-        'h1': ['3.5rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '600' }],         // 56px
-        'h2': ['2rem', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],           // 32px
-        'h3': ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.005em', fontWeight: '500' }],        // 20px
-        'body-lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],         // 18px
-        'body': ['1rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],                // 16px
-        'label': ['0.875rem', { lineHeight: '1.4', letterSpacing: '0.01em', fontWeight: '500' }],      // 14px
-        'micro': ['0.75rem', { lineHeight: '1.5', letterSpacing: '0.005em', fontWeight: '400' }],      // 12px
+        // Modern Sans-Only Typography Scale
+        'hero': ['3.5rem', { lineHeight: '1.1', letterSpacing: '-0.025em', fontWeight: '700' }],        // 56px, Bold
+        'hero-mobile': ['2.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],  // 40px, Bold
+        'h1': ['3.5rem', { lineHeight: '1.1', letterSpacing: '-0.025em', fontWeight: '700' }],          // 56px, Bold
+        'h2': ['2rem', { lineHeight: '1.2', letterSpacing: '-0.015em', fontWeight: '700' }],            // 32px, Bold
+        'h3': ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '600' }],          // 20px, SemiBold
+        'body-lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '-0.005em', fontWeight: '400' }],   // 18px
+        'body': ['1rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],                 // 16px
+        'label': ['0.875rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '500' }],            // 14px, Medium
+        'micro': ['0.75rem', { lineHeight: '1.5', letterSpacing: '0.01em', fontWeight: '400' }],        // 12px
       },
       fontWeight: {
-        // Institutional Weight Scale (reduced from original)
         'regular': '400',
         'medium': '500',
         'semibold': '600',
+        'bold': '700',
       },
       colors: {
         'surface-color': '#0D0D12',
@@ -83,18 +83,19 @@ const config: Config = {
         'component-xl': '4rem',      // 64px - gap-16
       },
       letterSpacing: {
-        'tight-institutional': '-0.02em',   // Hero headlines
-        'tight': '-0.01em',                 // Section headlines
-        'tighter': '-0.005em',              // Subsection headlines
-        'normal': '0',                      // Body text
-        'ui': '0.01em',                     // Labels and UI
-        'caps': '0.05em',                   // Uppercase text
+        'tightest': '-0.025em',  // Hero headlines (sharp, modern)
+        'tighter': '-0.015em',   // Section headlines
+        'tight': '-0.01em',      // Subsection headlines
+        'snug': '-0.005em',      // Large body text
+        'normal': '0',           // Standard body text
+        'wide': '0.01em',        // Microcopy
+        'caps': '0.05em',        // Uppercase text
       },
       lineHeight: {
-        'hero': '1.15',         // Hero headlines (compact, authoritative)
-        'heading': '1.25',      // Section headlines
+        'hero': '1.1',          // Hero headlines (very tight, modern)
+        'heading': '1.2',       // Section headlines (compact)
         'subheading': '1.3',    // Subsection headlines
-        'body': '1.5',          // Body text (tighter than 1.8)
+        'body': '1.5',          // Body text
         'body-relaxed': '1.6',  // Large body text
         'ui': '1.4',            // Labels and UI elements
       },

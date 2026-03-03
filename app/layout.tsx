@@ -2,18 +2,10 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import { AuthProvider } from '@/contexts/AuthContext'
-import { IBM_Plex_Serif, IBM_Plex_Sans } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 
-const ibmPlexSerif = IBM_Plex_Serif({
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-  variable: '--font-serif',
-  display: 'swap',
-  preload: true,
-})
-
-const ibmPlexSans = IBM_Plex_Sans({
-  weight: ['400', '500', '600'],
+const manrope = Manrope({
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
@@ -42,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${ibmPlexSerif.variable} ${ibmPlexSans.variable}`}>
+    <html lang="en" className={manrope.variable}>
       <body className="font-sans bg-surface-color text-text-secondary">
         <AuthProvider>
           <div className="min-h-screen">
