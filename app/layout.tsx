@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import { AuthProvider } from '@/contexts/AuthContext'
-import { Manrope } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
-const manrope = Manrope({
-  weight: ['400', '500', '600', '700'],
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
@@ -34,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={manrope.variable}>
-      <body className="font-sans bg-surface-color text-text-secondary">
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans bg-surface-color text-text-secondary antialiased">
         <AuthProvider>
           <div className="min-h-screen">
             <Navbar />
