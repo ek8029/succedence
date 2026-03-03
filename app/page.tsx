@@ -114,7 +114,12 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
-                <p className="text-sm text-text-secondary/60 ml-1">Free. No signup required.</p>
+                <Stack gap="xs" className="ml-1">
+                  <p className="text-sm text-text-secondary/60">Free. No signup required. Export PDF immediately.</p>
+                  <p className="text-xs text-text-secondary/50 leading-relaxed">
+                    Complete valuation report with risk analysis, industry comps, and deal quality scoring in under 60 seconds.
+                  </p>
+                </Stack>
 
                 {/* Secondary CTA */}
                 <Link
@@ -155,7 +160,7 @@ export default function HomePage() {
                   role="article"
                   aria-labelledby="step-1-title"
                 >
-                  <Cluster gap="xs" align="start">
+                  <Cluster gap="md" align="start">
                     <div
                       className="relative z-10 flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-accent-color text-white font-bold text-lg"
                       aria-label="Step 1"
@@ -163,9 +168,12 @@ export default function HomePage() {
                       1
                     </div>
                     <Stack gap="xs">
-                      <h3 id="step-1-title" className="text-lg font-semibold text-text-primary">Input Financials</h3>
+                      <div>
+                        <p className="text-xs text-accent-color font-semibold uppercase tracking-wide mb-1">Data Input</p>
+                        <h3 id="step-1-title" className="text-lg font-semibold text-text-primary">Input Financials</h3>
+                      </div>
                       <p className="text-text-secondary text-sm leading-relaxed">
-                        Upload P&L & tax returns — we normalise earnings for you and classify industry automatically.
+                        Upload P&L and tax returns. System normalises SDE automatically and classifies industry using NAICS taxonomy.
                       </p>
                     </Stack>
                   </Cluster>
@@ -177,7 +185,7 @@ export default function HomePage() {
                   role="article"
                   aria-labelledby="step-2-title"
                 >
-                  <Cluster gap="xs" align="start">
+                  <Cluster gap="md" align="start">
                     <div
                       className="relative z-10 flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-accent-color text-white font-bold text-lg"
                       aria-label="Step 2"
@@ -185,9 +193,12 @@ export default function HomePage() {
                       2
                     </div>
                     <Stack gap="xs">
-                      <h3 id="step-2-title" className="text-lg font-semibold text-text-primary">Review Risk-Adjusted Range</h3>
+                      <div>
+                        <p className="text-xs text-accent-color font-semibold uppercase tracking-wide mb-1">Risk Analysis</p>
+                        <h3 id="step-2-title" className="text-lg font-semibold text-text-primary">Review Risk-Adjusted Range</h3>
+                      </div>
                       <p className="text-text-secondary text-sm leading-relaxed">
-                        See low/mid/high valuations with applied risk adjustments for customer concentration, owner dependency, and more.
+                        Receive low/mid/high valuation range with documented risk adjustments across six evaluation dimensions.
                       </p>
                     </Stack>
                   </Cluster>
@@ -199,7 +210,7 @@ export default function HomePage() {
                   role="article"
                   aria-labelledby="step-3-title"
                 >
-                  <Cluster gap="xs" align="start">
+                  <Cluster gap="md" align="start">
                     <div
                       className="relative z-10 flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-accent-color text-white font-bold text-lg"
                       aria-label="Step 3"
@@ -207,9 +218,12 @@ export default function HomePage() {
                       3
                     </div>
                     <Stack gap="xs">
-                      <h3 id="step-3-title" className="text-lg font-semibold text-text-primary">Export Defensible Reports</h3>
+                      <div>
+                        <p className="text-xs text-accent-color font-semibold uppercase tracking-wide mb-1">Report Generation</p>
+                        <h3 id="step-3-title" className="text-lg font-semibold text-text-primary">Export Defensible Reports</h3>
+                      </div>
                       <p className="text-text-secondary text-sm leading-relaxed">
-                        PDF reports with transparent methodology. Built for listing presentations and buyer negotiations.
+                        PDF output with complete methodology disclosure. Designed for listing presentations, LOI negotiations, and lender documentation.
                       </p>
                     </Stack>
                   </Cluster>
@@ -235,70 +249,148 @@ export default function HomePage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Institutional Trust */}
-              <Stack gap="sm" className="border-l-2 border-accent-color/60 pl-6">
+              <Stack gap="xs" className="border-l-2 border-accent-color/60 pl-6">
                 <div className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   <h3 className="text-xl font-semibold text-text-primary">Institutional Trust</h3>
                 </div>
-                <p className="text-text-secondary/90 leading-relaxed text-sm">
-                  Licensed data from IBBA quarterly market reports. Methodology reviewed by M&A advisors and institutional buyers.
-                </p>
-                <Link href="/about" className="text-accent-color text-sm hover:underline">Learn more →</Link>
+
+                <Stack gap="xs" className="text-sm">
+                  <p className="text-text-secondary/90 leading-relaxed">
+                    Licensed data sourced from IBBA quarterly market reports covering main street M&A transactions. Methodology independently reviewed by institutional buyers and M&A advisory firms.
+                  </p>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Data Provenance:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      Transaction multiples derived from 20,000+ closed deals. Industry classifications align with NAICS taxonomy. Market data updated quarterly to reflect current conditions.
+                    </p>
+                  </div>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Professional Standards:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      Valuation approach consistent with NACVA and ASA guidelines for small business appraisal. Methodology documentation available for third-party review.
+                    </p>
+                  </div>
+                </Stack>
+
+                <Link href="/about" className="text-accent-color text-sm hover:underline mt-2">Learn more →</Link>
               </Stack>
 
               {/* Operational Trust */}
-              <Stack gap="sm" className="border-l-2 border-accent-color/60 pl-6">
+              <Stack gap="xs" className="border-l-2 border-accent-color/60 pl-6">
                 <div className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <h3 className="text-xl font-semibold text-text-primary">Operational Trust</h3>
                 </div>
-                <p className="text-text-secondary/90 leading-relaxed text-sm">
-                  Anonymised case studies from 500+ broker valuations. Methodology documented and reproducible by third parties.
-                </p>
-                <Link href="/case-studies" className="text-accent-color text-sm hover:underline">View case studies →</Link>
+
+                <Stack gap="xs" className="text-sm">
+                  <p className="text-text-secondary/90 leading-relaxed">
+                    Valuation calculations independently reproducible. Complete methodology documentation enables verification by accounting firms, legal counsel, and financial advisors.
+                  </p>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Calculation Transparency:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      All risk adjustments and multiple selections disclosed in output reports. Assumptions explicitly stated. No proprietary black-box calculations.
+                    </p>
+                  </div>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Track Record:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      Anonymised case studies from 500+ broker valuations. Used in LOI negotiations and SBA lending documentation.
+                    </p>
+                  </div>
+                </Stack>
+
+                <Link href="/case-studies" className="text-accent-color text-sm hover:underline mt-2">View case studies →</Link>
               </Stack>
 
               {/* Technical Trust */}
-              <Stack gap="sm" className="border-l-2 border-accent-color/60 pl-6">
+              <Stack gap="xs" className="border-l-2 border-accent-color/60 pl-6">
                 <div className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <h3 className="text-xl font-semibold text-text-primary">Technical Trust</h3>
                 </div>
-                <p className="text-text-secondary/90 leading-relaxed text-sm">
-                  SOC 2 Type II compliance in progress. Data encrypted at rest and in transit. Annual third-party security audits.
-                </p>
-                <Link href="/security" className="text-accent-color text-sm hover:underline">Security details →</Link>
+
+                <Stack gap="xs" className="text-sm">
+                  <p className="text-text-secondary/90 leading-relaxed">
+                    SOC 2 Type II compliance in progress. Third-party security audits conducted annually. Infrastructure designed for institutional data handling requirements.
+                  </p>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Data Security:</p>
+                    <ul className="text-text-secondary/70 text-xs space-y-0.5">
+                      <li>• AES-256 encryption at rest</li>
+                      <li>• TLS 1.3 for data in transit</li>
+                      <li>• Role-based access controls</li>
+                      <li>• Comprehensive audit logging</li>
+                    </ul>
+                  </div>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Compliance Readiness:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      Data retention policies align with financial services standards. Regular penetration testing and vulnerability assessments.
+                    </p>
+                  </div>
+                </Stack>
+
+                <Link href="/security" className="text-accent-color text-sm hover:underline mt-2">Security documentation →</Link>
               </Stack>
 
               {/* Relational Trust */}
-              <Stack gap="sm" className="border-l-2 border-accent-color/60 pl-6">
+              <Stack gap="xs" className="border-l-2 border-accent-color/60 pl-6">
                 <div className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <h3 className="text-xl font-semibold text-text-primary">Relational Trust</h3>
                 </div>
-                <p className="text-text-secondary/90 leading-relaxed text-sm">
-                  Founded by former M&A advisors. Direct support from our team. Transparent pricing and no hidden fees.
-                </p>
-                <Link href="/team" className="text-accent-color text-sm hover:underline">Meet the team →</Link>
+
+                <Stack gap="xs" className="text-sm">
+                  <p className="text-text-secondary/90 leading-relaxed">
+                    Founded by former M&A advisors with transaction experience across professional services, manufacturing, and SaaS sectors. Direct support from our team for complex valuations.
+                  </p>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Pricing Model:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      Transparent fee structure with no hidden charges. Free tier for basic valuations. Enterprise pricing for high-volume broker firms.
+                    </p>
+                  </div>
+
+                  <div className="pl-4 border-l border-text-secondary/30">
+                    <p className="text-text-secondary/80 text-xs mb-1">Professional Network:</p>
+                    <p className="text-text-secondary/70 text-xs leading-relaxed">
+                      Advisor relationships with IBBA member firms, regional investment banks, and SBA preferred lenders. Methodology refined through practitioner feedback.
+                    </p>
+                  </div>
+                </Stack>
+
+                <Link href="/team" className="text-accent-color text-sm hover:underline mt-2">Meet the team →</Link>
               </Stack>
             </div>
 
             {/* Partner Logos */}
             <div className="pt-8 border-t border-text-secondary/20">
               <p className="text-center text-sm text-text-secondary/60 mb-6">Trusted data sources and partners</p>
-              <div className="flex flex-wrap items-center justify-center gap-12 opacity-60 grayscale">
+              <div className="flex flex-wrap items-center justify-center gap-12 opacity-60 grayscale mb-6">
                 <div className="text-text-secondary font-semibold text-lg" aria-label="IBBA Partner">IBBA</div>
                 <div className="text-text-secondary font-semibold text-lg" aria-label="Market Data Provider">BizBuySell</div>
                 <div className="text-text-secondary font-semibold text-lg" aria-label="Valuation Standards">NACVA</div>
               </div>
+              <p className="text-center text-xs text-text-secondary/50">
+                Market data sourced from licensed IBBA quarterly reports and DealStats transaction database. Industry multiples reviewed and updated quarterly.
+              </p>
             </div>
           </Stack>
         </PageContainer>
@@ -308,46 +400,58 @@ export default function HomePage() {
       <Section variant="default" withBorder="top">
         <PageContainer>
           <Stack gap="xl">
-            <Stack gap="xs">
+            <Stack gap="sm">
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-text-primary max-w-2xl tracking-tight">
                 Risk factors banks and buyers actually evaluate
               </h2>
-              <p className="text-lg text-text-secondary/90 max-w-2xl">
-                Base multiples adjusted for the same dimensions institutional buyers scrutinize during due diligence.
+              <p className="text-lg text-text-secondary/90 max-w-2xl leading-relaxed">
+                Base multiples adjusted for the same dimensions institutional buyers scrutinize during due diligence. Each factor quantified based on historical transaction discounts and lending risk premiums.
               </p>
             </Stack>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <Stack gap="sm" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5">
-                <h3 className="text-xl font-semibold text-text-primary">Customer Concentration</h3>
-                <p className="text-text-secondary/90 leading-relaxed">
-                  Revenue dependency on top 3 clients. Adjusts multiples downward when {'>'}30% of revenue comes from a single customer.
+            <div className="grid md:grid-cols-2 gap-6">
+              <Stack gap="xs" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5 hover:bg-text-secondary/10 transition-colors">
+                <h3 className="text-lg font-semibold text-text-primary">Customer Concentration</h3>
+                <p className="text-text-secondary/90 leading-relaxed text-sm">
+                  Revenue dependency on top 3 clients. Multiples adjusted downward when {'>'}30% of revenue from single customer. Mirrors SBA lending concentration limits.
                 </p>
-                <div className="text-sm text-accent-color font-mono">Impact: -0.3x to -1.2x SDE multiple</div>
+                <div className="pt-2 border-t border-text-secondary/20">
+                  <p className="text-xs text-text-secondary/70 mb-1">Multiple Adjustment Range:</p>
+                  <p className="text-sm text-accent-color font-mono">-0.3x to -1.2x SDE</p>
+                </div>
               </Stack>
 
-              <Stack gap="sm" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5">
-                <h3 className="text-xl font-semibold text-text-primary">Owner Dependency</h3>
-                <p className="text-text-secondary/90 leading-relaxed">
-                  Transferability of operations without current owner. Systems, documented processes, and management depth.
+              <Stack gap="xs" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5 hover:bg-text-secondary/10 transition-colors">
+                <h3 className="text-lg font-semibold text-text-primary">Owner Dependency</h3>
+                <p className="text-text-secondary/90 leading-relaxed text-sm">
+                  Transferability of operations without current owner. Evaluates documented processes, management depth, and systems. Critical for SBA 7(a) loan approval.
                 </p>
-                <div className="text-sm text-accent-color font-mono">Impact: -0.2x to -1.0x SDE multiple</div>
+                <div className="pt-2 border-t border-text-secondary/20">
+                  <p className="text-xs text-text-secondary/70 mb-1">Multiple Adjustment Range:</p>
+                  <p className="text-sm text-accent-color font-mono">-0.2x to -1.0x SDE</p>
+                </div>
               </Stack>
 
-              <Stack gap="sm" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5">
-                <h3 className="text-xl font-semibold text-text-primary">Revenue Trajectory</h3>
-                <p className="text-text-secondary/90 leading-relaxed">
-                  3-year growth trend and stability. Declining revenue receives lower multiples; consistent growth commands premiums.
+              <Stack gap="xs" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5 hover:bg-text-secondary/10 transition-colors">
+                <h3 className="text-lg font-semibold text-text-primary">Revenue Trajectory</h3>
+                <p className="text-text-secondary/90 leading-relaxed text-sm">
+                  3-year revenue trend and stability. Declining revenue receives lower multiples; consistent growth above industry average commands premiums. Assessed using CAGR methodology.
                 </p>
-                <div className="text-sm text-accent-color font-mono">Impact: -0.5x to +0.4x SDE multiple</div>
+                <div className="pt-2 border-t border-text-secondary/20">
+                  <p className="text-xs text-text-secondary/70 mb-1">Multiple Adjustment Range:</p>
+                  <p className="text-sm text-accent-color font-mono">-0.5x to +0.4x SDE</p>
+                </div>
               </Stack>
 
-              <Stack gap="sm" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5">
-                <h3 className="text-xl font-semibold text-text-primary">Recurring Revenue Mix</h3>
-                <p className="text-text-secondary/90 leading-relaxed">
-                  Percentage of revenue under contract or subscription. Predictable cash flow justifies higher multiples.
+              <Stack gap="xs" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5 hover:bg-text-secondary/10 transition-colors">
+                <h3 className="text-lg font-semibold text-text-primary">Recurring Revenue Mix</h3>
+                <p className="text-text-secondary/90 leading-relaxed text-sm">
+                  Percentage of revenue under contract or subscription. Predictable cash flow justifies higher multiples. Includes maintenance contracts, retainers, and SaaS subscriptions.
                 </p>
-                <div className="text-sm text-accent-color font-mono">Impact: +0.2x to +0.8x SDE multiple</div>
+                <div className="pt-2 border-t border-text-secondary/20">
+                  <p className="text-xs text-text-secondary/70 mb-1">Multiple Adjustment Range:</p>
+                  <p className="text-sm text-accent-color font-mono">+0.2x to +0.8x SDE</p>
+                </div>
               </Stack>
             </div>
           </Stack>

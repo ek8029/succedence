@@ -90,17 +90,33 @@ export default function Footer() {
             </div>
 
             {/* Bottom Bar */}
-            <div className="pt-8 border-t border-text-secondary/20 flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-text-secondary/70 text-sm">
-                © {new Date().getFullYear()} Succedence
+            <div className="pt-8 border-t border-text-secondary/20">
+              {/* Positioning Statement */}
+              <div className="mb-6">
+                <p className="text-text-secondary/70 text-sm leading-relaxed max-w-3xl">
+                  Succedence provides transaction-backed valuation infrastructure for SMB acquisitions. Industry multiples derived from IBBA market data and 20,000+ closed transactions. Data updated quarterly.
+                </p>
+                <p className="text-text-secondary/60 text-xs mt-2">
+                  Last data update: Q4 2024 • Next scheduled update: Q1 2025
+                </p>
               </div>
-              <div className="flex gap-6 text-sm">
-                <Link href="/privacy" className="text-text-secondary/70 hover:text-text-primary transition-colors">
-                  Privacy
-                </Link>
-                <Link href="/terms" className="text-text-secondary/70 hover:text-text-primary transition-colors">
-                  Terms
-                </Link>
+
+              {/* Copyright and Legal Links */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="text-text-secondary/70 text-sm">
+                  © {new Date().getFullYear()} Succedence Inc. All rights reserved.
+                </div>
+                <div className="flex gap-6 text-sm">
+                  <Link href="/privacy" className="text-text-secondary/70 hover:text-text-primary transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link href="/terms" className="text-text-secondary/70 hover:text-text-primary transition-colors">
+                    Terms of Service
+                  </Link>
+                  <Link href="/data-sources" className="text-text-secondary/70 hover:text-text-primary transition-colors">
+                    Data Sources
+                  </Link>
+                </div>
               </div>
             </div>
           </Stack>
