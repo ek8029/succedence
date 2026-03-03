@@ -321,7 +321,7 @@ export default function HomePage() {
               <Stack gap="sm" className="border border-text-secondary/20 rounded-lg p-6 bg-text-secondary/5">
                 <h3 className="text-xl font-semibold text-text-primary">Customer Concentration</h3>
                 <p className="text-text-secondary/90 leading-relaxed">
-                  Revenue dependency on top 3 clients. Adjusts multiples downward when >30% of revenue comes from a single customer.
+                  Revenue dependency on top 3 clients. Adjusts multiples downward when {'>'}30% of revenue comes from a single customer.
                 </p>
                 <div className="text-sm text-accent-color font-mono">Impact: -0.3x to -1.2x SDE multiple</div>
               </Stack>
