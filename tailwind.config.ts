@@ -9,21 +9,25 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        'serif': ['DM Serif Display', 'Georgia', 'serif'],
-        'sans': ['Instrument Sans', 'system-ui', 'sans-serif'],
+        'serif': ['Merriweather', 'Georgia', 'serif'],
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
+        'surface-color': '#0D0D12',
+        'text-primary': '#F5F5F5',
+        'text-secondary': '#B5B5C5',
+        'accent-color': '#D19B3E',
         'deep-navy': '#0D1B2A',
         'navy-dark': '#08141E',
         'navy-light': '#1B2A3E',
         'charcoal': '#2C3E50',
         'slate': '#465A6F',
         'amber': {
-          DEFAULT: '#D4880F',
+          DEFAULT: '#D19B3E',
           light: '#E6A238',
           dark: '#B87308',
-          subtle: 'rgba(212, 136, 15, 0.12)',
+          subtle: 'rgba(209, 155, 62, 0.12)',
         },
         'off-white': '#F5F0E8',
         'warm-white': '#FDFBF7',

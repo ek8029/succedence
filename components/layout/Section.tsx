@@ -19,6 +19,7 @@ interface SectionProps {
   variant?: 'hero' | 'default' | 'tight';
   className?: string;
   withBorder?: 'top' | 'bottom' | 'both' | 'none';
+  id?: string;
 }
 
 const variantClasses = {
@@ -39,9 +40,10 @@ export default function Section({
   variant = 'default',
   className = '',
   withBorder = 'none',
+  id,
 }: SectionProps) {
   return (
-    <section className={`${variantClasses[variant]} ${borderClasses[withBorder]} ${className}`}>
+    <section id={id} className={`${variantClasses[variant]} ${borderClasses[withBorder]} ${className}`}>
       {children}
     </section>
   );
