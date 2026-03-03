@@ -2,20 +2,20 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import { AuthProvider } from '@/contexts/AuthContext'
-import { Merriweather, Inter } from 'next/font/google'
+import { IBM_Plex_Serif, IBM_Plex_Sans } from 'next/font/google'
 
-const merriweather = Merriweather({
-  weight: ['300', '400', '700', '900'],
+const ibmPlexSerif = IBM_Plex_Serif({
+  weight: ['400', '500', '600'],
   subsets: ['latin'],
-  variable: '--font-merriweather',
+  variable: '--font-serif',
   display: 'swap',
   preload: true,
 })
 
-const inter = Inter({
-  weight: ['300', '400', '500', '600', '700'],
+const ibmPlexSans = IBM_Plex_Sans({
+  weight: ['400', '500', '600'],
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sans',
   display: 'swap',
   preload: true,
 })
@@ -42,11 +42,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${merriweather.variable} ${inter.variable}`}>
-      <head>
-        <link rel="preload" href="/_next/static/media/merriweather-v30-latin-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/_next/static/media/inter-v13-latin-regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-      </head>
+    <html lang="en" className={`${ibmPlexSerif.variable} ${ibmPlexSans.variable}`}>
       <body className="font-sans bg-surface-color text-text-secondary">
         <AuthProvider>
           <div className="min-h-screen">
