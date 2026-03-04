@@ -247,7 +247,7 @@ export default function HomePage() {
               </p>
             </Stack>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Institutional Trust */}
               <Stack gap="xs" className="border-l-2 border-accent-color/60 pl-6">
                 <div className="flex items-center gap-3">
@@ -347,37 +347,6 @@ export default function HomePage() {
                 <Link href="/security" className="text-accent-color text-sm hover:underline mt-2">Security documentation →</Link>
               </Stack>
 
-              {/* Relational Trust */}
-              <Stack gap="xs" className="border-l-2 border-accent-color/60 pl-6">
-                <div className="flex items-center gap-3">
-                  <svg className="w-6 h-6 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <h3 className="text-h3 text-text-primary">Relational Trust</h3>
-                </div>
-
-                <Stack gap="xs" className="text-sm">
-                  <p className="text-text-secondary/90 leading-relaxed">
-                    Founded by former M&A advisors with transaction experience across professional services, manufacturing, and SaaS sectors. Direct support from our team for complex valuations.
-                  </p>
-
-                  <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Pricing Model:</p>
-                    <p className="text-text-secondary/70 text-xs leading-relaxed">
-                      Transparent fee structure with no hidden charges. Free tier for basic valuations. Enterprise pricing for high-volume broker firms.
-                    </p>
-                  </div>
-
-                  <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Professional Network:</p>
-                    <p className="text-text-secondary/70 text-xs leading-relaxed">
-                      Advisor relationships with IBBA member firms, regional investment banks, and SBA preferred lenders. Methodology refined through practitioner feedback.
-                    </p>
-                  </div>
-                </Stack>
-
-                <Link href="/team" className="text-accent-color text-sm hover:underline mt-2">Meet the team →</Link>
-              </Stack>
             </div>
 
             {/* Partner Logos */}
