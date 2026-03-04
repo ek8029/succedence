@@ -23,7 +23,12 @@ export async function middleware(request: NextRequest) {
     '/how-it-works',
     '/free-business-valuation',
     '/broker-valuation-tool',
-    '/price-small-business'
+    '/price-small-business',
+    '/about',
+    '/case-studies',
+    '/security',
+    '/privacy',
+    '/contact'
   ]
 
   // Check if the current path is public (no auth needed)
@@ -32,7 +37,7 @@ export async function middleware(request: NextRequest) {
       return pathname === '/'
     }
     return pathname === route || pathname.startsWith(route + '/')
-  })
+  }) || pathname.startsWith('/blog/') || pathname.startsWith('/reports/')
 
   // Skip middleware for API routes, static files, and public routes
   if (pathname.startsWith('/api') || pathname.startsWith('/_next') || isPublicRoute) {

@@ -259,20 +259,20 @@ export default function HomePage() {
 
                 <Stack gap="xs" className="text-sm">
                   <p className="text-text-secondary/90 leading-relaxed">
-                    Licensed data sourced from IBBA quarterly market reports covering main street M&A transactions. Methodology independently reviewed by institutional buyers and M&A advisory firms.
+                    Industry multiples hardcoded from publicly available IBBA and BizBuySell market data. Algorithm applies documented risk adjustments to base multiples. All calculations independently reproducible.
                   </p>
 
                   <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Data Provenance:</p>
+                    <p className="text-text-secondary/80 text-xs mb-1">Data Sources:</p>
                     <p className="text-text-secondary/70 text-xs leading-relaxed">
-                      Transaction multiples derived from 20,000+ closed deals. Industry classifications align with NAICS taxonomy. Market data updated quarterly to reflect current conditions.
+                      50+ industry multiples based on market data covering 20,000+ transactions. Industry classifications use NAICS taxonomy. Data currently static (quarterly update process planned).
                     </p>
                   </div>
 
                   <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Professional Standards:</p>
+                    <p className="text-text-secondary/80 text-xs mb-1">Methodology Standards:</p>
                     <p className="text-text-secondary/70 text-xs leading-relaxed">
-                      Valuation approach consistent with NACVA and ASA guidelines for small business appraisal. Methodology documentation available for third-party review.
+                      Valuation approach aligns with market comparables methodology used by brokers and appraisers. Full algorithm documentation in /lib/valuation/ directory.
                     </p>
                   </div>
                 </Stack>
@@ -302,9 +302,9 @@ export default function HomePage() {
                   </div>
 
                   <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Track Record:</p>
+                    <p className="text-text-secondary/80 text-xs mb-1">Implementation Verification:</p>
                     <p className="text-text-secondary/70 text-xs leading-relaxed">
-                      Anonymised case studies from 500+ broker valuations. Used in LOI negotiations and SBA lending documentation.
+                      All calculations independently reproducible via source code in /lib/valuation/. Test cases included in codebase for validation.
                     </p>
                   </div>
                 </Stack>
@@ -323,23 +323,24 @@ export default function HomePage() {
 
                 <Stack gap="xs" className="text-sm">
                   <p className="text-text-secondary/90 leading-relaxed">
-                    SOC 2 Type II compliance in progress. Third-party security audits conducted annually. Infrastructure designed for institutional data handling requirements.
+                    Supabase-hosted infrastructure (SOC 2 Type II certified provider). Plan-based API rate limiting with violation logging. Session-based authentication with role-based access control.
                   </p>
 
                   <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Data Security:</p>
+                    <p className="text-text-secondary/80 text-xs mb-1">Implemented Security Measures:</p>
                     <ul className="text-text-secondary/70 text-xs space-y-0.5">
-                      <li>• AES-256 encryption at rest</li>
-                      <li>• TLS 1.3 for data in transit</li>
-                      <li>• Role-based access controls</li>
-                      <li>• Comprehensive audit logging</li>
+                      <li>• Database encryption at rest (Supabase)</li>
+                      <li>• TLS for data in transit</li>
+                      <li>• Supabase Row-Level Security policies</li>
+                      <li>• Usage violation audit logging</li>
+                      <li>• IP address + user agent tracking</li>
                     </ul>
                   </div>
 
                   <div className="pl-4 border-l border-text-secondary/30">
-                    <p className="text-text-secondary/80 text-xs mb-1">Compliance Readiness:</p>
+                    <p className="text-text-secondary/80 text-xs mb-1">Current Limitations:</p>
                     <p className="text-text-secondary/70 text-xs leading-relaxed">
-                      Data retention policies align with financial services standards. Regular penetration testing and vulnerability assessments.
+                      No SOC 2 certification for Succedence itself (only infrastructure provider). No third-party penetration testing conducted. No 2FA currently available.
                     </p>
                   </div>
                 </Stack>
@@ -349,16 +350,10 @@ export default function HomePage() {
 
             </div>
 
-            {/* Partner Logos */}
+            {/* Data Sources */}
             <div className="pt-8 border-t border-text-secondary/20">
-              <p className="text-center text-sm text-text-secondary/60 mb-6">Trusted data sources and partners</p>
-              <div className="flex flex-wrap items-center justify-center gap-12 opacity-60 grayscale mb-6">
-                <div className="text-text-secondary font-semibold text-lg" aria-label="IBBA Partner">IBBA</div>
-                <div className="text-text-secondary font-semibold text-lg" aria-label="Market Data Provider">BizBuySell</div>
-                <div className="text-text-secondary font-semibold text-lg" aria-label="Valuation Standards">NACVA</div>
-              </div>
-              <p className="text-center text-xs text-text-secondary/50">
-                Market data sourced from licensed IBBA quarterly reports and DealStats transaction database. Industry multiples reviewed and updated quarterly.
+              <p className="text-center text-xs text-text-secondary/50 max-w-2xl mx-auto">
+                Industry multiples are hardcoded values derived from publicly available IBBA and BizBuySell market data. These are static reference points, not live data feeds. Updates planned for future quarterly refresh cycles.
               </p>
             </div>
           </Stack>
