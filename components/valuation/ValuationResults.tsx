@@ -246,49 +246,53 @@ export function ValuationResults({ valuation, input = {} }: ValuationResultsProp
       </div>
 
       {/* Two Column Layout */}
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:auto-rows-fr">
         {/* Strengths */}
-        <div className="glass rounded-luxury border border-white/10 p-6 flex-1">
-          <h3 className="text-warm-white font-semibold mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="glass rounded-luxury border border-white/10 p-6 flex flex-col min-h-0">
+          <h3 className="text-warm-white font-semibold mb-4 flex items-center gap-2 flex-shrink-0">
+            <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Key Strengths
           </h3>
-          {keyStrengths.length > 0 ? (
-            <ul className="space-y-2">
-              {keyStrengths.map((strength, i) => (
-                <li key={i} className="flex items-start gap-2 text-silver/80 text-sm">
-                  <span className="text-green-400 mt-1">+</span>
-                  {strength}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-silver/60 text-sm">No significant strengths identified based on provided data.</p>
-          )}
+          <div className="flex-grow">
+            {keyStrengths.length > 0 ? (
+              <ul className="space-y-2">
+                {keyStrengths.map((strength, i) => (
+                  <li key={i} className="flex items-start gap-2 text-silver/80 text-sm">
+                    <span className="text-green-400 mt-1 flex-shrink-0">+</span>
+                    {strength}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-silver/60 text-sm">No significant strengths identified based on provided data.</p>
+            )}
+          </div>
         </div>
 
         {/* Red Flags */}
-        <div className="glass rounded-luxury border border-white/10 p-6 flex-1">
-          <h3 className="text-warm-white font-semibold mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="glass rounded-luxury border border-white/10 p-6 flex flex-col min-h-0">
+          <h3 className="text-warm-white font-semibold mb-4 flex items-center gap-2 flex-shrink-0">
+            <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             Risk Factors
           </h3>
-          {redFlags.length > 0 ? (
-            <ul className="space-y-2">
-              {redFlags.map((flag, i) => (
-                <li key={i} className="flex items-start gap-2 text-silver/80 text-sm">
-                  <span className="text-red-400 mt-1">!</span>
-                  {flag}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-silver/60 text-sm">No significant risk factors identified.</p>
-          )}
+          <div className="flex-grow">
+            {redFlags.length > 0 ? (
+              <ul className="space-y-2">
+                {redFlags.map((flag, i) => (
+                  <li key={i} className="flex items-start gap-2 text-silver/80 text-sm">
+                    <span className="text-red-400 mt-1 flex-shrink-0">!</span>
+                    {flag}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-silver/60 text-sm">No significant risk factors identified.</p>
+            )}
+          </div>
         </div>
       </div>
 
